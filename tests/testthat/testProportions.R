@@ -33,7 +33,7 @@ test_that("error generated when max is not equal to 1 or 100",{
 
 _________________________________________________________________________________________
 # import test data
-prop_test_data <- read_excel(".\\tests\\testthat\\Test Data.xlsx", sheet=1, col_names=TRUE)
+prop_test_data <- read_excel(".\\tests\\testthat\\Proportion_testdata.xlsx", sheet=1, col_names=TRUE)
 
 # test function
 output_95 <- binom.wilson.ci(PropTestData$numerator,PropTestData$denominator) %>%

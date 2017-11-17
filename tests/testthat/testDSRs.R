@@ -2,8 +2,8 @@
 library(readxl)
 
 # import test data
-DSR_testdata_small <- read_excel("DSR_TestData.xlsx", sheet=1, col_names=TRUE)
-DSR_testdata_big <- read_excel("DSR_TestData.xlsx", sheet=3, col_names=TRUE)
+DSR_testdata_small <- read_excel(".\\tests\\testdata\\DSR_TestData.xlsx", sheet=1, col_names=TRUE)
+DSR_testdata_big <- read_excel(".\\tests\\testdata\\DSR_TestData.xlsx", sheet=3, col_names=TRUE)
 
 
 # the following shows the epitools ageadjust.direct function works for crude rate and adjusted rate but is using a diff CI method
