@@ -11,5 +11,5 @@ DSR_testdata_big <- read_excel(".\\tests\\testdata\\DSR_TestData.xlsx", sheet=3,
 # could still use this function but replace the CI calc so it uses exact method when numerator <389 (or 100 better ???) then use Byars for greater numerators  with the
 ageadjust.direct(DSR_testdata_small$count, DSR_testdata_small$pop, rate = NULL, DSR_testdata_small$stdpop, conf.level = 0.95)
 
-
+-----
 # dsrTest::dobsonControl - tests results to see which DSr Ci method ewas applied.
