@@ -1,0 +1,16 @@
+Package: PHEstatmethods
+Type: Package
+Title: Common Public Health Statistics and their Confidence Intervals 
+Description: Functions to calculate the following statistics:
+    1. proportions and their CIs using Wilson score methodVersion: 0.1.0
+Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@phe.gov.uk", c("aut", "cre")))
+BugReports: https://gitlab.phe.gov.uk/Georgina.Anderson/PHEstatmethods/issues
+Version: 0.0.0.9000
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends: R >= 3.1.0
+Imports: binom,
+         dplyr,
+         epitools
+Suggests: testthat
