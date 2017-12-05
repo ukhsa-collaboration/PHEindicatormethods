@@ -1,17 +1,21 @@
 Package: PHEstatmethods
 Type: Package
+Version: 0.0.0.9000
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate the following statistics:
-    1. proportions and their CIs using Wilson score methodVersion: 0.1.0
-Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@phe.gov.uk", c("aut", "cre")))
+    1. proportions and their CIs using Wilson score method
+    2. rates and their CIs using Byar's method
+    3. DSRs and their CIs using Dobson method
+    4. SMRs and their CIs using 
+Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@phe.gov.uk", c("aut", "cre")),
+             person("Fox", "Sebastian", , "sebastian.fox@phe.gov.uk", c("ctb")),
+             person("Francis", "Matthew", , "matthew.francis@phe.gov.uk", c("ctb")),
+             person("Fryers", "Paul", , "paul.fryers@phe.gov.uk", c("ctb")))
 BugReports: https://gitlab.phe.gov.uk/Georgina.Anderson/PHEstatmethods/issues
-Version: 0.0.0.9000
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Depends: R >= 3.1.0
 Imports: binom,
-         dplyr,
-         dsrTest,
-         epitools
+         dplyr
 Suggests: testthat
+RoxygenNote: 6.0.1
