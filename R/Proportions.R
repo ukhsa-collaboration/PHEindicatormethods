@@ -29,13 +29,15 @@ phe_proportion <- function(x, n, conf.level=0.95, percentage=FALSE) {
 
 # validate arguments
       if (any(x < 0)) {
-              stop("numerator must be greater than or equal to zero")
+              stop("numerators must be greater than or equal to zero")
       } else if (any(n <= 0)) {
-              stop("denominator must be greater than zero")
+              stop("denominators must be greater than zero")
       } else if (any(x > n)) {
-              stop("numerator must be less than or equal to denominator for a proportion statistic")
+              stop("numerators must be less than or equal to denominator for a proportion statistic")
       } else if ((conf.level<0.9)|(conf.level >1 & conf.level <90)|(conf.level > 100)) {
-              stop("confidence interval must be >= 90 and <= 100 (or >= 0.9 and <= 1)")
+              stop("confidence level must be >= 90 and <= 100 (or >= 0.9 and <= 1)")
+      } else if (length(x) != length(n)) {
+              stop("numerator and denominator vectors must be of equal length")
       }
 
 

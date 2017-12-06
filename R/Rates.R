@@ -24,7 +24,7 @@ phe_rate <- function(x, n, conf.level = 0.95, multiplier = 100000) {
   } else if (any(n <= 0)) {
     stop("denominators must be greater than zero")
   } else if ((conf.level<0.9)|(conf.level >1 & conf.level <90)|(conf.level > 100)) {
-    stop("confidence interval must be >= 90 and <= 100 (or >= 0.9 and <= 1)")
+    stop("confidence level must be >= 90 and <= 100 (or >= 0.9 and <= 1)")
   }
 
 # scale confidence level
@@ -34,8 +34,24 @@ phe_rate <- function(x, n, conf.level = 0.95, multiplier = 100000) {
 
 # calculate rate and CIs
   rate <- x/n*multiplier
-  lowercl<-byars_lower(x,conf.level)/n*multiplier
-  uppercl<-byars_upper(x, conf.level)/n*multiplier
+
+# apply different CI method for x < 10 and x >= 10
+
+    lowercl <- numeric()
+    uppercl <- numeric()
+
+    for (i in 1:length(x)) {
+    if (x[i] < 10) {
+           lowercl_tmp <- qchisq((1-conf.level)/2,2*x[i])/2/n[i]*multiplier
+           uppercl_tmp <- qchisq(conf.level+(1-conf.level)/2,2*x[i]+2)/2/n[i]*multiplier
+    } else lowercl_tmp <- byars_lower(x[i],conf.level)/n[i]*multiplier
+           uppercl_tmp <- byars_upper(x[i],conf.level)/n[i]*multiplier
+
+   lowercl <- rbind(lowercl,lowercl_tmp)
+   uppercl <- rbind(uppercl,uppercl_tmp)
+
+  }
+
 
 # construct output
   phe_rate <- data.frame("Byars", x, n, rate, lowercl, uppercl)

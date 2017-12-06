@@ -19,7 +19,7 @@ byars_lower <- function(x, conf.level = 0.95) {
   if (any(x < 0)) {
     stop("observed events (x) must all be greater than or equal to zero")
   } else if ((conf.level<0.9)|(conf.level >1 & conf.level <90)|(conf.level > 100)) {
-    stop("confidence interval must be >= 90 and <= 100 (or >= 0.9 and <= 1)")
+    stop("confidence level must be >= 90 and <= 100 (or >= 0.9 and <= 1)")
   }
 
 
@@ -28,10 +28,9 @@ byars_lower <- function(x, conf.level = 0.95) {
       conf.level <- conf.level/100
     }
 
-  byars_lower <- x*(1-1/(9*x)-qnorm(conf.level/2)/(3*sqrt(x)))^3
+  byars_lower <- x*(1-1/(9*x)-qnorm(conf.level+(1-conf.level)/2)/(3*sqrt(x)))^3
   return(byars_lower)
 }
-
 
 
 # -------------------------------------------------------------------------------------------------
@@ -56,7 +55,7 @@ byars_upper <- function(x, conf.level = 0.95) {
   if (any(x < 0)) {
     stop("observed events (x) must all be greater than or equal to zero")
   } else if ((conf.level<0.9)|(conf.level >1 & conf.level <90)|(conf.level > 100)) {
-    stop("confidence interval must be >= 90 and <= 100 (or >= 0.9 and <= 1)")
+    stop("confidence level must be >= 90 and <= 100 (or >= 0.9 and <= 1)")
   }
 
 
@@ -65,7 +64,7 @@ byars_upper <- function(x, conf.level = 0.95) {
       conf.level <- conf.level/100
     }
 
-  byars_upper <- (x+1)*(1-1/(9*(x+1))+qnorm(conf.level/2)/(3*sqrt(x+1)))^3
+  byars_upper <- (x+1)*(1-1/(9*(x+1))+qnorm(conf.level+(1-conf.level)/2)/(3*sqrt(x+1)))^3
   return(byars_upper)
 }
 

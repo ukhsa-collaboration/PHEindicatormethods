@@ -39,14 +39,18 @@ testobs <- c(27,45,55,100,125,300,295,270,275,450,455,459,345,300,
 phe_dsr <- function(x,n,stdpop = esp2013, conf.level = 0.95, multiplier = 100000) {
 
 # validate arguments
-  if (x < 0) {
+  if (any(x < 0)) {
     stop("numerators must all be greater than or equal to zero")
-  } else if (n <= 0) {
+  } else if (any(n <= 0)) {
     stop("denominators must all be greater than zero")
   } else if ((conf.level<0.9)|(conf.level >1 & conf.level <90)|(conf.level > 100)) {
-    stop("confidence interval must be >= 90 and <= 100 (or >= 0.9 and <= 1)")
-  } else if (length(x) != length(n)|length(x) != length(stdpop)) {
-    stop("x, n and stdpop must all be of equal length)")
+    stop("confidence level must be >= 90 and <= 100 (or >= 0.9 and <= 1)")
+  } else if (length(x) != length(n)) {
+    stop("numerator and denominator vectors must be of equal length")
+  } else if (length(x) %% length(stdpop) !=0) {
+    stop("numerator vector length must be a multiple of standard population vector length")
+  } else if (sum(x) < 10) {
+    stop("DSR calculation is not valid for total counts < 10")
   }
 
 # scale confidence level
