@@ -1,5 +1,5 @@
 library(testthat)
-library(PHEstatmethods)
+library(readxl)
 
 context("test_phe_rates")
 
@@ -30,8 +30,5 @@ test_that("errors are generated when invalid arguments are used",{
   expect_error(phe_rate(-65,100),"numerators must be greater than or equal to zero")
   expect_error(phe_rate(65,-100),"denominators must be greater than zero")
   expect_error(phe_rate(65,0),"denominators must be greater than zero")
-  expect_error(phe_rate(100,65),"numerators must be less than or equal to denominator
-               for a proportion statistic")
-  expect_error(phe_rate(65,100,conf.level=20),"confidence level must be >= 90 and
-               <= 100 (or >= 0.9 and <= 1)")
+  expect_error(phe_rate(65,100,conf.level=20),"confidence level must be >= 90 and <= 100 (or >= 0.9 and <= 1)")
 })

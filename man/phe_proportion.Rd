@@ -7,11 +7,13 @@
 phe_proportion(x, n, conf.level = 0.95, percentage = FALSE)
 }
 \arguments{
-\item{x}{a vector of numerators; numeric; no default}
+\item{x}{the observed numbers of individuals in the sample(s)/population(s)
+having the specified characteristic; numeric vector; no default}
 
-\item{n}{a vector of denominators; numeric; no default}
+\item{n}{the total number of individuals in the sample(s)/population(s);
+numeric vector; no default}
 
-\item{conf.level}{the level of confidence required expressed as a number between 0.9 and 1
+\item{conf.level}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
 \item{percentage}{whether the output should be returned as a percentage; logical; default FALSE}

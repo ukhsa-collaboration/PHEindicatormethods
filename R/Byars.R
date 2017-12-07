@@ -5,6 +5,8 @@
 #' @param conf.level the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #'
+#' @export
+#'
 #' @return Returns a lower confidence limit
 #'
 #' @examples
@@ -40,6 +42,7 @@ byars_lower <- function(x, conf.level = 0.95) {
 #' @param conf.level the level of confidence required expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #'
+#' @export
 #'
 #' @return Returns an upper confidence limit
 #'

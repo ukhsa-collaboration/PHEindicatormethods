@@ -7,11 +7,11 @@
 phe_rate(x, n, conf.level = 0.95, multiplier = 1e+05)
 }
 \arguments{
-\item{x}{the numerator; numeric; no default}
+\item{x}{the observed number(s) of events; numeric vector; no default}
 
-\item{n}{the denominator; numeric; no default}
+\item{n}{the denominator (eg population-years at risk); numeric vector; no default}
 
-\item{conf.level}{the level of confidence required expressed as a number between 0.9 and 1
+\item{conf.level}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
 \item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000,

@@ -9,7 +9,7 @@
 #'                   100 = percentage); numeric; default 100,000
 #'
 #' @return Returns a data frame of method, numerator, denominator, rate and confidence limits
-#'
+#' @export
 #' @examples
 #' phe_rate(65,100)
 #' phe_rate(65,100,99.8,100)

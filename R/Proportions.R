@@ -17,6 +17,8 @@
 #'
 #' @import dplyr
 #' @import binom
+#' @export
+#'
 #' @family phe statistical functions
 #' @seealso \code{\link{phe_proportion}} for proportions,
 #'          \code{\link{phe_rate}} for rates,

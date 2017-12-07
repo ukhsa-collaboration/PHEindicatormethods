@@ -9,7 +9,7 @@ byars_lower(x, conf.level = 0.95)
 \arguments{
 \item{x}{the observed number of events; numeric; no default}
 
-\item{conf.level}{the level of confidence required expressed as a number between 0.9 and 1
+\item{conf.level}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 }
 \value{
