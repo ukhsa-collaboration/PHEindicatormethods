@@ -42,9 +42,9 @@ phe_rate <- function(x, n, conf.level = 0.95, multiplier = 100000) {
 
     for (i in 1:length(x)) {
     if (x[i] < 10) {
-           lowercl_tmp <- qchisq((1-conf.level)/2,2*x[i])/2/n[i]*multiplier
+           lowercl_tmp <- qchisq((1-conf.level)/2,2*x[i])/2/n[i]*multiplier;
            uppercl_tmp <- qchisq(conf.level+(1-conf.level)/2,2*x[i]+2)/2/n[i]*multiplier
-    } else lowercl_tmp <- byars_lower(x[i],conf.level)/n[i]*multiplier
+    } else lowercl_tmp <- byars_lower(x[i],conf.level)/n[i]*multiplier;
            uppercl_tmp <- byars_upper(x[i],conf.level)/n[i]*multiplier
 
    lowercl <- rbind(lowercl,lowercl_tmp)
