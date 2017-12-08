@@ -4,77 +4,66 @@
 
 # -------------------------------------------------------------------------------------------------
 
-# define the European Standard Population
-esp2013 <- c(5000,5500,5500,5500,6000,6000,6500,7000,7000,
-             7000,7000,6500,6000,5500,5000,4000,2500,1500,1000)
-
-##test data - remove later)
-testpop <- c(84935,80367,72122,79259,99806,87362,81579,71103,
-             70001,69007,63203,52638,46087,40887,32604,28399,
-             21625,13021,7355)
-testobs <- c(27,45,55,100,125,300,295,270,275,450,455,459,345,300,
-             270,265,100,90,35)
+# Load test data
+bigdata          <- read_excel(".\\tests\\testthat\\testdata_ISR.xlsx", sheet="testdata_big", col_names=TRUE)
+smalldata        <- read_excel(".\\tests\\testthat\\testdata_ISR.xlsx", sheet="testdata_small", col_names=TRUE)
+multiareadata    <- read_excel(".\\tests\\testthat\\testdata_ISR.xlsx", sheet="testdata_multiarea", col_names=TRUE)
+testdata_results <- read_excel(".\\tests\\testthat\\testdata_ISR.xlsx", sheet="testresults", col_names=TRUE)
+refdata          <- read_excel(".\\tests\\testthat\\testdata_ISR.xlsx", sheet="refdata", col_names=TRUE)
 
 
+phe_isr <- function(x,n,ref_x, ref_n, groupref = 1, conf.level = 0.95, percentage = FALSE) {
 
-# -------------------------------------------------------------------------------------------------
-#' Calculates an indirectly standardised rate with confidence limits using Byar's method.
-#'
-#' @param x the observed number of events for each standardisation category (eg age band);
-#'          numeric vector; no default
-#' @param n the population for each standardisation category (eg age band);
-#'          numeric vector; no default
-#' @param ref_x the observed number(s) of events in the reference population for each standardisation
-#'              category
-#'               (eg age band); numeric vector; default is the European Standard Population 2013
-#'              with 19 five-year age band categories
-#' @param ref_n
-#' @param conf.level the required level of confidence expressed as a number between 0.9 and 1
-#'                   or 90 and 100; numeric; default 0.95
-#' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000,
-#'                   100 = percentage); numeric; default 100,000
-#'
-#' @return Returns a data frame of method, numerator, denominator, directly standardised rate
-#'         and confidence interval limits
-#'
-#' @examples
-#' phe_dsr(c(27,45,55,100,125,300,295,270,275,450,455,459,345,300,270,265,100,90,35),
-#'         c(84935,80367,72122,79259,99806,87362,81579,71103,70001,
-#'           69007,63203,52638,46087,40887,32604,28399,21625,13021,7355),conf.level = 0.998)
-# -------------------------------------------------------------------------------------------------
-
-# define the DSR function
-phe_dsr <- function(x,n,stdpop = esp2013, conf.level = 0.95, multiplier = 100000) {
-
-  # validate arguments
-  if (x < 0) {
-    stop("numerators must all be greater than or equal to zero")
-  } else if (n <= 0) {
-    stop("denominators must all be greater than zero")
-  } else if ((conf.level<0.9)|(conf.level >1 & conf.level <90)|(conf.level > 100)) {
-    stop("confidence interval must be >= 90 and <= 100 (or >= 0.9 and <= 1)")
-  } else if (length(x) != length(n)|length(x) != length(stdpop)) {
-    stop("x, n and stdpop must all be of equal length)")
-  }
-
-  # scale confidence level
+# scale confidence level
   if (conf.level >= 90) {
     conf.level <- conf.level/100
   }
 
-  # Calculate DSR
-  dsr <- sum(x * stdpop / n) / sum(stdpop) * multiplier
+# calculate ISR and CIs
+  phe_isr <- data.frame(x, n, ref_x, ref_n, groupref) %>%
+    group_by(groupref) %>%
+    mutate(pred_x = ref_x/ref_n * n) %>%
+    summarise(total_count = sum(x),
+              total_pop = sum(n),
+              dsr = sum(wt_rate) / sum(stdpop) * multiplier,
+              vardsr = 1/sum(stdpop)^2 * sum(sq_rate),
+              lowercl = dsr + sqrt((vardsr/sum(x)))*(byars_lower(sum(x),conf.level)-sum(x)) * multiplier,
+              uppercl = dsr + sqrt((vardsr/sum(x)))*(byars_upper(sum(x),conf.level)-sum(x)) * multiplier) %>%
+    mutate(method = "Dobson") %>%
+    select(method, groupref, total_count, total_pop, dsr, lowercl, uppercl)
 
-  # Calculate CIs using Byars function created in Rates.R
-  vardsr  <- 1/sum(stdpop)^2 * sum((stdpop^2 * x) / n^2)
-  lowercl <- dsr + sqrt((vardsr/sum(x)))*(byars_lower(sum(x))-sum(x)) * multiplier
-  uppercl <- dsr + sqrt((vardsr/sum(x)))*(byars_upper(sum(x))-sum(x)) * multiplier
 
-
-  phe_dsr <- data.frame("Dobson",sum(x), sum(n), dsr, lowercl, uppercl)
-  names(phe_dsr) <- c("method","sum(numerator)","sum(denominator)","rate",
+  names(phe_dsr) <- c("method", "group", "total_count", "total_pop", "dsr",
                       paste("lower",conf.level*100,"cl",sep=""),
                       paste("upper",conf.level*100,"cl",sep=""))
+
   return(phe_dsr)
 
+
 }
+
+
+phe_isr <- data.frame(count = multiareadata$count,
+                      pop = multiareadata$pop,
+                      refcount = refdata$refcount,
+                      refpop = refdata$refpop,
+                      group = multiareadata$area) %>%
+  mutate(pred_x = refcount/refpop * pop) %>%
+  group_by(group) %>%
+  summarise(obs = sum(count),
+            exp = sum(pred_x),
+            isr = obs / exp * 100,
+            lowercl_tmp <- byars_lower(obs,0.95)/exp*100,
+            uppercl_tmp <- byars_upper(obs,0.95)/exp*100)
+  mutate(method = "Dobson") %>%
+  select(method, groupref, total_count, total_pop, dsr, lowercl, uppercl)
+
+}
+
+
+
+#SMR.table(multiareadata, group.var="area", obs.var="count", pred.var="pred_var",
+#          digits = 5, use.label = FALSE, var.labels = attr(data, "var.labels"),
+#          ci.method = "Byar", ci.level = 0.95, reorder = c("no","SMR", "lower.Cl", "upper.Cl"),
+#          decreasing = FALSE)
+
