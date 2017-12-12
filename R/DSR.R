@@ -64,6 +64,8 @@ phe_dsr <- function(x,n,stdpop = esp2013, groupref = 1, conf.level = 0.95, multi
     select(method, groupref, total_count, total_pop, dsr, lowercl, uppercl)
 
 
+  # remember to don't output dsr or cis for sum(x) < 10
+
   names(phe_dsr) <- c("method", "group", "total_count", "total_pop", "dsr",
                       paste("lower",conf.level*100,"cl",sep=""),
                       paste("upper",conf.level*100,"cl",sep=""))
