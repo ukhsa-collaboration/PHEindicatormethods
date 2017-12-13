@@ -6,9 +6,10 @@
 #' @param n the populations for each standardisation category (eg ageband) within each group (eg area);
 #'          numeric vector; no default
 #' @param stdpop the standard populations for each standardisation category
-#'               (eg age band); numeric vector; default is the European Standard Population 2013
-#'              divided into 19 five-year agebands: 0-4, 5-9, 10-14, .....90+
-#' @param groupref the
+#'               (eg age band); numeric vector; no default; the European Standard Population 2013
+#'              divided into 19 five-year agebands (0-4, 5-9, 10-14, .....90+) is available within the package
+#' @param groupref the grouping sets (eg area codes or area names) if calculating multiple DSRs at once,
+#'                 character vector, default = 1 (ie no grouping applied)
 #' @param conf.level the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000,
@@ -26,7 +27,7 @@
 # -------------------------------------------------------------------------------------------------
 
 # define the DSR function
-phe_dsr <- function(x,n,stdpop = esp2013, groupref = 1, conf.level = 0.95, multiplier = 100000) {
+phe_dsr <- function(x,n,stdpop, groupref = 1, conf.level = 0.95, multiplier = 100000) {
 
 # validate arguments
   if (any(x < 0)) {
@@ -39,8 +40,6 @@ phe_dsr <- function(x,n,stdpop = esp2013, groupref = 1, conf.level = 0.95, multi
     stop("numerator and denominator vectors must be of equal length")
   } else if (length(x) %% length(stdpop) !=0) {
     stop("numerator vector length must be a multiple of standard population vector length")
-  } else if (sum(x) < 10) {
-    stop("DSR calculation is not valid for total counts < 10")
   }
 
 # scale confidence level
@@ -60,15 +59,16 @@ phe_dsr <- function(x,n,stdpop = esp2013, groupref = 1, conf.level = 0.95, multi
               vardsr = 1/sum(stdpop)^2 * sum(sq_rate),
               lowercl = dsr + sqrt((vardsr/sum(x)))*(byars_lower(sum(x),conf.level)-sum(x)) * multiplier,
               uppercl = dsr + sqrt((vardsr/sum(x)))*(byars_upper(sum(x),conf.level)-sum(x)) * multiplier) %>%
-    mutate(method = "Dobson") %>%
-    select(method, groupref, total_count, total_pop, dsr, lowercl, uppercl)
+    select(groupref, total_count, total_pop, dsr, lowercl, uppercl) %>%
+    mutate(dsr     = if_else(total_count < 10,-1,dsr),
+           lowercl = if_else(total_count < 10,-1,lowercl),
+           uppercl = if_else(total_count < 10,-1,uppercl),
+           method  = if_else(total_count < 10,"NA","Dobson"))
 
 
-  # remember to don't output dsr or cis for sum(x) < 10
-
-  names(phe_dsr) <- c("method", "group", "total_count", "total_pop", "dsr",
+  names(phe_dsr) <- c("group", "total_count", "total_pop", "dsr",
                       paste("lower",conf.level*100,"cl",sep=""),
-                      paste("upper",conf.level*100,"cl",sep=""))
+                      paste("upper",conf.level*100,"cl",sep=""),"method")
 
   return(phe_dsr)
 
