@@ -7,13 +7,13 @@
 byars_lower(x, conf.level = 0.95)
 }
 \arguments{
-\item{x}{the observed number of events; numeric; no default}
+\item{x}{the observed number of events; numeric vector; no default}
 
 \item{conf.level}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 }
 \value{
-Returns a lower confidence limit
+Returns a lower confidence limit for an observed number of events usign Byar's method
 }
 \description{
 Calculates lower confidence limit for an observed number of events using Byar's method.
@@ -21,4 +21,16 @@ Calculates lower confidence limit for an observed number of events using Byar's 
 \examples{
 byars_lower(65)
 byars_lower(65,99.8)
+
+}
+\seealso{
+\code{\link{phe_proportion}} for proportions,
+         \code{\link{phe_rate}} for rates,
+         \code{\link{phe_mean}} for means,
+         \code{\link{phe_dsr}} for directly standardised rates,
+         \code{\link{phe_isr}} for indirectly standardised ratios/rates and standardised mortality ratios
+
+Other phe statistical functions: \code{\link{byars_upper}},
+  \code{\link{phe_dsr}}, \code{\link{phe_isr}},
+  \code{\link{phe_proportion}}, \code{\link{phe_rate}}
 }

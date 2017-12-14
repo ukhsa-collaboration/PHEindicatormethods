@@ -2,14 +2,16 @@
 % Please edit documentation in R/Rates.R
 \name{phe_rate}
 \alias{phe_rate}
-\title{Calculates a rate with confidence limits using Byar's method.}
+\title{Calculates a rate with confidence limits using Byar's or Exact CI method.}
 \usage{
-phe_rate(x, n, conf.level = 0.95, multiplier = 1e+05)
+phe_rate(x, n, row_label, conf.level = 0.95, multiplier = 1e+05)
 }
 \arguments{
 \item{x}{the observed number(s) of events; numeric vector; no default}
 
 \item{n}{the denominator (eg population-years at risk); numeric vector; no default}
+
+\item{row_label}{the label to give each row of output (eg area name); character vector, no default}
 
 \item{conf.level}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -18,12 +20,24 @@ or 90 and 100; numeric; default 0.95}
 100 = percentage); numeric; default 100,000}
 }
 \value{
-Returns a data frame of method, numerator, denominator, rate and confidence limits
+Returns a data frame of numerator, denominator, rate, lower and upper confidence limits and method
 }
 \description{
-Calculates a rate with confidence limits using Byar's method.
+Calculates a rate with confidence limits using Byar's or Exact CI method.
 }
 \examples{
 phe_rate(65,100)
 phe_rate(65,100,99.8,100)
+
+}
+\seealso{
+\code{\link{phe_proportion}} for proportions,
+         \code{\link{phe_rate}} for rates,
+         \code{\link{phe_mean}} for means,
+         \code{\link{phe_dsr}} for directly standardised rates,
+         \code{\link{phe_isr}} for indirectly standardised ratios/rates and standardised mortality ratios
+
+Other phe statistical functions: \code{\link{byars_lower}},
+  \code{\link{byars_upper}}, \code{\link{phe_dsr}},
+  \code{\link{phe_isr}}, \code{\link{phe_proportion}}
 }

@@ -4,7 +4,7 @@
 \alias{phe_proportion}
 \title{Calculates a proportion with confidence limits using Wilson method.}
 \usage{
-phe_proportion(x, n, conf.level = 0.95, percentage = FALSE)
+phe_proportion(x, n, row_label, conf.level = 0.95, percentage = FALSE)
 }
 \arguments{
 \item{x}{the observed numbers of individuals in the sample(s)/population(s)
@@ -13,13 +13,15 @@ having the specified characteristic; numeric vector; no default}
 \item{n}{the total number of individuals in the sample(s)/population(s);
 numeric vector; no default}
 
+\item{row_label}{the label to give each row of output (eg area name); character vector, no default}
+
 \item{conf.level}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
 \item{percentage}{whether the output should be returned as a percentage; logical; default FALSE}
 }
 \value{
-Returns a data frame of method, numerator, denominator, proportion and confidence limits
+Returns a data frame of numerator, denominator, proportion, lower and upper confidence limits and method
 }
 \description{
 Calculates a proportion with confidence limits using Wilson method.
@@ -27,11 +29,17 @@ Calculates a proportion with confidence limits using Wilson method.
 \examples{
 phe_proportion(65,100)
 phe_proportion(65,100,99.8,TRUE)
+phe_proportion(c(5,65,90,98),c(100,100,100,100))
 
 }
 \seealso{
 \code{\link{phe_proportion}} for proportions,
          \code{\link{phe_rate}} for rates,
+         \code{\link{phe_mean}} for means,
          \code{\link{phe_dsr}} for directly standardised rates,
-         \code{\link{phe_isr}} for indirectly standardised rates and standardised mortality ratios
+         \code{\link{phe_isr}} for indirectly standardised ratios/rates and standardised mortality ratios
+
+Other phe statistical functions: \code{\link{byars_lower}},
+  \code{\link{byars_upper}}, \code{\link{phe_dsr}},
+  \code{\link{phe_isr}}, \code{\link{phe_rate}}
 }

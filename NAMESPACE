@@ -3,6 +3,7 @@
 export(byars_lower)
 export(byars_upper)
 export(phe_dsr)
+export(phe_isr)
 export(phe_proportion)
 export(phe_rate)
 import(binom)
