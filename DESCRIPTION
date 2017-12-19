@@ -4,9 +4,9 @@ Version: 0.0.0.9000
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate the following statistics:
     1. proportions and their CIs using Wilson score method
-    2. rates and their CIs using Byar's method
+    2. rates and their CIs using Byar's or exact Poisson method
     3. DSRs and their CIs using Dobson method
-    4. SMRs and their CIs using 
+    4. SMRs and their CIs using Byar's or exact Poisson method 
 Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@phe.gov.uk", c("aut", "cre")),
              person("Fox", "Sebastian", , "sebastian.fox@phe.gov.uk", c("ctb")),
              person("Francis", "Matthew", , "matthew.francis@phe.gov.uk", c("ctb")),
@@ -18,5 +18,8 @@ LazyData: true
 Imports: binom,
          dplyr,
          readxl
-Suggests: testthat
+Suggests: testthat,
+    knitr,
+    rmarkdown
 RoxygenNote: 6.0.1
+VignetteBuilder: knitr

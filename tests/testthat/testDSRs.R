@@ -3,16 +3,6 @@ library(readxl)
 
 context("test_phe_dsr")
 
-# import test data
-test_DSR_multiarea <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testdata_multiarea", col_names=TRUE)
-test_DSR_1976      <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testdata_1976",     col_names=TRUE)
-test_DSR_err1      <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testdata_err1",      col_names=TRUE)
-test_DSR_err2      <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testdata_err2",      col_names=TRUE)
-test_DSR_err3      <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testdata_err3",      col_names=TRUE)
-test_DSR_results       <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testresults",   col_names=TRUE)
-
-test_DSR_results$group <- as.factor(test_DSR_results$group)
-
 #test calculations
 test_that("dsrs and CIs calculate correctly",{
   expect_equal(data.frame(phe_dsr(test_DSR_multiarea$count,

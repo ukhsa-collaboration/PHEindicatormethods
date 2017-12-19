@@ -3,14 +3,6 @@ library(readxl)
 
 context("test_phe_rate")
 
-# import test data
-test_Rate_100000 <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx",
-                                   sheet="testdata_Rate_100000", col_names=TRUE)
-test_Rate_100    <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx",
-                                   sheet="testdata_Rate_100", col_names=TRUE)
-
-test_Rate_100$Area      <- as.factor(test_Rate_100$Area)
-test_Rate_100000$Area   <- as.factor(test_Rate_100000$Area)
 
 #test calculations
 test_that("rates and CIs calculate correctly",{

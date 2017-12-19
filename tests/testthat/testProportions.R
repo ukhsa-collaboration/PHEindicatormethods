@@ -3,14 +3,6 @@ library(readxl)
 
 context("test_phe_proportion")
 
-# import test data
-test_Prop_1   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx",
-                                    sheet="testdata_Prop_1", col_names=TRUE)
-test_Prop_100 <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx",
-                                    sheet="testdata_Prop_100", col_names=TRUE)
-
-test_Prop_1$Area   <- as.factor(test_Prop_1$Area)
-test_Prop_100$Area <- as.factor(test_Prop_100$Area)
 
 # test calculations
 test_that("proportions and CIs calculate correctly",{
