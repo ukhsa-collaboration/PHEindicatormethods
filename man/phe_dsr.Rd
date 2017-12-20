@@ -5,7 +5,7 @@
 \title{Calculates a directly standardised rate with confidence limits using Dobson method.}
 \usage{
 phe_dsr(x, n, stdpop, groupref = "No Grouping", conf.level = 0.95,
-  multiplier = 100000)
+  multiplier = 1e+05)
 }
 \arguments{
 \item{x}{the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);

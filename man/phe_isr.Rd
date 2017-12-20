@@ -5,7 +5,7 @@
 \title{Calculates an indirectly standardised ratio or rate with confidence limits using Byars or Exact CI method.}
 \usage{
 phe_isr(x, n, x_ref, n_ref, groupref = "No Grouping", conf.level = 0.95,
-  ratio = TRUE, ref_0 = TRUE, multiplier = 100000)
+  ratio = TRUE, ref_0 = TRUE, multiplier = 1e+05)
 }
 \arguments{
 \item{x}{the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);

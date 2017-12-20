@@ -4,7 +4,7 @@
 \alias{phe_rate}
 \title{Calculates a rate with confidence limits using Byar's or Exact CI method.}
 \usage{
-phe_rate(x, n, row_label, conf.level = 0.95, multiplier = 100000)
+phe_rate(x, n, row_label, conf.level = 0.95, multiplier = 1e+05)
 }
 \arguments{
 \item{x}{the observed number(s) of events; numeric vector; no default}

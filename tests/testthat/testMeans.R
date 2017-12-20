@@ -3,8 +3,10 @@ library(readxl)
 
 context("test_phe_mean")
 
+#?? test1 gives error when run through devtools but not when run code below directly ???
+
 #test calculations
-test_that("dsrs and CIs calculate correctly",{
+test_that("means and CIs calculate correctly",{
   expect_equal(data.frame(phe_mean(test_Mean$values))[1:7],
                select(filter(test_Mean_results,area == "No grouping"),1:7),
                check.attributes=FALSE, check.names=FALSE,info="test1")
