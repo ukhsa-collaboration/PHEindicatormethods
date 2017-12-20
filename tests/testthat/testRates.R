@@ -22,7 +22,7 @@ test_that("rates and CIs calculate correctly",{
 
 
 # test error handling
-test_that("errors are generated when invalid arguments are used",{
+test_that("rates - errors are generated when invalid arguments are used",{
   expect_error(phe_rate(-65,100,"Area 1"),"numerators must be greater than or equal to zero", info="error test 1")
   expect_error(phe_rate(65,-100,"Area 1"),"denominators must be greater than zero", info="error test 2")
   expect_error(phe_rate(65,0,"Area 1"),"denominators must be greater than zero", info="error test 3")

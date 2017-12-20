@@ -113,7 +113,7 @@ phe_isr <- function(x,n,x_ref, n_ref, groupref = "No Grouping", conf.level = 0.9
              method  = if_else(obs<10,"Exact","Byars")) %>%
              select(1:3,5:7,4,8)
 
-   names(phe_isr) <- c("row label", "observed", "expected", "isr",
+   names(phe_isr) <- c("row_label", "observed", "expected", "isr",
                         paste("lower",conf.level*100,"cl",sep=""),
                         paste("upper",conf.level*100,"cl",sep=""), "reference rate", "method")
 

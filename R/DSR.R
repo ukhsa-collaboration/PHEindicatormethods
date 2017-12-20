@@ -72,7 +72,7 @@ phe_dsr <- function(x,n,stdpop, groupref = "No Grouping", conf.level = 0.95, mul
            method  = if_else(total_count < 10,"NA","Dobson"))
 
 
-  names(phe_dsr) <- c("row label", "total_count", "total_pop", "dsr",
+  names(phe_dsr) <- c("row_label", "total_count", "total_pop", "dsr",
                       paste("lower",conf.level*100,"cl",sep=""),
                       paste("upper",conf.level*100,"cl",sep=""),"method")
 

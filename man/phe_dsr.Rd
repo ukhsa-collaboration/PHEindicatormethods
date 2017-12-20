@@ -5,7 +5,7 @@
 \title{Calculates a directly standardised rate with confidence limits using Dobson method.}
 \usage{
 phe_dsr(x, n, stdpop, groupref = "No Grouping", conf.level = 0.95,
-  multiplier = 1e+05)
+  multiplier = 100000)
 }
 \arguments{
 \item{x}{the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
@@ -48,5 +48,6 @@ phe_dsr(c(27,45,55,100,125,300,295,270,275,450,455,459,345,300,270,265,100,90,35
 
 Other phe statistical functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_isr}},
-  \code{\link{phe_proportion}}, \code{\link{phe_rate}}
+  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
+  \code{\link{phe_rate}}
 }

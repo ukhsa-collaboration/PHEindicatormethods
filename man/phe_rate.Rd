@@ -4,7 +4,7 @@
 \alias{phe_rate}
 \title{Calculates a rate with confidence limits using Byar's or Exact CI method.}
 \usage{
-phe_rate(x, n, row_label, conf.level = 0.95, multiplier = 1e+05)
+phe_rate(x, n, row_label, conf.level = 0.95, multiplier = 100000)
 }
 \arguments{
 \item{x}{the observed number(s) of events; numeric vector; no default}
@@ -39,5 +39,6 @@ phe_rate(65,100,99.8,100)
 
 Other phe statistical functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_proportion}}
+  \code{\link{phe_isr}}, \code{\link{phe_mean}},
+  \code{\link{phe_proportion}}
 }

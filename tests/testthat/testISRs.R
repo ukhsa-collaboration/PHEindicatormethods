@@ -48,7 +48,7 @@ test_that("isrs and CIs calculate correctly",{
 
 
 # test error handling
-test_that("errors are generated when invalid arguments are used",{
+test_that("isrs - errors are generated when invalid arguments are used",{
   expect_error(data.frame(phe_isr(test_ISR_err1$count,
                                   test_ISR_err1$pop,
                                   test_ISR_refdata$refcount,

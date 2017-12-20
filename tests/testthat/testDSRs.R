@@ -39,7 +39,7 @@ test_that("dsrs and CIs calculate correctly",{
 })
 
 # test error handling
-test_that("errors are generated when invalid arguments are used",{
+test_that("dsrs - errors are generated when invalid arguments are used",{
   expect_error(data.frame(phe_dsr(test_DSR_err1$count,
                                   test_DSR_err1$pop,
                                   stdpop = esp2013,

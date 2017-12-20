@@ -41,5 +41,6 @@ phe_proportion(c(5,65,90,98),c(100,100,100,100))
 
 Other phe statistical functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_rate}}
+  \code{\link{phe_isr}}, \code{\link{phe_mean}},
+  \code{\link{phe_rate}}
 }

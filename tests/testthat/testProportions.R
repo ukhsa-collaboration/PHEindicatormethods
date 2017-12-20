@@ -22,7 +22,7 @@ test_that("proportions and CIs calculate correctly",{
 
 
 # test error handling
-test_that("errors are generated when invalid arguments are used",{
+test_that("proportions - errors are generated when invalid arguments are used",{
   expect_error(phe_proportion(-65,100),"numerators must be greater than or equal to zero", info="error test 1")
   expect_error(phe_proportion(65,-100),"denominators must be greater than zero", info="error test 1")
   expect_error(phe_proportion(65,0),"denominators must be greater than zero", info="error test 1")

@@ -65,7 +65,7 @@ phe_proportion <- function(x, n, row_label, conf.level=0.95, percentage=FALSE) {
                     select(1,3:7,2)
 
   # set column names
-  names(phe_proportion) <- c("row label","numerator","denominator","proportion",
+  names(phe_proportion) <- c("row_label","numerator","denominator","proportion",
                            paste("lower",conf.level*100,"cl",sep=""),
                            paste("upper",conf.level*100,"cl",sep=""),"method")
 

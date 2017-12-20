@@ -54,7 +54,7 @@ phe_rate <- function(x, n, row_label, conf.level = 0.95, multiplier = 100000) {
               method  = if_else(x < 10, "Exact","Byars"))
 
   # set column names
-  names(phe_rate) <- c("row label","numerator","denominator","rate",
+  names(phe_rate) <- c("row_label","numerator","denominator","rate",
                        paste("lower",conf.level*100,"cl",sep=""),
                        paste("upper",conf.level*100,"cl",sep=""),"method")
   return(phe_rate)
