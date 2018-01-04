@@ -1,5 +1,5 @@
 ---
-title: "Vignette for calculating DSRs using the PHEstatmethods package"
+title: "Calculating DSRs using the PHEstatmethods package"
 author: "Georgina Anderson"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -16,57 +16,129 @@ knitr::opts_chunk$set(
 )
 ```
 
-# DRAFT - work-in-progress
 
-## What does the sample code do?
-This vignette documents the requirements and method for calculating DSRs using the phe_dsr function
-
-The function can calculate DSRs for multiple geographic areas and/or multiple genders.  The function takes the following inputs:
-* x - a numeric vector containing the numerators
-* n 
-* stdpop
-* groupref
+## Introduction
+This vignette documents the requirements and method for calculating DSRs using the PHEstatmethods::phe_dsr function 
+which calculates DSRs and their confidence limits using the Dobson method.
 
 
-## Caution
-* ensure that deaths data is padded so a record exists for every geography and age band combination - 
-  even when there were no deaths in that group
+The function can be used to calculate DSRs for grouping single or multiple geographic areas and genders in a single execution.
+
+
+The function takes the following arguments as inputs:
+
+| Argument  | Type            | Definition                                                                |Default value  |
+|:----------|:----------------|:--------------------------------------------------------------------------|:--------------|
+| x         | numeric vector  | observed number of events for each standardisation category (eg ageband) within each grouping set (eg area)    | none          |
+| n         | numeric vector  | populations for each standardisation category (eg ageband) within each grouping set (eg area)               | none          |
+| stdpop    | numeric vector  | standard populations for each standardisation category (eg age band) the European Standard Population 2013 divided into 19 five-year agebands (0-4, 5-9, 10-14, .....90+) is available within the package and can be referenced using esp2013   | none          | 
+| groupref  | character vector| grouping sets (eg area codes or area names) if calculating multiple DSRs at once      | "No Grouping" |
+| conf.level| numeric value   | the required level of confidence expressed as a number between 0.9 and 1 or 90 and 100  | 0.95          |
+| multiplier| numeric value   | the multiplier used to express the final values (eg 100,000 = rate per 100,000, 100 = percentage)                          | 100,000       |
+
+
+
+## Libraries
+
+```{r libraries, message=FALSE}
+library(PHEstatmethods)
+library(phecharts)
+library(RODBC)
+library(dplyr)
+library(testthat)
+```
+
+
+## First a few words of caution
+* ensure that numeric vectors x, n and stdpop all contain an element for every groupref / standardisation category (eg age group)
+  combination - when there are no deaths in an age group the vector needs to hold a zero to represent this value
 * ensure the vectors x and n are ordered by the same area and ageband values
-* ensure the standard population reference is ordered by the same age band values
+* ensure the standard population reference is ordered by the same age band values.  Note that the stdpop vector does not need to be   duplicated when data is being passed for multiple geographies
 
+## Now let's extract some data to play with
 
-
-
-
-# The following needs deleting (useful syntax from template):
-
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+#### Define Connections to Data Lake
+```{r define connection}
+dbhandle1 <- odbcDriverConnect('driver={SQL Server};server=SQLClusColLake\\Lake;database=z_Populations_DEV;Encrypt=true;trusted_connection=true')
+dbhandle2 <- odbcDriverConnect('driver={SQL Server};server=SQLClusColLake\\Lake;database=BirthsDeaths;Encrypt=true;trusted_connection=true')
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+#### Execute SQL queries and save results to R data frames
+```{r Execute SQL Query and load results into r object}
+pops <- sqlQuery(dbhandle1,"SELECT Period, OfficialCode as RGN09CD, GeoName as RGN09NM, 
+Sex, SexDesc, QuinaryAgeBandMin as AgeBand, Population
+FROM [z_Populations_DEV].[dbo].[vRes_RGN09_FiveYear]
+WHERE OfficialCode in ('E12000001','E12000002','E12000003')
+AND Period in ('2014','2015','2016')
+AND Sex in (1,2)
+ORDER BY Period, OfficialCode, Sex, QuinaryAgeBandMin")
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
-
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+deaths <- sqlQuery(dbhandle2,"SELECT xYEAR as Period, RGN09CD, RGN09NM, Sex, 
+       CASE WHEN xAge_Year>=90 THEN 90 ELSE FLOOR(CAST(LEFT(xAge_Year,2) AS FLOAT)/5)*5 END AS AgeBand, COUNT(*) AS Dths
+FROM BirthsDeaths.dbo.vDeathsALL d
+LEFT JOIN LookupsShared.dbo.vLKP_RGN09 l
+ON d.GOR_Resi = l.RGN09CDO 
+WHERE RGN09CD IN ('E12000001','E12000002','E12000003')
+AND xYEAR in ('2014','2015','2016')
+GROUP BY xYEAR, RGN09CD, RGN09NM, Sex, 
+       CASE WHEN xAge_Year>=90 THEN 90 ELSE FLOOR(CAST(LEFT(xAge_Year,2) AS FLOAT)/5)*5 END
+ORDER BY xYear, RGN09CD, Sex, AgeBand")
 ```
 
-Also a quote using `>`:
+#### Close Data Lake Connections
+```{r Close dbhandle}
+odbcClose(dbhandle1)
+odbcClose(dbhandle2)
+```
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+
+## Next we'll check that our data frames meet the requirements for the function
+
+#### Do we have the expected number of rows in each dataset?
+We're expecting 3 geographies * 2 sexes * 3 periods * 19 agebands = 342 records ....
+
+```{r check number of rows}
+nrow(pops) == 342
+nrow(deaths) == 342
+```
+
+#### Are the rows aligned identically in each dataset?
+``` {r check row alignments}
+all.equal(select(pops,Period, RGN09CD, Sex, AgeBand),
+             select(deaths,Period, RGN09CD, Sex, AgeBand), check.attributes=FALSE, check.names=FALSE)
+```
+
+#### Are the rows a repeating sequence of the required ageband categories? 
+We'll be using the esp2013 vector that is provided with the PHEstatmethods package -
+it contains 19 ordered values representing the 5-year age bands 0-4, 5-9, 10-14....90+
+``` {r check repeats of stdpop}
+all.equal(select(pops,6),
+          data.frame(rep(c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90),times=18)),
+          check.attributes=FALSE, check.names=FALSE)
+```
+
+#### Looks good.
+
+## So let's calculate DSRs for each Period, Geography and Gender 
+The function requires the grouping sets to be stored in a single column so first we'll need to concatenate
+the values of the Period, Geography and Gender columns into a Group Reference column.
+
+We can choose to leave the populations and deaths in separate data frames or combine them as below ....
+
+#### Prepare the data frame
+
+``` {r create reference column}
+df <- full_join(pops,deaths, by = c("Period","RGN09CD","RGN09NM","Sex","AgeBand")) %>%
+            mutate(group_ref = paste(Period,"_",RGN09CD,"_",Sex)) %>%
+            select(group_ref,AgeBand, Population, Dths)
+```
+ 
+#### Execute the function
+ 
+Now we're ready to calculate the DSRs .... 
+ 
+``` {r calculate DSR for NW 2016}
+phe_dsr(df$Dths, df$Population,esp2013, groupref = df$group_ref)
+
+```
+
