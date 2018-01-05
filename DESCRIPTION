@@ -1,6 +1,6 @@
 Package: PHEstatmethods
 Type: Package
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate the following statistics:
     1. proportions and their CIs using Wilson score method
