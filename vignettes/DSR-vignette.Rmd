@@ -4,7 +4,7 @@ author: "Georgina Anderson"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette for calculating DSRs for multiple geographies using data from the Data Lake}
+  %\VignetteIndexEntry{Vignette for calculating DSRs for multiple geographies and time periods using data from the Data Lake}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -26,17 +26,17 @@ This vignette documents the requirements and method for calculating DSRs using t
 which calculates DSRs and their confidence limits using the Dobson method.
 
 
-The function can be used to calculate DSRs for grouping single or multiple geographic areas and genders in a single execution.
+The function can be used to calculate DSRs for grouping single or multiple geographic areas/genders/timeperiods/indicators in a single execution.
 
 
 The function takes the following arguments as inputs:
 
 | Argument  | Type            | Definition                                                                |Default value  |
 |:----------|:----------------|:--------------------------------------------------------------------------|:--------------|
-| x         | numeric vector  | observed number of events for each standardisation category (eg ageband) within each grouping set (eg area)    | none          |
-| n         | numeric vector  | populations for each standardisation category (eg ageband) within each grouping set (eg area)               | none          |
+| x         | numeric vector  | observed number of events for each standardisation category (eg ageband) within each grouping set (eg area or indicator)    | none          |
+| n         | numeric vector  | populations for each standardisation category (eg ageband) within each grouping set (eg area or indicator)| none          |
 | stdpop    | numeric vector  | standard populations for each standardisation category (eg age band) the European Standard Population 2013 divided into 19 five-year agebands (0-4, 5-9, 10-14, .....90+) is available within the package and can be referenced using esp2013   | none          | 
-| groupref  | character vector| grouping sets (eg area codes or area names) if calculating multiple DSRs at once      | "No Grouping" |
+| groupref  | character vector| grouping sets (eg area codes or indicator names) if calculating multiple DSRs at once   | "No Grouping" |
 | conf.level| numeric value   | the required level of confidence expressed as a number between 0.9 and 1 or 90 and 100  | 0.95          |
 | multiplier| numeric value   | the multiplier used to express the final values (eg 100,000 = rate per 100,000, 100 = percentage)                          | 100,000       |
 
@@ -53,8 +53,8 @@ library(tidyr)
 
 
 ## First a few words of caution
-* ensure that numeric vectors x, n and stdpop all contain an element for every possible combination of groupref  (eg area) and standardisation category (eg age group) - when there are no deaths in an age group the vector needs to hold a zero to represent this value
-* ensure the vectors x and n are ordered by the same groupref (eg area) and ageband values
+* ensure that numeric vectors x, n and stdpop all contain an element for every possible combination of groupref  (eg area) and standardisation category (eg age group) - when there are no observed events in an age group the vector needs to hold a zero to represent this value
+* ensure the vectors x and n are ordered by the same groupref (eg area) and standardisation category (eg ageband) values.  The function doesn't take Ageband as an argument so it assumes the population and death vector elements map 1-2-1 by position within the vector
 * ensure the standard population reference is ordered by the same ageband values.  Note that the stdpop vector does not need to be duplicated when data is being passed for multiple geographies as R will do that for you
 
 ## Now let's extract some data to play with
@@ -141,7 +141,7 @@ df <- full_join(pops,deaths, by = c("Period","RGN09CD","RGN09NM","AgeBand")) %>%
  
 Now we're ready to calculate the DSRs .... 
  
-``` {r calculate DSR for NW 2016}
+``` {r calculate DSRs}
 phe_dsr(df$Dths, df$Population,esp2013, groupref = df$group_ref)
 
 ```
@@ -154,8 +154,8 @@ This would be a fairly common scenario - maybe you have Local Authority data and
 Let's fudge a couple of data frames to represent this.  In this example, there are no deaths in the 10-14, 15-20 and 20-14 age bands:
 
 ``` {r test data}
-pops_zero <- data.frame(AgeBand = c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90),
-                        Population = esp2013/100)
+pops_zero <- data.frame(AgeBand    = c( 0, 5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90),
+                        Population = c(30,35,35,35,40,40,45,50,50,50,60,60,70,75,70,60,20,20,15))
 pops_zero
 
 deaths_zero <- data.frame(AgeBand = c(0,5,25,30,35,40,45,50,55,60,65,70,75,80,85,90),

@@ -1,0 +1,170 @@
+---
+title: "ISR-vignette"
+author: "Georgina Anderson"
+date: "5 January 2018"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette for calculating ISRs for multiple geographies and time periods using data from the Data Lake}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  error = TRUE,
+  comment = "#>"
+)
+```
+
+##DRAFT - Work in Progress
+
+## Introduction
+This vignette documents the requirements and method for calculating DSRs using the PHEstatmethods::phe_dsr function 
+which calculates DSRs and their confidence limits using the Dobson method.
+
+
+The function can be used to calculate DSRs for grouping single or multiple geographic areas/genders/time periods/indicators in a single execution.
+
+
+The function takes the following arguments as inputs:
+
+| Argument  | Type            | Definition                                                                |Default value  |
+|:----------|:----------------|:--------------------------------------------------------------------------|:--------------|
+| x         | numeric vector  | observed number of events for each standardisation category (eg ageband) within each grouping set (eg area)    | none          |
+| n         | numeric vector  | populations for each standardisation category (eg ageband) within each grouping set (eg area)               | none          |
+| x_ref     | numeric vector  | observed number of events in the reference population for each standardisation category (eg ageband) within each grouping set (eg area)    | none          |
+| n_ref     | numeric vector  | reference populations for each standardisation category (eg ageband) within each grouping set (eg area)               | none          |
+| groupref  | character vector| grouping sets (eg area codes or area names) if calculating multiple DSRs at once      | "No Grouping" |
+| conf.level| numeric value   | the required level of confidence expressed as a number between 0.9 and 1 or 90 and 100  | 0.95          |
+| ratio     | logical         | whether the output should be expressed as a ratio (TRUE) or a rate (FALSE)              | TRUE          |
+| ref_0     | logical         | when ratio = TRUE - whether the ratios should be compared to a reference ratio of 0 or 100 | TRUE         |
+| multiplier| numeric value   | when ratio = FALSE - the multiplier used to express the final values (eg 100,000 = rate per 100,000, 100 = percentage)                          | 100,000       |
+
+
+
+## Libraries
+
+```{r libraries, message=FALSE}
+library(PHEstatmethods)
+library(RODBC)
+library(dplyr)
+library(tidyr)
+```
+
+
+## First a few words of caution
+* ensure that numeric vectors x, n, x_ref and n_ref all contain an element for every possible combination of groupref  (eg area) and standardisation category (eg age group) - when there are no observed events in an age group the vector needs to hold a zero to represent this value
+* ensure the vectors x and n are ordered by the same groupref (eg area) and standardisation category (eg ageband) values.  The function doesn't take Ageband as an argument so it assumes the population and death vector elements map 1-2-1 by position within the vector
+* ensure the vectors x_ref and n_ref are ordered by the same ageband values.  Note that the reference vectors do not need to be duplicated when data is being passed for multiple geographies as R will do that for you
+
+## Now let's extract some data to play with
+
+#### Define Connections to Data Lake
+```{r define connection}
+dbhandle1 <- odbcDriverConnect('driver={SQL Server};server=SQLClusColLake\\Lake;
+database=z_Populations_DEV;Encrypt=true;trusted_connection=true')
+dbhandle2 <- odbcDriverConnect('driver={SQL Server};server=SQLClusColLake\\Lake;
+database=BirthsDeaths;Encrypt=true;trusted_connection=true')
+```
+
+#### Execute SQL queries and save results to R data frames
+```{r Execute SQL Query and load results into r object}
+pops <- sqlQuery(dbhandle1,"SELECT Period, OfficialCode as RGN09CD, GeoName as RGN09NM, 
+QuinaryAgeBandMin as AgeBand, Population
+FROM [z_Populations_DEV].[dbo].[vRes_RGN09_FiveYear]
+WHERE Period in ('2014','2015','2016')
+AND Sex = 4
+ORDER BY Period, OfficialCode, Sex, QuinaryAgeBandMin")
+
+deaths <- sqlQuery(dbhandle2,"SELECT xYEAR as Period, RGN09CD, RGN09NM, 
+       CASE WHEN xAge_Year>=90 THEN 90 ELSE FLOOR(CAST(LEFT(xAge_Year,2) AS FLOAT)/5)*5 END AS AgeBand, COUNT(*) AS Dths
+FROM BirthsDeaths.dbo.vDeathsALL d
+LEFT JOIN LookupsShared.dbo.vLKP_RGN09 l
+ON d.GOR_Resi = l.RGN09CDO 
+WHERE xYEAR in ('2014','2015','2016')
+GROUP BY xYEAR, RGN09CD, RGN09NM, 
+       CASE WHEN xAge_Year>=90 THEN 90 ELSE FLOOR(CAST(LEFT(xAge_Year,2) AS FLOAT)/5)*5 END
+ORDER BY xYear, RGN09CD, AgeBand")
+```
+
+#### Close Data Lake Connections
+```{r Close dbhandle}
+odbcClose(dbhandle1)
+odbcClose(dbhandle2)
+```
+
+
+## Next we'll check that our data frames meet the requirements for the function
+
+#### Do we have the expected number of rows in each dataset?
+We're expecting 9 geographies * 3 periods * 19 agebands = 513 records ....
+
+```{r check number of rows}
+nrow(pops) == 513
+nrow(deaths) == 513
+```
+
+#### Are the rows aligned identically in each dataset?
+``` {r check row alignments}
+all.equal(select(pops,Period, RGN09CD, AgeBand),
+             select(deaths,Period, RGN09CD, AgeBand), check.attributes=FALSE, check.names=FALSE)
+```
+
+#### Looks good.
+
+## So let's calculate ISRs for each Period and Geography 
+The function requires the grouping sets to be stored in a single column so first we'll need to concatenate
+the values of the Period and Geography columns into a Group Reference column.
+
+We can choose to leave the populations and deaths in separate data frames or combine them as below ....
+
+#### Prepare the data frame
+
+``` {r create reference column}
+df <- full_join(pops,deaths, by = c("Period","RGN09CD","RGN09NM","AgeBand")) %>%
+            mutate(group_ref = paste(Period,"_",RGN09CD)) %>%
+            select(group_ref, Period, AgeBand, Population, Dths)
+```
+ 
+#### Prepare the reference data
+Lets use England as the reference area (ie the sum of the 9 Regions).  
+We can create the reference population and death vectors like this:
+
+``` {r create ref data}
+ref_data <- df %>%
+           group_by(Period, AgeBand) %>%
+           summarise(Eng_Pop = sum(Population),
+                     Eng_Dths = sum(Dths))
+```
+ 
+#### Execute the function
+ 
+Now we're ready to calculate the ISRs. By default the results will be expressed as Indirectly Standardised Ratios with the England average as 0 .... 
+ 
+``` {r calculate ISRs}
+phe_isr(df$Dths, df$Population,ref_data$Eng_Dths, ref_data$Eng_Pop, groupref = df$group_ref)
+
+```
+
+Alternatively we can specify optional arguments to the function to output the ISR in a different format or with different levels of confidence:
+
+This will output the same data but using 100 as the standard ratio:
+``` {r calculate ISRs}
+phe_isr(df$Dths, df$Population,ref_data$Eng_Dths, ref_data$Eng_Pop, groupref = df$group_ref, ref_0=FALSE)
+
+```
+
+We can also express the ISR as a rate like this:
+``` {r calculate ISRs}
+phe_isr(df$Dths, df$Population,ref_data$Eng_Dths, ref_data$Eng_Pop, groupref = df$group_ref, ratio=FALSE)
+
+```
+
+And we can change the level of confidence like this:
+``` {r calculate ISRs}
+phe_isr(df$Dths, df$Population,ref_data$Eng_Dths, ref_data$Eng_Pop, groupref = df$group_ref, conf.level=99.8)
+
+```
+
+
