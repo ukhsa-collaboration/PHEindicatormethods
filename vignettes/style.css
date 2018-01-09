@@ -1,0 +1,286 @@
+body {
+    font-size: 17px;
+    line-height: 1.5em;
+    font-family: Arial, sans-serif;
+    margin: 5%;
+    width: 75%;
+    position: absolute;
+    right: 0px;
+}
+
+.container {
+    position: relative;
+    width: 100%;
+}
+
+a {
+    cursor: pointer;
+    color: #2e3191;
+    text-decoration: underline;
+}
+
+a.title-link {
+    color: #39836E;
+    text-decoration: none;
+    font-weight: bold;
+    line-height: 1.3;
+    font-size: 1rem;
+    padding: 2px 0 3px 0;
+}
+
+.pquote {
+    float: left;
+    width: 400px;
+    background-image: url(quotes.jpg), url(quotes-close.jpg);
+    background-position: left top, right bottom;
+    background-repeat: no-repeat, no-repeat;
+    background-size: 10%;
+    color: #98002E;
+    font-size: 26px;
+    line-height: 0.9;
+    font-style: italic;
+    margin-left: 1.75cm;
+    padding: 30px;
+}
+
+.pquote .by {
+    text-align: right;
+}
+
+a.title-link:hover {
+    text-decoration: underline;
+}
+
+div.slide.titlepage {
+        text-align: left;
+        background-color: #98002E;
+        background-image: url(PHElogo.png), url(whitestrip.png), url(bluestrip.png);
+        background-position: 1.5cm 1cm, left top, 0px 222px;
+        background-size: 132px 82px, auto, auto;
+        background-repeat: no-repeat, repeat-x, repeat-x;
+
+}
+
+div.slide.titlepage h1 {
+        font-family: Arial;
+        font-size: 45px;
+        color: #FFFFFF;
+        font-weight: bold;
+        padding: 260px 1.5cm 180px 1.5cm;
+}
+
+div.slide.titlepage p {
+        font-family: Arial;
+        font-size: 20px;
+        color: #FFFFFF;
+        font-weight: bold;
+        padding: 0px 1.5cm 0 1.5cm;
+        margin: 0;
+
+}
+
+div.toolbar {
+        position: fixed; z-index: 200;
+        top: auto; bottom: 0; left: 0; right: 0;
+        padding-bottom: 20px;
+        height: 1.2em;
+        text-align: right;
+        padding-left: 1em;
+        padding-right: 1em;
+        font-size: 60%;
+        color: #FFFFFF;
+        background-color: #98002E;
+        border-top: solid 1px #98002E;
+}
+
+div.slide.section.level2 {
+        text-align: left;
+        background-image: url(PHElogo.png);
+        position: relative;
+        background-position: 1.5cm 1cm;
+        background-size: 132px 82px;
+        background-repeat: no-repeat;
+        background-color: transparent;
+}
+
+div.slide.section.level2 h1 {
+    text-align: left;
+    color: #00AE9E;
+    font-family: Arial;
+    font-size: 40px;
+    font-weight: bold;
+    padding: 150px 1.5cm 0 1cm;
+}
+
+div.slide.section.level2 p {
+        font-family: Arial;
+        font-size: 18px;
+        color: #000000;
+        padding: 0px 1.5cm 0 1cm;
+        margin: 0;
+
+}
+h1 {
+    color: #00AE9E;
+    text-align: left;
+    /*text-indent: 30px;*/
+    font-size: 40px;
+    font-weight: bold;
+    border-bottom: 5px solid black;
+    box-shadow: 0 9px;
+    padding: 0.5cm 1.5cm 15px 0;
+}
+h2 {
+    color: #00AE9E;
+    text-align: left;
+    /*text-indent: 30px;*/
+    font-size: 40px;
+    font-weight: bold;
+    /*border-bottom: 5px solid #02ae94;*/
+    padding: 0.5cm 1.5cm 3px 0;
+}
+
+h3 {
+    color: #000000;
+    text-align: left;
+    text-indent: 0px;
+    font-size: 30px;
+    font-weight: bold;
+    padding: 2px 0 3px 0;
+}
+
+ul {
+    line-height: 1.3em;
+    margin: 10;
+    list-style: disc;
+}
+
+ul li {
+    /*margin-left: 1cm;*/
+    margin: 0 0 0 0.5cm;
+    font-style: normal;
+    list-style: disc;
+    font-size: 17px;
+    line-height: 1.5em;
+    font-family: Arial, sans-serif;
+    /*line-height: 60%;*/
+}
+
+ul ul li {
+    margin-left: 0;
+    font-style: normal;
+    font-size: 16px;
+    list-style: disc;
+    line-height: 60%;
+}
+
+ul ul ul li {
+    font-style: normal;
+    font-size: 15px;
+    list-style: disc;
+    line-height: 60%;
+}
+
+ol li {
+    /*margin-left: 1.75cm;*/
+    margin: 0 0 0 0.5cm;
+    font-style: normal;
+    font-size: 17px;
+    line-height: 1.5em;
+    font-family: Arial, sans-serif;
+    /*line-height: 60%;*/
+}
+
+pre {
+        font-size: 80%;
+        font-family: 'Consolas';
+        font-weight: bold;
+        line-height: 120%;
+        letter-spacing: -0.5px;
+        word-wrap: break-word;
+        padding-top: 0.2em;
+        padding-bottom: 0.2em;
+        padding-left: 1em;
+        padding-right: 1em;
+        border-style: solid;
+        border-left-width: 1em;
+        border-top-width: thin;
+        border-right-width: thin;
+        border-bottom-width: thin;
+        border-color: #98002E;
+                color: #002776;
+                background-color: #DAD7CB;
+}
+
+/*code {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  background-color: #DAD7CB;
+  border-radius: 3px;
+}*/
+
+code.r{ /* Code block */
+  font-family: 'Consolas';
+  font-size: 14px;
+}
+/* adjust footer element size for DT package */
+.dataTables_info, .dataTables_paginate {
+        font-size: 12px;
+        padding: 0 1.5cm 0 1cm;
+}
+
+.dataTables_wrapper .dataTables_length {
+        font-size: 12px;
+        padding: 0 1.5cm 0 1cm;
+}
+
+.dataTables_wrapper .dataTables_filter {
+        font-size: 12px;
+        padding: 0 1.5cm 0 1cm;
+}
+
+table.dataTable {
+        font-size: 12pt;
+        line-height: 95%;
+        width: 100%;
+        margin: 0 auto;
+        padding: 0 1.5cm 0 1cm;
+        clear: both;
+        border-collapse: separate;
+        border-spacing: 0;
+  }
+/*----------------------------------------
+    Banner
+------------------------------------------*/
+
+.bg-inverse {
+    background-color: #000000 !important;
+    background: #000000 !important;
+}
+
+#phe-banner {
+    background: #000;
+    height: 48px;
+}
+
+#phe-banner a {
+    background: url(phe-white-48.png) no-repeat;
+    height: 48px;
+    width: 260px;
+    display: block;
+    text-decoration: none;
+}
+
+#phe-banner span {
+    color: #fff;
+    visibility: hidden;
+    text-decoration: none;
+}
+
+.navbar {
+    position: relative;
+    padding: 0 1rem;
+}

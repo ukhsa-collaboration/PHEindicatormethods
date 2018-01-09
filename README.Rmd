@@ -35,5 +35,5 @@ You can install the latest version of PHEstatmethods from GitLab with:
 
 ```{r gl-installation, eval = FALSE}
 if (!require(devtools)) install.packages("devtools")
-devtools::install_git('https://gitlab.phe.gov.uk/Georgina.Anderson/PHEstatmethods')
+devtools::install_git('https://gitlab.phe.gov.uk/Georgina.Anderson/PHEstatmethods', build_vignettes=TRUE)
 ```
