@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' Calculates a mean with confidence limits using students-t distribution method.
+#' Calculates a mean with confidence limits using Student's-t distribution method.
 #'
 #' @param x the observed values in the sample(s)/population(s); numeric vector; no default
 #' @param groupref the grouping sets (eg area codes or area names) if calculating multiple means at once,
@@ -13,6 +13,10 @@
 #' @examples
 #' phe_mean(c(20,30,40), 0.95)
 #'
+#' ## Example of the grouping parameter
+#' df <- data.frame(group = rep(letters[1:5], each = 5),
+#'                  value = runif(25))
+#' phe_mean(df$value, df$group)
 #' @import dplyr
 #'
 #' @export
@@ -38,6 +42,7 @@ phe_mean <- function(x, groupref = "No grouping", conf.level=0.95) {
     conf.level <- conf.level/100
   }
 
+  p <- (1 - conf.level) / 2
 
   # calculate proportion and CIs
   phe_mean <- data.frame(x, groupref) %>%
@@ -46,8 +51,8 @@ phe_mean <- function(x, groupref = "No grouping", conf.level=0.95) {
                  numrecs = length(x),
                  stdev   = sd(x)) %>%
        mutate(mean = total / numrecs,
-              lowercl = mean - abs(qt(0.025, numrecs - 1)) * stdev / sqrt(numrecs),
-              uppercl = mean + abs(qt(0.025, numrecs - 1)) * stdev / sqrt(numrecs),
+              lowercl = mean - abs(qt(p, numrecs - 1)) * stdev / sqrt(numrecs),
+              uppercl = mean + abs(qt(p, numrecs - 1)) * stdev / sqrt(numrecs),
               method  = "t-distribution") %>%
     select(1,2,3,5,4,6,7,8)
 

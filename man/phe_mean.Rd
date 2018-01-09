@@ -2,7 +2,7 @@
 % Please edit documentation in R/Means.R
 \name{phe_mean}
 \alias{phe_mean}
-\title{Calculates a mean with confidence limits using students-t distribution method.}
+\title{Calculates a mean with confidence limits using Student's-t distribution method.}
 \usage{
 phe_mean(x, groupref = "No grouping", conf.level = 0.95)
 }
@@ -20,11 +20,15 @@ Returns a data frame of row labels, sum of values, count of values, mean, standa
         lower and upper confidence limits and method
 }
 \description{
-Calculates a mean with confidence limits using students-t distribution method.
+Calculates a mean with confidence limits using Student's-t distribution method.
 }
 \examples{
 phe_mean(c(20,30,40), 0.95)
 
+## Example of the grouping parameter
+df <- data.frame(group = rep(letters[1:5], each = 5),
+                 value = runif(25))
+phe_mean(df$value, df$group)
 }
 \seealso{
 \code{\link{phe_proportion}} for proportions,
