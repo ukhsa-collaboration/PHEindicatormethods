@@ -2,7 +2,8 @@
 title: "Calculating DSRs using the PHEstatmethods package"
 author: "Georgina Anderson"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: rmarkdown::html_vignette:
+  css:style.css
 vignette: >
   %\VignetteIndexEntry{Vignette for calculating DSRs for multiple geographies and time periods using data from the Data Lake}
   %\VignetteEngine{knitr::rmarkdown}
