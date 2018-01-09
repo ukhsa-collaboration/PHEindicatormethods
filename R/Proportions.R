@@ -13,9 +13,9 @@
 #' @return Returns a data frame of numerator, denominator, proportion, lower and upper confidence limits and method
 #'
 #' @examples
-#' phe_proportion(65,100)
-#' phe_proportion(65,100,99.8,TRUE)
-#' phe_proportion(c(5,65,90,98),c(100,100,100,100))
+#' phe_proportion(65,100, row_label = "dummy")
+#' phe_proportion(65,100,99.8,TRUE, row_label = "England - Males")
+#' phe_proportion(c(5,65,90,98),c(100,100,100,100), row_label = seq_len(4))
 #'
 #' @import dplyr
 #' @import binom

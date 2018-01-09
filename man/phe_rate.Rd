@@ -26,8 +26,8 @@ Returns a data frame of numerator, denominator, rate, lower and upper confidence
 Calculates a rate with confidence limits using Byar's or Exact CI method.
 }
 \examples{
-phe_rate(65,100)
-phe_rate(65,100,99.8,100)
+phe_rate(65,100, row_label = "dummy")
+phe_rate(65,100,99.8,100, row_label = "England - Males")
 
 }
 \seealso{
