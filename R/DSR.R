@@ -14,14 +14,30 @@
 #'                   or 90 and 100; numeric; default 0.95
 #' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000,
 #'                   100 = percentage); numeric; default 100,000
+#' @param type type of output; can be "rate", "lower", "upper", "combined" (for all 3 fields to be added to your output) or "full"; string
 #'
-#' @return Returns a data frame of numerator, denominator, directly standardised rate,
+#' @return When type = "full" returns a data frame of numerator, denominator, directly standardised rate,
 #'         lower and upper confidence limits and method
 #' @importFrom rlang sym quo_name
 #' @examples
-#' phe_dsr(c(27,45,55,100,125,300,295,270,275,450,455,459,345,300,270,265,100,90,35),
-#'         c(84935,80367,72122,79259,99806,87362,81579,71103,70001,
-#'           69007,63203,52638,46087,40887,32604,28399,21625,13021,7355), esp2013, conf.level = 0.998)
+#' library(dplyr)
+#' df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
+#'                  year = rep(2006:2010, each = 19 * 2),
+#'                  sex = rep(rep(c("Male", "Female"), each = 19), 5),
+#'                  obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
+#'                  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
+#' df %>%
+#'     group_by(indicatorid, year, sex) %>%
+#'     mutate(stdpop = esp2013) %>%
+#'     phe_dsr(obs, pop, stdpop, "combined")
+#'
+#' ## OR
+#'
+#' df %>%
+#'     group_by(indicatorid, year, sex) %>%
+#'     mutate(stdpop = esp2013) %>%
+#'     phe_dsr(obs, pop, stdpop, "full")
+#'
 #' @export
 #'
 #' @family phe statistical functions
@@ -33,7 +49,7 @@
 # -------------------------------------------------------------------------------------------------
 
 # define the DSR function
-phe_dsr <- function(data, x, n, stdpop, conf.level = 0.95, multiplier = 100000) {
+phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, multiplier = 100000) {
 
   if (missing(data)) {
     stop("data must contain a data.frame object")
@@ -41,6 +57,10 @@ phe_dsr <- function(data, x, n, stdpop, conf.level = 0.95, multiplier = 100000) 
     stop("x must contain an unquoted field name from data")
   } else if (missing(n)) {
     stop("n must contain an unquoted field name from data")
+  } else if (missing(stdpop)) {
+    stop("stdpop must contain an unquoted field name from data")
+  } else if (!(type %in% c("rate", "lower", "upper", "combined", "full"))) {
+    stop("type must be one of rate, lower, upper, combined or full")
   }
 
   x <- enquo(x)
@@ -82,14 +102,20 @@ phe_dsr <- function(data, x, n, stdpop, conf.level = 0.95, multiplier = 100000) 
            !!quo_name(lowercl) := if_else(total_count < 10,-1,!!sym(lowercl)),
            !!quo_name(uppercl) := if_else(total_count < 10,-1,!!sym(uppercl)),
            method  = if_else(total_count < 10,"NA","Dobson"))
-  # names(phe_dsr[,c("lowercl","uppercl")]) <- c(paste0("lower",conf.level*100,"cl"),
-  #                                              paste0("upper",conf.level*100,"cl"))
-  #
-  #
-  # names(phe_dsr) <- c("row_label", "total_count", "total_pop", "dsr",
-  #                     paste("lower",conf.level*100,"cl",sep=""),
-  #                     paste("upper",conf.level*100,"cl",sep=""),"method")
 
+  if (type == "lower") {
+    phe_dsr <- phe_dsr %>%
+      select(-!!sym(uppercl), -dsr, -method, - total_count, -total_pop)
+  } else if (type == "upper") {
+    phe_dsr <- phe_dsr %>%
+      select(-!!sym(lowercl), -dsr, -method, - total_count, -total_pop)
+  } else if (type == "rate") {
+    phe_dsr <- phe_dsr %>%
+      select(-!!sym(lowercl), -!!sym(uppercl), -method, - total_count, -total_pop)
+  } else if (type == "combined") {
+    phe_dsr <- phe_dsr %>%
+      select(-method, - total_count, -total_pop)
+  }
   return(phe_dsr)
 
 }
