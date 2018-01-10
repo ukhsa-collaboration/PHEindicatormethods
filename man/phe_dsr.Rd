@@ -2,24 +2,21 @@
 % Please edit documentation in R/DSR.R
 \name{phe_dsr}
 \alias{phe_dsr}
-\title{Calculates a directly standardised rate with confidence limits using Dobson method.}
+\title{DSR}
 \usage{
-phe_dsr(x, n, stdpop, groupref = "No Grouping", conf.level = 0.95,
-  multiplier = 1e+05)
+phe_dsr(data, x, n, stdpop, conf.level = 0.95, multiplier = 1e+05)
 }
 \arguments{
-\item{x}{the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
+\item{data}{data.frame containing the data you wish to standardise}
+
+\item{x}{unquoted field name containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
 numeric vector; no default}
 
-\item{n}{the populations for each standardisation category (eg ageband) within each grouping set (eg area);
+\item{n}{unquoted field name containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
 numeric vector; no default}
 
-\item{stdpop}{the standard populations for each standardisation category
- (eg age band); numeric vector; no default; the European Standard Population 2013
-divided into 19 five-year agebands (0-4, 5-9, 10-14, .....90+) is available within the package}
-
-\item{groupref}{the grouping sets (eg area codes or area names) if calculating multiple DSRs at once,
-character vector, default = No Grouping}
+\item{stdpop}{unquoted field name containing the standard populations for each standardisation category
+(eg age band)}
 
 \item{conf.level}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
