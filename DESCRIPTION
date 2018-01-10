@@ -17,7 +17,8 @@ Encoding: UTF-8
 LazyData: true
 Imports: binom,
          dplyr,
-         readxl
+         readxl,
+         rlang
 Suggests: testthat,
     knitr,
     rmarkdown
