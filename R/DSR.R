@@ -10,15 +10,17 @@
 #'          numeric vector; no default
 #' @param stdpop unquoted field name containing the standard populations for each standardisation category
 #'               (eg age band)
+#' @param type type of output; can be "rate", "lower", "upper", "combined" (for all 3 fields to be added to your output) or "full"; string
 #' @param conf.level the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000,
 #'                   100 = percentage); numeric; default 100,000
-#' @param type type of output; can be "rate", "lower", "upper", "combined" (for all 3 fields to be added to your output) or "full"; string
 #'
 #' @return When type = "full" returns a data frame of numerator, denominator, directly standardised rate,
 #'         lower and upper confidence limits and method
+
 #' @importFrom rlang sym quo_name
+#'
 #' @examples
 #' library(dplyr)
 #' df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
@@ -28,15 +30,13 @@
 #'                  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     mutate(stdpop = esp2013) %>%
-#'     phe_dsr(obs, pop, stdpop, "combined")
+#'     phe_dsr(obs, pop, esp2013)
 #'
 #' ## OR
 #'
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     mutate(stdpop = esp2013) %>%
-#'     phe_dsr(obs, pop, stdpop, "full")
+#'     phe_dsr(obs, pop, esp2013, "full")
 #'
 #' @export
 #'
