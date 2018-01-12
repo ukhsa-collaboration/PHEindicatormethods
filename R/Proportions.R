@@ -20,7 +20,6 @@
 #' phe_proportion(c(5,65,90,98),c(100,100,100,100), row_label = seq_len(4))
 #'
 #' @import dplyr
-#' @import binom
 #'
 #' @export
 #'
@@ -75,13 +74,27 @@ phe_proportion <- function(data, x, n, type="combined", conf.level=0.95, percent
 
   # calculate proportion and CIs
   phe_proportion <- data %>%
-                    binom.confint((!!x), (!!n), conf.level, methods="wilson") %>%
-                    mutate(mean = mean * multiplier,
-                           lower = lower * multiplier,
-                           upper = upper * multiplier,
+                    mutate(proportion = (!!x)/(!!n) * multiplier,
+                           lowercl = wilson_lower((!!x),(!!n),conf.level) * multiplier,
+                           uppercl = wilson_upper((!!x),(!!n),conf.level) * multiplier,
                            confidence = paste(conf.level*100,"%"),
-                    method = "Wilson") %>%
-                    select(-methods)
+                           method = "Wilson")
+
+
+  if (type == "lower") {
+    phe_proportion <- phe_proportion %>%
+      select(-proportion, -uppercl, -confidence, -method)
+  } else if (type == "upper") {
+    phe_proportion <- phe_proportion %>%
+      select(-proportion, -lowercl, -confidence, -method)
+  } else if (type == "value") {
+    phe_proportion<- phe_proportion %>%
+      select(-lowercl, -uppercl, -confidence, -method)
+  } else if (type == "combined") {
+    phe_proportion <- phe_proportion %>%
+      select( -confidence, -method)
+  }
+
 
 
 return(phe_proportion)

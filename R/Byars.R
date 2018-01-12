@@ -37,8 +37,11 @@ byars_lower <- function(x, conf.level = 0.95) {
       conf.level <- conf.level/100
     }
 
+  # populate z
+  z <- qnorm(conf.level+(1-conf.level)/2)
+
   # calculate
-  byars_lower <- x*(1-1/(9*x)-qnorm(conf.level+(1-conf.level)/2)/(3*sqrt(x)))^3
+  byars_lower <- x*(1-1/(9*x)-z/(3*sqrt(x)))^3
   return(byars_lower)
 }
 
@@ -82,7 +85,10 @@ byars_upper <- function(x, conf.level = 0.95) {
       conf.level <- conf.level/100
     }
 
-  byars_upper <- (x+1)*(1-1/(9*(x+1))+qnorm(conf.level+(1-conf.level)/2)/(3*sqrt(x+1)))^3
+  # populate z
+  z <- qnorm(conf.level+(1-conf.level)/2)
+
+  byars_upper <- (x+1)*(1-1/(9*(x+1))+z/(3*sqrt(x+1)))^3
   return(byars_upper)
 }
 
