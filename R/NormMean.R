@@ -1,3 +1,5 @@
+## CHECK IF USING STUDENT T OR NORMAL APPROX WHEN N IS SMALL
+
 # -------------------------------------------------------------------------------------------------
 #' Calculates confidence interval for a mean using Normal approximation.
 #'
