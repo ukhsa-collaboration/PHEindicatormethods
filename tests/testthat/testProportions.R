@@ -6,9 +6,13 @@ context("test_phe_proportion")
 
 # test calculations
 test_that("proportions and CIs calculate correctly",{
-  expect_equal(phe_proportion(test_Prop_100$Numerator, test_Prop_100$Denominator,
-                              test_Prop_100$Area, percentage=TRUE)[1:6],
-               select(test_Prop_100,c(1,2,3,5,6,7)),check.attributes=FALSE, check.names=FALSE, info="test 1")
+  expect_equal(phe_proportion(test_Prop_100, Numerator, Denominator,
+                              percentage=TRUE, type="full")[12:14],
+               select(test_Prop_100,c(5,6,7)),check.attributes=FALSE, check.names=FALSE, info="test 1")
+
+
+' work in progress - amending for new data frame functions'
+
   expect_equal(phe_proportion(test_Prop_1$Numerator, test_Prop_1$Denominator,
                               test_Prop_100$Area, percentage=FALSE)[1:6],
                select(test_Prop_1,c(1,2,3,5,6,7)),check.attributes=FALSE, check.names=FALSE, info="test 2")
