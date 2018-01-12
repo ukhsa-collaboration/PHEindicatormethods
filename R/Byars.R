@@ -31,7 +31,6 @@ byars_lower <- function(x, conf.level = 0.95) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     }
 
-
   # scale confidence level
     if (conf.level >= 90) {
       conf.level <- conf.level/100
@@ -79,11 +78,10 @@ byars_upper <- function(x, conf.level = 0.95) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   }
 
-
-    # scale confidence level
-    if (conf.level >= 90) {
+  # scale confidence level
+  if (conf.level >= 90) {
       conf.level <- conf.level/100
-    }
+  }
 
   # populate z
   z <- qnorm(conf.level+(1-conf.level)/2)

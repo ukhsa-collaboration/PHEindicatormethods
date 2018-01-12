@@ -56,7 +56,7 @@ phe_mean <- function(data, x, type = "combined", conf.level=0.95) {
     conf.level <- conf.level/100
   }
 
-  p <- (1 - conf.level) / 2
+#  p <- (1 - conf.level) / 2
 
   # calculate proportion and CIs
   phe_mean <- data %>%
@@ -66,8 +66,10 @@ phe_mean <- function(data, x, type = "combined", conf.level=0.95) {
        mutate(mean = total / numrecs,
               lowercl = mean - abs(qt(p, numrecs - 1)) * stdev / sqrt(numrecs),
               uppercl = mean + abs(qt(p, numrecs - 1)) * stdev / sqrt(numrecs),
+#              lowercl = mean - NormMean((!!x),(!!n),conf.level),
+#              uppercl = mean + NormMean((!!x),(!!n),conf.level),
               confidence = paste(conf.level*100,"%"),
-              method  = "t-distribution")
+              method  = "Student's t-distribution")
 
 
   if (type == "lower") {

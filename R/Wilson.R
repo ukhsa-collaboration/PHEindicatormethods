@@ -34,19 +34,18 @@ wilson_lower <- function(x, n, conf.level = 0.95) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   }
 
-
-  # set z
-  z <- qnorm(conf.level+(1-conf.level)/2)
-
   # scale confidence level
   if (conf.level >= 90) {
     conf.level <- conf.level/100
   }
 
+  # set z
+  z <- qnorm(conf.level+(1-conf.level)/2)
+
   # calculate
   wilson_lower <- (2*x+z^2-z*sqrt(z^2+4*x*(1-(x/n))))/2/(n+z^2)
 
-    return(wilson_lower)
+  return(wilson_lower)
 }
 
 
@@ -87,14 +86,13 @@ wilson_upper <- function(x, n, conf.level = 0.95) {
     stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   }
 
-
-  # set z
-  z <- qnorm(conf.level+(1-conf.level)/2)
-
   # scale confidence level
   if (conf.level >= 90) {
     conf.level <- conf.level/100
   }
+
+  # set z
+  z <- qnorm(conf.level+(1-conf.level)/2)
 
   # calculate
   wilson_upper <- (2*x+z^2+z*sqrt(z^2+4*x*(1-(x/n))))/2/(n+z^2)
