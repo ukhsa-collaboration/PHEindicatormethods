@@ -10,6 +10,8 @@
 #' @return Returns a data frame of row labels, sum of values, count of values, mean, standard deviation,
 #'         lower and upper confidence limits and method
 #'
+#' @importFrom rlang sym quo_name
+#'
 #' @examples
 #' phe_mean(c(20,30,40), 0.95)
 #'
@@ -30,11 +32,23 @@
 # -------------------------------------------------------------------------------------------------
 
 # create phe_proportion function to execute binom.confint with method fixed to wilson
-phe_mean <- function(x, groupref = "No grouping", conf.level=0.95) {
+phe_mean <- function(data, x, type = "combined", conf.level=0.95) {
+
+  # check required arguments present
+  if (missing(data)) {
+    stop("data must contain a data.frame object")
+  } else if (missing(x)) {
+    stop("x must contain an unquoted field name from data")
+  }
+
+  # apply quotes
+  x <- enquo(x)
 
   # validate arguments - copied from proportion need editing
   if ((conf.level<0.9)|(conf.level >1 & conf.level <90)|(conf.level > 100)) {
     stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+  } else if (!(type %in% c("value", "lower", "upper", "combined", "full"))) {
+    stop("type must be one of value, lower, upper, combined or full")
   }
 
   # scale confidence level
@@ -45,21 +59,31 @@ phe_mean <- function(x, groupref = "No grouping", conf.level=0.95) {
   p <- (1 - conf.level) / 2
 
   # calculate proportion and CIs
-  phe_mean <- data.frame(x, groupref) %>%
-       group_by(groupref) %>%
-       summarise(total   = sum(x),
-                 numrecs = length(x),
-                 stdev   = sd(x)) %>%
+  phe_mean <- data %>%
+       summarise(sum_values   = sum(!!x),
+                 count_values = length(!!x),
+                 stdev   = sd(!!x)) %>%
        mutate(mean = total / numrecs,
               lowercl = mean - abs(qt(p, numrecs - 1)) * stdev / sqrt(numrecs),
               uppercl = mean + abs(qt(p, numrecs - 1)) * stdev / sqrt(numrecs),
-              method  = "t-distribution") %>%
-    select(1,2,3,5,4,6,7,8)
+              confidence = paste(conf.level*100,"%"),
+              method  = "t-distribution")
 
-  # set column names
-  names(phe_mean) <- c("row_label","value_sum","value_count","mean","stdev",
-                             paste("lower",conf.level*100,"cl",sep=""),
-                             paste("upper",conf.level*100,"cl",sep=""),"method")
+
+  if (type == "lower") {
+    phe_rate <- phe_rate %>%
+      select(-sum_values, -count_values, -stdev, -mean, -uppercl, -confidence, -method)
+  } else if (type == "upper") {
+    phe_rate <- phe_rate %>%
+      select(-sum_values, -count_values, -stdev, -mean, -lowercl, -confidence, -method)
+  } else if (type == "value") {
+    phe_rate<- phe_rate %>%
+      select(-sum_values, -count_values, -stdev, -lowercl, -uppercl, -confidence, -method)
+  } else if (type == "combined") {
+    phe_rate <- phe_rate %>%
+      select(-sum_values, -count_values, -stdev, -confidence, -method)
+  }
+
 
   return(phe_mean)
 }

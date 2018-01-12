@@ -51,6 +51,7 @@
 # define the DSR function
 phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, multiplier = 100000) {
 
+# check required arguments present
   if (missing(data)) {
     stop("data must contain a data.frame object")
   } else if (missing(x)) {
@@ -58,11 +59,10 @@ phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, mu
   } else if (missing(n)) {
     stop("n must contain an unquoted field name from data")
   } else if (missing(stdpop)) {
-    stop("stdpop must contain an unquoted field name from data")
-  } else if (!(type %in% c("rate", "lower", "upper", "combined", "full"))) {
-    stop("type must be one of rate, lower, upper, combined or full")
+    stop("stdpop must be specified")
   }
 
+# apply quotes
   x <- enquo(x)
   n <- enquo(n)
   stdpop <- enquo(stdpop)
@@ -74,19 +74,16 @@ phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, mu
       stop("denominators must all be greater than zero")
   } else if ((conf.level<0.9)|(conf.level >1 & conf.level <90)|(conf.level > 100)) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
-  } else if (length(pull(data, !!x)) != length(pull(data, !!n))) {
-      stop("numerator and denominator vectors must be of equal length")
-  } #else if (length(pull(data, !!x)) %% length(stdpop) !=0) {
-      #stop("numerator vector length must be a multiple of standard population vector length")
-  #}
+  } else if (!(type %in% c("value", "lower", "upper", "combined", "full"))) {
+      stop("type must be one of value, lower, upper, combined or full")
+  }
 
 # scale confidence level
   if (conf.level >= 90) {
     conf.level <- conf.level/100
   }
 
-  lowercl <- paste0("lower",conf.level*100,"cl")
-  uppercl <- paste0("upper",conf.level*100,"cl")
+
 # calculate DSR and CIs
   phe_dsr <- data %>%
     mutate(wt_rate = (!!x) * (!!stdpop) / (!!n),
@@ -95,26 +92,31 @@ phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, mu
               total_pop = sum(!!n),
               dsr = sum(wt_rate) / sum((!!stdpop)) * multiplier,
               vardsr = 1/sum(!!stdpop)^2 * sum(sq_rate),
-              !!quo_name(lowercl) := dsr + sqrt((vardsr/sum(!!x)))*(byars_lower(sum(!!x),conf.level)-sum(!!x)) * multiplier,
-              !!quo_name(uppercl) := dsr + sqrt((vardsr/sum(!!x)))*(byars_upper(sum(!!x),conf.level)-sum(!!x)) * multiplier) %>%
+              lowercl = dsr + sqrt((vardsr/sum(!!x)))*(byars_lower(sum(!!x),conf.level)-sum(!!x)) * multiplier,
+              uppercl = dsr + sqrt((vardsr/sum(!!x)))*(byars_upper(sum(!!x),conf.level)-sum(!!x)) * multiplier) %>%
     select(-vardsr) %>%
-    mutate(dsr     = if_else(total_count < 10,-1,dsr),
-           !!quo_name(lowercl) := if_else(total_count < 10,-1,!!sym(lowercl)),
-           !!quo_name(uppercl) := if_else(total_count < 10,-1,!!sym(uppercl)),
-           method  = if_else(total_count < 10,"NA","Dobson"))
+    mutate(confidence = conf.level,
+           method = if_else(total_count < 10,"NA","Dobson"))
+
+  phe_dsr$dsr[phe_dsr$total_count < 10] <- NA
+  phe_dsr$uppercl[phe_dsr$total_count < 10] <- NA
+  phe_dsr$lowercl[phe_dsr$total_count < 10] <- NA
+  phe_dsr$conf_level[phe_dsr$total_count < 10] <- NA
+  phe_dsr$method[phe_dsr$total_count < 10] <- NA
+
 
   if (type == "lower") {
     phe_dsr <- phe_dsr %>%
-      select(-!!sym(uppercl), -dsr, -method, - total_count, -total_pop)
+      select(-total_count, -total_pop, -dsr, -uppercl, -confidence, -method)
   } else if (type == "upper") {
     phe_dsr <- phe_dsr %>%
-      select(-!!sym(lowercl), -dsr, -method, - total_count, -total_pop)
-  } else if (type == "rate") {
+      select(-total_count, -total_pop, -dsr, -lowercl, -confidence, -method)
+  } else if (type == "value") {
     phe_dsr <- phe_dsr %>%
-      select(-!!sym(lowercl), -!!sym(uppercl), -method, - total_count, -total_pop)
+      select(-total_count, -total_pop, -lowercl, -uppercl, -confidence, -method)
   } else if (type == "combined") {
     phe_dsr <- phe_dsr %>%
-      select(-method, - total_count, -total_pop)
+      select(-total_count, -total_pop, -confidence, -method)
   }
   return(phe_dsr)
 

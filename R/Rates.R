@@ -6,10 +6,12 @@
 #' @param row_label the label to give each row of output (eg area name); character vector, no default
 #' @param conf.level the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
-#' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000,
-#'                   100 = percentage); numeric; default 100,000
+#'
+#' @inheritParams phe_dsr
 #'
 #' @return Returns a data frame of numerator, denominator, rate, lower and upper confidence limits and method
+#'
+#' @importFrom rlang sym quo_name
 #'
 #' @examples
 #' phe_rate(65,100, row_label = "dummy")
@@ -26,17 +28,30 @@
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate rate and CIs using Byar's method
-phe_rate <- function(x, n, row_label, conf.level = 0.95, multiplier = 100000) {
+phe_rate <- function(data,x, n, type = "combined", conf.level = 0.95, multiplier = 100000) {
+
+    # check required arguments present
+  if (missing(data)) {
+    stop("data must contain a data.frame object")
+  } else if (missing(x)) {
+    stop("x must contain an unquoted field name from data")
+  } else if (missing(n)) {
+    stop("n must contain an unquoted field name from data")
+  }
+
+  # apply quotes
+  x <- enquo(x)
+  n <- enquo(n)
 
   # validate arguments
-  if (any(x < 0)) {
+  if (any(pull(data, !!x) < 0)) {
         stop("numerators must be greater than or equal to zero")
-    } else if (any(n <= 0)) {
+    } else if (any(pull(data, !!n) <= 0)) {
         stop("denominators must be greater than zero")
     } else if ((conf.level<0.9)|(conf.level >1 & conf.level <90)|(conf.level > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
-    } else if (length(x) != length(n)|length(x) != length(row_label)) {
-        stop("numerator, denominator and row label vectors must be of equal length")
+    } else if (!(type %in% c("value", "lower", "upper", "combined", "full"))) {
+      stop("type must be one of value, lower, upper, combined or full")
     }
 
   # scale confidence level
@@ -45,17 +60,28 @@ phe_rate <- function(x, n, row_label, conf.level = 0.95, multiplier = 100000) {
   }
 
   # calculate rate and CIs
-  phe_rate <- data.frame(row_label,x,n) %>%
-              mutate(rate = x/n*multiplier,
-              lowercl = if_else(x < 10, qchisq((1-conf.level)/2,2*x)/2/n*multiplier,
-                                byars_lower(x,conf.level)/n*multiplier),
-              uppercl = if_else(x < 10, qchisq(conf.level+(1-conf.level)/2,2*x+2)/2/n*multiplier,
-                                byars_upper(x,conf.level)/n*multiplier),
-              method  = if_else(x < 10, "Exact","Byars"))
+  phe_rate <- data %>%
+              mutate(rate = (!!x)/(!!n)*multiplier,
+              lowercl = if_else((!!x) < 10, qchisq((1-conf.level)/2,2*(!!x))/2/(!!n)*multiplier,
+                                byars_lower((!!x),conf.level)/(!!n)*multiplier),
+              uppercl = if_else((!!x) < 10, qchisq(conf.level+(1-conf.level)/2,2*(!!x)+2)/2/(!!n)*multiplier,
+                                byars_upper((!!x),conf.level)/(!!n)*multiplier),
+              confidence = paste(conf.level*100,"%"),
+              method  = if_else((!!x) < 10, "Exact","Byars"))
 
-  # set column names
-  names(phe_rate) <- c("row_label","numerator","denominator","rate",
-                       paste("lower",conf.level*100,"cl",sep=""),
-                       paste("upper",conf.level*100,"cl",sep=""),"method")
+  if (type == "lower") {
+    phe_rate <- phe_rate %>%
+      select(-rate, -uppercl, -confidence, -method)
+  } else if (type == "upper") {
+    phe_rate <- phe_rate %>%
+      select(-rate, -lowercl, -confidence, -method)
+  } else if (type == "value") {
+    phe_rate<- phe_rate %>%
+      select(-lowercl, -uppercl, -confidence, -method)
+  } else if (type == "combined") {
+    phe_rate <- phe_rate %>%
+      select( -confidence, -method)
+  }
+
   return(phe_rate)
 }

@@ -43,15 +43,13 @@ df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 *
                  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    mutate(stdpop = esp2013) \%>\%
-    phe_dsr(obs, pop, stdpop, "combined")
+    phe_dsr(obs, pop, esp2013)
 
 ## OR
 
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    mutate(stdpop = esp2013) \%>\%
-    phe_dsr(obs, pop, stdpop, "full")
+    phe_dsr(obs, pop, esp2013, "full")
 
 }
 \seealso{
