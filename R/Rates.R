@@ -1,21 +1,23 @@
 # -------------------------------------------------------------------------------------------------
 #' Calculates a rate with confidence limits using Byar's or Exact CI method.
 #'
-#' @param x the observed number(s) of events; numeric vector; no default
-#' @param n the denominator (eg population-years at risk); numeric vector; no default
-#' @param row_label the label to give each row of output (eg area name); character vector, no default
-#' @param conf.level the required level of confidence expressed as a number between 0.9 and 1
-#'                   or 90 and 100; numeric; default 0.95
+#' @param data the data.frame containing the data to calculate rates for
+#' @param x field name from data containing the rate numerators (eg observed number of events); unquoted string; no default
+#' @param n field name from data containing the rate denominators (eg populations); unquoted string; no default
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return Returns a data frame of numerator, denominator, rate, lower and upper confidence limits and method
+#' @return When type = "full" - adds rate, lower confidence limit, upper confidence limit, confidence level and method to the original data.frame
 #'
 #' @importFrom rlang sym quo_name
 #'
 #' @examples
-#' phe_rate(65,100, row_label = "dummy")
-#' phe_rate(65,100,99.8,100, row_label = "England - Males")
+#' library(dplyr)
+#' df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), 2),
+#'                  year = rep(2015:2016, each = 4),
+#'                  obs = sample(100, 2 * 4, replace = TRUE),
+#'                  pop = sample(100:200, 2 * 4, replace = TRUE))
+#' phe_rate(df, obs, pop)
 #'
 #' @export
 #'

@@ -5,34 +5,22 @@ context("test_phe_dsr")
 
 #test calculations
 test_that("dsrs and CIs calculate correctly",{
-  expect_equal(data.frame(phe_dsr(test_DSR_multiarea$count,
-                       test_DSR_multiarea$pop,
-                       stdpop = esp2013,
-                       groupref=test_DSR_multiarea$area,
-                       multiplier=10000)[1:6]),
+  expect_equal(data.frame(phe_dsr(test_DSR_multiarea, count, pop,
+                       stdpop = esp2013, multiplier=10000)[1:6]),
                select(filter(test_DSR_results,group!="testdata_1976"),1:6),
                check.attributes=FALSE, check.names=FALSE,info="test1")
 
-  expect_equal(data.frame(phe_dsr(test_DSR_multiarea$count,
-                       test_DSR_multiarea$pop,
-                       stdpop = esp2013,
-                       groupref=test_DSR_multiarea$area,
-                       multiplier=10000,
-                       conf.level=0.998)[1:6]),
+  expect_equal(data.frame(phe_dsr(test_DSR_multiarea, count, pop,
+                       stdpop = esp2013, multiplier=10000, conf.level=0.998)[1:6]),
                select(filter(test_DSR_results,group!="testdata_1976"),1:4,7:8),
                check.attributes=FALSE, check.names=FALSE,info="test2")
 
-  expect_equal(data.frame(phe_dsr(test_DSR_multiarea$count,
-                       test_DSR_multiarea$pop,
-                       stdpop = esp2013,
-                       groupref=test_DSR_multiarea$area,
-                       multiplier=10000,
-                       conf.level=95)[1:6]),
+  expect_equal(data.frame(phe_dsr(test_DSR_multiarea, count, pop,
+                       stdpop = esp2013, multiplier=10000, conf.level=95)[1:6]),
                select(filter(test_DSR_results,group!="testdata_1976"),1:6),
                check.attributes=FALSE, check.names=FALSE,info="test3")
 
-  expect_equal(data.frame(phe_dsr(test_DSR_1976$count,
-                       test_DSR_1976$pop,
+  expect_equal(data.frame(phe_dsr(test_DSR_1976, count, pop,
                        stdpop = test_DSR_1976$stdpop)[2:6]),
                select(filter(test_DSR_results,group=="testdata_1976"),2:6),
                check.attributes=FALSE, check.names=FALSE,info="test4")
@@ -40,7 +28,12 @@ test_that("dsrs and CIs calculate correctly",{
 
 # test error handling
 test_that("dsrs - errors are generated when invalid arguments are used",{
-  expect_error(data.frame(phe_dsr(test_DSR_err1$count,
+  expect_error(data.frame(phe_dsr(test_DSR_multiarea, count, pop, esp2013)),
+               "data must contain a data.frame object",info="error test 1")
+
+
+
+   expect_error(data.frame(phe_dsr(test_DSR_err1$count,
                                   test_DSR_err1$pop,
                                   stdpop = esp2013,
                                   groupref=test_DSR_err1$area)),

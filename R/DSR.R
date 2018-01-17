@@ -3,20 +3,19 @@
 #'
 #' Calculates a directly standardised rate with confidence limits using Dobson method.
 #'
-#' @param data data.frame containing the data you wish to standardise
-#' @param x unquoted field name containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
-#'          numeric vector; no default
-#' @param n unquoted field name containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
-#'          numeric vector; no default
-#' @param stdpop unquoted field name containing the standard populations for each standardisation category
-#'               (eg age band)
-#' @param type type of output; can be "rate", "lower", "upper", "combined" (for all 3 fields to be added to your output) or "full"; string
+#' @param data data.frame containing the data to be standarised, pre-grouped if multiple DSRs required; unquoted string; no default
+#' @param x field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
+#'          unquoted string; no default
+#' @param n field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
+#'          unquoted string; no default
+#' @param stdpop the standard populations for each standardisation category (eg age band); unquoted numeric vector; no default
+#' @param type type of output; can be "value", "lower", "upper", "combined" (for all 3 previous fields to be added to your output) or "full"; string; default combined
 #' @param conf.level the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000,
 #'                   100 = percentage); numeric; default 100,000
 #'
-#' @return When type = "full" returns a data frame of numerator, denominator, directly standardised rate,
+#' @return When type = "full" returns a data.frame of numerator, denominator, directly standardised rate,
 #'         lower and upper confidence limits and method
 
 #' @importFrom rlang sym quo_name
