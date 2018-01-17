@@ -51,14 +51,8 @@
 phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, multiplier = 100000) {
 
 # check required arguments present
-  if (missing(data)) {
-    stop("data must contain a data.frame object")
-  } else if (missing(x)) {
-    stop("x must contain an unquoted field name from data")
-  } else if (missing(n)) {
-    stop("n must contain an unquoted field name from data")
-  } else if (missing(stdpop)) {
-    stop("stdpop must be specified")
+  if (missing(data)|missing(x)|missing(n)|missing(stdpop)) {
+    stop("function phe_dsr requires at least 4 arguments: data, x, n, stdpop")
   }
 
 # apply quotes
@@ -75,6 +69,10 @@ phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, mu
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   } else if (!(type %in% c("value", "lower", "upper", "combined", "full"))) {
       stop("type must be one of value, lower, upper, combined or full")
+  } else if (n_distinct(summarise(pull(data),n=n())[,2] != 1)) {            # not working
+    stop("data must contain the same number of rows for each group")
+  } else if (summarise(pull(data),n=n())[1,2] != length(stdpop)) {          # not working
+    stop("stdpop length must equal number of rows in each group within data")
   }
 
 # scale confidence level
@@ -94,7 +92,7 @@ phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, mu
               lowercl = dsr + sqrt((vardsr/sum(!!x)))*(byars_lower(sum(!!x),conf.level)-sum(!!x)) * multiplier,
               uppercl = dsr + sqrt((vardsr/sum(!!x)))*(byars_upper(sum(!!x),conf.level)-sum(!!x)) * multiplier) %>%
     select(-vardsr) %>%
-    mutate(confidence = conf.level,
+    mutate(confidence = paste(conf.level*100,"%"),
            method = if_else(total_count < 10,"NA","Dobson"))
 
   phe_dsr$dsr[phe_dsr$total_count < 10] <- NA

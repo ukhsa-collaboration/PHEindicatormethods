@@ -46,8 +46,6 @@ test_DSR_err2      <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet=
 test_DSR_err3      <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testdata_err3",      col_names=TRUE)
 test_DSR_results   <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testresults",        col_names=TRUE)
 
-test_DSR_results$group <- as.factor(test_DSR_results$group)
-
 
 # ISRs
 test_ISR_multiarea <- read_excel(".\\tests\\testthat\\testdata_ISR.xlsx", sheet="testdata_multiarea", col_names=TRUE)
