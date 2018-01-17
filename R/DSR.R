@@ -17,7 +17,6 @@
 #'
 #' @return When type = "full" returns a data.frame of numerator, denominator, directly standardised rate,
 #'         lower and upper confidence limits and method
-
 #' @importFrom rlang sym quo_name
 #'
 #' @examples

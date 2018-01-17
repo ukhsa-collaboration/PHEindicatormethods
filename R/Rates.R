@@ -1,7 +1,9 @@
 # -------------------------------------------------------------------------------------------------
+#' Rate
+#'
 #' Calculates a rate with confidence limits using Byar's or Exact CI method.
 #'
-#' @param data the data.frame containing the data to calculate rates for
+#' @param data the data.frame containing the data to calculate rates for; unquoted string; no default
 #' @param x field name from data containing the rate numerators (eg observed number of events); unquoted string; no default
 #' @param n field name from data containing the rate denominators (eg populations); unquoted string; no default
 #'
@@ -33,13 +35,10 @@
 phe_rate <- function(data,x, n, type = "combined", conf.level = 0.95, multiplier = 100000) {
 
     # check required arguments present
-  if (missing(data)) {
-    stop("data must contain a data.frame object")
-  } else if (missing(x)) {
-    stop("x must contain an unquoted field name from data")
-  } else if (missing(n)) {
-    stop("n must contain an unquoted field name from data")
+  if (missing(data)|missing(x)|missing(n)) {
+    stop("function phe_dsr requires at least 3 arguments: data, x, n")
   }
+
 
   # apply quotes
   x <- enquo(x)

@@ -5,7 +5,7 @@
 #' @param conf.level the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #'
-#' @return Returns a lower confidence limit for an observed number of events usign Byar's method
+#' @return Returns a lower confidence limit for an observed number of events using Byar's method
 #'
 #' @examples
 #' byars_lower(65)

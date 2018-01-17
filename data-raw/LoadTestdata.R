@@ -26,8 +26,8 @@ test_Prop_100$Area <- as.factor(test_Prop_100$Area)
 test_Rate_100000 <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate_100000", col_names=TRUE)
 test_Rate_100    <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate_100",    col_names=TRUE)
 
-test_Rate_100$Area      <- as.factor(test_Rate_100$Area)
-test_Rate_100000$Area   <- as.factor(test_Rate_100000$Area)
+#test_Rate_100$Area      <- as.factor(test_Rate_100$Area)
+#test_Rate_100000$Area   <- as.factor(test_Rate_100000$Area)
 
 #Means
 test_Mean         <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet="testdata_Mean",         col_names=TRUE)

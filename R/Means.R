@@ -1,14 +1,14 @@
 # -------------------------------------------------------------------------------------------------
+#' Mean
+#'
 #' Calculates a mean with confidence limits using Student's-t distribution method.
 #'
-#' @param x the observed values in the sample(s)/population(s); numeric vector; no default
-#' @param groupref the grouping sets (eg area codes or area names) if calculating multiple means at once,
-#'                 character vector, default = No Grouping
-#' @param conf.level the required level of confidence expressed as a number between 0.9 and 1
-#'                   or 90 and 100; numeric; default 0.95
+#' @param data a data.frame containing the data to calculate means for, pre-grouped if multiple means required; unquoted string; no default
+#' @param x field name from data containing the values to calculate the mean for; unquoted string; no default
 #'
-#' @return Returns a data frame of row labels, sum of values, count of values, mean, standard deviation,
-#'         lower and upper confidence limits and method
+#' @inheritParams phe_dsr
+#'
+#' @return When type = "full", .......r
 #'
 #' @importFrom rlang sym quo_name
 #'
