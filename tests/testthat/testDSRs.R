@@ -6,7 +6,7 @@ context("test_phe_dsr")
 #test calculations
 test_that("dsrs and CIs calculate correctly",{
   expect_equal(data.frame(phe_dsr(test_DSR_multiarea, count, pop,
-                       stdpop = esp2013, multiplier=10000)[1:6]),
+                       stdpop = esp2013, multiplier=10000)[1:3]),
                select(filter(test_DSR_results,group!="testdata_1976"),1:6),
                check.attributes=FALSE, check.names=FALSE,info="test1")
 

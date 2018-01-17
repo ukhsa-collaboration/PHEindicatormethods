@@ -100,7 +100,7 @@ phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, mu
   phe_dsr$dsr[phe_dsr$total_count < 10] <- NA
   phe_dsr$uppercl[phe_dsr$total_count < 10] <- NA
   phe_dsr$lowercl[phe_dsr$total_count < 10] <- NA
-  phe_dsr$conf_level[phe_dsr$total_count < 10] <- NA
+  phe_dsr$confidence[phe_dsr$total_count < 10] <- NA
   phe_dsr$method[phe_dsr$total_count < 10] <- NA
 
 
