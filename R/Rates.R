@@ -69,6 +69,7 @@ phe_rate <- function(data,x, n, type = "combined", confidence = 0.95, multiplier
               uppercl = if_else((!!x) < 10, qchisq(confidence+(1-confidence)/2,2*(!!x)+2)/2/(!!n)*multiplier,
                                 byars_upper((!!x),confidence)/(!!n)*multiplier),
               confidence = paste(confidence*100,"%"),
+              statistic = paste("rate per ",multiplier),
               method  = if_else((!!x) < 10, "Exact","Byars"))
 
   if (type == "lower") {

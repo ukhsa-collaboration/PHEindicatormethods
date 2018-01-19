@@ -6,6 +6,7 @@
 # investigate tibbles versus data frames as outputs - currently some of each.
 # add to documentation - something like  "these are the methods by which PHE calculate PHOF outcome framework indicators - ie PHE official methods in that sense.
 # check if using normmean or students t when n is small
+# check re using options(scipen=999) in function - does it work, is it good practice?  otherwise get "rate per 1e05"
 
 
 # libraries
@@ -69,3 +70,23 @@ phe_proportion(prop, x= numerator, n= denominator)
 phe_proportion(prop, numerator, denominator, type="full")
 
 
+
+
+#testing DSR error handling
+
+#good code
+phe_dsr(test_DSR_multiarea,count,pop,stdpop=esp2013)
+phe_dsr(test_DSR_1976,count,pop,stdpop=esp2013[1:18])
+phe_dsr(test_DSR_1976,count,pop,stdpop=test_DSR_1976$stdpop)
+phe_dsr(test_DSR_1976,count,pop,stdpop)
+
+#OR:
+test <- test_DSR_1976 %>%
+  + mutate(esp1976 = stdpop) %>%
+  + select(-stdpop)
+phe_dsr(test,count,pop,esp1976)
+
+#bad code
+phe_dsr(test_DSR_multiarea,count,pop,esp2013[18])
+phe_dsr(test_DSR_multiarea,count,pop,test_DSR_1976$stdpop)
+phe_dsr(slice(test_DSR_multiarea,54),count,pop,esp2013)

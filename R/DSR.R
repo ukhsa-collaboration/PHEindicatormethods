@@ -10,7 +10,7 @@
 #'          unquoted string; no default
 #' @param stdpop the standard populations for each standardisation category (eg age band); unquoted numeric vector; no default
 #' @param type type of output; can be "value", "lower", "upper", "combined" (for all 3 previous fields to be added to your output) or "full"; string; default combined
-#' @param conf.level the required level of confidence expressed as a number between 0.9 and 1
+#' @param confidence the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000,
 #'                   100 = percentage); numeric; default 100,000
@@ -47,54 +47,53 @@
 # -------------------------------------------------------------------------------------------------
 
 # define the DSR function
-phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, multiplier = 100000) {
+phe_dsr <- function(data, x, n, stdpop, type = "combined", confidence = 0.95, multiplier = 100000) {
 
 # check required arguments present
   if (missing(data)|missing(x)|missing(n)|missing(stdpop)) {
-    stop("function phe_dsr requires at least 4 arguments: data, x, n, stdpop")
+      stop("function phe_dsr requires at least 4 arguments: data, x, n, stdpop")
   }
 
 # apply quotes
   x <- enquo(x)
   n <- enquo(n)
-#  if(is.numeric(stdpop)) {
-#    data <- mutate(data,stdpop2=stdpop)
-#  }
-  stdpop <- enquo(stdpop)
+  enquostdpop <- enquo(stdpop)
 
 # validate arguments
   if (any(pull(data, !!x) < 0)) {
       stop("numerators must all be greater than or equal to zero")
   } else if (any(pull(data, !!n) <= 0)) {
       stop("denominators must all be greater than zero")
-  } else if ((conf.level<0.9)|(conf.level >1 & conf.level <90)|(conf.level > 100)) {
+  } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   } else if (!(type %in% c("value", "lower", "upper", "combined", "full"))) {
       stop("type must be one of value, lower, upper, combined or full")
-  } else if (n_distinct(summarise(data,n=n())[,2]) != 1) {
+  } else if (n_distinct(select(summarise(data,n=n()),n)) != 1) {
     stop("data must contain the same number of rows for each group")
-  } else if (pull(summarise(data,n=n())[1,2]) != length(stdpop)) {
-    stop("stdpop length must equal number of rows in each group within data")
+#  } else if (is.numeric(stdpop)) {   #when column named passed stdpop not found here for is.numeric(stdpop or for length(stdpop))
+  }  else if (pull(slice(select(summarise(data,n=n()),n),1)) != length(stdpop)) {
+      stop("stdpop length must equal number of rows in each group within data")
   }
 
+
 # scale confidence level
-  if (conf.level >= 90) {
-    conf.level <- conf.level/100
+  if (confidence >= 90) {
+    confidence <- confidence/100
   }
 
 
 # calculate DSR and CIs
   phe_dsr <- data %>%
-    mutate(wt_rate = (!!x) * (!!stdpop) / (!!n),
-           sq_rate = (!!x) * ((!!stdpop)/(!!n))^2) %>%
+    mutate(wt_rate = (!!x) * (!!enquostdpop) / (!!n),
+           sq_rate = (!!x) * ((!!enquostdpop)/(!!n))^2) %>%
     summarise(total_count = sum(!!x),
               total_pop = sum(!!n),
-              dsr = sum(wt_rate) / sum((!!stdpop)) * multiplier,
-              vardsr = 1/sum(!!stdpop)^2 * sum(sq_rate),
-              lowercl = dsr + sqrt((vardsr/sum(!!x)))*(byars_lower(sum(!!x),conf.level)-sum(!!x)) * multiplier,
-              uppercl = dsr + sqrt((vardsr/sum(!!x)))*(byars_upper(sum(!!x),conf.level)-sum(!!x)) * multiplier) %>%
+              dsr = sum(wt_rate) / sum((!!enquostdpop)) * multiplier,
+              vardsr = 1/sum(!!enquostdpop)^2 * sum(sq_rate),
+              lowercl = dsr + sqrt((vardsr/sum(!!x)))*(byars_lower(sum(!!x),confidence)-sum(!!x)) * multiplier,
+              uppercl = dsr + sqrt((vardsr/sum(!!x)))*(byars_upper(sum(!!x),confidence)-sum(!!x)) * multiplier) %>%
     select(-vardsr) %>%
-    mutate(confidence = paste(conf.level*100,"%"),
+    mutate(confidence = paste(confidence*100,"%"),
            method = if_else(total_count < 10,"NA","Dobson"))
 
   phe_dsr$dsr[phe_dsr$total_count < 10]        <- "NA - total count is < 10"

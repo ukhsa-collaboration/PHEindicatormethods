@@ -14,6 +14,9 @@ library(readxl)
 #                     test_ISR_multiarea, test_ISR_refdata, test_ISR_err1, test_ISR_err2, test_ISR_err3, test_ISR_results,
 #                     internal = TRUE, overwrite = TRUE)
 
+# esp2013
+esp2013 <- c(5000,5500,5500,5500,6000,6000,6500,7000,7000,7000,7000,6500,6000,5500,5000,4000,2500,1500,1000)
+
 # Proportions
 test_Prop_1   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop_1",   col_names=TRUE)
 test_Prop_100 <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop_100", col_names=TRUE)
