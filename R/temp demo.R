@@ -75,18 +75,18 @@ phe_proportion(prop, numerator, denominator, type="full")
 #testing DSR error handling
 
 #good code
-phe_dsr(test_DSR_multiarea,count,pop,stdpop=esp2013)
-phe_dsr(test_DSR_1976,count,pop,stdpop=esp2013[1:18])
-phe_dsr(test_DSR_1976,count,pop,stdpop=test_DSR_1976$stdpop)
-phe_dsr(test_DSR_1976,count,pop,stdpop)
+phe_dsr(test_DSR_multiarea,count,pop,stdpop=esp2013) # good, stdpop is vector
+phe_dsr(test_DSR_1976,count,pop,stdpop=esp2013[1:18]) # good, stdpop is vector
+phe_dsr(test_DSR_1976,count,pop,stdpop=test_DSR_1976$stdpop) # good, stdpop is vector
+phe_dsr(test_DSR_1976,count,pop,stdpop) # good, stdpop is column reference
 
 #OR:
 test <- test_DSR_1976 %>%
-  + mutate(esp1976 = stdpop) %>%
-  + select(-stdpop)
-phe_dsr(test,count,pop,esp1976)
+  mutate(esp1976 = stdpop) %>%
+  select(-stdpop)
+phe_dsr(test,count,pop,esp1976) # effectively same as previous but doesn't work for some reason ??
 
 #bad code
-phe_dsr(test_DSR_multiarea,count,pop,esp2013[18])
-phe_dsr(test_DSR_multiarea,count,pop,test_DSR_1976$stdpop)
-phe_dsr(slice(test_DSR_multiarea,54),count,pop,esp2013)
+phe_dsr(test_DSR_multiarea,count,pop,esp2013[18]) # bad, stdpop is vector - stdpop length must equal number of rows in each group within data
+phe_dsr(test_DSR_multiarea,count,pop,test_DSR_1976$stdpop) # bad, stdpop is vector, stdpop length must equal number of rows in each group within data
+phe_dsr(slice(test_DSR_multiarea,54),count,pop,esp2013) # bad, stdpop is column from data, data must contain the same number of rows for each group

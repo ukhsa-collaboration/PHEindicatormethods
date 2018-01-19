@@ -70,11 +70,11 @@ phe_dsr <- function(data, x, n, stdpop, type = "combined", confidence = 0.95, mu
       stop("type must be one of value, lower, upper, combined or full")
   } else if (n_distinct(select(summarise(data,n=n()),n)) != 1) {
     stop("data must contain the same number of rows for each group")
-#  } else if (is.numeric(stdpop)) {   #when column named passed stdpop not found here for is.numeric(stdpop or for length(stdpop))
-  }  else if (pull(slice(select(summarise(data,n=n()),n),1)) != length(stdpop)) {
-      stop("stdpop length must equal number of rows in each group within data")
+  } else if (!exists("stdpop", where=data)) {
+      if (pull(slice(select(summarise(data,n=n()),n),1)) != length(stdpop)) {
+        stop("stdpop length must equal number of rows in each group within data")
+    }
   }
-
 
 # scale confidence level
   if (confidence >= 90) {
