@@ -11,7 +11,8 @@
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return Returns a data frame of numerator, denominator, proportion, lower and upper confidence limits and method
+#' @return When type=full, returns the original data.frame with the following columns appended:
+#'         proportion, lower confidence limit, upper confidence limit, confidence level, statistic and method
 #'
 #' @importFrom rlang sym quo_name
 #'
@@ -34,7 +35,7 @@
 # -------------------------------------------------------------------------------------------------
 
 # create phe_proportion function to execute binom.confint with method fixed to wilson
-phe_proportion <- function(data, x, n, type="combined", conf.level=0.95, percentage=FALSE) {
+phe_proportion <- function(data, x, n, type="combined", confidence=0.95, percentage=FALSE) {
 
     # check required arguments present
   if (missing(data)|missing(x)|missing(n))) {
@@ -53,15 +54,15 @@ phe_proportion <- function(data, x, n, type="combined", conf.level=0.95, percent
         stop("denominators must be greater than zero")
     } else if (any(pull(data, !!x) > pull(data, !!n))) {
         stop("numerators must be less than or equal to denominator for a proportion statistic")
-    } else if ((conf.level<0.9)|(conf.level >1 & conf.level <90)|(conf.level > 100)) {
+    } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     } else if (!(type %in% c("value", "lower", "upper", "combined", "full"))) {
       stop("type must be one of value, lower, upper, combined or full")
     }
 
   # scale confidence level
-  if (conf.level >= 90) {
-    conf.level <- conf.level/100
+  if (confidence >= 90) {
+    confidence <- confidence/100
   }
 
   # set multiplier
@@ -75,25 +76,23 @@ phe_proportion <- function(data, x, n, type="combined", conf.level=0.95, percent
                     mutate(proportion = (!!x)/(!!n) * multiplier,
                            lowercl = wilson_lower((!!x),(!!n),conf.level) * multiplier,
                            uppercl = wilson_upper((!!x),(!!n),conf.level) * multiplier,
-                           confidence = paste(conf.level*100,"%"),
+                           confidence = paste(confidence*100,"%"),
+                           statistic = if_else(percentage == TRUE,'Percentage','Proportion'),
                            method = "Wilson")
-
 
   if (type == "lower") {
     phe_proportion <- phe_proportion %>%
-      select(-proportion, -uppercl, -confidence, -method)
+      select(-proportion, -uppercl, -confidence, -statistic, -method)
   } else if (type == "upper") {
     phe_proportion <- phe_proportion %>%
-      select(-proportion, -lowercl, -confidence, -method)
+      select(-proportion, -lowercl, -confidence, -statistic, -method)
   } else if (type == "value") {
     phe_proportion<- phe_proportion %>%
-      select(-lowercl, -uppercl, -confidence, -method)
+      select(-lowercl, -uppercl, -confidence, -statistic, -method)
   } else if (type == "combined") {
     phe_proportion <- phe_proportion %>%
-      select( -confidence, -method)
+      select( -confidence, -statistic, -method)
   }
-
-
 
 return(phe_proportion)
 }

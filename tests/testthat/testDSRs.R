@@ -5,24 +5,25 @@ context("test_phe_dsr")
 
 #test calculations
 test_that("dsrs and CIs calculate correctly",{
+# resaved results excel sheet to match column headers exactly - but script below not working even tho 2 parts appear to give same results.....
   expect_equal(data.frame(phe_dsr(test_DSR_multiarea, count, pop,
-                                  type="full", stdpop = esp2013, multiplier=10000)[1:6]),
-               select(filter(test_DSR_results,group!="testdata_1976"),1:6),
+                                  type="full", stdpop = esp2013, multiplier=10000)),
+               slice(test_DSR_results,1:3),
                check.attributes=FALSE, check.names=FALSE,info="test1")
 
   expect_equal(data.frame(phe_dsr(test_DSR_multiarea, count, pop,
-                                  type="full", stdpop = esp2013, multiplier=10000, conf.level=0.998)[1:6]),
-               select(filter(test_DSR_results,group!="testdata_1976"),1:4,7:8),
+                                  type="full", stdpop = esp2013, multiplier=10000, conf.level=0.998)),
+               slice(test_DSR_results,5:7),
                check.attributes=FALSE, check.names=FALSE,info="test2")
 
   expect_equal(data.frame(phe_dsr(test_DSR_multiarea, count, pop,
                                   stdpop = esp2013, multiplier=10000, conf.level=95)),
-               select(filter(test_DSR_results,group!="testdata_1976"),1,4:6),
+               slice(test_DSR_results,1:3),
                check.attributes=FALSE, check.names=FALSE,info="test3")
 
   expect_equal(data.frame(phe_dsr(test_DSR_1976, count, pop,
-                                  type="full", stdpop = test_DSR_1976$stdpop)[1:5]),
-               select(filter(test_DSR_results,group=="testdata_1976"),2:6),
+                                  type="full", stdpop = test_DSR_1976$stdpop)),
+               select(slice(test_DSR_results,4),2:8),
                check.attributes=FALSE, check.names=FALSE,info="test4")
 
   expect_equal(data.frame(phe_dsr(test_DSR_multiarea, count, pop,
@@ -35,6 +36,7 @@ test_that("dsrs and CIs calculate correctly",{
 })
 
 # test error handling
+
 test_that("dsrs - errors are generated when invalid arguments are used",{
    expect_error(phe_dsr(count, pop, esp2013),
                 "function phe_dsr requires at least 4 arguments: data, x, n, stdpop",info="error test 1")

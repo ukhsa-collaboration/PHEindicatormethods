@@ -57,6 +57,9 @@ phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, mu
 # apply quotes
   x <- enquo(x)
   n <- enquo(n)
+#  if(is.numeric(stdpop)) {
+#    data <- mutate(data,stdpop2=stdpop)
+#  }
   stdpop <- enquo(stdpop)
 
 # validate arguments
@@ -68,9 +71,9 @@ phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, mu
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   } else if (!(type %in% c("value", "lower", "upper", "combined", "full"))) {
       stop("type must be one of value, lower, upper, combined or full")
-  } else if (n_distinct(summarise(pull(data),n=n())[,2] != 1)) {            # not working
+  } else if (n_distinct(summarise(data,n=n())[,2]) != 1) {
     stop("data must contain the same number of rows for each group")
-  } else if (summarise(pull(data),n=n())[1,2] != length(stdpop)) {          # not working
+  } else if (pull(summarise(data,n=n())[1,2]) != length(stdpop)) {
     stop("stdpop length must equal number of rows in each group within data")
   }
 
@@ -94,11 +97,11 @@ phe_dsr <- function(data, x, n, stdpop, type = "combined", conf.level = 0.95, mu
     mutate(confidence = paste(conf.level*100,"%"),
            method = if_else(total_count < 10,"NA","Dobson"))
 
-  phe_dsr$dsr[phe_dsr$total_count < 10] <- NA
-  phe_dsr$uppercl[phe_dsr$total_count < 10] <- NA
-  phe_dsr$lowercl[phe_dsr$total_count < 10] <- NA
-  phe_dsr$confidence[phe_dsr$total_count < 10] <- NA
-  phe_dsr$method[phe_dsr$total_count < 10] <- NA
+  phe_dsr$dsr[phe_dsr$total_count < 10]        <- "NA - total count is < 10"
+  phe_dsr$uppercl[phe_dsr$total_count < 10]    <- "NA - total count is < 10"
+  phe_dsr$lowercl[phe_dsr$total_count < 10]    <- "NA - total count is < 10"
+  phe_dsr$confidence[phe_dsr$total_count < 10] <- "NA - total count is < 10"
+  phe_dsr$method[phe_dsr$total_count < 10]     <- "NA - total count is < 10"
 
 
   if (type == "lower") {

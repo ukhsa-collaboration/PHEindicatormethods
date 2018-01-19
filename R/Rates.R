@@ -9,7 +9,8 @@
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return When type = "full" - adds rate, lower confidence limit, upper confidence limit, confidence level and method to the original data.frame
+#' @return When type=full, returns the original data.frame with the following columns appended:
+#'         rate, lower confidence limit, upper confidence limit, confidence level, statistic and method
 #'
 #' @importFrom rlang sym quo_name
 #'
@@ -32,7 +33,7 @@
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate rate and CIs using Byar's method
-phe_rate <- function(data,x, n, type = "combined", conf.level = 0.95, multiplier = 100000) {
+phe_rate <- function(data,x, n, type = "combined", confidence = 0.95, multiplier = 100000) {
 
     # check required arguments present
   if (missing(data)|missing(x)|missing(n)) {
@@ -49,39 +50,39 @@ phe_rate <- function(data,x, n, type = "combined", conf.level = 0.95, multiplier
         stop("numerators must be greater than or equal to zero")
     } else if (any(pull(data, !!n) <= 0)) {
         stop("denominators must be greater than zero")
-    } else if ((conf.level<0.9)|(conf.level >1 & conf.level <90)|(conf.level > 100)) {
+    } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     } else if (!(type %in% c("value", "lower", "upper", "combined", "full"))) {
       stop("type must be one of value, lower, upper, combined or full")
     }
 
   # scale confidence level
-  if (conf.level >= 90) {
-    conf.level <- conf.level/100
+  if (confidence >= 90) {
+    confidence <- confidence/100
   }
 
   # calculate rate and CIs
   phe_rate <- data %>%
               mutate(rate = (!!x)/(!!n)*multiplier,
-              lowercl = if_else((!!x) < 10, qchisq((1-conf.level)/2,2*(!!x))/2/(!!n)*multiplier,
-                                byars_lower((!!x),conf.level)/(!!n)*multiplier),
-              uppercl = if_else((!!x) < 10, qchisq(conf.level+(1-conf.level)/2,2*(!!x)+2)/2/(!!n)*multiplier,
-                                byars_upper((!!x),conf.level)/(!!n)*multiplier),
-              confidence = paste(conf.level*100,"%"),
+              lowercl = if_else((!!x) < 10, qchisq((1-confidence)/2,2*(!!x))/2/(!!n)*multiplier,
+                                byars_lower((!!x),confidence)/(!!n)*multiplier),
+              uppercl = if_else((!!x) < 10, qchisq(confidence+(1-confidence)/2,2*(!!x)+2)/2/(!!n)*multiplier,
+                                byars_upper((!!x),confidence)/(!!n)*multiplier),
+              confidence = paste(confidence*100,"%"),
               method  = if_else((!!x) < 10, "Exact","Byars"))
 
   if (type == "lower") {
     phe_rate <- phe_rate %>%
-      select(-rate, -uppercl, -confidence, -method)
+      select(-rate, -uppercl, -confidence, -statistic, -method)
   } else if (type == "upper") {
     phe_rate <- phe_rate %>%
-      select(-rate, -lowercl, -confidence, -method)
+      select(-rate, -lowercl, -confidence, -statistic, -method)
   } else if (type == "value") {
     phe_rate<- phe_rate %>%
-      select(-lowercl, -uppercl, -confidence, -method)
+      select(-lowercl, -uppercl, -confidence, -statistic, -method)
   } else if (type == "combined") {
     phe_rate <- phe_rate %>%
-      select( -confidence, -method)
+      select( -confidence, -statistic, -method)
   }
 
   return(phe_rate)
