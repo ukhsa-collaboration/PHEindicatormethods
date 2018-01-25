@@ -1,13 +1,14 @@
 # This file loads all testdata used by the testthat scripts into R/sysdata
 # there is also code to load all required libraries
-library(dplyr)
-library(testthat)
-library(devtools)
-library(binom)
-library(readxl)
+
+#library(dplyr)
+#library(testthat)
+#library(devtools)
+#library(binom)
+#library(readxl)
 
 # use this code to save loaded data to sysdata folder:
-#devtools::use_data(test_Prop_1, test_Prop_100,
+#devtools::use_data(test_Prop,
 #                     test_Rate_100, test_Rate_100000,
 #                     test_Mean, test_Mean_results,
 #                     test_DSR_multiarea, test_DSR_1976, test_DSR_err1, test_DSR_err2, test_DSR_err3, test_DSR_results,
@@ -21,11 +22,7 @@ library(readxl)
 test_Prop   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)
 
 #Rates
-test_Rate_100000 <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate_100000", col_names=TRUE)
-test_Rate_100    <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate_100",    col_names=TRUE)
-
-#test_Rate_100$Area      <- as.factor(test_Rate_100$Area)
-#test_Rate_100000$Area   <- as.factor(test_Rate_100000$Area)
+test_Rate <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate", col_names=TRUE)
 
 #Means
 test_Mean         <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet="testdata_Mean",         col_names=TRUE)

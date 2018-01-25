@@ -14,11 +14,6 @@
 #' @export
 #'
 #' @family phe statistical functions
-#' @seealso \code{\link{phe_proportion}} for proportions,
-#'          \code{\link{phe_rate}} for rates,
-#'          \code{\link{phe_mean}} for means,
-#'          \code{\link{phe_dsr}} for directly standardised rates,
-#'          \code{\link{phe_isr}} for indirectly standardised ratios/rates and standardised mortality ratios
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate Byar's lower CI limit
@@ -61,11 +56,6 @@ byars_lower <- function(x, confidence = 0.95) {
 #' @export
 #'
 #' @family phe statistical functions
-#' @seealso \code{\link{phe_proportion}} for proportions,
-#'          \code{\link{phe_rate}} for rates,
-#'          \code{\link{phe_mean}} for means,
-#'          \code{\link{phe_dsr}} for directly standardised rates,
-#'          \code{\link{phe_isr}} for indirectly standardised ratios/rates and standardised mortality ratios
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate Byar's upper CI limit

@@ -6,26 +6,73 @@ context("test_phe_rate")
 
 #test calculations
 test_that("rates and CIs calculate correctly",{
-  expect_equal(phe_rate(test_Rate_100$Numerator, test_Rate_100$Denominator,
-                        test_Rate_100$Area, multiplier=100)[1:6],
-               select(test_Rate_100,c(1,2,3,5,6,7)),check.attributes=FALSE, check.names=FALSE, info="test1")
-  expect_equal(phe_rate(test_Rate_100000$Numerator,test_Rate_100000$Denominator,
-                        test_Rate_100000$Area, multiplier=100000)[1:6],
-               select(test_Rate_100000,c(1,2,3,5,6,7)),check.attributes=FALSE, check.names=FALSE, info="test2")
-  expect_equal(phe_rate(test_Rate_100$Numerator,test_Rate_100$Denominator,
-                        test_Rate_100$Area, conf.level=99.8, multiplier=100)[1:6],
-               select(test_Rate_100,c(1,2,3,5,8,9)),check.attributes=FALSE, check.names=FALSE, info="test3")
-  expect_equal(phe_rate(test_Rate_100000$Numerator,test_Rate_100000$Denominator,
-                        test_Rate_100000$Area, conf.level=0.998, multiplier=100000)[1:6],
-               select(test_Rate_100000,c(1,2,3,5,8,9)),check.attributes=FALSE, check.names=FALSE, info="test4")
+
+  expect_equal(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator),
+               select(slice(test_Rate,9:16),1:6),check.attributes=FALSE, check.names=FALSE, info="test default")
+
+  expect_equal(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="full"),
+               select(slice(test_Rate,9:16),1:9),check.attributes=FALSE, check.names=FALSE, info="test full")
+
+  expect_equal(phe_rate(slice(test_Rate,25:32)[1:3],Numerator,Denominator, confidence=99.8),
+               select(slice(test_Rate,25:32),1:6),check.attributes=FALSE, check.names=FALSE, info="test confidence")
+
+  expect_equal(phe_rate(slice(test_Rate,1:8)[1:3],Numerator,Denominator, multiplier=100),
+               select(slice(test_Rate,1:8),1:6),check.attributes=FALSE, check.names=FALSE, info="test multiplier")
+
+  expect_equal(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="value"),
+               select(slice(test_Rate,9:16),1:4),check.attributes=FALSE, check.names=FALSE, info="test value")
+
+  expect_equal(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="lower"),
+               select(slice(test_Rate,9:16),1:3,5),check.attributes=FALSE, check.names=FALSE, info="test lower")
+
+  expect_equal(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="upper"),
+               select(slice(test_Rate,9:16),1:3,6),check.attributes=FALSE, check.names=FALSE, info="test upper")
+
 })
+
+
 
 
 # test error handling
 test_that("rates - errors are generated when invalid arguments are used",{
-  expect_error(phe_rate(-65,100,"Area 1"),"numerators must be greater than or equal to zero", info="error test 1")
-  expect_error(phe_rate(65,-100,"Area 1"),"denominators must be greater than zero", info="error test 2")
-  expect_error(phe_rate(65,0,"Area 1"),"denominators must be greater than zero", info="error test 3")
-  expect_error(phe_rate(65,100,"Area 1",conf.level=20),"confidence level must be between 90 and 100 or between 0.9 and 1", info="error test 4")
-  expect_error(phe_rate(c(5,65,800),c(100,100,1000),"Area 1"),"numerator, denominator and row label vectors must be of equal length", info="error test 5")
+  expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
+                                   obs =c(65,80,30),
+                                   pop =c(100,100,100)), obs),
+               "function phe_dsr requires at least 3 arguments: data, x, n", info="error invalid number of arguments")
+
+  expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
+                                   obs =c(-65,80,30),
+                                   pop =c(100,100,100)), obs, pop),
+               "numerators must be greater than or equal to zero", info="error num < 0")
+
+  expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
+                                   obs =c(65,80,30),
+                                   pop =c(100,100,0)), obs, pop),
+               "denominators must be greater than zero", info="error denom = 0")
+
+  expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
+                                   obs =c(65,80,30),
+                                   pop =c(100,-100,100)), obs, pop),
+               "denominators must be greater than zero", info="error denom < 0")
+
+  expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
+                                   obs =c(65,80,30),
+                                   pop =c(100,100,100)), obs, pop, confidence = 0.5),
+               "confidence level must be between 90 and 100 or between 0.9 and 1", info="error confidence < 0.9")
+
+  expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
+                                   obs =c(65,80,30),
+                                   pop =c(100,100,100)), obs, pop, confidence = 40),
+               "confidence level must be between 90 and 100 or between 0.9 and 1", info="error confidence between 1 and 90")
+
+  expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
+                                   obs =c(65,80,30),
+                                   pop =c(100,100,100)), obs, pop, confidence = 9998),
+               "confidence level must be between 90 and 100 or between 0.9 and 1", info="error confidence >100")
+
+  expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
+                                   obs =c(65,80,30),
+                                   pop =c(100,100,100)), obs, pop, type="combined"),
+               "type must be one of value, lower, upper, standard or full", info="error invalid type")
+
 })

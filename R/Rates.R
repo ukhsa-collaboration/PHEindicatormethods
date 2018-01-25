@@ -21,15 +21,11 @@
 #'                  obs = sample(100, 2 * 4, replace = TRUE),
 #'                  pop = sample(100:200, 2 * 4, replace = TRUE))
 #' phe_rate(df, obs, pop)
+#' phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
 #'
 #' @export
 #'
 #' @family phe statistical functions
-#' @seealso \code{\link{phe_proportion}} for proportions,
-#'          \code{\link{phe_rate}} for rates,
-#'          \code{\link{phe_mean}} for means,
-#'          \code{\link{phe_dsr}} for directly standardised rates,
-#'          \code{\link{phe_isr}} for indirectly standardised ratios/rates and standardised mortality ratios
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate rate and CIs using Byar's method
@@ -69,7 +65,7 @@ phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier
               uppercl = if_else((!!x) < 10, qchisq(confidence+(1-confidence)/2,2*(!!x)+2)/2/(!!n)*multiplier,
                                 byars_upper((!!x),confidence)/(!!n)*multiplier),
               confidence = paste(confidence*100,"%",sep=""),
-              statistic = paste("rate per",format(multiplier, scientific=F)),
+              statistic = paste("rate per",as.character(format(multiplier, scientific=F))),
               method  = if_else((!!x) < 10, "Exact","Byars"))
 
   if (type == "lower") {
