@@ -37,7 +37,7 @@
 # -------------------------------------------------------------------------------------------------
 
 # create phe_proportion function to execute binom.confint with method fixed to wilson
-phe_mean <- function(data, x, type = "combined", confidence=0.95) {
+phe_mean <- function(data, x, type = "standard", confidence=0.95) {
 
   # check required arguments present
   if (missing(data)|missing(x)) {
@@ -51,7 +51,7 @@ phe_mean <- function(data, x, type = "combined", confidence=0.95) {
   # validate arguments - copied from proportion need editing
   if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
     stop("confidence level must be between 90 and 100 or between 0.9 and 1")
-  } else if (!(type %in% c("value", "lower", "upper", "combined", "full"))) {
+  } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
     stop("type must be one of value, lower, upper, combined or full")
   }
 
@@ -85,7 +85,7 @@ phe_mean <- function(data, x, type = "combined", confidence=0.95) {
   } else if (type == "value") {
     phe_mean <- phe_mean %>%
       select(-value_sum, -value_count, -stdev, -lowercl, -uppercl, -confidence, -method)
-  } else if (type == "combined") {
+  } else if (type == "standard") {
     phe_mean <- phe_mean %>%
       select(-value_sum, -value_count, -stdev, -confidence, -method)
   }

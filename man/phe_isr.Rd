@@ -61,5 +61,6 @@ phe_isr(c(27,45,55,100,125,300,295,270,275,450,455,459,345,300,270,265,100,90,35
 Other phe statistical functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_dsr}},
   \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_rate}}
+  \code{\link{phe_rate}}, \code{\link{wilson_lower}},
+  \code{\link{wilson_upper}}
 }

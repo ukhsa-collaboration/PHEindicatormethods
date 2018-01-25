@@ -2,33 +2,38 @@
 % Please edit documentation in R/Means.R
 \name{phe_mean}
 \alias{phe_mean}
-\title{Calculates a mean with confidence limits using Student's-t distribution method.}
+\title{Mean}
 \usage{
-phe_mean(x, groupref = "No grouping", conf.level = 0.95)
+phe_mean(data, x, type = "combined", confidence = 0.95)
 }
 \arguments{
-\item{x}{the observed values in the sample(s)/population(s); numeric vector; no default}
+\item{data}{a data.frame containing the data to calculate means for, pre-grouped if multiple means required; unquoted string; no default}
 
-\item{groupref}{the grouping sets (eg area codes or area names) if calculating multiple means at once,
-character vector, default = No Grouping}
+\item{x}{field name from data containing the values to calculate the means for; unquoted string; no default}
 
-\item{conf.level}{the required level of confidence expressed as a number between 0.9 and 1
+\item{type}{type of output; can be "value", "lower", "upper", "combined" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
+
+\item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 }
 \value{
-Returns a data frame of row labels, sum of values, count of values, mean, standard deviation,
-        lower and upper confidence limits and method
+When type = "full", .......r
 }
 \description{
-Calculates a mean with confidence limits using Student's-t distribution method.
+Calculates a mean with confidence limits using Student's t-distribution method.
 }
 \examples{
-phe_mean(c(20,30,40), 0.95)
+df <- data.frame(values = c(30,40,50,60))
+phe_mean(df, values)
 
-## Example of the grouping parameter
-df <- data.frame(group = rep(letters[1:5], each = 5),
-                 value = runif(25))
-phe_mean(df$value, df$group)
+OR
+
+df2 <- data.frame(area = rep(c("Area1", "Area2"),each=3),
+                  values = c(20,30,40,200,300,400)) \%>\%
+                  group_by(area)
+phe_mean(df2,values)
+
+
 }
 \seealso{
 \code{\link{phe_proportion}} for proportions,
@@ -40,5 +45,6 @@ phe_mean(df$value, df$group)
 Other phe statistical functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_proportion}},
-  \code{\link{phe_rate}}
+  \code{\link{phe_rate}}, \code{\link{wilson_lower}},
+  \code{\link{wilson_upper}}
 }

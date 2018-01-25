@@ -33,7 +33,7 @@
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate rate and CIs using Byar's method
-phe_rate <- function(data,x, n, type = "combined", confidence = 0.95, multiplier = 100000) {
+phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier = 100000) {
 
     # check required arguments present
   if (missing(data)|missing(x)|missing(n)) {
@@ -52,7 +52,7 @@ phe_rate <- function(data,x, n, type = "combined", confidence = 0.95, multiplier
         stop("denominators must be greater than zero")
     } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
-    } else if (!(type %in% c("value", "lower", "upper", "combined", "full"))) {
+    } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
       stop("type must be one of value, lower, upper, combined or full")
     }
 
@@ -81,7 +81,7 @@ phe_rate <- function(data,x, n, type = "combined", confidence = 0.95, multiplier
   } else if (type == "value") {
     phe_rate<- phe_rate %>%
       select(-lowercl, -uppercl, -confidence, -statistic, -method)
-  } else if (type == "combined") {
+  } else if (type == "standard") {
     phe_rate <- phe_rate %>%
       select( -confidence, -statistic, -method)
   }

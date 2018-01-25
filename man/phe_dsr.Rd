@@ -4,31 +4,30 @@
 \alias{phe_dsr}
 \title{DSR}
 \usage{
-phe_dsr(data, x, n, stdpop, type = "combined", conf.level = 0.95,
+phe_dsr(data, x, n, stdpop, type = "combined", confidence = 0.95,
   multiplier = 1e+05)
 }
 \arguments{
-\item{data}{data.frame containing the data you wish to standardise}
+\item{data}{data.frame containing the data to be standarised, pre-grouped if multiple DSRs required; unquoted string; no default}
 
-\item{x}{unquoted field name containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
-numeric vector; no default}
+\item{x}{field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
+unquoted string; no default}
 
-\item{n}{unquoted field name containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
-numeric vector; no default}
+\item{n}{field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
+unquoted string; no default}
 
-\item{stdpop}{unquoted field name containing the standard populations for each standardisation category
-(eg age band)}
+\item{stdpop}{the standard populations for each standardisation category (eg age band); unquoted numeric vector; no default}
 
-\item{type}{type of output; can be "rate", "lower", "upper", "combined" (for all 3 fields to be added to your output) or "full"; string}
+\item{type}{type of output; can be "value", "lower", "upper", "combined" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
 
-\item{conf.level}{the required level of confidence expressed as a number between 0.9 and 1
+\item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
 \item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000,
 100 = percentage); numeric; default 100,000}
 }
 \value{
-When type = "full" returns a data frame of numerator, denominator, directly standardised rate,
+When type = "full" returns a data.frame of numerator, denominator, directly standardised rate,
         lower and upper confidence limits and method
 }
 \description{
@@ -62,5 +61,6 @@ df \%>\%
 Other phe statistical functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_isr}},
   \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_rate}}
+  \code{\link{phe_rate}}, \code{\link{wilson_lower}},
+  \code{\link{wilson_upper}}
 }

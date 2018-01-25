@@ -9,7 +9,7 @@
 #' @param n field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
 #'          unquoted string; no default
 #' @param stdpop the standard populations for each standardisation category (eg age band); unquoted numeric vector; no default
-#' @param type type of output; can be "value", "lower", "upper", "combined" (for all 3 previous fields to be added to your output) or "full"; string; default combined
+#' @param type type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields to be added to your output) or "full"; string; default combined
 #' @param confidence the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000,
@@ -47,7 +47,7 @@
 # -------------------------------------------------------------------------------------------------
 
 # define the DSR function
-phe_dsr <- function(data, x, n, stdpop, type = "combined", confidence = 0.95, multiplier = 100000) {
+phe_dsr <- function(data, x, n, stdpop, type = "standard", confidence = 0.95, multiplier = 100000) {
 
 # check required arguments present
   if (missing(data)|missing(x)|missing(n)|missing(stdpop)) {
@@ -67,7 +67,7 @@ phe_dsr <- function(data, x, n, stdpop, type = "combined", confidence = 0.95, mu
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   } else if (!(type %in% c("value", "lower", "upper", "combined", "full"))) {
-      stop("type must be one of value, lower, upper, combined or full")
+      stop("type must be one of value, lower, upper, standard or full")
   } else if (n_distinct(select(summarise(data,n=n()),n)) != 1) {
     stop("data must contain the same number of rows for each group")
   } else if (!exists("stdpop", where=data)) {
@@ -112,7 +112,7 @@ phe_dsr <- function(data, x, n, stdpop, type = "combined", confidence = 0.95, mu
   } else if (type == "value") {
     phe_dsr <- phe_dsr %>%
       select(-total_count, -total_pop, -lowercl, -uppercl, -confidence, -method)
-  } else if (type == "combined") {
+  } else if (type == "standard") {
     phe_dsr <- phe_dsr %>%
       select(-total_count, -total_pop, -confidence, -method)
   }

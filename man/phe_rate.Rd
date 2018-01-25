@@ -2,32 +2,40 @@
 % Please edit documentation in R/Rates.R
 \name{phe_rate}
 \alias{phe_rate}
-\title{Calculates a rate with confidence limits using Byar's or Exact CI method.}
+\title{Rate}
 \usage{
-phe_rate(x, n, row_label, conf.level = 0.95, multiplier = 1e+05)
+phe_rate(data, x, n, type = "combined", confidence = 0.95,
+  multiplier = 1e+05)
 }
 \arguments{
-\item{x}{the observed number(s) of events; numeric vector; no default}
+\item{data}{the data.frame containing the data to calculate rates for; unquoted string; no default}
 
-\item{n}{the denominator (eg population-years at risk); numeric vector; no default}
+\item{x}{field name from data containing the rate numerators (eg observed number of events); unquoted string; no default}
 
-\item{row_label}{the label to give each row of output (eg area name); character vector, no default}
+\item{n}{field name from data containing the rate denominators (eg populations); unquoted string; no default}
 
-\item{conf.level}{the required level of confidence expressed as a number between 0.9 and 1
+\item{type}{type of output; can be "value", "lower", "upper", "combined" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
+
+\item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
 \item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000,
 100 = percentage); numeric; default 100,000}
 }
 \value{
-Returns a data frame of numerator, denominator, rate, lower and upper confidence limits and method
+When type=full, returns the original data.frame with the following columns appended:
+        rate, lower confidence limit, upper confidence limit, confidence level, statistic and method
 }
 \description{
 Calculates a rate with confidence limits using Byar's or Exact CI method.
 }
 \examples{
-phe_rate(65,100, row_label = "dummy")
-phe_rate(65,100,99.8,100, row_label = "England - Males")
+library(dplyr)
+df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), 2),
+                 year = rep(2015:2016, each = 4),
+                 obs = sample(100, 2 * 4, replace = TRUE),
+                 pop = sample(100:200, 2 * 4, replace = TRUE))
+phe_rate(df, obs, pop)
 
 }
 \seealso{
@@ -40,5 +48,6 @@ phe_rate(65,100,99.8,100, row_label = "England - Males")
 Other phe statistical functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_mean}},
-  \code{\link{phe_proportion}}
+  \code{\link{phe_proportion}}, \code{\link{wilson_lower}},
+  \code{\link{wilson_upper}}
 }
