@@ -53,7 +53,7 @@ phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier
     } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
-      stop("type must be one of value, lower, upper, combined or full")
+      stop("type must be one of value, lower, upper, standard or full")
     }
 
   # scale confidence level

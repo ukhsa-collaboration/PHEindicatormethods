@@ -34,7 +34,7 @@
 #'          \code{\link{phe_isr}} for indirectly standardised ratios/rates and standardised mortality ratios
 # -------------------------------------------------------------------------------------------------
 
-# create phe_proportion function to execute binom.confint with method fixed to wilson
+# create phe_proportion function with method fixed to wilson
 phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percentage=FALSE) {
 
     # check required arguments present
@@ -57,7 +57,7 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
     } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
-      stop("type must be one of value, lower, upper, combined or full")
+      stop("type must be one of value, lower, upper, standard or full")
     }
 
   # scale confidence level
@@ -77,7 +77,7 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
                            lowercl = wilson_lower((!!x),(!!n),confidence) * multiplier,
                            uppercl = wilson_upper((!!x),(!!n),confidence) * multiplier,
                            confidence = paste(confidence*100,"%",sep=""),
-                           statistic = if_else(percentage == TRUE,'Percentage','Proportion'),
+                           statistic = if_else(percentage == TRUE,"percentage","proportion"),
                            method = "Wilson")
 
   if (type == "lower") {
@@ -88,69 +88,6 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
       select(-proportion, -lowercl, -confidence, -statistic, -method)
   } else if (type == "value") {
     phe_proportion<- phe_proportion %>%
-# create phe_proportion function to execute binom.confint with method fixed to wilson
-phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percentage=FALSE) {
-
-    # check required arguments present
-  if (missing(data)|missing(x)|missing(n)) {
-    stop("function phe_dsr requires at least 3 arguments: data, x, n")
-  }
-
-  # apply quotes
-  x <- enquo(x)
-  n <- enquo(n)
-
-
-  # validate arguments
-  if (any(pull(data, !!x) < 0)) {
-        stop("numerators must be greater than or equal to zero")
-    } else if (any(pull(data, !!n) <= 0)) {
-        stop("denominators must be greater than zero")
-    } else if (any(pull(data, !!x) > pull(data, !!n))) {
-        stop("numerators must be less than or equal to denominator for a proportion statistic")
-    } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
-        stop("confidence level must be between 90 and 100 or between 0.9 and 1")
-    } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
-      stop("type must be one of value, lower, upper, combined or full")
-    }
-
-  # scale confidence level
-  if (confidence >= 90) {
-    confidence <- confidence/100
-  }
-
-  # set multiplier
-  multiplier <- 1
-  if (percentage == TRUE) {
-    multiplier <- 100
-  }
-
-  # calculate proportion and CIs
-  phe_proportion <- data %>%
-                    mutate(proportion = (!!x)/(!!n) * multiplier,
-                           lowercl = wilson_lower((!!x),(!!n),confidence) * multiplier,
-                           uppercl = wilson_upper((!!x),(!!n),confidence) * multiplier,
-                           confidence = paste(confidence*100,"%",sep=""),
-                           statistic = if_else(percentage == TRUE,'percentage','proportion'),
-                           method = "Wilson")
-
-  if (type == "lower") {
-    phe_proportion <- phe_proportion %>%
-      select(-proportion, -uppercl, -confidence, -statistic, -method)
-  } else if (type == "upper") {
-    phe_proportion <- phe_proportion %>%
-      select(-proportion, -lowercl, -confidence, -statistic, -method)
-  } else if (type == "value") {
-    phe_proportion<- phe_proportion %>%
-      select(-lowercl, -uppercl, -confidence, -statistic, -method)
-  } else if (type == "standard") {
-    phe_proportion <- phe_proportion %>%
-      select( -confidence, -statistic, -method)
-  }
-
-return(phe_proportion)
-}
-
       select(-lowercl, -uppercl, -confidence, -statistic, -method)
   } else if (type == "standard") {
     phe_proportion <- phe_proportion %>%

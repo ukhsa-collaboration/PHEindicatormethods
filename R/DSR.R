@@ -66,7 +66,7 @@ phe_dsr <- function(data, x, n, stdpop, type = "standard", confidence = 0.95, mu
       stop("denominators must all be greater than zero")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
-  } else if (!(type %in% c("value", "lower", "upper", "combined", "full"))) {
+  } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
       stop("type must be one of value, lower, upper, standard or full")
   } else if (n_distinct(select(summarise(data,n=n()),n)) != 1) {
     stop("data must contain the same number of rows for each group")
