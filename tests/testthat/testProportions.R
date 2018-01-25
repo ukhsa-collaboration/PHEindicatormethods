@@ -6,19 +6,19 @@ context("test_phe_proportion")
 
 # test calculations
 test_that("proportions and CIs calculate correctly",{
-  expect_equal(phe_proportion(test_Prop_100[1:3], Numerator, Denominator,
-                              percentage=TRUE, type="full")[1:6],
-               select(test_Prop_100,1:3,5:7),check.attributes=FALSE, check.names=FALSE, info="test 1")
+  expect_equal(data.frame(phe_proportion(slice(test_Prop,9:16)[1:3], Numerator, Denominator,
+                              percentage=TRUE, type="full")),
+               data.frame(select(slice(test_Prop,9:16),1:9)),check.attributes=FALSE, check.names=FALSE, info="test 1")
 
-  expect_equal(phe_proportion(test_Prop_1[1:3], Numerator, Denominator,
+  expect_equal(phe_proportion(test_Prop[1:3], Numerator, Denominator,
                               percentage=FALSE, type="full")[1:6],
                select(test_Prop_1,1:3,5:7),check.attributes=FALSE, check.names=FALSE, info="test 2")
 
-  expect_equal(phe_proportion(test_Prop_100[1:3], Numerator, Denominator,
+  expect_equal(phe_proportion(test_Prop[1:3], Numerator, Denominator,
                               conf.level=99.8, type="full")[1:6],
                select(test_Prop_100,1:3,5,8:9),check.attributes=FALSE, check.names=FALSE, info="test 3")
 
-  expect_equal(phe_proportion(test_Prop_1[1:3], Numerator, Denominator,
+  expect_equal(phe_proportion(test_Prop[1:3], Numerator, Denominator,
                               percentage=FALSE, type="full")[1:6],
                select(test_Prop_1,1:3,5:7),check.attributes=FALSE, check.names=FALSE, info="test 4")
 })

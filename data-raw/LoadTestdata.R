@@ -15,15 +15,10 @@ library(readxl)
 #                     internal = TRUE, overwrite = TRUE)
 
 # esp2013
-esp2013 <- c(5000,5500,5500,5500,6000,6000,6500,7000,7000,7000,7000,6500,6000,5500,5000,4000,2500,1500,1000)
+#esp2013 <- c(5000,5500,5500,5500,6000,6000,6500,7000,7000,7000,7000,6500,6000,5500,5000,4000,2500,1500,1000)
 
 # Proportions
-test_Prop_1   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop_1",   col_names=TRUE)
-test_Prop_100 <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop_100", col_names=TRUE)
-
-test_Prop_1$Area   <- as.factor(test_Prop_1$Area)
-test_Prop_100$Area <- as.factor(test_Prop_100$Area)
-
+test_Prop   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)
 
 #Rates
 test_Rate_100000 <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate_100000", col_names=TRUE)
