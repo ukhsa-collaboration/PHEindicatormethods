@@ -19,6 +19,8 @@
 #'         lower and upper confidence limits and method
 #' @importFrom rlang sym quo_name
 #'
+#' @import dplyr
+#'
 #' @examples
 #' library(dplyr)
 #' df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
@@ -90,13 +92,11 @@ phe_dsr <- function(data, x, n, stdpop, type = "standard", confidence = 0.95, mu
     select(-vardsr) %>%
     mutate(confidence = paste(confidence*100,"%",sep=""),
            statistic = paste("dsr per",format(multiplier,scientific=F)),
-                      method = if_else(total_count < 10,"NA","Dobson"))
+           method = "Dobson")
 
   phe_dsr$dsr[phe_dsr$total_count < 10]        <- "NA - total count is < 10"
   phe_dsr$uppercl[phe_dsr$total_count < 10]    <- "NA - total count is < 10"
   phe_dsr$lowercl[phe_dsr$total_count < 10]    <- "NA - total count is < 10"
-  phe_dsr$confidence[phe_dsr$total_count < 10] <- "NA - total count is < 10"
-  phe_dsr$method[phe_dsr$total_count < 10]     <- "NA - total count is < 10"
 
 
   if (type == "lower") {
