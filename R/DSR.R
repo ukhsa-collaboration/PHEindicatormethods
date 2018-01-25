@@ -93,8 +93,9 @@ phe_dsr <- function(data, x, n, stdpop, type = "standard", confidence = 0.95, mu
               lowercl = dsr + sqrt((vardsr/sum(!!x)))*(byars_lower(sum(!!x),confidence)-sum(!!x)) * multiplier,
               uppercl = dsr + sqrt((vardsr/sum(!!x)))*(byars_upper(sum(!!x),confidence)-sum(!!x)) * multiplier) %>%
     select(-vardsr) %>%
-    mutate(confidence = paste(confidence*100,"%"),
-           method = if_else(total_count < 10,"NA","Dobson"))
+    mutate(confidence = paste(confidence*100,"%",sep=""),
+           statistic = paste("dsr per",format(multiplier,scientific=F)),
+                      method = if_else(total_count < 10,"NA","Dobson"))
 
   phe_dsr$dsr[phe_dsr$total_count < 10]        <- "NA - total count is < 10"
   phe_dsr$uppercl[phe_dsr$total_count < 10]    <- "NA - total count is < 10"
@@ -105,16 +106,16 @@ phe_dsr <- function(data, x, n, stdpop, type = "standard", confidence = 0.95, mu
 
   if (type == "lower") {
     phe_dsr <- phe_dsr %>%
-      select(-total_count, -total_pop, -dsr, -uppercl, -confidence, -method)
+      select(-total_count, -total_pop, -dsr, -uppercl, -confidence, -statistic, -method)
   } else if (type == "upper") {
     phe_dsr <- phe_dsr %>%
-      select(-total_count, -total_pop, -dsr, -lowercl, -confidence, -method)
+      select(-total_count, -total_pop, -dsr, -lowercl, -confidence, -statistic, -method)
   } else if (type == "value") {
     phe_dsr <- phe_dsr %>%
-      select(-total_count, -total_pop, -lowercl, -uppercl, -confidence, -method)
+      select(-total_count, -total_pop, -lowercl, -uppercl, -confidence, -statistic, -method)
   } else if (type == "standard") {
     phe_dsr <- phe_dsr %>%
-      select(-total_count, -total_pop, -confidence, -method)
+      select(-total_count, -total_pop, -confidence, -statistic, -method)
   }
   return(phe_dsr)
 

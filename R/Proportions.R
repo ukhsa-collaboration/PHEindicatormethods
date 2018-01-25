@@ -76,7 +76,7 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
                     mutate(proportion = (!!x)/(!!n) * multiplier,
                            lowercl = wilson_lower((!!x),(!!n),conf.level) * multiplier,
                            uppercl = wilson_upper((!!x),(!!n),conf.level) * multiplier,
-                           confidence = paste(confidence*100,"%"),
+                           confidence = paste(confidence*100,"%",sep=""),
                            statistic = if_else(percentage == TRUE,'Percentage','Proportion'),
                            method = "Wilson")
 

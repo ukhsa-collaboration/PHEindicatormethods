@@ -89,7 +89,8 @@ phe_isr <- function(x,n,x_ref, n_ref, groupref = "No Grouping", conf.level = 0.9
                              byars_lower(obs,conf.level)/exp*multiplier),
            uppercl = if_else(obs<10, qchisq(conf.level+(1-conf.level)/2,2*obs+2)/2/exp*multiplier,
                              byars_upper(obs,conf.level)/exp*multiplier),
-           confidence = paste(conf.level*100,"%"),
+           confidence = paste(conf.level*100,"%",sep=""),
+  # amend         statistic = paste("dsr per",format(multiplier,scientific=F)),
            method  = if_else(obs<10,"Exact","Byars"))
 
     names(phe_isr) <- c("group", "observed", "expected", "isr",
@@ -111,6 +112,7 @@ phe_isr <- function(x,n,x_ref, n_ref, groupref = "No Grouping", conf.level = 0.9
              uppercl = if_else(obs<10, qchisq(conf.level+(1-conf.level)/2,2*obs+2)/2/exp * ref_rate,
                                byars_upper(obs,conf.level)/exp * ref_rate),
              confidence = paste(conf.level*100,"%"),
+# amend         statistic = paste("dsr per",format(multiplier,scientific=F)),
              method  = if_else(obs<10,"Exact","Byars"))
     #%>%
  #            select(1:3,5:7,4,8)

@@ -72,7 +72,8 @@ phe_mean <- function(data, x, type = "standard", confidence=0.95) {
               uppercl = mean + abs(qt(p, value_count - 1)) * stdev / sqrt(value_count),
 # if need norm method ?             lowercl2 = mean - NormMean((!!x),(!!n),confidence),
 # if need norm method ?             uppercl2 = mean + NormMean((!!x),(!!n),confidence),
-              confidence = paste(confidence*100,"%"),
+              confidence = paste(confidence*100,"%",sep=""),
+              statistic = "mean",
               method  = "Student's t-distribution")
 
 
