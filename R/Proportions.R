@@ -38,7 +38,7 @@
 phe_proportion <- function(data, x, n, type="combined", confidence=0.95, percentage=FALSE) {
 
     # check required arguments present
-  if (missing(data)|missing(x)|missing(n))) {
+  if (missing(data)|missing(x)|missing(n)) {
     stop("function phe_dsr requires at least 3 arguments: data, x, n")
   }
 

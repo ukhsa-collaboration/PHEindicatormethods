@@ -12,6 +12,9 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+# PACKAGE IN DRAFT FORM - NOT YEt RELEASED
+
 # PHEstatmethods
 
 This is an R package to support analysts in PHE to perform standard analysis using approved methodology.
