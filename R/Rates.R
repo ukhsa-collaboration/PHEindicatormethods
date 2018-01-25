@@ -14,6 +14,8 @@
 #'
 #' @importFrom rlang sym quo_name
 #'
+#' @import dplyr
+#'
 #' @examples
 #' library(dplyr)
 #' df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), 2),

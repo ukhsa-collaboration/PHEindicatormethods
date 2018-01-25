@@ -28,8 +28,7 @@ test_Rate <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdat
 test_Mean         <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet="testdata_Mean",         col_names=TRUE)
 test_Mean_results <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet="testdata_Mean_results", col_names=TRUE)
 
-test_Mean$area         <- as.factor(test_Mean$area)
-test_Mean_results$area <- as.factor(test_Mean_results$area)
+test_Mean_Grp <- group_by(test_Mean,area)
 
 
 # DSRs
