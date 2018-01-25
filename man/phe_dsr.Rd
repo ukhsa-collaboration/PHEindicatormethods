@@ -4,7 +4,7 @@
 \alias{phe_dsr}
 \title{DSR}
 \usage{
-phe_dsr(data, x, n, stdpop, type = "combined", confidence = 0.95,
+phe_dsr(data, x, n, stdpop, type = "standard", confidence = 0.95,
   multiplier = 1e+05)
 }
 \arguments{
@@ -18,7 +18,7 @@ unquoted string; no default}
 
 \item{stdpop}{the standard populations for each standardisation category (eg age band); unquoted numeric vector; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "combined" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}

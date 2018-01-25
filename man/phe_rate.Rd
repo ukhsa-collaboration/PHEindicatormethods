@@ -4,7 +4,7 @@
 \alias{phe_rate}
 \title{Rate}
 \usage{
-phe_rate(data, x, n, type = "combined", confidence = 0.95,
+phe_rate(data, x, n, type = "standard", confidence = 0.95,
   multiplier = 1e+05)
 }
 \arguments{
@@ -14,7 +14,7 @@ phe_rate(data, x, n, type = "combined", confidence = 0.95,
 
 \item{n}{field name from data containing the rate denominators (eg populations); unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "combined" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}

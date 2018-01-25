@@ -4,14 +4,14 @@
 \alias{phe_mean}
 \title{Mean}
 \usage{
-phe_mean(data, x, type = "combined", confidence = 0.95)
+phe_mean(data, x, type = "standard", confidence = 0.95)
 }
 \arguments{
 \item{data}{a data.frame containing the data to calculate means for, pre-grouped if multiple means required; unquoted string; no default}
 
 \item{x}{field name from data containing the values to calculate the means for; unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "combined" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
