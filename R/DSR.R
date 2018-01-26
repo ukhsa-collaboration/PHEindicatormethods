@@ -66,7 +66,7 @@ phe_dsr <- function(data, x, n, stdpop, type = "standard", confidence = 0.95, mu
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
       stop("type must be one of value, lower, upper, standard or full")
   } else if (n_distinct(select(summarise(data,n=n()),n)) != 1) {
-    stop("data must contain the same number of rows for each group")
+      stop("data must contain the same number of rows for each group")
   } else if (!exists("stdpop", where=data)) {
       if (pull(slice(select(summarise(data,n=n()),n),1)) != length(stdpop)) {
         stop("stdpop length must equal number of rows in each group within data")

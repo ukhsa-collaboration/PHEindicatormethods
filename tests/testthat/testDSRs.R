@@ -7,10 +7,10 @@ context("test_phe_dsr")
 test_that("dsrs and CIs calculate correctly",{
 
   expect_equal(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013),
-               select(slice(test_DSR_results,9:11),1,4:6),
+               select(test_DSR_results[9:11,],1,4:6),
                check.attributes=FALSE, check.names=FALSE,info="test default with esp2013")
 
-  expect_equal(phe_dsr(test_DSR_1976, count, pop, stdpop = stdpop),
+  expect_equal(phe_dsr(test_DSR_1976, count, pop, stdpop),
                select(slice(test_DSR_results,9:11),4:6),
                check.attributes=FALSE, check.names=FALSE,info="test default with own stdpop by col name")
 
@@ -79,9 +79,12 @@ test_that("dsrs - errors are generated when invalid arguments are used",{
 
   expect_error(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013, type="combined"),
                "type must be one of value, lower, upper, standard or full",info="error invalid type")
+
+  expect_error(phe_dsr(filter(test_DSR_multiarea,count < 100), count, pop, stdpop = esp2013),
+               "data must contain the same number of rows for each group",info="error num rows per group")
+
+  expect_error(phe_dsr(test_DSR_multiarea, count, pop, stdpop = test_DSR_1976$stdpop),
+               "stdpop length must equal number of rows in each group within data",info="error stdpop length")
 })
 
 
-# error checks to add:
-#data must contain the same number of rows for each group
-#stdpop length must equal number of rows in each group within data
