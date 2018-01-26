@@ -5,70 +5,86 @@ context("test_phe_dsr")
 
 #test calculations
 test_that("dsrs and CIs calculate correctly",{
-  expect_equal(data.frame(phe_dsr(test_DSR_multiarea$count,
-                       test_DSR_multiarea$pop,
-                       stdpop = esp2013,
-                       groupref=test_DSR_multiarea$area,
-                       multiplier=10000)[1:6]),
-               select(filter(test_DSR_results,group!="testdata_1976"),1:6),
-               check.attributes=FALSE, check.names=FALSE,info="test1")
 
-  expect_equal(data.frame(phe_dsr(test_DSR_multiarea$count,
-                       test_DSR_multiarea$pop,
-                       stdpop = esp2013,
-                       groupref=test_DSR_multiarea$area,
-                       multiplier=10000,
-                       conf.level=0.998)[1:6]),
-               select(filter(test_DSR_results,group!="testdata_1976"),1:4,7:8),
-               check.attributes=FALSE, check.names=FALSE,info="test2")
+  expect_equal(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013),
+               select(test_DSR_results[9:11,],1,4:6),
+               check.attributes=FALSE, check.names=FALSE,info="test default with esp2013")
 
-  expect_equal(data.frame(phe_dsr(test_DSR_multiarea$count,
-                       test_DSR_multiarea$pop,
-                       stdpop = esp2013,
-                       groupref=test_DSR_multiarea$area,
-                       multiplier=10000,
-                       conf.level=95)[1:6]),
-               select(filter(test_DSR_results,group!="testdata_1976"),1:6),
-               check.attributes=FALSE, check.names=FALSE,info="test3")
+  expect_equal(phe_dsr(test_DSR_1976, count, pop, stdpop),
+               select(slice(test_DSR_results,9:11),4:6),
+               check.attributes=FALSE, check.names=FALSE,info="test default with own stdpop by col name")
 
-  expect_equal(data.frame(phe_dsr(test_DSR_1976$count,
-                       test_DSR_1976$pop,
-                       stdpop = test_DSR_1976$stdpop)[2:6]),
-               select(filter(test_DSR_results,group=="testdata_1976"),2:6),
-               check.attributes=FALSE, check.names=FALSE,info="test4")
+  expect_equal(phe_dsr(test_DSR_1976, count, pop, stdpop = test_DSR_1976$stdpop),
+               select(slice(test_DSR_results,9:11),4:6),
+               check.attributes=FALSE, check.names=FALSE,info="test default with own stdpop by vector")
+
+  expect_equal(phe_dsr(test_DSR_multiarea, count, pop,
+                       stdpop = c(5000, 5500, 5500, 5500, 6000, 6000, 6500, 7000, 7000, 7000, 7000, 6500, 6000, 5500, 5000, 4000, 2500, 1500, 1000)),
+               select(slice(test_DSR_results,9:11),1,4:6),
+               check.attributes=FALSE, check.names=FALSE,info="test stdpop as specified vector")
+
+  expect_equal(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013, type="full"),
+               select(slice(test_DSR_results,9:11),1:9),
+               check.attributes=FALSE, check.names=FALSE,info="test full")
+
+  expect_equal(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013, type="value"),
+               select(slice(test_DSR_results,9:11),1,4),
+               check.attributes=FALSE, check.names=FALSE,info="test value")
+
+  expect_equal(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013, type="lower"),
+               select(slice(test_DSR_results,9:11),1,5),
+               check.attributes=FALSE, check.names=FALSE,info="test lower")
+
+  expect_equal(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013, type="upper"),
+               select(slice(test_DSR_results,9:11),1,6),
+               check.attributes=FALSE, check.names=FALSE,info="test upper")
+
+  expect_equal(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013, confidence = 0.998),
+               select(slice(test_DSR_results,13:15),1,4:6),
+               check.attributes=FALSE, check.names=FALSE,info="test confidence")
+
+  expect_equal(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013, multiplier=10000),
+               select(slice(test_DSR_results,1:3),1,4:6),
+               check.attributes=FALSE, check.names=FALSE,info="test multiplier")
+
 })
+
+
+
 
 # test error handling
+
 test_that("dsrs - errors are generated when invalid arguments are used",{
-  expect_error(data.frame(phe_dsr(test_DSR_err1$count,
-                                  test_DSR_err1$pop,
-                                  stdpop = esp2013,
-                                  groupref=test_DSR_err1$area)),
-               "numerators must all be greater than or equal to zero",info="error test 1")
-  expect_error(data.frame(phe_dsr(test_DSR_err2$count,
-                                  test_DSR_err2$pop,
-                                  stdpop = esp2013,
-                                  groupref=test_DSR_err2$area)),
-               "denominators must all be greater than zero",info="error test 2")
-  expect_error(data.frame(phe_dsr(test_DSR_err3$count,
-                                  test_DSR_err3$pop,
-                                  stdpop = esp2013,
-                                  groupref=test_DSR_err3$area)),
-               "denominators must all be greater than zero",info="error test 3")
-  expect_error(data.frame(phe_dsr(test_DSR_multiarea$count,
-                                  test_DSR_multiarea$pop,
-                                  stdpop = esp2013,
-                                  groupref=test_DSR_multiarea$area,
-                                  conf.level=50)),
-               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error test 4")
-  expect_error(data.frame(phe_dsr(test_DSR_multiarea$count,
-                                  test_DSR_multiarea$pop[1:30],
-                                  stdpop = esp2013,
-                                  groupref=test_DSR_multiarea$area)),
-               "numerator and denominator vectors must be of equal length",info="error test 5")
-  expect_error(data.frame(phe_dsr(test_DSR_multiarea$count,
-                                  test_DSR_multiarea$pop,
-                                  stdpop = test_DSR_1976$stdpop,
-                                  groupref=test_DSR_multiarea$area)),
-               "numerator vector length must be a multiple of standard population vector length",info="error test 6")
+
+  expect_error(phe_dsr(test_DSR_multiarea, count, pop),
+                "function phe_dsr requires at least 4 arguments: data, x, n, stdpop",info="error invalid number of arguments")
+
+  expect_error(phe_dsr(test_DSR_err1, count, pop, stdpop = esp2013),
+               "numerators must all be greater than or equal to zero",info="error numerators < 0")
+
+  expect_error(phe_dsr(test_DSR_err2, count, pop, stdpop = esp2013),
+               "denominators must all be greater than zero",info="error denominator = 0")
+
+  expect_error(phe_dsr(test_DSR_err3, count, pop, stdpop = esp2013),
+               "denominators must all be greater than zero",info="error denominator < 0")
+
+  expect_error(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013, confidence = 0.74),
+               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence < 0.9")
+
+  expect_error(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013, confidence = 3),
+               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence between 1 and 90")
+
+  expect_error(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013, confidence = 1000),
+               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence >100")
+
+  expect_error(phe_dsr(test_DSR_multiarea, count, pop, stdpop = esp2013, type="combined"),
+               "type must be one of value, lower, upper, standard or full",info="error invalid type")
+
+  expect_error(phe_dsr(filter(test_DSR_multiarea,count < 100), count, pop, stdpop = esp2013),
+               "data must contain the same number of rows for each group",info="error num rows per group")
+
+  expect_error(phe_dsr(test_DSR_multiarea, count, pop, stdpop = test_DSR_1976$stdpop),
+               "stdpop length must equal number of rows in each group within data",info="error stdpop length")
 })
+
+

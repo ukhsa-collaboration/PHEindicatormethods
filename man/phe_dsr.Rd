@@ -2,42 +2,54 @@
 % Please edit documentation in R/DSR.R
 \name{phe_dsr}
 \alias{phe_dsr}
-\title{Calculates a directly standardised rate with confidence limits using Dobson method.}
+\title{DSR}
 \usage{
-phe_dsr(x, n, stdpop, groupref = "No Grouping", conf.level = 0.95,
+phe_dsr(data, x, n, stdpop, type = "standard", confidence = 0.95,
   multiplier = 1e+05)
 }
 \arguments{
-\item{x}{the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
-numeric vector; no default}
+\item{data}{data.frame containing the data to be standarised, pre-grouped if multiple DSRs required; unquoted string; no default}
 
-\item{n}{the populations for each standardisation category (eg ageband) within each grouping set (eg area);
-numeric vector; no default}
+\item{x}{field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
+unquoted string; no default}
 
-\item{stdpop}{the standard populations for each standardisation category
- (eg age band); numeric vector; no default; the European Standard Population 2013
-divided into 19 five-year agebands (0-4, 5-9, 10-14, .....90+) is available within the package}
+\item{n}{field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
+unquoted string; no default}
 
-\item{groupref}{the grouping sets (eg area codes or area names) if calculating multiple DSRs at once,
-character vector, default = No Grouping}
+\item{stdpop}{the standard populations for each standardisation category (eg age band); unquoted numeric vector; no default}
 
-\item{conf.level}{the required level of confidence expressed as a number between 0.9 and 1
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
+
+\item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
 \item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000,
 100 = percentage); numeric; default 100,000}
 }
 \value{
-Returns a data frame of numerator, denominator, directly standardised rate,
+When type = "full" returns a data.frame of numerator, denominator, directly standardised rate,
         lower and upper confidence limits and method
 }
 \description{
 Calculates a directly standardised rate with confidence limits using Dobson method.
 }
 \examples{
-phe_dsr(c(27,45,55,100,125,300,295,270,275,450,455,459,345,300,270,265,100,90,35),
-        c(84935,80367,72122,79259,99806,87362,81579,71103,70001,
-          69007,63203,52638,46087,40887,32604,28399,21625,13021,7355), esp2013, conf.level = 0.998)
+library(dplyr)
+df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
+                 year = rep(2006:2010, each = 19 * 2),
+                 sex = rep(rep(c("Male", "Female"), each = 19), 5),
+                 obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
+                 pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
+df \%>\%
+    group_by(indicatorid, year, sex) \%>\%
+    phe_dsr(obs, pop, esp2013)
+
+## OR
+
+df \%>\%
+    group_by(indicatorid, year, sex) \%>\%
+    phe_dsr(obs, pop, esp2013, "full")
+
 }
 \seealso{
 \code{\link{phe_proportion}} for proportions,
@@ -49,5 +61,6 @@ phe_dsr(c(27,45,55,100,125,300,295,270,275,450,455,459,345,300,270,265,100,90,35
 Other phe statistical functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_isr}},
   \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_rate}}
+  \code{\link{phe_rate}}, \code{\link{wilson_lower}},
+  \code{\link{wilson_upper}}
 }
