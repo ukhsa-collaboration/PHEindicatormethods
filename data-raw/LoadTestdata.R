@@ -10,8 +10,8 @@
 #devtools::use_data(test_Prop,
 #                     test_Rate,
 #                     test_Mean, test_Mean_Grp, test_Mean_results,
-#                     test_multiarea, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results,
-#                     test_ISR_refdata, test_ISR_results,
+#                     test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results,
+#                     test_ISR_refdata, test_ISR_results, test_ISR_ownref,
 #                     internal = TRUE, overwrite = TRUE)
 
 # esp2013
@@ -39,6 +39,8 @@ test_err2        <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", 
                        group_by(area)
 test_err3        <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err3",   col_names=TRUE)
 test_DSR_results <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testresults_DSR", col_names=TRUE)
+test_multigroup  <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multigroup", col_names=TRUE) %>%
+                       group_by(area,year)
 
 test_ISR_results <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testresults_ISR", col_names=TRUE)
 test_ISR_refdata <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="refdata",         col_names=TRUE)

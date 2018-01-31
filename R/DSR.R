@@ -67,9 +67,9 @@ phe_dsr <- function(data, x, n, stdpop, type = "standard", confidence = 0.95, mu
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
       stop("type must be one of value, lower, upper, standard or full")
-  } else if (n_distinct(select(summarise(data,n=n()),n)) != 1) {
+  } else if (n_distinct(select(ungroup(summarise(data,n=n())),n)) != 1) {
       stop("data must contain the same number of rows for each group")
-   } else if(pull(slice(select(summarise(data,n=n()),n),1)) != length(stdpop)) {
+   } else if(pull(slice(select(ungroup(summarise(data,n=n())),n),1)) != length(stdpop)) {
       stop("stdpop length must equal number of rows in each group within data")
 
 #  } else if (!exists("stdpop", where=data)) {

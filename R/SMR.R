@@ -48,11 +48,11 @@ phe_smr <- function(data, x, n, x_ref, n_ref, type = "standard", confidence = 0.
     stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
     stop("type must be one of value, lower, upper, standard or full")
-  } else if (n_distinct(select(summarise(data,n=n()),n)) != 1) {
+  } else if (n_distinct(select(ungroup(summarise(data,n=n())),n)) != 1) {
     stop("data must contain the same number of rows for each group")
-  }  else if (pull(slice(select(summarise(data,n=n()),n),1)) != length(x_ref)) {
+  }  else if (pull(slice(select(ungroup(summarise(data,n=n())),n),1)) != length(x_ref)) {
     stop("x_ref length must equal number of rows in each group within data")
-  }  else if (pull(slice(select(summarise(data,n=n()),n),1)) != length(n_ref)) {
+  }  else if (pull(slice(select(ungroup(summarise(data,n=n())),n),1)) != length(n_ref)) {
     stop("n_ref length must equal number of rows in each group within data")
   }
 
