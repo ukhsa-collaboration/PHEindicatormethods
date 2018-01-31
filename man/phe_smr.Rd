@@ -29,8 +29,7 @@ the column must be referenced as a vector and not repeated eg df$n_ref[1:19]; nu
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
-\item{stdpop}{the standard populations for each standardisation category (eg age band). If standard populations are held within data,
-the column must be referenced as a vector eg df$stdpop; unquoted numeric vector; no default}
+\item{ref}{the standardised reference ratio, numeric, default = 1}
 }
 \value{
 When type = "full", returns a data frame of observed, expected, value, lowercl, uppercl, confidence, statistic and method

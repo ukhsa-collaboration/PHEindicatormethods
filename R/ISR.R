@@ -4,8 +4,6 @@
 #' Calculates an indirectly standardised rate with confidence limits using Byars or Exact CI method.
 #'
 #' @param data data.frame containing the data to be standarised, pre-grouped if multiple ISRs required; unquoted string; no default
-#' @param stdpop the standard populations for each standardisation category (eg age band). If standard populations are held within data,
-#'        the column must be referenced as a vector eg df$stdpop; unquoted numeric vector; no default
 #' @param x_ref the observed number of events in the reference population for each standardisation category
 #'              (eg age band) within each grouping set (eg area). If reference populations are held within data,
 #'              the column must be referenced as a vector and not repeated eg df$x_ref[1:19]; numeric vector; no default

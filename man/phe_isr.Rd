@@ -30,9 +30,6 @@ the column must be referenced as a vector and not repeated eg df$n_ref[1:19]; nu
 or 90 and 100; numeric; default 0.95}
 
 \item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000}
-
-\item{stdpop}{the standard populations for each standardisation category (eg age band). If standard populations are held within data,
-the column must be referenced as a vector eg df$stdpop; unquoted numeric vector; no default}
 }
 \value{
 When type = "full", returns a data frame of observed, expected, ref_rate, value, lowercl, uppercl, confidence, statistic and method
