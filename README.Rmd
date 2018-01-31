@@ -29,7 +29,7 @@ Any feedback would be appreciated and can be provided using the Issues section o
 Download this repository from GitLab and either build from source or do:
 
 ```{r source_pkg-installation, eval = FALSE}
-source <- devtools:::source_pkg("C:/path/to/fingertips-master")
+source <- devtools:::source_pkg("C:/path/to/PHEstatmethods-master")
 install(source)
 ```
 
