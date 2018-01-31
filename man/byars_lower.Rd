@@ -25,7 +25,8 @@ byars_lower(65,99.8)
 }
 \seealso{
 Other PHEstatmethods package functions: \code{\link{byars_upper}},
-  \code{\link{phe_dsr}}, \code{\link{phe_mean}},
-  \code{\link{phe_proportion}}, \code{\link{phe_rate}},
+  \code{\link{phe_dsr}}, \code{\link{phe_isr}},
+  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
+  \code{\link{phe_rate}}, \code{\link{phe_smr}},
   \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
 }

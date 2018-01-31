@@ -40,6 +40,7 @@ phe_mean(df2,values,type="full", confidence=0.998)
 \seealso{
 Other PHEstatmethods package functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_dsr}},
-  \code{\link{phe_proportion}}, \code{\link{phe_rate}},
+  \code{\link{phe_isr}}, \code{\link{phe_proportion}},
+  \code{\link{phe_rate}}, \code{\link{phe_smr}},
   \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
 }

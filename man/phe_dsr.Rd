@@ -17,7 +17,7 @@ unquoted string; no default}
 unquoted string; no default}
 
 \item{stdpop}{the standard populations for each standardisation category (eg age band). If standard populations are held within data,
-the column must be referenced as a vector eg df$stdpop; unquoted numeric vector; no default}
+the column must be referenced as a vector and not repeated eg df$stdpop[1:19]; unquoted numeric vector; no default}
 
 \item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; string; default combined}
 
@@ -34,6 +34,8 @@ When type = "full", returns a data.frame of total_count, total_pop, value, lower
 Calculates a directly standardised rate with confidence limits using Dobson method.
 }
 \examples{
+NEED TO EDIT EXAMPLE TO INCLUDE AGEBAND COLUMN
+
 df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
                  year = rep(2006:2010, each = 19 * 2),
                  sex = rep(rep(c("Male", "Female"), each = 19), 5),
@@ -52,7 +54,8 @@ df \%>\%
 }
 \seealso{
 Other PHEstatmethods package functions: \code{\link{byars_lower}},
-  \code{\link{byars_upper}}, \code{\link{phe_mean}},
-  \code{\link{phe_proportion}}, \code{\link{phe_rate}},
+  \code{\link{byars_upper}}, \code{\link{phe_isr}},
+  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
+  \code{\link{phe_rate}}, \code{\link{phe_smr}},
   \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
 }
