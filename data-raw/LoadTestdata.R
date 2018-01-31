@@ -10,8 +10,8 @@
 #devtools::use_data(test_Prop,
 #                     test_Rate,
 #                     test_Mean, test_Mean_Grp, test_Mean_results,
-#                     test_DSR_multiarea, test_DSR_1976, test_DSR_err1, test_DSR_err2, test_DSR_err3, test_DSR_results,
-#                     test_ISR_multiarea, test_ISR_refdata, test_ISR_err1, test_ISR_err2, test_ISR_err3, test_ISR_results,
+#                     test_multiarea, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results,
+#                     test_ISR_refdata, test_ISR_results,
 #                     internal = TRUE, overwrite = TRUE)
 
 # esp2013
@@ -30,22 +30,17 @@ test_Mean_results <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet=
 test_Mean_Grp <- group_by(test_Mean,area)
 
 
-# DSRs
-test_DSR_multiarea <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testdata_multiarea", col_names=TRUE) %>%
+# DSRs, ISRs and SMRs
+test_multiarea   <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multiarea", col_names=TRUE) %>%
                        group_by(area)
-test_DSR_1976      <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testdata_1976",      col_names=TRUE)
-test_DSR_err1      <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testdata_err1",      col_names=TRUE)
-test_DSR_err2      <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testdata_err2",      col_names=TRUE)
-test_DSR_err3      <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testdata_err3",      col_names=TRUE)
-test_DSR_results   <- read_excel(".\\tests\\testthat\\testdata_DSR.xlsx", sheet="testresults",        col_names=TRUE)
+test_DSR_1976    <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_1976",   col_names=TRUE)
+test_err1        <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err1",   col_names=TRUE)
+test_err2        <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err2",   col_names=TRUE) %>%
+                       group_by(area)
+test_err3        <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err3",   col_names=TRUE)
+test_DSR_results <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testresults_DSR", col_names=TRUE)
 
-
-# ISRs
-test_ISR_multiarea <- read_excel(".\\tests\\testthat\\testdata_ISR.xlsx", sheet="testdata_multiarea", col_names=TRUE)
-test_ISR_err1      <- read_excel(".\\tests\\testthat\\testdata_ISR.xlsx", sheet="testdata_err1",      col_names=TRUE)
-test_ISR_err2      <- read_excel(".\\tests\\testthat\\testdata_ISR.xlsx", sheet="testdata_err2",      col_names=TRUE)
-test_ISR_err3      <- read_excel(".\\tests\\testthat\\testdata_ISR.xlsx", sheet="testdata_err3",      col_names=TRUE)
-test_ISR_results   <- read_excel(".\\tests\\testthat\\testdata_ISR.xlsx", sheet="testresults",        col_names=TRUE)
-test_ISR_refdata   <- read_excel(".\\tests\\testthat\\testdata_ISR.xlsx", sheet="refdata",            col_names=TRUE)
-
-test_ISR_results$group <- as.factor(test_ISR_results$group)
+test_ISR_results <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testresults_ISR", col_names=TRUE)
+test_ISR_refdata <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="refdata",         col_names=TRUE)
+test_ISR_ownref  <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multiarea_ref", col_names=TRUE) %>%
+                      group_by(area)

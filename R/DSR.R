@@ -9,7 +9,7 @@
 #' @param n field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
 #'          unquoted string; no default
 #' @param stdpop the standard populations for each standardisation category (eg age band). If standard populations are held within data,
-#'        the column must be referenced as a vector eg df$stdpop; unquoted numeric vector; no default
+#'        the column must be referenced as a vector and not repeated eg df$stdpop[1:19]; unquoted numeric vector; no default
 #' @param type type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; string; default combined
 #' @param confidence the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
@@ -23,6 +23,8 @@
 #' @import dplyr
 #'
 #' @examples
+#' NEED TO EDIT EXAMPLE TO INCLUDE AGEBAND COLUMN
+#'
 #' df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
 #'                  year = rep(2006:2010, each = 19 * 2),
 #'                  sex = rep(rep(c("Male", "Female"), each = 19), 5),
@@ -60,17 +62,20 @@ phe_dsr <- function(data, x, n, stdpop, type = "standard", confidence = 0.95, mu
   if (any(pull(data, !!x) < 0)) {
       stop("numerators must all be greater than or equal to zero")
   } else if (any(pull(data, !!n) <= 0)) {
-      stop("denominators must all be greater than zero")
+       stop("denominators must all be greater than zero")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
       stop("type must be one of value, lower, upper, standard or full")
   } else if (n_distinct(select(summarise(data,n=n()),n)) != 1) {
       stop("data must contain the same number of rows for each group")
-  } else if (!exists("stdpop", where=data)) {
-      if (pull(slice(select(summarise(data,n=n()),n),1)) != length(stdpop)) {
-        stop("stdpop length must equal number of rows in each group within data")
-    }
+   } else if(pull(slice(select(summarise(data,n=n()),n),1)) != length(stdpop)) {
+      stop("stdpop length must equal number of rows in each group within data")
+
+#  } else if (!exists("stdpop", where=data)) {
+#      if (pull(slice(select(summarise(data,n=n()),n),1)) != length(stdpop)) {
+#        stop("stdpop length must equal number of rows in each group within data")
+#    }
   }
 
 # scale confidence level
