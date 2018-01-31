@@ -14,6 +14,22 @@ test_that("dsrs and CIs calculate correctly",{
 #               select(slice(test_DSR_results,12),4:6),
 #               check.attributes=FALSE, check.names=FALSE,info="test default with own stdpop by col name")
 
+
+# NEED TO MAKE PHE_DSR OUTPUT NUMERIC AND COMPARE DATA FRAMES NOT TIBBLES FOR TESTTHAT TO WORK
+
+#  check <- data.frame(value = as.numeric(select(slice(test_DSR_results,4),4)),
+#                      lowercl = as.numeric(select(slice(test_DSR_results,4),5)),
+#                      uppercl = as.numeric(select(slice(test_DSR_results,4),6)))
+#
+#  expect_equal(data.frame(phe_dsr(test_DSR_1976, count, pop, stdpop = test_DSR_1976$stdpop)),
+#               data.frame(check),
+#               check.attributes=FALSE, check.names=FALSE,info="test default with own stdpop by vector")
+#
+
+
+
+
+
   expect_equal(phe_dsr(test_DSR_1976, count, pop, stdpop = test_DSR_1976$stdpop),
                select(slice(test_DSR_results,12),4:6),
                check.attributes=FALSE, check.names=FALSE,info="test default with own stdpop by vector")
