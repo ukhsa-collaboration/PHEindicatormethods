@@ -1,14 +1,14 @@
 # -------------------------------------------------------------------------------------------------
-#' Wilson
+#' wilson_lower
 #'
-#' Calculates lower confidence limit for a proportion using Wilson's method.
+#' Calculates lower confidence limit for an observed number of events using Wilson's method.
 #'
 #' @param x the observed number of cases in the sample meeting the required condition; numeric vector; no default
 #' @param n the number of cases in the sample; numeric vector; no default
 #' @param confidence the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #'
-#' @return Returns a lower confidence limit for an observed number of events usign Wilson's method
+#' @return Returns a lower confidence limit for an observed number of events using Wilson's method
 #'
 #' @examples
 #' wilson_lower(65,100)
@@ -16,10 +16,10 @@
 #'
 #' @export
 #'
-#' @family phe statistical functions
+#' @family PHEstatmethods package functions
 # -------------------------------------------------------------------------------------------------
 
-# create function to calculate Byar's lower CI limit
+# create function to calculate Wilson's lower CI limit
 wilson_lower <- function(x, n, confidence = 0.95) {
 
   # validate arguments
@@ -48,16 +48,16 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 
 
 # -------------------------------------------------------------------------------------------------
-#' Wilson
+#' wilson_upper
 #'
-#' Calculates upper confidence limit for a proportion using Wilson's method.
+#' Calculates upper confidence limit for an observed number of events using Wilson's method.
 #'
 #' @param x the observed number of cases in the sample meeting the required condition; numeric vector; no default
 #' @param n the number of cases in the sample; numeric vector; no default
 #' @param confidence the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #'
-#' @return Returns a upper confidence limit for a proportion using Wilson's method
+#' @return Returns an upper confidence limit for an observed number of events using Wilson's method
 #'
 #' @examples
 #' wilson_upper(65)
@@ -65,10 +65,10 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 #'
 #' @export
 #'
-#' @family phe statistical functions
+#' @family PHEstatmethods package functions
 # -------------------------------------------------------------------------------------------------
 
-# create function to calculate Byar's lower CI limit
+# create function to calculate Wilson's lower CI limit
 wilson_upper <- function(x, n, confidence = 0.95) {
 
   # validate arguments

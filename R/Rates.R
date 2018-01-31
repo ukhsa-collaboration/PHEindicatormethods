@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' Rate
+#' phe_rate
 #'
 #' Calculates a rate with confidence limits using Byar's or Exact CI method.
 #'
@@ -10,14 +10,13 @@
 #' @inheritParams phe_dsr
 #'
 #' @return When type=full, returns the original data.frame with the following columns appended:
-#'         rate, lower confidence limit, upper confidence limit, confidence level, statistic and method
+#'         value, lowercl, uppercl, confidence, statistic and method
 #'
 #' @importFrom rlang sym quo_name
 #'
 #' @import dplyr
 #'
 #' @examples
-#' library(dplyr)
 #' df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), 2),
 #'                  year = rep(2015:2016, each = 4),
 #'                  obs = sample(100, 2 * 4, replace = TRUE),
@@ -27,7 +26,7 @@
 #'
 #' @export
 #'
-#' @family phe statistical functions
+#' @family PHEstatmethods package functions
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate rate and CIs using Byar's method
@@ -61,7 +60,7 @@ phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier
 
   # calculate rate and CIs
   phe_rate <- data %>%
-              mutate(rate = (!!x)/(!!n)*multiplier,
+              mutate(value = (!!x)/(!!n)*multiplier,
               lowercl = if_else((!!x) < 10, qchisq((1-confidence)/2,2*(!!x))/2/(!!n)*multiplier,
                                 byars_lower((!!x),confidence)/(!!n)*multiplier),
               uppercl = if_else((!!x) < 10, qchisq(confidence+(1-confidence)/2,2*(!!x)+2)/2/(!!n)*multiplier,
@@ -72,10 +71,10 @@ phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier
 
   if (type == "lower") {
     phe_rate <- phe_rate %>%
-      select(-rate, -uppercl, -confidence, -statistic, -method)
+      select(-value, -uppercl, -confidence, -statistic, -method)
   } else if (type == "upper") {
     phe_rate <- phe_rate %>%
-      select(-rate, -lowercl, -confidence, -statistic, -method)
+      select(-value, -lowercl, -confidence, -statistic, -method)
   } else if (type == "value") {
     phe_rate<- phe_rate %>%
       select(-lowercl, -uppercl, -confidence, -statistic, -method)

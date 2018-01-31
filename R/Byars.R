@@ -1,5 +1,7 @@
 # -------------------------------------------------------------------------------------------------
-#' Calculates lower confidence limit for an observed number of events using Byar's method.
+#' byars_lower
+#'
+#' Calculates the lower confidence limit for an observed number of events using Byar's method.
 #'
 #' @param x the observed number of events; numeric vector; no default
 #' @param confidence the required level of confidence expressed as a number between 0.9 and 1
@@ -13,7 +15,7 @@
 #'
 #' @export
 #'
-#' @family phe statistical functions
+#' @family PHEstatmethods package functions
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate Byar's lower CI limit
@@ -41,7 +43,9 @@ byars_lower <- function(x, confidence = 0.95) {
 
 
 # -------------------------------------------------------------------------------------------------
-#' Calculates upper confidence limit for an observed number of events using Byar's method.
+#' byars_upper
+#'
+#' Calculates the upper confidence limit for an observed number of events using Byar's method.
 #'
 #' @param x the observed number of events; numeric vector; no default
 #' @param confidence the level of confidence required expressed as a number between 0.9 and 1
@@ -55,7 +59,7 @@ byars_lower <- function(x, confidence = 0.95) {
 #'
 #' @export
 #'
-#' @family phe statistical functions
+#' @family PHEstatmethods package functions
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate Byar's upper CI limit

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Byars.R
 \name{byars_upper}
 \alias{byars_upper}
-\title{Calculates upper confidence limit for an observed number of events using Byar's method.}
+\title{byars_upper}
 \usage{
 byars_upper(x, confidence = 0.95)
 }
@@ -16,7 +16,7 @@ or 90 and 100; numeric; default 0.95}
 Returns an upper confidence limit for an observed number of events using Byar's method
 }
 \description{
-Calculates upper confidence limit for an observed number of events using Byar's method.
+Calculates the upper confidence limit for an observed number of events using Byar's method.
 }
 \examples{
 byars_upper(65)
@@ -24,15 +24,8 @@ byars_upper(65,99.8)
 
 }
 \seealso{
-\code{\link{phe_proportion}} for proportions,
-         \code{\link{phe_rate}} for rates,
-         \code{\link{phe_mean}} for means,
-         \code{\link{phe_dsr}} for directly standardised rates,
-         \code{\link{phe_isr}} for indirectly standardised ratios/rates and standardised mortality ratios
-
-Other phe statistical functions: \code{\link{byars_lower}},
-  \code{\link{phe_dsr}}, \code{\link{phe_isr}},
-  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_rate}}, \code{\link{wilson_lower}},
-  \code{\link{wilson_upper}}
+Other PHEstatmethods package functions: \code{\link{byars_lower}},
+  \code{\link{phe_dsr}}, \code{\link{phe_mean}},
+  \code{\link{phe_proportion}}, \code{\link{phe_rate}},
+  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
 }

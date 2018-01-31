@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
-#' Proportion
+#' phe_proportion
 #'
-#' Calculates a proportion with confidence limits using Wilson method.
+#' Calculates a proportion with confidence limits using Wilson Score method.
 #'
 #' @param data a data.frame containing the data to calculate proportions for; unquoted string; no default
 #' @param x field name from data containing the observed numbers of cases in the sample meeting the required condition; unquoted string; no default
@@ -26,10 +26,10 @@
 #'
 #' @export
 #'
-#' @family phe statistical functions
+#' @family PHEstatmethods package functions
 # -------------------------------------------------------------------------------------------------
 
-# create phe_proportion function with method fixed to wilson
+# create phe_proportion function using Wilson's method
 phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percentage=FALSE) {
 
     # check required arguments present
@@ -68,7 +68,7 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
 
   # calculate proportion and CIs
   phe_proportion <- data %>%
-                    mutate(proportion = (!!x)/(!!n) * multiplier,
+                    mutate(value = (!!x)/(!!n) * multiplier,
                            lowercl = wilson_lower((!!x),(!!n),confidence) * multiplier,
                            uppercl = wilson_upper((!!x),(!!n),confidence) * multiplier,
                            confidence = paste(confidence*100,"%",sep=""),
@@ -77,10 +77,10 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
 
   if (type == "lower") {
     phe_proportion <- phe_proportion %>%
-      select(-proportion, -uppercl, -confidence, -statistic, -method)
+      select(-value, -uppercl, -confidence, -statistic, -method)
   } else if (type == "upper") {
     phe_proportion <- phe_proportion %>%
-      select(-proportion, -lowercl, -confidence, -statistic, -method)
+      select(-value, -lowercl, -confidence, -statistic, -method)
   } else if (type == "value") {
     phe_proportion<- phe_proportion %>%
       select(-lowercl, -uppercl, -confidence, -statistic, -method)

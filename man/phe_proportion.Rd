@@ -2,7 +2,7 @@
 % Please edit documentation in R/Proportions.R
 \name{phe_proportion}
 \alias{phe_proportion}
-\title{Proportion}
+\title{phe_proportion}
 \usage{
 phe_proportion(data, x, n, type = "standard", confidence = 0.95,
   percentage = FALSE)
@@ -15,7 +15,7 @@ phe_proportion(data, x, n, type = "standard", confidence = 0.95,
 \item{n}{field name from data containing the number of cases in the sample;
 unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; string; default combined}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -27,7 +27,7 @@ When type=full, returns the original data.frame with the following columns appen
         proportion, lower confidence limit, upper confidence limit, confidence level, statistic and method
 }
 \description{
-Calculates a proportion with confidence limits using Wilson method.
+Calculates a proportion with confidence limits using Wilson Score method.
 }
 \examples{
 df <- data.frame(area = c("Area1","Area2","Area3"), numerator = c(65,82,100), denominator = c(100,100,100))
@@ -37,15 +37,8 @@ phe_proportion(df, numerator, denominator, type="full")
 
 }
 \seealso{
-\code{\link{phe_proportion}} for proportions,
-         \code{\link{phe_rate}} for rates,
-         \code{\link{phe_mean}} for means,
-         \code{\link{phe_dsr}} for directly standardised rates,
-         \code{\link{phe_isr}} for indirectly standardised ratios/rates and standardised mortality ratios
-
-Other phe statistical functions: \code{\link{byars_lower}},
+Other PHEstatmethods package functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_mean}},
-  \code{\link{phe_rate}}, \code{\link{wilson_lower}},
-  \code{\link{wilson_upper}}
+  \code{\link{phe_mean}}, \code{\link{phe_rate}},
+  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
 }

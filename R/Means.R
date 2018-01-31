@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' Mean
+#' phe_mean
 #'
 #' Calculates a mean with confidence limits using Student's t-distribution method.
 #'
@@ -8,7 +8,8 @@
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return When type = "full", .......r
+#' @return When type = "full", returns a data.frame of value_sum, value_count, stdev, value, lowercl, uppercl, confidence, statistic and method
+#'         for each grouping set
 #'
 #' @importFrom rlang sym quo_name
 #'
@@ -29,10 +30,10 @@
 #'
 #' @export
 #'
-#' @family phe statistical functions
+#' @family PHEstatmethods package functions
 # -------------------------------------------------------------------------------------------------
 
-# create phe_proportion function to execute binom.confint with method fixed to wilson
+# create phe_mean function using Student's t-distribution method
 phe_mean <- function(data, x, type = "standard", confidence=0.95) {
 
   # check required arguments present
@@ -63,11 +64,9 @@ phe_mean <- function(data, x, type = "standard", confidence=0.95) {
        summarise(value_sum   = sum(!!x),
                  value_count = length(!!x),
                  stdev   = sd(!!x)) %>%
-       mutate(mean = value_sum / value_count,
-              lowercl = mean - abs(qt(p, value_count - 1)) * stdev / sqrt(value_count),
-              uppercl = mean + abs(qt(p, value_count - 1)) * stdev / sqrt(value_count),
-# if need norm method ?             lowercl2 = mean - NormMean((!!x),(!!n),confidence),
-# if need norm method ?             uppercl2 = mean + NormMean((!!x),(!!n),confidence),
+       mutate(value = value_sum / value_count,
+              lowercl = value - abs(qt(p, value_count - 1)) * stdev / sqrt(value_count),
+              uppercl = value + abs(qt(p, value_count - 1)) * stdev / sqrt(value_count),
               confidence = paste(confidence*100,"%",sep=""),
               statistic = "mean",
               method  = "Student's t-distribution")
@@ -75,10 +74,10 @@ phe_mean <- function(data, x, type = "standard", confidence=0.95) {
 
   if (type == "lower") {
     phe_mean <- phe_mean %>%
-      select(-value_sum, -value_count, -stdev, -mean, -uppercl, -confidence, -statistic, -method)
+      select(-value_sum, -value_count, -stdev, -value, -uppercl, -confidence, -statistic, -method)
   } else if (type == "upper") {
     phe_mean <- phe_mean %>%
-      select(-value_sum, -value_count, -stdev, -mean, -lowercl, -confidence, -statistic, -method)
+      select(-value_sum, -value_count, -stdev, -value, -lowercl, -confidence, -statistic, -method)
   } else if (type == "value") {
     phe_mean <- phe_mean %>%
       select(-value_sum, -value_count, -stdev, -lowercl, -uppercl, -confidence, -statistic, -method)

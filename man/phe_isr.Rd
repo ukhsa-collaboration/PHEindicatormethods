@@ -51,16 +51,3 @@ phe_isr(c(27,45,55,100,125,300,295,270,275,450,455,459,345,300,270,265,100,90,35
           44140,40888,37239,30819,18136,15325,13918))
 
 }
-\seealso{
-\code{\link{phe_proportion}} for proportions,
-         \code{\link{phe_rate}} for rates,
-         \code{\link{phe_mean}} for means,
-         \code{\link{phe_dsr}} for directly standardised rates,
-         \code{\link{phe_isr}} for indirectly standardised ratios/rates and standardised mortality ratios
-
-Other phe statistical functions: \code{\link{byars_lower}},
-  \code{\link{byars_upper}}, \code{\link{phe_dsr}},
-  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_rate}}, \code{\link{wilson_lower}},
-  \code{\link{wilson_upper}}
-}

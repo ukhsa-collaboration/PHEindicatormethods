@@ -2,7 +2,7 @@
 % Please edit documentation in R/Wilson.R
 \name{wilson_lower}
 \alias{wilson_lower}
-\title{Wilson}
+\title{wilson_lower}
 \usage{
 wilson_lower(x, n, confidence = 0.95)
 }
@@ -15,10 +15,10 @@ wilson_lower(x, n, confidence = 0.95)
 or 90 and 100; numeric; default 0.95}
 }
 \value{
-Returns a lower confidence limit for an observed number of events usign Wilson's method
+Returns a lower confidence limit for an observed number of events using Wilson's method
 }
 \description{
-Calculates lower confidence limit for a proportion using Wilson's method.
+Calculates lower confidence limit for an observed number of events using Wilson's method.
 }
 \examples{
 wilson_lower(65,100)
@@ -26,15 +26,8 @@ wilson_lower(65,100,99.8)
 
 }
 \seealso{
-\code{\link{phe_proportion}} for proportions,
-         \code{\link{phe_rate}} for rates,
-         \code{\link{phe_mean}} for means,
-         \code{\link{phe_dsr}} for directly standardised rates,
-         \code{\link{phe_isr}} for indirectly standardised ratios/rates and standardised mortality ratios
-
-Other phe statistical functions: \code{\link{byars_lower}},
+Other PHEstatmethods package functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_mean}},
-  \code{\link{phe_proportion}}, \code{\link{phe_rate}},
-  \code{\link{wilson_upper}}
+  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
+  \code{\link{phe_rate}}, \code{\link{wilson_upper}}
 }

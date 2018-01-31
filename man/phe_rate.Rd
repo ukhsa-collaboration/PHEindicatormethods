@@ -2,7 +2,7 @@
 % Please edit documentation in R/Rates.R
 \name{phe_rate}
 \alias{phe_rate}
-\title{Rate}
+\title{phe_rate}
 \usage{
 phe_rate(data, x, n, type = "standard", confidence = 0.95,
   multiplier = 1e+05)
@@ -14,34 +14,32 @@ phe_rate(data, x, n, type = "standard", confidence = 0.95,
 
 \item{n}{field name from data containing the rate denominators (eg populations); unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; string; default combined}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
-\item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000,
-100 = percentage); numeric; default 100,000}
+\item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000}
 }
 \value{
 When type=full, returns the original data.frame with the following columns appended:
-        rate, lower confidence limit, upper confidence limit, confidence level, statistic and method
+        value, lowercl, uppercl, confidence, statistic and method
 }
 \description{
 Calculates a rate with confidence limits using Byar's or Exact CI method.
 }
 \examples{
-library(dplyr)
 df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), 2),
                  year = rep(2015:2016, each = 4),
                  obs = sample(100, 2 * 4, replace = TRUE),
                  pop = sample(100:200, 2 * 4, replace = TRUE))
 phe_rate(df, obs, pop)
+phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
 
 }
 \seealso{
-Other phe statistical functions: \code{\link{byars_lower}},
+Other PHEstatmethods package functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_mean}},
-  \code{\link{phe_proportion}}, \code{\link{wilson_lower}},
-  \code{\link{wilson_upper}}
+  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
+  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
 }

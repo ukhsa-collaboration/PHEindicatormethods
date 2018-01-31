@@ -2,7 +2,7 @@
 % Please edit documentation in R/DSR.R
 \name{phe_dsr}
 \alias{phe_dsr}
-\title{DSR}
+\title{phe_dsr}
 \usage{
 phe_dsr(data, x, n, stdpop, type = "standard", confidence = 0.95,
   multiplier = 1e+05)
@@ -16,25 +16,24 @@ unquoted string; no default}
 \item{n}{field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
 unquoted string; no default}
 
-\item{stdpop}{the standard populations for each standardisation category (eg age band); unquoted numeric vector; no default}
+\item{stdpop}{the standard populations for each standardisation category (eg age band). If standard populations are held within data,
+the column must be referenced as a vector eg df$stdpop; unquoted numeric vector; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields to be added to your output) or "full"; string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; string; default combined}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
-\item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000,
-100 = percentage); numeric; default 100,000}
+\item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000}
 }
 \value{
-When type = "full" returns a data.frame of numerator, denominator, directly standardised rate,
-        lower and upper confidence limits and method
+When type = "full", returns a data.frame of total_count, total_pop, value, lowercl, uppercl, confidence, statistic and method
+        for each grouping set
 }
 \description{
 Calculates a directly standardised rate with confidence limits using Dobson method.
 }
 \examples{
-library(dplyr)
 df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
                  year = rep(2006:2010, each = 19 * 2),
                  sex = rep(rep(c("Male", "Female"), each = 19), 5),
@@ -52,15 +51,8 @@ df \%>\%
 
 }
 \seealso{
-\code{\link{phe_proportion}} for proportions,
-         \code{\link{phe_rate}} for rates,
-         \code{\link{phe_mean}} for means,
-         \code{\link{phe_dsr}} for directly standardised rates,
-         \code{\link{phe_isr}} for indirectly standardised ratios/rates and standardised mortality ratios
-
-Other phe statistical functions: \code{\link{byars_lower}},
-  \code{\link{byars_upper}}, \code{\link{phe_isr}},
-  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_rate}}, \code{\link{wilson_lower}},
-  \code{\link{wilson_upper}}
+Other PHEstatmethods package functions: \code{\link{byars_lower}},
+  \code{\link{byars_upper}}, \code{\link{phe_mean}},
+  \code{\link{phe_proportion}}, \code{\link{phe_rate}},
+  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
 }
