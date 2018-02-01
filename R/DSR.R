@@ -99,10 +99,10 @@ phe_dsr <- function(data, x, n, stdpop, type = "standard", confidence = 0.95, mu
            statistic = paste("dsr per",format(multiplier,scientific=F)),
            method = "Dobson")
 
-  phe_dsr$value[phe_dsr$total_count < 10]        <- "NA - total count is < 10"
-  phe_dsr$uppercl[phe_dsr$total_count < 10]    <- "NA - total count is < 10"
-  phe_dsr$lowercl[phe_dsr$total_count < 10]    <- "NA - total count is < 10"
-
+  phe_dsr$value[phe_dsr$total_count < 10]    <- NA #"NA - total count is < 10"
+  phe_dsr$uppercl[phe_dsr$total_count < 10]  <- NA #"NA - total count is < 10"
+  phe_dsr$lowercl[phe_dsr$total_count < 10]  <- NA #"NA - total count is < 10"
+  phe_dsr$statistic[phe_dsr$total_count <10] <- "dsr NA for total count < 10"
 
   if (type == "lower") {
     phe_dsr <- phe_dsr %>%
