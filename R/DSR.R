@@ -8,9 +8,11 @@
 #'          unquoted string; no default
 #' @param n field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
 #'          unquoted string; no default
-#' @param stdpop the standard populations for each standardisation category (eg age band). If standard populations are held within data,
-#'        the column must be referenced as a vector and not repeated eg df$stdpop[1:19]; unquoted numeric vector; no default
-#' @param type type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; string; default combined
+#' @param stdpop the standard populations for each standardisation category (eg age band);
+#'               unquoted numeric vector or field name from data depending on value of stdpoptype argument; default = esp2013
+#' @param stdpoptype whether the stdpop has been specified as a vector or a field name from data argument;
+#'                   quoted string "field" or "vector"; default = vector
+#' @param type type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined
 #' @param confidence the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000
@@ -46,37 +48,53 @@
 # -------------------------------------------------------------------------------------------------
 
 # define the DSR function using Dobson method
-phe_dsr <- function(data, x, n, stdpop, type = "standard", confidence = 0.95, multiplier = 100000) {
+phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = "standard", confidence = 0.95, multiplier = 100000) {
 
 # check required arguments present
-  if (missing(data)|missing(x)|missing(n)|missing(stdpop)) {
-      stop("function phe_dsr requires at least 4 arguments: data, x, n, stdpop")
+  if (missing(data)|missing(x)|missing(n)) {
+      stop("function phe_dsr requires at least 3 arguments: data, x, n")
+  }
+
+
+  if (stdpoptype == "vector") {
+     if (pull(slice(select(ungroup(summarise(data,n=n())),n),1)) != length(stdpop)) {
+        stop("stdpop length must equal number of rows in each group within data")
+     }
+     data <- bind_cols(data,stdpop_calc = rep(stdpop,times=nrow(summarise(data,n=n()))))
+  } else if (stdpoptype == "field") {
+      enquostdpop <- enquo(stdpop)
+# try(rename(data,stdpop_calc = !!enquostdpop))
+#
+            if (try(mutate(data,stdpop_calc = !!enquostdpop))) {
+        data <- mutate(data,stdpop_calc = !!enquostdpop)
+      } else stop("stdpop is not a field name from data")
+  } else {
+    stop("valid values for stdpoptype are vector and field")
   }
 
 # apply quotes
   x <- enquo(x)
   n <- enquo(n)
-  enquostdpop <- enquo(stdpop)
 
-# validate arguments
+  # validate arguments
   if (any(pull(data, !!x) < 0)) {
-      stop("numerators must all be greater than or equal to zero")
+    stop("numerators must all be greater than or equal to zero")
   } else if (any(pull(data, !!n) <= 0)) {
-       stop("denominators must all be greater than zero")
+    stop("denominators must all be greater than zero")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
-      stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+    stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
-      stop("type must be one of value, lower, upper, standard or full")
+    stop("type must be one of value, lower, upper, standard or full")
   } else if (n_distinct(select(ungroup(summarise(data,n=n())),n)) != 1) {
-      stop("data must contain the same number of rows for each group")
-   } else if(pull(slice(select(ungroup(summarise(data,n=n())),n),1)) != length(stdpop)) {
-      stop("stdpop length must equal number of rows in each group within data")
-
-#  } else if (!exists("stdpop", where=data)) {
-#      if (pull(slice(select(summarise(data,n=n()),n),1)) != length(stdpop)) {
-#        stop("stdpop length must equal number of rows in each group within data")
-#    }
+    stop("data must contain the same number of rows for each group")
+    #  } else if (!exists("stdpop", where=data)) {
+    #      if (pull(slice(select(summarise(data,n=n()),n),1)) != length(stdpop)) {
+    #        stop("stdpop length must equal number of rows in each group within data")
+    #    }
   }
+
+
+
 
 # scale confidence level
   if (confidence >= 90) {
@@ -86,12 +104,12 @@ phe_dsr <- function(data, x, n, stdpop, type = "standard", confidence = 0.95, mu
 
 # calculate DSR and CIs
   phe_dsr <- data %>%
-    mutate(wt_rate = (!!x) * (!!enquostdpop) / (!!n),
-           sq_rate = (!!x) * ((!!enquostdpop)/(!!n))^2) %>%
+    mutate(wt_rate = (!!x) * stdpop_calc / (!!n),
+           sq_rate = (!!x) * (stdpop_calc/(!!n))^2) %>%
     summarise(total_count = sum(!!x),
               total_pop = sum(!!n),
-              value = sum(wt_rate) / sum((!!enquostdpop)) * multiplier,
-              vardsr = 1/sum(!!enquostdpop)^2 * sum(sq_rate),
+              value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
+              vardsr = 1/sum(stdpop_calc)^2 * sum(sq_rate),
               lowercl = value + sqrt((vardsr/sum(!!x)))*(byars_lower(sum(!!x),confidence)-sum(!!x)) * multiplier,
               uppercl = value + sqrt((vardsr/sum(!!x)))*(byars_upper(sum(!!x),confidence)-sum(!!x)) * multiplier) %>%
     select(-vardsr) %>%

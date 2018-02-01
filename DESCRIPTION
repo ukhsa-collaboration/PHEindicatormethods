@@ -1,12 +1,15 @@
 Package: PHEstatmethods
 Type: Package
-Version: 0.0.0.9001
+Version: 0.0.0.9002
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate the following statistics:
-    1. proportions and their CIs using Wilson score method
-    2. rates and their CIs using Byar's or exact Poisson method
-    3. DSRs and their CIs using Dobson method
-    4. SMRs and their CIs using Byar's or exact Poisson method 
+    1. confidence limit for an observed number of events using Wilson Score method
+    2. confidence limit for an observed number of events using Byar's method
+    3. proportions and their CIs using Wilson score method
+    4. rates and their CIs using Byar's or exact Poisson method
+    5. DSRs and their CIs using Dobson method
+    6. ISRs and their CIs using Byar's or exact Poisson method 
+    7. SMRs and their CIs using Byar's or exact Poisson method 
 Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@phe.gov.uk", c("aut", "cre")),
              person("Fox", "Sebastian", , "sebastian.fox@phe.gov.uk", c("ctb")),
              person("Francis", "Matthew", , "matthew.francis@phe.gov.uk", c("ctb")),
@@ -15,11 +18,10 @@ BugReports: https://gitlab.phe.gov.uk/Georgina.Anderson/PHEstatmethods/issues
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: binom,
-         dplyr,
-         readxl,
+Imports: dplyr,
          rlang
 Suggests: testthat,
+    readxl,
     knitr,
     rmarkdown
 RoxygenNote: 6.0.1

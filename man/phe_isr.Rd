@@ -24,7 +24,7 @@ the column must be referenced as a vector and not repeated eg df$x_ref[1:19]; nu
 (eg age band) within each grouping set (eg area).  If reference populations are held within data,
 the column must be referenced as a vector and not repeated eg df$n_ref[1:19]; numeric vector; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}

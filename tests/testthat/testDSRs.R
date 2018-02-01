@@ -6,17 +6,17 @@ context("test_phe_dsr")
 #test calculations
 test_that("dsrs and CIs calculate correctly",{
 
-  expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, stdpop = esp2013)),
+  expect_equal(data.frame(phe_dsr(test_multiarea, count, pop)),
                data.frame(select(test_DSR_results[9:11,],1,4:6)),
-               check.attributes=FALSE, check.names=FALSE,info="test default with esp2013")
+               check.attributes=FALSE, check.names=FALSE,info="test default")
 
-#  expect_equal(phe_dsr(test_DSR_1976, count, pop, stdpop),
-#               select(slice(test_DSR_results,12),4:6),
-#               check.attributes=FALSE, check.names=FALSE,info="test default with own stdpop by col name")
+  expect_equal(data.frame(phe_dsr(test_DSR_1976, count, pop, stdpop = test_DSR_1976$esp1976)),
+               select(slice(test_DSR_results,12),4:6),
+               check.attributes=FALSE, check.names=FALSE,info="test with user specified vector")
 
-  expect_equal(data.frame(phe_dsr(test_DSR_1976, count, pop, stdpop = test_DSR_1976$stdpop)),
+  expect_equal(data.frame(phe_dsr(test_DSR_1976, count, pop, stdpop = esp1976, stdpoptype="field")),
                data.frame(select(slice(test_DSR_results,12),4:6)),
-               check.attributes=FALSE, check.names=FALSE,info="test default with own stdpop by vector")
+               check.attributes=FALSE, check.names=FALSE,info="test with user specified stdpop by col name")
 
   expect_equal(data.frame(phe_dsr(test_multiarea, count, pop,
                stdpop = c(5000, 5500, 5500, 5500, 6000, 6000, 6500, 7000, 7000, 7000, 7000, 6500, 6000, 5500, 5000, 4000, 2500, 1500, 1000))),
@@ -56,8 +56,8 @@ test_that("dsrs and CIs calculate correctly",{
 
 test_that("dsrs - errors are generated when invalid arguments are used",{
 
-  expect_error(phe_dsr(test_multiarea, count, pop),
-                "function phe_dsr requires at least 4 arguments: data, x, n, stdpop",info="error invalid number of arguments")
+  expect_error(phe_dsr(test_multiarea, count),
+                "function phe_dsr requires at least 3 arguments: data, x, n",info="error invalid number of arguments")
 
   expect_error(phe_dsr(test_err1, count, pop, stdpop = esp2013),
                "numerators must all be greater than or equal to zero",info="error numerators < 0")
@@ -85,6 +85,12 @@ test_that("dsrs - errors are generated when invalid arguments are used",{
 
   expect_error(phe_dsr(test_multiarea, count, pop, stdpop = test_DSR_1976$stdpop),
                "stdpop length must equal number of rows in each group within data",info="error stdpop length")
+
+  expect_error(phe_dsr(test_multiarea, count, pop, stdpoptype = "column"),
+               "stdpop length must equal number of rows in each group within data",info="error stdpoptype")
+
+  expect_error(phe_dsr(test_DSR_1976, count, pop, stdpoptype = "field", stdpop = esp),
+               "stdpop length must equal number of rows in each group within data",info="error stdpop field doesn't exist")
 })
 
 
