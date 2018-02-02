@@ -55,7 +55,7 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
       stop("function phe_dsr requires at least 3 arguments: data, x, n")
   }
 
-
+  # check stdpop is valid and append to data
   if (stdpoptype == "vector") {
      if (pull(slice(select(ungroup(summarise(data,n=n())),n),1)) != length(stdpop)) {
         stop("stdpop length must equal number of rows in each group within data")
@@ -63,17 +63,15 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
      data <- bind_cols(data,stdpop_calc = rep(stdpop,times=nrow(summarise(data,n=n()))))
   } else if (stdpoptype == "field") {
       enquostdpop <- enquo(stdpop)
-# if (is.null(try(select(data,(!!enquostdpop))))) {
-   if (stdpop %in% colnames(data)) {
-     data <- mutate(data,stdpop_calc = !!enquostdpop)
- } else stop("stdpop is not a field name from data")
-
-   #            if (exists(data$stdpop)) {
+     if (deparse(substitute(stdpop)) %in% colnames(data)) {
+       data <- mutate(data,stdpop_calc = !!enquostdpop)
+     } else stop("stdpop is not a field name from data")
   } else {
     stop("valid values for stdpoptype are vector and field")
   }
 
-# apply quotes
+
+  # apply quotes
   x <- enquo(x)
   n <- enquo(n)
 
@@ -88,20 +86,12 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
     stop("type must be one of value, lower, upper, standard or full")
   } else if (n_distinct(select(ungroup(summarise(data,n=n())),n)) != 1) {
     stop("data must contain the same number of rows for each group")
-    #  } else if (!exists("stdpop", where=data)) {
-    #      if (pull(slice(select(summarise(data,n=n()),n),1)) != length(stdpop)) {
-    #        stop("stdpop length must equal number of rows in each group within data")
-    #    }
   }
-
-
-
 
 # scale confidence level
   if (confidence >= 90) {
     confidence <- confidence/100
   }
-
 
 # calculate DSR and CIs
   phe_dsr <- data %>%

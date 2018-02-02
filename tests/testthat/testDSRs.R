@@ -90,7 +90,7 @@ test_that("dsrs - errors are generated when invalid arguments are used",{
                "stdpop length must equal number of rows in each group within data",info="error stdpoptype")
 
   expect_error(phe_dsr(test_DSR_1976, count, pop, stdpoptype = "field", stdpop = esp),
-               "stdpop length must equal number of rows in each group within data",info="error stdpop field doesn't exist")
+               "stdpop is not a field name from data",info="error stdpop field doesn't exist")
 })
 
 
