@@ -1,10 +1,11 @@
 Package: PHEstatmethods
 Type: Package
-Version: 0.0.0.9002
+Version: 0.0.0.9003
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate the following statistics:
-    1. confidence limit for an observed number of events using Wilson Score method
-    2. confidence limit for an observed number of events using Byar's method
+    1. zscores
+    2. confidence limits for observed number of events using Wilson Score method
+    2. confidence limits for observed number of events using Byar's method
     3. proportions and their CIs using Wilson score method
     4. rates and their CIs using Byar's or exact Poisson method
     5. DSRs and their CIs using Dobson method

@@ -63,11 +63,12 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
      data <- bind_cols(data,stdpop_calc = rep(stdpop,times=nrow(summarise(data,n=n()))))
   } else if (stdpoptype == "field") {
       enquostdpop <- enquo(stdpop)
-# try(rename(data,stdpop_calc = !!enquostdpop))
-#
-            if (try(mutate(data,stdpop_calc = !!enquostdpop))) {
-        data <- mutate(data,stdpop_calc = !!enquostdpop)
-      } else stop("stdpop is not a field name from data")
+# if (is.null(try(select(data,(!!enquostdpop))))) {
+   if (stdpop %in% colnames(data)) {
+     data <- mutate(data,stdpop_calc = !!enquostdpop)
+ } else stop("stdpop is not a field name from data")
+
+   #            if (exists(data$stdpop)) {
   } else {
     stop("valid values for stdpoptype are vector and field")
   }
@@ -117,9 +118,9 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
            statistic = paste("dsr per",format(multiplier,scientific=F)),
            method = "Dobson")
 
-  phe_dsr$value[phe_dsr$total_count < 10]    <- NA #"NA - total count is < 10"
-  phe_dsr$uppercl[phe_dsr$total_count < 10]  <- NA #"NA - total count is < 10"
-  phe_dsr$lowercl[phe_dsr$total_count < 10]  <- NA #"NA - total count is < 10"
+  phe_dsr$value[phe_dsr$total_count < 10]    <- NA
+  phe_dsr$uppercl[phe_dsr$total_count < 10]  <- NA
+  phe_dsr$lowercl[phe_dsr$total_count < 10]  <- NA
   phe_dsr$statistic[phe_dsr$total_count <10] <- "dsr NA for total count < 10"
 
   if (type == "lower") {

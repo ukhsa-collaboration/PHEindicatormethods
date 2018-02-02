@@ -5,8 +5,7 @@
 #'
 #' @param x the observed number of cases in the sample meeting the required condition; numeric vector; no default
 #' @param n the number of cases in the sample; numeric vector; no default
-#' @param confidence the required level of confidence expressed as a number between 0.9 and 1
-#'                   or 90 and 100; numeric; default 0.95
+#' @inheritParams phe_dsr
 #'
 #' @return Returns a lower confidence limit for an observed number of events using Wilson's method
 #'
@@ -37,8 +36,8 @@ wilson_lower <- function(x, n, confidence = 0.95) {
   }
 
   # set z
-  z <- qnorm(confidence+(1-confidence)/2)
-
+#  z <- qnorm(confidence+(1-confidence)/2)
+   z <- zscore(confidence)
   # calculate
   wilson_lower <- (2*x+z^2-z*sqrt(z^2+4*x*(1-(x/n))))/2/(n+z^2)
 
@@ -54,8 +53,7 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 #'
 #' @param x the observed number of cases in the sample meeting the required condition; numeric vector; no default
 #' @param n the number of cases in the sample; numeric vector; no default
-#' @param confidence the required level of confidence expressed as a number between 0.9 and 1
-#'                   or 90 and 100; numeric; default 0.95
+#' @inheritParams phe_dsr
 #'
 #' @return Returns an upper confidence limit for an observed number of events using Wilson's method
 #'
@@ -86,10 +84,17 @@ wilson_upper <- function(x, n, confidence = 0.95) {
   }
 
   # set z
-  z <- qnorm(confidence+(1-confidence)/2)
+#  z <- qnorm(confidence+(1-confidence)/2)
+  z <- zscore(confidence)
 
   # calculate
   wilson_upper <- (2*x+z^2+z*sqrt(z^2+4*x*(1-(x/n))))/2/(n+z^2)
 
   return(wilson_upper)
 }
+
+
+zscore <- function(num) {
+  qnorm(num+(1-num)/2)
+}
+

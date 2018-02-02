@@ -4,8 +4,7 @@
 #' Calculates the lower confidence limit for an observed number of events using Byar's method.
 #'
 #' @param x the observed number of events; numeric vector; no default
-#' @param confidence the required level of confidence expressed as a number between 0.9 and 1
-#'                   or 90 and 100; numeric; default 0.95
+#' @inheritParams phe_dsr
 #'
 #' @return Returns a lower confidence limit for an observed number of events using Byar's method
 #'
@@ -34,7 +33,8 @@ byars_lower <- function(x, confidence = 0.95) {
     }
 
   # populate z
-  z <- qnorm(confidence + (1-confidence)/2)
+#  z <- qnorm(confidence + (1-confidence)/2)
+  z <- zscore(confidence)
 
   # calculate
   byars_lower <- x*(1-1/(9*x)-z/(3*sqrt(x)))^3
@@ -48,8 +48,7 @@ byars_lower <- function(x, confidence = 0.95) {
 #' Calculates the upper confidence limit for an observed number of events using Byar's method.
 #'
 #' @param x the observed number of events; numeric vector; no default
-#' @param confidence the level of confidence required expressed as a number between 0.9 and 1
-#'                   or 90 and 100; numeric; default 0.95
+#' @inheritParams phe_dsr
 #'
 #' @return Returns an upper confidence limit for an observed number of events using Byar's method
 #'
@@ -78,7 +77,8 @@ byars_upper <- function(x, confidence = 0.95) {
   }
 
   # populate z
-  z <- qnorm(confidence + (1-confidence)/2)
+#  z <- qnorm(confidence + (1-confidence)/2)
+  z <- zscore(confidence)
 
   byars_upper <- (x+1)*(1-1/(9*(x+1))+z/(3*sqrt(x+1)))^3
   return(byars_upper)
