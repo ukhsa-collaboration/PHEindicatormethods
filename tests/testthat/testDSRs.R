@@ -83,11 +83,11 @@ test_that("dsrs - errors are generated when invalid arguments are used",{
   expect_error(phe_dsr(filter(test_multiarea,count < 100), count, pop, stdpop = esp2013),
                "data must contain the same number of rows for each group",info="error num rows per group")
 
-  expect_error(phe_dsr(test_multiarea, count, pop, stdpop = test_DSR_1976$stdpop),
+  expect_error(phe_dsr(test_multiarea, count, pop, stdpop = test_DSR_1976$esp1976),
                "stdpop length must equal number of rows in each group within data",info="error stdpop length")
 
   expect_error(phe_dsr(test_multiarea, count, pop, stdpoptype = "column"),
-               "stdpop length must equal number of rows in each group within data",info="error stdpoptype")
+               "valid values for stdpoptype are vector and field",info="error stdpoptype")
 
   expect_error(phe_dsr(test_DSR_1976, count, pop, stdpoptype = "field", stdpop = esp),
                "stdpop is not a field name from data",info="error stdpop field doesn't exist")

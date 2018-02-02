@@ -5,34 +5,30 @@ context("test_phe_mean")
 
 #test calculations
 test_that("means and CIs calculate correctly",{
-  expect_equal(phe_mean(test_Mean,values),
-               select(slice(test_Mean_results,3),5:7),check.attributes=FALSE, check.names=FALSE,info="test default")
+  expect_equal(data.frame(phe_mean(test_Mean,values)),
+               data.frame(select(slice(test_Mean_results,3),5:7)),check.attributes=FALSE, check.names=FALSE,info="test default")
 
-  expect_equal(phe_mean(test_Mean_Grp,values),
-               select(slice(test_Mean_results,1:2),1,5:7),check.attributes=FALSE, check.names=FALSE,info="test default grouped")
+  expect_equal(data.frame(phe_mean(test_Mean_Grp,values)),
+                          data.frame(select(slice(test_Mean_results,1:2),1,5:7)),check.attributes=FALSE, check.names=FALSE,info="test default grouped")
 
-  expect_equal(phe_mean(test_Mean_Grp,values, type="full"),
-               slice(test_Mean_results,1:2),check.attributes=FALSE, check.names=FALSE,info="test full")
+  expect_equal(data.frame(phe_mean(test_Mean_Grp,values, type="full")),
+                          data.frame(slice(test_Mean_results,1:2)),check.attributes=FALSE, check.names=FALSE,info="test full")
 
-  expect_equal(phe_mean(test_Mean_Grp,values, type="value"),
-               select(slice(test_Mean_results,1:2),1,5),check.attributes=FALSE, check.names=FALSE,info="test value")
+  expect_equal(data.frame(phe_mean(test_Mean_Grp,values, type="value")),
+                          data.frame(select(slice(test_Mean_results,1:2),1,5)),check.attributes=FALSE, check.names=FALSE,info="test value")
 
-  expect_equal(phe_mean(test_Mean_Grp,values, type="lower"),
-               select(slice(test_Mean_results,1:2),1,6),check.attributes=FALSE, check.names=FALSE,info="test lower")
+  expect_equal(data.frame(phe_mean(test_Mean_Grp,values, type="lower")),
+                          data.frame(select(slice(test_Mean_results,1:2),1,6)),check.attributes=FALSE, check.names=FALSE,info="test lower")
 
-  expect_equal(phe_mean(test_Mean_Grp,values, type="upper"),
-               select(slice(test_Mean_results,1:2),1,7),check.attributes=FALSE, check.names=FALSE,info="test upper")
+  expect_equal(data.frame(phe_mean(test_Mean_Grp,values, type="upper")),
+                          data.frame(select(slice(test_Mean_results,1:2),1,7)),check.attributes=FALSE, check.names=FALSE,info="test upper")
 
-  expect_equal(phe_mean(test_Mean_Grp,values, confidence = 99.8),
-               select(slice(test_Mean_results,4:5),1,5:7),check.attributes=FALSE, check.names=FALSE,info="test confidence")
+  expect_equal(data.frame(phe_mean(test_Mean_Grp,values, confidence = 99.8)),
+                          data.frame(select(slice(test_Mean_results,4:5),1,5:7)),check.attributes=FALSE, check.names=FALSE,info="test confidence")
 })
 
 
-#type must be one of value, lower, upper, standard or full
-
-
 #test error handling
-
 test_that("means - errors are generated when invalid arguments are used",{
   expect_error(phe_mean(test_Mean),
                "function phe_dsr requires at least 2 arguments: data, x",info="error invalid number of arguments")

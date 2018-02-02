@@ -31,15 +31,18 @@ which calculates DSRs and their confidence limits using the Dobson method.
 The function can be used to calculate DSRs for grouping single or multiple geographic areas/ genders/ timeperiods/ indicators in a single execution and takes the following arguments as inputs:
 
 
-| Argument  | Type            | Definition                                                                |Default value  |
-|:----------|:----------------|:--------------------------------------------------------------------------|:--------------|
-| data      | data.frame      | the data to be standardised                                               | none          |
-| x         | numeric vector  | observed number of events for each standardisation category (eg ageband) within each grouping set (eg area or indicator)    | none          |
-| n         | numeric vector  | populations for each standardisation category (eg ageband) within each grouping set (eg area or indicator)| none          |
-| stdpop    | numeric vector  | standard populations for each standardisation category (eg age band) the European Standard Population 2013 divided into 19 five-year agebands (0-4, 5-9, 10-14, .....90+) is available within the package and can be referenced using esp2013   | none          | 
-| conf.level| numeric value   | the required level of confidence expressed as a number between 0.9 and 1 or 90 and 100  | 0.95          |
-| multiplier| numeric value   | the multiplier used to express the final values (eg 100,000 = rate per 100,000, 100 = percentage)                          | 100,000       |
+| Argument   | Type            | Definition                                                                |Default value  |
+|:-----------|:----------------|:--------------------------------------------------------------------------|:--------------|
+| data       | data.frame      | data.frame containing the data to be standardised                         | none          |
+| x          | numeric vector  | field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area or indicator)    | none          |
+| n          | numeric vector  | field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area or indicator)| none          |
+| stdpop     | numeric vector  | standard populations for each standardisation category (eg age band) specified as a field name from data or a vector.    | esp2013*         | 
+| stdpoptype | quoted string   | whether the stdpop argument has been specified as a vactor or a field name| "vector"      | 
+| confidence | numeric value   | the required level of confidence expressed as a number between 0.9 and 1 or 90 and 100  | 0.95          |
+| multiplier | numeric value   | the multiplier used to express the final values (eg 100,000 = rate per 100,000 | 100,000       |
 
+
+* Note that the European Standard Population 2013 divided into 19 five-year agebands (0-4, 5-9, 10-14, .....90+) is available within the package and will be used as the default for the stdpop argument
 
 If multiple DSRs are required from a single data frame then the data frame must be grouped prior to inputting to the function - this is demonstrated below 
 
@@ -50,6 +53,7 @@ If multiple DSRs are required from a single data frame then the data frame must 
 library(PHEstatmethods)
 library(RODBC)
 library(dplyr)
+library(rlang)
 library(tidyr)
 ```
 
@@ -126,19 +130,43 @@ all.equal(select(df,1,2,4)[3],
  
 Now we're ready to calculate the DSRs.  
 
-By default the function will apply 95% confidence, a 100,000 multiplier and will output just 3 fields against each grouping set - the dsr and the lower and upper confidence limits: 
+By default the function will apply 95% confidence, a 100,000 multiplier and will output just 3 fields against each grouping set - the dsr, the lower confidence limit and the upper confidence limit: 
  
 ``` {r calculate DSRs}
-phe_dsr(df, Dths, Population, esp2013)
+phe_dsr(df, Dths, Population)
 
 ```
 
-Alternatively, we can add further arguments to specify the level of detail required in the output, the confidence level and the multiplier:
+Alternatively, we can add further arguments to specify:
+* the level of detail required in the output
+* the confidence level 
+* the multiplier:
 
 ``` {r alternative dsr}
-phe_dsr(df, Dths, Population, esp2013, "full", 99.8, 10000)
+phe_dsr(df, Dths, Population, "full", 99.8, 10000)
 ```
 
+## Using different Standard Populations
+
+in some cases you may wish to standardise against a different popualtion such as the 1976 European Standard population or and age and sex standardised population.  There are two ways to apply a custon standard population:
+
+#### Provide the custom standard population as a vector and specify *stdpop* as the vector name in the function call
+In this example we define the 1976 European Standard Populations which has 18 age groups and then adjust our earlier data.frame so our data is also provided for the same 18 age bands.  Then we execute the function phe_dsr using a user-defined standard population
+
+``` r{specify stdpop as vector}
+esp1976 <- c(8000,	7000,	7000,	7000,	7000,	7000,	7000,	7000,	7000,	7000,	7000,	6000,	5000,	4000,	3000,	2000,	1000,	1000)
+df_18agebands <- filter(df,AgeBand != "90+")
+phe_dsr(df,Dths,Population,stdpop = esp1976)
+
+```
+
+#### Append the standard populations to your data frame and specify *stdpop* as the field name in your function call
+In this example we append the esp2013 standard population to our data frame prior to calling the phe_dsr function and then specify the field name in the function call.  If stdpop is specified as a field name we must also tell the function this by specifying stdpoptype = "field"
+``` r{specify stdpop as field name}
+df_with_stdpop <- bind_cols(df,rep(esp2013,time=3))
+phe_dsr(df_with_stdpop,Dths,Population,esp2013,stdpoptype = "field")
+
+```
 
 ## But what if the data are not so tidy?
 
@@ -148,24 +176,24 @@ This would be a fairly common scenario - maybe you have Local Authority data and
 Let's fudge a couple of data frames to represent this.  In this example, there are no deaths in the 10-14, 15-20 and 20-14 age bands:
 
 ``` {r test data}
-pops_nodths   <- data.frame(AgeBand    = c( 0, 5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90),
-                            Population = c(30,35,35,35,40,40,45,50,50,50,60,60,70,75,70,60,20,20,15))
+pops2   <- data.frame(AgeBand    = c( 0, 5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90),
+                      Population = c(30,35,35,35,40,40,45,50,50,50,60,60,70,75,70,60,20,20,15))
 
-deaths_nodths <- data.frame(AgeBand = c(0,5,25,30,35,40,45,50,55,60,65,70,75,80,85,90),
-                            Dths    = c(1,1, 1, 1, 3, 3, 3, 3,10,10,10,10, 8, 8, 8, 8))
+deaths2 <- data.frame(AgeBand = c(0,5,25,30,35,40,45,50,55,60,65,70,75,80,85,90),
+                      Dths    = c(1,1, 1, 1, 3, 3, 3, 3,10,10,10,10, 8, 8, 8, 8))
 ```
 
-If we simply join these data frames to produce the required input data frame then we get NA values in the Deaths column and the function will return an error:
+If we simply join these data frames to produce the input data frame required for the phe_dsr function then we get NA values in the Deaths column and the function will return an error:
 
 ``` {r error test}
-data_nodths <- left_join(pops_nodths, deaths_nodths, by="AgeBand")
-phe_dsr(data_nodths, Dths, Population, esp2013)
+df2 <- left_join(pops2, deaths2, by="AgeBand")
+phe_dsr(df2, Dths, Population)
 ```
 
 The NA values must be replaced with zeros before executing the function: 
 
 ``` {r prep data}
-data_nodths <- data_nodths %>%
-               mutate(Dths = replace(Dths, which(is.na(Dths)), 0))
-phe_dsr(data_nodths, Dths, Population, esp2013)
+df3 <- df2 %>%
+        mutate(Dths = replace(Dths, which(is.na(Dths)), 0))
+phe_dsr(df3, Dths, Population)
 ```

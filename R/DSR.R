@@ -50,13 +50,20 @@
 # define the DSR function using Dobson method
 phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = "standard", confidence = 0.95, multiplier = 100000) {
 
-# check required arguments present
+  # check required arguments present
   if (missing(data)|missing(x)|missing(n)) {
       stop("function phe_dsr requires at least 3 arguments: data, x, n")
   }
 
+  # check same number of rows per group
+  if (n_distinct(select(ungroup(summarise(data,n=n())),n)) != 1) {
+    stop("data must contain the same number of rows for each group")
+  }
+
   # check stdpop is valid and append to data
-  if (stdpoptype == "vector") {
+  if (!(stdpoptype %in% c("vector","field"))) {
+    stop("valid values for stdpoptype are vector and field")
+  } else if (stdpoptype == "vector") {
      if (pull(slice(select(ungroup(summarise(data,n=n())),n),1)) != length(stdpop)) {
         stop("stdpop length must equal number of rows in each group within data")
      }
@@ -66,10 +73,7 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
      if (deparse(substitute(stdpop)) %in% colnames(data)) {
        data <- mutate(data,stdpop_calc = !!enquostdpop)
      } else stop("stdpop is not a field name from data")
-  } else {
-    stop("valid values for stdpoptype are vector and field")
   }
-
 
   # apply quotes
   x <- enquo(x)
@@ -84,8 +88,6 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
     stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
     stop("type must be one of value, lower, upper, standard or full")
-  } else if (n_distinct(select(ungroup(summarise(data,n=n())),n)) != 1) {
-    stop("data must contain the same number of rows for each group")
   }
 
 # scale confidence level

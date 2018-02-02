@@ -41,7 +41,6 @@ phe_mean <- function(data, x, type = "standard", confidence=0.95) {
     stop("function phe_dsr requires at least 2 arguments: data, x")
   }
 
-
   # apply quotes
   x <- enquo(x)
 
