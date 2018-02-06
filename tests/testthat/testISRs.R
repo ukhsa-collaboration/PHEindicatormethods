@@ -1,5 +1,4 @@
 library(testthat)
-library(readxl)
 
 context("test_phe_isr")
 
@@ -10,9 +9,9 @@ test_that("isrs and CIs calculate correctly",{
                data.frame(select(slice(test_ISR_results,1:3),1,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test default")
 
-  #  expect_equal(phe_isr(test_DSR_1976, count, pop, stdpop),
-  #               select(slice(test_ISR_results,12),4:6),
-  #               check.attributes=FALSE, check.names=FALSE,info="test default with own stdpop by col name")
+  expect_equal(data.frame(phe_isr(test_ISR_ownref, count, pop, refcount, refpop, refpoptype="field")),
+               data.frame(select(slice(test_ISR_results,1:3),1,5:7)),
+               check.attributes=FALSE, check.names=FALSE,info="test default with own ref data by col name")
 
   expect_equal(data.frame(phe_isr(test_ISR_ownref, count, pop, test_ISR_ownref$refcount[1:19], test_ISR_ownref$refpop[1:19])),
                data.frame(select(slice(test_ISR_results,1:3),1,5:7)),
@@ -95,6 +94,15 @@ test_that("isrs - errors are generated when invalid arguments are used",{
 
   expect_error(phe_isr(test_ISR_ownref, count, pop, test_ISR_ownref$refcount[1:19], test_ISR_ownref$refpop),
                "n_ref length must equal number of rows in each group within data",info="error n_ref length in data")
+
+  expect_error(phe_isr(test_multiarea, count, pop, test_ISR_ownref$refcount[1:19], test_ISR_ownref$refpop, refpoptype = "column"),
+               "valid values for refpoptype are vector and field",info="error invalid refpoptype")
+
+  expect_error(phe_isr(test_ISR_ownref, count, pop, ref_count, refpop, refpoptype = "field"),
+               "x_ref is not a field name from data",info="error x_ref not a fiel name")
+
+  expect_error(phe_isr(test_ISR_ownref, count, pop, refcount, ref_pop, refpoptype = "field"),
+               "n_ref is not a field name from data",info="error n_ref not a field name")
 })
 
 
