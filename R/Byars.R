@@ -33,8 +33,7 @@ byars_lower <- function(x, confidence = 0.95) {
     }
 
   # populate z
-#  z <- qnorm(confidence + (1-confidence)/2)
-  z <- zscore(confidence)
+  z <- qnorm(confidence + (1-confidence)/2)
 
   # calculate
   byars_lower <- x*(1-1/(9*x)-z/(3*sqrt(x)))^3
@@ -77,8 +76,7 @@ byars_upper <- function(x, confidence = 0.95) {
   }
 
   # populate z
-#  z <- qnorm(confidence + (1-confidence)/2)
-  z <- zscore(confidence)
+  z <- qnorm(confidence + (1-confidence)/2)
 
   byars_upper <- (x+1)*(1-1/(9*(x+1))+z/(3*sqrt(x+1)))^3
   return(byars_upper)

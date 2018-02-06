@@ -36,8 +36,8 @@ wilson_lower <- function(x, n, confidence = 0.95) {
   }
 
   # set z
-#  z <- qnorm(confidence+(1-confidence)/2)
-   z <- zscore(confidence)
+  z <- qnorm(confidence+(1-confidence)/2)
+
   # calculate
   wilson_lower <- (2*x+z^2-z*sqrt(z^2+4*x*(1-(x/n))))/2/(n+z^2)
 
@@ -84,8 +84,7 @@ wilson_upper <- function(x, n, confidence = 0.95) {
   }
 
   # set z
-#  z <- qnorm(confidence+(1-confidence)/2)
-  z <- zscore(confidence)
+  z <- qnorm(confidence+(1-confidence)/2)
 
   # calculate
   wilson_upper <- (2*x+z^2+z*sqrt(z^2+4*x*(1-(x/n))))/2/(n+z^2)
