@@ -4,8 +4,8 @@
 \alias{phe_smr}
 \title{phe_smr}
 \usage{
-phe_smr(data, x, n, x_ref, n_ref, type = "standard", confidence = 0.95,
-  ref = 1)
+phe_smr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "standard",
+  confidence = 0.95, refvalue = 1)
 }
 \arguments{
 \item{data}{data.frame containing the data to be standarised, pre-grouped if multiple SMRs required; unquoted string; no default}
@@ -17,19 +17,20 @@ unquoted string; no default}
 unquoted string; no default}
 
 \item{x_ref}{the observed number of events in the reference population for each standardisation category
-(eg age band) within each grouping set (eg area). If reference populations are held within data,
-the column must be referenced as a vector and not repeated eg df$x_ref[1:19]; numeric vector; no default}
+(eg age band); unquoted numeric vector or field name from data depending on value of refpoptype argument; no default}
 
-\item{n_ref}{the reference population for each standardisation category
-(eg age band) within each grouping set (eg area).  If reference populations are held within data,
-the column must be referenced as a vector and not repeated eg df$n_ref[1:19]; numeric vector; no default}
+\item{n_ref}{the reference population for each standardisation category (eg age band);
+unquoted numeric vector or field name from data depending on value of refpoptype argument; no default}
+
+\item{refpoptype}{whether x_ref and n_ref have been specified as vectors or a field name from data argument;
+quoted string "field" or "vector"; default = vector}
 
 \item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
-\item{ref}{the standardised reference ratio, numeric, default = 1}
+\item{refvalue}{the standardised reference ratio, numeric, default = 1}
 }
 \value{
 When type = "full", returns a data frame of observed, expected, value, lowercl, uppercl, confidence, statistic and method
