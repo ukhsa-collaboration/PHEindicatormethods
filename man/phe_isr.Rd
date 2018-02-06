@@ -4,8 +4,8 @@
 \alias{phe_isr}
 \title{phe_isr}
 \usage{
-phe_isr(data, x, n, x_ref, n_ref, type = "standard", confidence = 0.95,
-  multiplier = 1e+05)
+phe_isr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "standard",
+  confidence = 0.95, multiplier = 1e+05)
 }
 \arguments{
 \item{data}{data.frame containing the data to be standarised, pre-grouped if multiple ISRs required; unquoted string; no default}
@@ -23,6 +23,9 @@ the column must be referenced as a vector and not repeated eg df$x_ref[1:19]; nu
 \item{n_ref}{the reference population for each standardisation category
 (eg age band) within each grouping set (eg area).  If reference populations are held within data,
 the column must be referenced as a vector and not repeated eg df$n_ref[1:19]; numeric vector; no default}
+
+\item{refpoptype}{whether x_ref and n_ref have been specified as vectors or a field name from data argument;
+quoted string "field" or "vector"; default = vector}
 
 \item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined}
 
@@ -47,6 +50,5 @@ Other PHEstatmethods package functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_dsr}},
   \code{\link{phe_mean}}, \code{\link{phe_proportion}},
   \code{\link{phe_rate}}, \code{\link{phe_smr}},
-  \code{\link{wilson_lower}}, \code{\link{wilson_upper}},
-  \code{\link{zscore}}
+  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
 }

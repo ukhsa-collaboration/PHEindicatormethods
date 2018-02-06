@@ -9,7 +9,7 @@ byars_upper(x, confidence = 0.95)
 \arguments{
 \item{x}{the observed number of events; numeric vector; no default}
 
-\item{confidence}{the level of confidence required expressed as a number between 0.9 and 1
+\item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 }
 \value{
@@ -28,6 +28,5 @@ Other PHEstatmethods package functions: \code{\link{byars_lower}},
   \code{\link{phe_dsr}}, \code{\link{phe_isr}},
   \code{\link{phe_mean}}, \code{\link{phe_proportion}},
   \code{\link{phe_rate}}, \code{\link{phe_smr}},
-  \code{\link{wilson_lower}}, \code{\link{wilson_upper}},
-  \code{\link{zscore}}
+  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
 }

@@ -46,13 +46,13 @@ df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 *
                  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(obs, pop, esp2013)
+    phe_dsr(df, obs, pop)
 
 ## OR
 
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(obs, pop, esp2013, "full")
+    phe_dsr(df, obs, pop, type = "full")
 
 }
 \seealso{
@@ -60,6 +60,5 @@ Other PHEstatmethods package functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_isr}},
   \code{\link{phe_mean}}, \code{\link{phe_proportion}},
   \code{\link{phe_rate}}, \code{\link{phe_smr}},
-  \code{\link{wilson_lower}}, \code{\link{wilson_upper}},
-  \code{\link{zscore}}
+  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
 }
