@@ -31,18 +31,18 @@ which calculates DSRs and their confidence limits using the Dobson method.
 The function can be used to calculate DSRs for grouping single or multiple geographic areas/ genders/ timeperiods/ indicators in a single execution and takes the following arguments as inputs:
 
 
-| Argument   | Type            | Definition                                                                |Default value  |
-|:-----------|:----------------|:--------------------------------------------------------------------------|:--------------|
-| data       | data.frame      | data.frame containing the data to be standardised                         | none          |
-| x          | numeric vector  | field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area or indicator)    | none          |
-| n          | numeric vector  | field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area or indicator)| none          |
-| stdpop     | numeric vector  | standard populations for each standardisation category (eg age band) specified as a field name from data or a vector.    | esp2013*         | 
-| stdpoptype | quoted string   | whether the stdpop argument has been specified as a vactor or a field name| "vector"      | 
-| confidence | numeric value   | the required level of confidence expressed as a number between 0.9 and 1 or 90 and 100  | 0.95          |
-| multiplier | numeric value   | the multiplier used to express the final values (eg 100,000 = rate per 100,000 | 100,000       |
+| Argument     | Type             | Definition                                                             |Default value  |
+|:-------------|:-----------------|:-----------------------------------------------------------------------|:--------------|
+| data         | data.frame       | data.frame containing the data to be standardised                      | none          |
+| x            | numeric vector   | field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area or indicator)    | none          |
+| n            | numeric vector   | field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area or indicator)| none          |
+| stdpop       | numeric vector   | standard populations for each standardisation category (eg age band) specified as a field name from data or a vector.    | esp2013         | 
+| stdpoptype   | quoted string    | whether the stdpop argument has been specified as a vactor or a field name | "vector"      | 
+| confidence   | numeric value    | the required level of confidence expressed as a number between 0.9 and 1 or 90 and 100  | 0.95          |
+| multiplier   | numeric value    | the multiplier used to express the final values (eg 100,000 = rate per 100,000 | 100,000       |
 
 
-* Note that the European Standard Population 2013 divided into 19 five-year agebands (0-4, 5-9, 10-14, .....90+) is available within the package and will be used as the default for the stdpop argument
+Note that the European Standard Population 2013 divided into 19 five-year agebands (0-4, 5-9, 10-14, .....90+) is provided in vector format within the package and will be used as the default for the stdpop argument
 
 If multiple DSRs are required from a single data frame then the data frame must be grouped prior to inputting to the function - this is demonstrated below 
 
@@ -114,15 +114,11 @@ df <- left_join(pops,deaths, by = c("Period","RGN09CD","RGN09NM","AgeBand")) %>%
 
 We'll be using the esp2013 vector that is provided with the PHEstatmethods package for the stadard population -
 it contains 19 ordered values representing the 5-year age bands 0-4, 5-9, 10-14....90+.
-Our dataframe must also contain records for the same age bands in the same order for each grouping set
-<br />
-<span style="color:red">GA note - data is fine but need to re-code this check</span>
+Our dataframe must also contain records for the same age bands in the same order for each grouping set.  Let's check we've got 19 records in each group:
 
 
 ``` {r check repeats of stdpop}
-all.equal(select(df,1,2,4)[3],
-          data.frame(rep(c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90),times=9)),
-          check.attributes=FALSE, check.names=FALSE)
+summarise(df,n=n())
 ```
 
 
