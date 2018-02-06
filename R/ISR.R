@@ -5,17 +5,15 @@
 #'
 #' @param data data.frame containing the data to be standarised, pre-grouped if multiple ISRs required; unquoted string; no default
 #' @param x_ref the observed number of events in the reference population for each standardisation category
-#'              (eg age band) within each grouping set (eg area). If reference populations are held within data,
-#'              the column must be referenced as a vector and not repeated eg df$x_ref[1:19]; numeric vector; no default
-#' @param n_ref the reference population for each standardisation category
-#'              (eg age band) within each grouping set (eg area).  If reference populations are held within data,
-#'              the column must be referenced as a vector and not repeated eg df$n_ref[1:19]; numeric vector; no default
+#'              (eg age band); unquoted numeric vector or field name from data depending on value of refpoptype argument; no default
+#' @param n_ref the reference population for each standardisation category (eg age band);
+#'              unquoted numeric vector or field name from data depending on value of refpoptype argument; no default
 #' @param refpoptype whether x_ref and n_ref have been specified as vectors or a field name from data argument;
 #'                   quoted string "field" or "vector"; default = vector
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return When type = "full", returns a data frame of observed, expected, ref_rate, value, lowercl, uppercl, confidence, statistic and method
+#' @return When type = "full", returns a data frame of observed, expected, value, lowercl, uppercl, confidence, statistic and method
 #'         for each grouping set
 #'
 #' @examples
