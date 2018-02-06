@@ -30,17 +30,22 @@ which calculates DSRs and their confidence limits using the Dobson method.
 
 The function can be used to calculate DSRs for grouping single or multiple geographic areas/ genders/ timeperiods/ indicators in a single execution and takes the following arguments as inputs:
 
+<br/>
+<br/>
+
 
 | Argument     | Type             | Definition                                                             |Default value  |
 |:-------------|:-----------------|:-----------------------------------------------------------------------|:--------------|
 | data         | data.frame       | data.frame containing the data to be standardised                      | none          |
-| x            | numeric vector   | field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area or indicator)    | none          |
-| n            | numeric vector   | field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area or indicator)| none          |
-| stdpop       | numeric vector   | standard populations for each standardisation category (eg age band) specified as a field name from data or a vector.    | esp2013         | 
+| x            | unquoted string   | field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area or indicator)    | none          |
+| n            | unquoted string  | field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area or indicator)| none          |
+| stdpop       | unquoted string  | standard populations for each standardisation category (eg age band) specified as a field name from data or a vector.    | esp2013         | 
 | stdpoptype   | quoted string    | whether the stdpop argument has been specified as a vactor or a field name | "vector"      | 
 | confidence   | numeric value    | the required level of confidence expressed as a number between 0.9 and 1 or 90 and 100  | 0.95          |
 | multiplier   | numeric value    | the multiplier used to express the final values (eg 100,000 = rate per 100,000 | 100,000       |
 
+<br/>
+<br/>
 
 Note that the European Standard Population 2013 divided into 19 five-year agebands (0-4, 5-9, 10-14, .....90+) is provided in vector format within the package and will be used as the default for the stdpop argument
 
@@ -76,7 +81,7 @@ FROM [z_Populations_DEV].[dbo].[vRes_RGN09_FiveYear]
 WHERE OfficialCode in ('E12000001','E12000002','E12000003')
 AND Period in ('2014','2015','2016')
 AND Sex = 4
-ORDER BY Period, OfficialCode, Sex, QuinaryAgeBandMin")
+ORDER BY Period, OfficialCode, QuinaryAgeBandMin")
 
 deaths <- sqlQuery(dbhandle2,"SELECT xYEAR as Period, RGN09CD, RGN09NM, 
        CASE WHEN xAge_Year>=90 THEN 90 ELSE FLOOR(CAST(LEFT(xAge_Year,2) AS FLOAT)/5)*5 END AS AgeBand, COUNT(*) AS Dths
@@ -97,7 +102,7 @@ odbcClose(dbhandle2)
 ```
 
 
-## Now we want to calculate a DSR for each period and geography combination
+## Now let's calculate a DSR for each period and geography combination
 
 #### Prepare the data frame
 
@@ -105,17 +110,19 @@ First we'll need to join our datasets to create the input data.frame for the fun
 
 ``` {r create reference column}
 df <- left_join(pops,deaths, by = c("Period","RGN09CD","RGN09NM","AgeBand")) %>%
-      group_by(Period, RGN09CD)
+  group_by(Period, RGN09CD)
 ```
  
 
-#### Validate the data frame
+#### Caution: The order of your records is important!
 
+The phe_dsr function has built in error handling to ensure that when the standard population is provided as a vector (stdpoptype="vector"), the data you provide 
+contains the same number of records per group as the standard population you are using.  However, **it will assume that those records are provided in the same order in your data and in the standard population vector**.  For example if the standard population vector is sorted from highest ageband to lowest ageband but the data records are sorted from lowest ageband to highest ageband then the function will still provide a result but it will have incorrectly standardised the data and this may not be apparent to the user.  
 
-We'll be using the esp2013 vector that is provided with the PHEstatmethods package for the stadard population -
-it contains 19 ordered values representing the 5-year age bands 0-4, 5-9, 10-14....90+.
-Our dataframe must also contain records for the same age bands in the same order for each grouping set.  Let's check we've got 19 records in each group:
+In this example we'll use the esp2013 vector that is provided with the PHEstatmethods package for our standard population -
+it contains 19 ordered values representing the 5-year age bands 0-4, 5-9, 10-14....85-89, 90+.
 
+You can run code like this to check that you also have 19 records per group within your data.frame, but **you will also need to ensure that your data records are ordered to match the order of those in the standard population vector**:
 
 ``` {r check repeats of stdpop}
 summarise(df,n=n())
@@ -130,37 +137,46 @@ By default the function will apply 95% confidence, a 100,000 multiplier and will
  
 ``` {r calculate DSRs}
 phe_dsr(df, Dths, Population)
-
 ```
 
 Alternatively, we can add further arguments to specify:
-* the level of detail required in the output
-* the confidence level 
-* the multiplier:
+
+* the level of detail required in the output (type)
+* the confidence level (confidence)
+* the multiplier (multiplier)
 
 ``` {r alternative dsr}
-phe_dsr(df, Dths, Population, "full", 99.8, 10000)
+phe_dsr(df, Dths, Population, type = "full", confidence = 99.8, multiplier = 10000)
 ```
 
-## Using different Standard Populations
+## Specifying non-default Standard Populations
 
-in some cases you may wish to standardise against a different popualtion such as the 1976 European Standard population or and age and sex standardised population.  There are two ways to apply a custon standard population:
+In some cases you may wish to standardise against a different population such as the 1976 European Standard Population or an age and sex standardised population.  There are two ways to specify an alternative standard population:
 
-#### Provide the custom standard population as a vector and specify *stdpop* as the vector name in the function call
-In this example we define the 1976 European Standard Populations which has 18 age groups and then adjust our earlier data.frame so our data is also provided for the same 18 age bands.  Then we execute the function phe_dsr using a user-defined standard population
+#### Provide the custom standard population as a vector
+In the example below, the 1976 European Standard Population (which has 18 age groups) is provided as a vector and then referenced in the function call.  To ensure the function works we must also ensure that our data has been broken down into these same 18 age bands (for the purposes of this example I've just combined the 85-90 and 90+ age band data into a single 85+ age band from the data.frame we used earlier).  
 
-``` r{specify stdpop as vector}
+The phe_dsr function can then be executed using a user-defined standard population:
+
+``` {r specify stdpop as vector}
 esp1976 <- c(8000,	7000,	7000,	7000,	7000,	7000,	7000,	7000,	7000,	7000,	7000,	6000,	5000,	4000,	3000,	2000,	1000,	1000)
-df_18agebands <- filter(df,AgeBand != "90+")
-phe_dsr(df,Dths,Population,stdpop = esp1976)
+
+df18 <- df
+df18$Dths[df18$AgeBand == 85]       <- df18$Dths[df18$AgeBand == 85] + df18$Dths[df18$AgeBand == 90]
+df18$Population[df18$AgeBand == 85] <- df18$Population[df18$AgeBand == 85] + df18$Population[df18$AgeBand == 90]
+df18 <- filter(df18,AgeBand != 90)
+
+phe_dsr(df18,Dths,Population,stdpop = esp1976)
 
 ```
 
-#### Append the standard populations to your data frame and specify *stdpop* as the field name in your function call
-In this example we append the esp2013 standard population to our data frame prior to calling the phe_dsr function and then specify the field name in the function call.  If stdpop is specified as a field name we must also tell the function this by specifying stdpoptype = "field"
-``` r{specify stdpop as field name}
-df_with_stdpop <- bind_cols(df,rep(esp2013,time=3))
-phe_dsr(df_with_stdpop,Dths,Population,esp2013,stdpoptype = "field")
+#### Append the standard populations to your data frame before executing the function
+In the example below, the esp2013 standard population is appended to our data frame prior to calling the phe_dsr function.  The field name can then be specified in the function call.  If stdpop is specified as a field name we must also tell the function this by specifying stdpoptype = "field" as below:
+
+``` {r specify stdpop as field name}
+df_with_stdpop <- mutate(df,spop = esp2013)
+names(df_with_stdpop)
+phe_dsr(df_with_stdpop, Dths, Population, stdpop = spop, stdpoptype = "field")
 
 ```
 
