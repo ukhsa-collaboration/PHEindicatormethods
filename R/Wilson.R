@@ -23,7 +23,7 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 
   # validate arguments
   if (any(x < 0)) {
-    stop("observed cases must all be greater than or equal to zero")
+    stop("observed events must all be greater than or equal to zero")
   } else if (any(n < 0)) {
       stop("sample sizes must all be greater than zero")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
@@ -71,7 +71,7 @@ wilson_upper <- function(x, n, confidence = 0.95) {
 
   # validate arguments
   if (any(x < 0)) {
-    stop("observed cases must all be greater than or equal to zero")
+    stop("observed events must all be greater than or equal to zero")
   } else if (any(n < 0)) {
     stop("sample sizes must all be greater than zero")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
