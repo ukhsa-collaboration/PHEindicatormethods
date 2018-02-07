@@ -19,9 +19,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-##DRAFT - Work in Progress
-
-
 
 ## Introduction
 This vignette documents the method for calculating DSRs using the PHEstatmethods::phe_dsr function 
