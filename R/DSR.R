@@ -25,7 +25,7 @@
 #' @import dplyr
 #'
 #' @examples
-#'
+#' library(dplyr)
 #' df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
 #'                  year = rep(2006:2010, each = 19 * 2),
 #'                  sex = rep(rep(c("Male", "Female"), each = 19), 5),
