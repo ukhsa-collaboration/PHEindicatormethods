@@ -93,7 +93,7 @@ phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "sta
            uppercl = if_else(observed<10, qchisq(confidence+(1-confidence)/2,2*observed+2)/2/expected * refvalue,
                              byars_upper(observed,confidence)/expected * refvalue),
            confidence = paste(confidence*100,"%", sep=""),
-           statistic = paste("smr x ",format(refvalue,scientific=F)),
+           statistic = paste("smr x ",format(refvalue,scientific=F), sep=""),
            method  = if_else(observed<10,"Exact","Byars"))
 
   if (type == "lower") {
