@@ -24,6 +24,7 @@ When type = "full", returns a data.frame of value_sum, value_count, stdev, value
 Calculates a mean with confidence limits using Student's t-distribution method.
 }
 \examples{
+library(dplyr)
 df <- data.frame(values = c(30,40,50,60))
 phe_mean(df, values)
 
