@@ -26,6 +26,8 @@ wilson_lower <- function(x, n, confidence = 0.95) {
     stop("observed events must all be greater than or equal to zero")
   } else if (any(n < 0)) {
       stop("sample sizes must all be greater than zero")
+  } else if (any(x > n)) {
+      stop("numerators must be less than or equal to denominator for a Wilson score to be calculated")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   }
@@ -71,11 +73,13 @@ wilson_upper <- function(x, n, confidence = 0.95) {
 
   # validate arguments
   if (any(x < 0)) {
-    stop("observed events must all be greater than or equal to zero")
+      stop("observed events must all be greater than or equal to zero")
   } else if (any(n < 0)) {
-    stop("sample sizes must all be greater than zero")
+      stop("sample sizes must all be greater than zero")
+  } else if (any(x > n)) {
+      stop("numerators must be less than or equal to denominator for a Wilson score to be calculated")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
-    stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+      stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   }
 
   # scale confidence level
@@ -90,10 +94,5 @@ wilson_upper <- function(x, n, confidence = 0.95) {
   wilson_upper <- (2*x+z^2+z*sqrt(z^2+4*x*(1-(x/n))))/2/(n+z^2)
 
   return(wilson_upper)
-}
-
-
-zscore <- function(num) {
-  qnorm(num+(1-num)/2)
 }
 

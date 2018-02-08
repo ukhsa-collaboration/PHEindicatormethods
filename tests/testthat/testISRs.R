@@ -1,5 +1,3 @@
-library(testthat)
-
 context("test_phe_isr")
 
 #test calculations
