@@ -60,8 +60,8 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 #' @return Returns an upper confidence limit for an observed number of events using Wilson's method
 #'
 #' @examples
-#' wilson_upper(65)
-#' wilson_upper(65,99.8)
+#' wilson_upper(65,100)
+#' wilson_upper(65,100,99.8)
 #'
 #' @export
 #'
