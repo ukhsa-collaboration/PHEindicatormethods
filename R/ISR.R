@@ -86,8 +86,8 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "sta
   # validate arguments
   if (any(pull(data, !!x) < 0)) {
       stop("numerators must all be greater than or equal to zero")
-  } else if (any(pull(data, !!n) <= 0)) {
-      stop("denominators must all be greater than zero")
+  } else if (any(pull(data, !!n) < 0)) {
+      stop("denominators must all be greater than or equal to zero")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
