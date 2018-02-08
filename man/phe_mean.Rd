@@ -11,7 +11,7 @@ phe_mean(data, x, type = "standard", confidence = 0.95)
 
 \item{x}{field name from data containing the values to calculate the means for; unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -27,7 +27,7 @@ Calculates a mean with confidence limits using Student's t-distribution method.
 df <- data.frame(values = c(30,40,50,60))
 phe_mean(df, values)
 
-OR
+## OR
 
 df2 <- data.frame(area = rep(c("Area1", "Area2"),each=3),
                   values = c(20,30,40,200,300,400)) \%>\%

@@ -4,8 +4,8 @@
 \alias{phe_dsr}
 \title{phe_dsr}
 \usage{
-phe_dsr(data, x, n, stdpop, type = "standard", confidence = 0.95,
-  multiplier = 1e+05)
+phe_dsr(data, x, n, stdpop = esp2013, stdpoptype = "vector",
+  type = "standard", confidence = 0.95, multiplier = 1e+05)
 }
 \arguments{
 \item{data}{data.frame containing the data to be standarised, pre-grouped if multiple DSRs required; unquoted string; no default}
@@ -16,10 +16,13 @@ unquoted string; no default}
 \item{n}{field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
 unquoted string; no default}
 
-\item{stdpop}{the standard populations for each standardisation category (eg age band). If standard populations are held within data,
-the column must be referenced as a vector and not repeated eg df$stdpop[1:19]; unquoted numeric vector; no default}
+\item{stdpop}{the standard populations for each standardisation category (eg age band);
+unquoted numeric vector or field name from data depending on value of stdpoptype argument; default = esp2013}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; string; default combined}
+\item{stdpoptype}{whether the stdpop has been specified as a vector or a field name from data argument;
+quoted string "field" or "vector"; default = vector}
+
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -34,22 +37,22 @@ When type = "full", returns a data.frame of total_count, total_pop, value, lower
 Calculates a directly standardised rate with confidence limits using Dobson method.
 }
 \examples{
-NEED TO EDIT EXAMPLE TO INCLUDE AGEBAND COLUMN
-
+library(dplyr)
 df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
                  year = rep(2006:2010, each = 19 * 2),
                  sex = rep(rep(c("Male", "Female"), each = 19), 5),
+                 ageband = rep(c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90), times = 10),
                  obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
                  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(obs, pop, esp2013)
+    phe_dsr(obs, pop)
 
 ## OR
 
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(obs, pop, esp2013, "full")
+    phe_dsr(obs, pop, type = "full")
 
 }
 \seealso{

@@ -14,10 +14,11 @@
 #' @importFrom rlang sym quo_name
 #'
 #' @examples
+#' library(dplyr)
 #' df <- data.frame(values = c(30,40,50,60))
 #' phe_mean(df, values)
 #'
-#' OR
+#' ## OR
 #'
 #' df2 <- data.frame(area = rep(c("Area1", "Area2"),each=3),
 #'                   values = c(20,30,40,200,300,400)) %>%
@@ -40,7 +41,6 @@ phe_mean <- function(data, x, type = "standard", confidence=0.95) {
   if (missing(data)|missing(x)) {
     stop("function phe_dsr requires at least 2 arguments: data, x")
   }
-
 
   # apply quotes
   x <- enquo(x)

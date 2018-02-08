@@ -18,9 +18,9 @@ test_that("proportions and CIs calculate correctly",{
                               percentage=FALSE, type="full"),
                select(slice(test_Prop,1:8),1:9),check.attributes=FALSE, check.names=FALSE, info="test full")
 
-#  expect_equal(phe_proportion(slice(test_Prop,17:24)[1:3], Numerator, Denominator,
-#                              type="full", confidence=99.8),
-#               select(slice(test_Prop,17:24),1:9),check.attributes=FALSE, check.names=FALSE, info="test confidence")
+  expect_equal(data.frame(phe_proportion(slice(test_Prop,17:24)[1:3], Numerator, Denominator,
+                              type="full", confidence=99.8)),
+               data.frame(select(slice(test_Prop,17:24),1:9)),check.attributes=FALSE, check.names=FALSE, info="test confidence")
 
   expect_equal(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, type="value"),
                select(slice(test_Prop,1:8),1:4),check.attributes=FALSE, check.names=FALSE, info="test value")

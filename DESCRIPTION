@@ -1,26 +1,33 @@
 Package: PHEstatmethods
 Type: Package
-Version: 0.0.0.9001
+Version: 0.0.0.9004
 Title: Common Public Health Statistics and their Confidence Intervals 
-Description: Functions to calculate the following statistics:
-    1. proportions and their CIs using Wilson score method
-    2. rates and their CIs using Byar's or exact Poisson method
-    3. DSRs and their CIs using Dobson method
-    4. SMRs and their CIs using Byar's or exact Poisson method 
+Description: Functions to calculate commonly used public health statistics and their confidence intervals.
+    Includes the following functions:
+    1. confidence limits for observed number of events using Wilson Score method.
+    2. confidence limits for observed number of events using Byar's method.
+    3. proportions and their CIs using Wilson score method.
+    4. rates and their CIs using Byar's or exact Poisson method.
+    5. DSRs and their CIs using Dobson method.
+    6. ISRs and their CIs using Byar's or exact Poisson method. 
+    7. SMRs and their CIs using Byar's or exact Poisson method. 
 Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@phe.gov.uk", c("aut", "cre")),
              person("Fox", "Sebastian", , "sebastian.fox@phe.gov.uk", c("ctb")),
              person("Francis", "Matthew", , "matthew.francis@phe.gov.uk", c("ctb")),
              person("Fryers", "Paul", , "paul.fryers@phe.gov.uk", c("ctb")))
 BugReports: https://gitlab.phe.gov.uk/Georgina.Anderson/PHEstatmethods/issues
+Depends: R (>= 3.1.0)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: binom,
-         dplyr,
-         readxl,
-         rlang
-Suggests: testthat,
+Imports: 
+    dplyr,
+    rlang
+Suggests: 
     knitr,
-    rmarkdown
+    readxl,
+    rmarkdown,
+    RODBC,
+    testthat,
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr

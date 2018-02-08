@@ -9,7 +9,7 @@ byars_upper(x, confidence = 0.95)
 \arguments{
 \item{x}{the observed number of events; numeric vector; no default}
 
-\item{confidence}{the level of confidence required expressed as a number between 0.9 and 1
+\item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 }
 \value{

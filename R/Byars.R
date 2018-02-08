@@ -4,8 +4,7 @@
 #' Calculates the lower confidence limit for an observed number of events using Byar's method.
 #'
 #' @param x the observed number of events; numeric vector; no default
-#' @param confidence the required level of confidence expressed as a number between 0.9 and 1
-#'                   or 90 and 100; numeric; default 0.95
+#' @inheritParams phe_dsr
 #'
 #' @return Returns a lower confidence limit for an observed number of events using Byar's method
 #'
@@ -48,8 +47,7 @@ byars_lower <- function(x, confidence = 0.95) {
 #' Calculates the upper confidence limit for an observed number of events using Byar's method.
 #'
 #' @param x the observed number of events; numeric vector; no default
-#' @param confidence the level of confidence required expressed as a number between 0.9 and 1
-#'                   or 90 and 100; numeric; default 0.95
+#' @inheritParams phe_dsr
 #'
 #' @return Returns an upper confidence limit for an observed number of events using Byar's method
 #'
@@ -67,7 +65,7 @@ byars_upper <- function(x, confidence = 0.95) {
 
   # validate arguments
   if (any(x < 0)) {
-      stop("observed events (x) must all be greater than or equal to zero")
+      stop("observed events must all be greater than or equal to zero")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   }

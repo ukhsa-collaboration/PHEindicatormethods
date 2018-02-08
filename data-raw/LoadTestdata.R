@@ -6,8 +6,8 @@
 #library(devtools)
 #library(readxl)
 
-# use this code to save loaded data to sysdata folder:
-#devtools::use_data(test_Prop,
+# use this code to save loaded data to R\sysdata.rda file:
+#devtools::use_data(test_BW, test_Prop,
 #                     test_Rate,
 #                     test_Mean, test_Mean_Grp, test_Mean_results,
 #                     test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results,
@@ -16,6 +16,9 @@
 
 # esp2013
 #esp2013 <- c(5000,5500,5500,5500,6000,6000,6500,7000,7000,7000,7000,6500,6000,5500,5000,4000,2500,1500,1000)
+
+# Byars Wilson
+test_BW <- read_excel(".\\tests\\testthat\\testdata_Byars_Wilson.xlsx", sheet="testdata_B_W",   col_names=TRUE)
 
 # Proportions
 test_Prop   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)

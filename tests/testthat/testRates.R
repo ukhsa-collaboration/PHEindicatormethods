@@ -7,26 +7,26 @@ context("test_phe_rate")
 #test calculations
 test_that("rates and CIs calculate correctly",{
 
-  expect_equal(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator),
-               select(slice(test_Rate,9:16),1:6),check.attributes=FALSE, check.names=FALSE, info="test default")
+  expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator)),
+               data.frame(select(slice(test_Rate,9:16),1:6)),check.attributes=FALSE, check.names=FALSE, info="test default")
 
-  expect_equal(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="full"),
-               select(slice(test_Rate,9:16),1:9),check.attributes=FALSE, check.names=FALSE, info="test full")
+  expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="full")),
+               data.frame(select(slice(test_Rate,9:16),1:9)),check.attributes=FALSE, check.names=FALSE, info="test full")
 
-  expect_equal(phe_rate(slice(test_Rate,25:32)[1:3],Numerator,Denominator, confidence=99.8),
-               select(slice(test_Rate,25:32),1:6),check.attributes=FALSE, check.names=FALSE, info="test confidence")
+  expect_equal(data.frame(phe_rate(slice(test_Rate,25:32)[1:3],Numerator,Denominator, confidence=99.8)),
+               data.frame(select(slice(test_Rate,25:32),1:6)),check.attributes=FALSE, check.names=FALSE, info="test confidence")
 
-  expect_equal(phe_rate(slice(test_Rate,1:8)[1:3],Numerator,Denominator, multiplier=100),
-               select(slice(test_Rate,1:8),1:6),check.attributes=FALSE, check.names=FALSE, info="test multiplier")
+  expect_equal(data.frame(phe_rate(slice(test_Rate,1:8)[1:3],Numerator,Denominator, multiplier=100)),
+               data.frame(select(slice(test_Rate,1:8),1:6)),check.attributes=FALSE, check.names=FALSE, info="test multiplier")
 
-  expect_equal(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="value"),
-               select(slice(test_Rate,9:16),1:4),check.attributes=FALSE, check.names=FALSE, info="test value")
+  expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="value")),
+               data.frame(select(slice(test_Rate,9:16),1:4)),check.attributes=FALSE, check.names=FALSE, info="test value")
 
-  expect_equal(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="lower"),
-               select(slice(test_Rate,9:16),1:3,5),check.attributes=FALSE, check.names=FALSE, info="test lower")
+  expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="lower")),
+               data.frame(select(slice(test_Rate,9:16),1:3,5)),check.attributes=FALSE, check.names=FALSE, info="test lower")
 
-  expect_equal(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="upper"),
-               select(slice(test_Rate,9:16),1:3,6),check.attributes=FALSE, check.names=FALSE, info="test upper")
+  expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="upper")),
+               data.frame(select(slice(test_Rate,9:16),1:3,6)),check.attributes=FALSE, check.names=FALSE, info="test upper")
 
 })
 

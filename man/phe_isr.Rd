@@ -4,8 +4,8 @@
 \alias{phe_isr}
 \title{phe_isr}
 \usage{
-phe_isr(data, x, n, x_ref, n_ref, type = "standard", confidence = 0.95,
-  multiplier = 1e+05)
+phe_isr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "standard",
+  confidence = 0.95, multiplier = 1e+05)
 }
 \arguments{
 \item{data}{data.frame containing the data to be standarised, pre-grouped if multiple ISRs required; unquoted string; no default}
@@ -17,14 +17,15 @@ unquoted string; no default}
 unquoted string; no default}
 
 \item{x_ref}{the observed number of events in the reference population for each standardisation category
-(eg age band) within each grouping set (eg area). If reference populations are held within data,
-the column must be referenced as a vector and not repeated eg df$x_ref[1:19]; numeric vector; no default}
+(eg age band); unquoted numeric vector or field name from data depending on value of refpoptype argument; no default}
 
-\item{n_ref}{the reference population for each standardisation category
-(eg age band) within each grouping set (eg area).  If reference populations are held within data,
-the column must be referenced as a vector and not repeated eg df$n_ref[1:19]; numeric vector; no default}
+\item{n_ref}{the reference population for each standardisation category (eg age band);
+unquoted numeric vector or field name from data depending on value of refpoptype argument; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; string; default combined}
+\item{refpoptype}{whether x_ref and n_ref have been specified as vectors or a field name from data argument;
+quoted string "field" or "vector"; default = vector}
+
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -32,14 +33,33 @@ or 90 and 100; numeric; default 0.95}
 \item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000}
 }
 \value{
-When type = "full", returns a data frame of observed, expected, ref_rate, value, lowercl, uppercl, confidence, statistic and method
+When type = "full", returns a data frame of observed, expected, value, lowercl, uppercl, confidence, statistic and method
         for each grouping set
 }
 \description{
 Calculates an indirectly standardised rate with confidence limits using Byars or Exact CI method.
 }
 \examples{
-NEED TO ADD EXAMPLES
+library(dplyr)
+df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
+                 year = rep(2006:2010, each = 19 * 2),
+                 sex = rep(rep(c("Male", "Female"), each = 19), 5),
+                 ageband = rep(c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90), times = 10),
+                 obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
+                 pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
+
+refdf <- data.frame(refcount = sample(200, 19, replace = TRUE),
+                    refpop = sample(10000:20000, 19, replace = TRUE))
+
+df \%>\%
+    group_by(indicatorid, year, sex) \%>\%
+    phe_isr(obs, pop, refdf$refcount, refdf$refpop)
+
+## OR
+
+df \%>\%
+    group_by(indicatorid, year, sex) \%>\%
+    phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8)
 
 }
 \seealso{

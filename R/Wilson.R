@@ -5,8 +5,7 @@
 #'
 #' @param x the observed number of cases in the sample meeting the required condition; numeric vector; no default
 #' @param n the number of cases in the sample; numeric vector; no default
-#' @param confidence the required level of confidence expressed as a number between 0.9 and 1
-#'                   or 90 and 100; numeric; default 0.95
+#' @inheritParams phe_dsr
 #'
 #' @return Returns a lower confidence limit for an observed number of events using Wilson's method
 #'
@@ -24,7 +23,7 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 
   # validate arguments
   if (any(x < 0)) {
-    stop("observed cases must all be greater than or equal to zero")
+    stop("observed events must all be greater than or equal to zero")
   } else if (any(n < 0)) {
       stop("sample sizes must all be greater than zero")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
@@ -54,8 +53,7 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 #'
 #' @param x the observed number of cases in the sample meeting the required condition; numeric vector; no default
 #' @param n the number of cases in the sample; numeric vector; no default
-#' @param confidence the required level of confidence expressed as a number between 0.9 and 1
-#'                   or 90 and 100; numeric; default 0.95
+#' @inheritParams phe_dsr
 #'
 #' @return Returns an upper confidence limit for an observed number of events using Wilson's method
 #'
@@ -73,7 +71,7 @@ wilson_upper <- function(x, n, confidence = 0.95) {
 
   # validate arguments
   if (any(x < 0)) {
-    stop("observed cases must all be greater than or equal to zero")
+    stop("observed events must all be greater than or equal to zero")
   } else if (any(n < 0)) {
     stop("sample sizes must all be greater than zero")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
@@ -93,3 +91,9 @@ wilson_upper <- function(x, n, confidence = 0.95) {
 
   return(wilson_upper)
 }
+
+
+zscore <- function(num) {
+  qnorm(num+(1-num)/2)
+}
+
