@@ -21,8 +21,8 @@ Returns an upper confidence limit for an observed number of events using Wilson'
 Calculates upper confidence limit for an observed number of events using Wilson's method.
 }
 \examples{
-wilson_upper(65)
-wilson_upper(65,99.8)
+wilson_upper(65,100)
+wilson_upper(65,100,99.8)
 
 }
 \seealso{
