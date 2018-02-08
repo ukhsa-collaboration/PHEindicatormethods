@@ -6,7 +6,7 @@
 #library(devtools)
 #library(readxl)
 
-# use this code to save loaded data to sysdata folder:
+# use this code to save loaded data to R\sysdata.rda file:
 #devtools::use_data(test_BW, test_Prop,
 #                     test_Rate,
 #                     test_Mean, test_Mean_Grp, test_Mean_results,

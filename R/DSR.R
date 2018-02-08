@@ -34,13 +34,13 @@
 #'                  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     phe_dsr(df, obs, pop)
+#'     phe_dsr(obs, pop)
 #'
 #' ## OR
 #'
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     phe_dsr(df, obs, pop, type = "full")
+#'     phe_dsr(obs, pop, type = "full")
 #'
 #' @export
 #'

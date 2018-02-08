@@ -46,13 +46,13 @@ df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 *
                  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(df, obs, pop)
+    phe_dsr(obs, pop)
 
 ## OR
 
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(df, obs, pop, type = "full")
+    phe_dsr(obs, pop, type = "full")
 
 }
 \seealso{

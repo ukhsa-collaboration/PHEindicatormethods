@@ -30,13 +30,13 @@
 #'
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     phe_isr(df, obs, pop, refdf$refcount, refdf$refpop)
+#'     phe_isr(obs, pop, refdf$refcount, refdf$refpop)
 #'
 #' ## OR
 #'
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     phe_isr(df, obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8)
+#'     phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8)
 #'
 #' @export
 #'
