@@ -23,9 +23,10 @@ Imports:
     dplyr,
     rlang
 Suggests: 
-    testthat,
-    readxl,
     knitr,
-    rmarkdown
+    readxl,
+    rmarkdown,
+    RODBC,
+    testthat,
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
