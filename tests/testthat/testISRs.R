@@ -15,6 +15,10 @@ test_that("isrs and CIs calculate correctly",{
                data.frame(select(slice(test_ISR_results,1:3),1,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test default with own ref data as vector")
 
+  expect_equal(data.frame(phe_isr(test_err2, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop)),
+               data.frame(select(slice(test_ISR_results,25:26),1,5:7)),
+               check.attributes=FALSE, check.names=FALSE,info="test zero population")
+
   expect_equal(data.frame(phe_isr(test_multiarea, count, pop,
                        x_ref = c(10303,2824,3225,3615,3641,3490,3789,3213,3031,2771,3089,3490,3595,4745,5514,7125,5694,6210,5757),
                        n_ref = c(50520,57173,60213,54659,44345,50128,62163,67423,62899,55463,60479,49974,44140,40888,37239,30819,18136,15325,13918))),
@@ -60,11 +64,8 @@ test_that("isrs - errors are generated when invalid arguments are used",{
   expect_error(phe_isr(test_err1, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),
                "numerators must all be greater than or equal to zero",info="error numerators < 0")
 
-  expect_error(phe_isr(test_err2, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),
-               "denominators must all be greater than zero",info="error denominator = 0")
-
   expect_error(phe_isr(test_err3, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),
-               "denominators must all be greater than zero",info="error denominator < 0")
+               "denominators must all be greater than or equal to zero",info="error denominator < 0")
 
   expect_error(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop, confidence = 0.74),
                "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence < 0.9")
