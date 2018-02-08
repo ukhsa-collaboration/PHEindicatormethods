@@ -14,6 +14,7 @@
 #' @importFrom rlang sym quo_name
 #'
 #' @examples
+#' library(dplyr)
 #' df <- data.frame(values = c(30,40,50,60))
 #' phe_mean(df, values)
 #'
