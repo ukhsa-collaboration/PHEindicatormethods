@@ -42,7 +42,7 @@
 #'
 #' @export
 #'
-#' @family PHEstatmethods package functions
+#' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
 

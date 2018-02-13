@@ -1,6 +1,6 @@
 Package: PHEindicatormethods
 Type: Package
-Version: 0.0.0.9006
+Version: 0.0.0.9007
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate commonly used public health statistics and their confidence intervals.
     Includes the following functions:
@@ -15,7 +15,7 @@ Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@phe.gov.uk", c(
              person("Fox", "Sebastian", , "sebastian.fox@phe.gov.uk", c("ctb")),
              person("Francis", "Matthew", , "matthew.francis@phe.gov.uk", c("ctb")),
              person("Fryers", "Paul", , "paul.fryers@phe.gov.uk", c("ctb")))
-BugReports: https://gitlab.phe.gov.uk/Georgina.Anderson/PHEstatmethods/issues
+BugReports: https://gitlab.phe.gov.uk/Georgina.Anderson/PHEindicatormethods/issues
 Depends: R (>= 3.1.0)
 License: GPL-3
 Encoding: UTF-8

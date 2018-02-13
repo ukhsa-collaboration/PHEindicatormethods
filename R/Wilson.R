@@ -15,7 +15,7 @@
 #'
 #' @export
 #'
-#' @family PHEstatmethods package functions
+#' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate Wilson's lower CI limit
@@ -65,7 +65,7 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 #'
 #' @export
 #'
-#' @family PHEstatmethods package functions
+#' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate Wilson's lower CI limit

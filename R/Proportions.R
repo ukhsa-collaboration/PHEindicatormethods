@@ -29,7 +29,7 @@
 #'
 #' @export
 #'
-#' @family PHEstatmethods package functions
+#' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
 # create phe_proportion function using Wilson's method

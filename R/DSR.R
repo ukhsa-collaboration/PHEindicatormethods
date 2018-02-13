@@ -45,7 +45,7 @@
 #'
 #' @export
 #'
-#' @family PHEstatmethods package functions
+#' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
 # define the DSR function using Dobson method

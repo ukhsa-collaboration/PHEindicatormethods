@@ -31,7 +31,7 @@
 #'
 #' @export
 #'
-#' @family PHEstatmethods package functions
+#' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
 # create phe_mean function using Student's t-distribution method

@@ -14,7 +14,7 @@
 #'
 #' @export
 #'
-#' @family PHEstatmethods package functions
+#' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate Byar's lower CI limit
@@ -57,7 +57,7 @@ byars_lower <- function(x, confidence = 0.95) {
 #'
 #' @export
 #'
-#' @family PHEstatmethods package functions
+#' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate Byar's upper CI limit

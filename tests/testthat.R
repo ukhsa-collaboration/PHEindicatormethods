@@ -1,4 +1,4 @@
 library(testthat)
-library(PHEstatmethods)
+library(PHEindicatormethods)
 
-test_check("PHEstatmethods")
+test_check("PHEindicatormethods")

@@ -1,5 +1,5 @@
 ---
-title: "PHEstatmethods DSR function"
+title: "PHEindicatormethods DSR function"
 author: "Georgina Anderson"
 date: "`r Sys.Date()`"
 output: 
@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 
 ## Introduction
-This vignette documents the method for calculating DSRs using the PHEstatmethods::phe_dsr function 
+This vignette documents the method for calculating DSRs using the PHEindicatormethods::phe_dsr function 
 which calculates DSRs and their confidence limits using the Dobson method.
 
 
@@ -52,7 +52,7 @@ If multiple DSRs are required from a single data frame then the data frame must 
 #### The following packages must be installed and loaded if not already available
 
 ```{r libraries, message=FALSE}
-library(PHEstatmethods)
+library(PHEindicatormethods)
 library(RODBC)
 library(dplyr)
 ```
@@ -129,7 +129,7 @@ n_distinct(select(ungroup(summarise(df,n=n())),n)) == 1
 
 **2. If you are supplying your standard population in vector format (stdpoptype="vector") then this vector must also contain the same number of records as each grouping set within your data.**
 
-In this example we're going to use the default esp2013 vector that is provided with the PHEstatmethods package for our standard population -
+In this example we're going to use the default esp2013 vector that is provided with the PHEindicatormethods package for our standard population -
 it contains 19 ordered values representing the 5-year age bands 0-4, 5-9, 10-14....85-89, 90+.  
 
 The phe_dsr function has built in error handling to check this requirement, or you can check your data manually using code like this: 
