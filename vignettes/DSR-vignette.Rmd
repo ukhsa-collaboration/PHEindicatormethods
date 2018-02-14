@@ -97,7 +97,7 @@ odbcClose(dbhandle2)
 ```
 
 
-## Now let's calculate some DSRs
+## Then let's prepare and validate our data
 
 Our data contains records for different time periods and geographies so let's calculate a DSR for each geography and time period combination.
 
@@ -166,7 +166,7 @@ right == wrong
 
 
 
-#### Execute the function
+## Now let's calculate some DSRs
  
 Now we're ready to calculate the DSRs using our correctly ordered df data frame.  
 
