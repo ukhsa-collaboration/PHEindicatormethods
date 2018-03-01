@@ -43,6 +43,14 @@
 #'     group_by(indicatorid, year, sex) %>%
 #'     phe_dsr(obs, pop, type = "full")
 #'
+#' @section Notes: DSRs are not reliable and will therefore not be calculated
+#'  when sum(x) < 10.
+#'
+#' @references
+#' 1: Breslow NE, Day NE. Statistical methods in cancer research,
+#'  volume II: The design and analysis of cohort studies. Lyon: International
+#'  Agency for Research on Cancer, World Health Organisation; 1987.
+#'
 #' @export
 #'
 #' @family PHEindicatormethods package functions

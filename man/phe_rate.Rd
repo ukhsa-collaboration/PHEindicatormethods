@@ -28,6 +28,11 @@ When type=full, returns the original data.frame with the following columns appen
 \description{
 Calculates a rate with confidence limits using Byar's or Exact CI method.
 }
+\section{Notes}{
+ Applies Byar's method for numerators >= 10 and
+Exact method for numerators < 10.
+}
+
 \examples{
 df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), 2),
                  year = rep(2015:2016, each = 4),
@@ -36,6 +41,13 @@ df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), 2),
 phe_rate(df, obs, pop)
 phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
 
+}
+\references{
+1: Breslow NE, Day NE. Statistical methods in cancer research,
+ volume II: The design and analysis of cohort studies. Lyon: International
+ Agency for Research on Cancer, World Health Organisation; 1987.
+ 2: Armitage P, Berry G. Statistical methods in medical research (3rd edn).
+  Oxford: Blackwell; 1994.
 }
 \seealso{
 Other PHEindicatormethods package functions: \code{\link{byars_lower}},

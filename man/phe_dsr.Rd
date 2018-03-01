@@ -36,6 +36,11 @@ When type = "full", returns a data.frame of total_count, total_pop, value, lower
 \description{
 Calculates a directly standardised rate with confidence limits using Dobson method.
 }
+\section{Notes}{
+ DSRs are not reliable and will therefore not be calculated
+ when sum(x) < 10.
+}
+
 \examples{
 library(dplyr)
 df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
@@ -55,6 +60,11 @@ df \%>\%
     group_by(indicatorid, year, sex) \%>\%
     phe_dsr(obs, pop, type = "full")
 
+}
+\references{
+1: Breslow NE, Day NE. Statistical methods in cancer research,
+ volume II: The design and analysis of cohort studies. Lyon: International
+ Agency for Research on Cancer, World Health Organisation; 1987.
 }
 \seealso{
 Other PHEindicatormethods package functions: \code{\link{byars_lower}},

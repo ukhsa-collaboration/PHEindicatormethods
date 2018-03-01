@@ -24,6 +24,16 @@
 #' phe_rate(df, obs, pop)
 #' phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
 #'
+#' @section Notes: Applies Byar's method for numerators >= 10 and
+#' Exact method for numerators < 10.
+#'
+#' @references
+#' 1: Breslow NE, Day NE. Statistical methods in cancer research,
+#'  volume II: The design and analysis of cohort studies. Lyon: International
+#'  Agency for Research on Cancer, World Health Organisation; 1987.
+#'  2: Armitage P, Berry G. Statistical methods in medical research (3rd edn).
+#'   Oxford: Blackwell; 1994.
+#'
 #' @export
 #'
 #' @family PHEindicatormethods package functions
