@@ -37,8 +37,14 @@ When type = "full", returns a data frame of observed, expected, value, lowercl, 
         for each grouping set
 }
 \description{
-Calculates a standard mortality ratio (or indirectly standardised ratio) with confidence limits using Byars or Exact CI method.
+Calculates a standard mortality ratio (or indirectly standardised ratio) with confidence limits using Byar's or exact CI method.
 }
+\section{Notes}{
+ Byar's method is used for numerators >= 10.  For small
+ numerators Byar's method is less accurate and so an exact method based
+ on the Poisson ditribution is used.
+}
+
 \examples{
 library(dplyr)
 df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
@@ -62,6 +68,13 @@ df \%>\%
     group_by(indicatorid, year, sex) \%>\%
     phe_smr(obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8, refvalue=100)
 
+}
+\references{
+1: Breslow NE, Day NE. Statistical methods in cancer research,
+ volume II: The design and analysis of cohort studies. Lyon: International
+ Agency for Research on Cancer, World Health Organisation; 1987.
+ 2: Armitage P, Berry G. Statistical methods in medical research (3rd edn).
+  Oxford: Blackwell; 1994.
 }
 \seealso{
 Other PHEindicatormethods package functions: \code{\link{byars_lower}},

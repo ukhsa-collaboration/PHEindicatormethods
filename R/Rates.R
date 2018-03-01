@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
 #' phe_rate
 #'
-#' Calculates a rate with confidence limits using Byar's or Exact CI method.
+#' Calculates a rate with confidence limits using Byar's or exact CI method.
 #'
 #' @param data the data.frame containing the data to calculate rates for; unquoted string; no default
 #' @param x field name from data containing the rate numerators (eg observed number of events); unquoted string; no default
@@ -23,6 +23,17 @@
 #'                  pop = sample(100:200, 2 * 4, replace = TRUE))
 #' phe_rate(df, obs, pop)
 #' phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
+#'
+#' @section Notes: Byar's method is used for numerators >= 10.  For small
+#'  numerators Byar's method is less accurate and so an exact method based
+#'  on the Poisson ditribution is used.
+#'
+#' @references
+#' 1: Breslow NE, Day NE. Statistical methods in cancer research,
+#'  volume II: The design and analysis of cohort studies. Lyon: International
+#'  Agency for Research on Cancer, World Health Organisation; 1987.
+#'  2: Armitage P, Berry G. Statistical methods in medical research (3rd edn).
+#'   Oxford: Blackwell; 1994.
 #'
 #' @export
 #'
