@@ -29,8 +29,9 @@ When type=full, returns the original data.frame with the following columns appen
 Calculates a rate with confidence limits using Byar's or Exact CI method.
 }
 \section{Notes}{
- Applies Byar's method for numerators >= 10 and
-Exact method for numerators < 10.
+ Byars method is used for numerators >= 10.  For small
+ numerators Byar's method is less accurate and so an exact method based
+ on the Poisson ditribution is used.
 }
 
 \examples{

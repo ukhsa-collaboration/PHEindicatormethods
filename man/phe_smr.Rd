@@ -40,8 +40,9 @@ When type = "full", returns a data frame of observed, expected, value, lowercl, 
 Calculates a standard mortality ratio (or indirectly standardised ratio) with confidence limits using Byars or Exact CI method.
 }
 \section{Notes}{
- Applies Byar's method for numerators >= 10 and
-Exact method for numerators < 10.
+ Byars method is used for numerators >= 10.  For small
+ numerators Byar's method is less accurate and so an exact method based
+ on the Poisson ditribution is used.
 }
 
 \examples{

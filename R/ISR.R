@@ -39,8 +39,9 @@
 #'     group_by(indicatorid, year, sex) %>%
 #'     phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8)
 #'
-#' @section Notes: Applies Byar's method for numerators >= 10 and
-#' Exact method for numerators < 10.
+#' @section Notes: Byars method is used for numerators >= 10.  For small
+#'  numerators Byar's method is less accurate and so an exact method based
+#'  on the Poisson ditribution is used.
 #'
 #' @references
 #' 1: Breslow NE, Day NE. Statistical methods in cancer research,
