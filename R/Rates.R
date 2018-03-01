@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
 #' phe_rate
 #'
-#' Calculates a rate with confidence limits using Byar's or Exact CI method.
+#' Calculates a rate with confidence limits using Byar's or exact CI method.
 #'
 #' @param data the data.frame containing the data to calculate rates for; unquoted string; no default
 #' @param x field name from data containing the rate numerators (eg observed number of events); unquoted string; no default
@@ -24,7 +24,7 @@
 #' phe_rate(df, obs, pop)
 #' phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
 #'
-#' @section Notes: Byars method is used for numerators >= 10.  For small
+#' @section Notes: Byar's method is used for numerators >= 10.  For small
 #'  numerators Byar's method is less accurate and so an exact method based
 #'  on the Poisson ditribution is used.
 #'

@@ -37,10 +37,10 @@ When type = "full", returns a data frame of observed, expected, value, lowercl, 
         for each grouping set
 }
 \description{
-Calculates an indirectly standardised rate with confidence limits using Byars or Exact CI method.
+Calculates an indirectly standardised rate with confidence limits using Byar's or exact CI method.
 }
 \section{Notes}{
- Byars method is used for numerators >= 10.  For small
+ Byar's method is used for numerators >= 10.  For small
  numerators Byar's method is less accurate and so an exact method based
  on the Poisson ditribution is used.
 }

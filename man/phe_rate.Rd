@@ -26,10 +26,10 @@ When type=full, returns the original data.frame with the following columns appen
         value, lowercl, uppercl, confidence, statistic and method
 }
 \description{
-Calculates a rate with confidence limits using Byar's or Exact CI method.
+Calculates a rate with confidence limits using Byar's or exact CI method.
 }
 \section{Notes}{
- Byars method is used for numerators >= 10.  For small
+ Byar's method is used for numerators >= 10.  For small
  numerators Byar's method is less accurate and so an exact method based
  on the Poisson ditribution is used.
 }

@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
 #' phe_isr
 #'
-#' Calculates an indirectly standardised rate with confidence limits using Byars or Exact CI method.
+#' Calculates an indirectly standardised rate with confidence limits using Byar's or exact CI method.
 #'
 #' @param data data.frame containing the data to be standarised, pre-grouped if multiple ISRs required; unquoted string; no default
 #' @param x_ref the observed number of events in the reference population for each standardisation category
@@ -39,7 +39,7 @@
 #'     group_by(indicatorid, year, sex) %>%
 #'     phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8)
 #'
-#' @section Notes: Byars method is used for numerators >= 10.  For small
+#' @section Notes: Byar's method is used for numerators >= 10.  For small
 #'  numerators Byar's method is less accurate and so an exact method based
 #'  on the Poisson ditribution is used.
 #'
