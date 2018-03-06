@@ -1,12 +1,12 @@
 # -------------------------------------------------------------------------------------------------
 #' byars_lower
 #'
-#' Calculates the lower confidence limit for an observed number of events using Byar's method.
+#' Calculates the lower confidence limits for observed numbers of events using Byar's method.
 #'
-#' @param x the observed number of events; numeric vector; no default
+#' @param x the observed numbers of events; numeric vector; no default
 #' @inheritParams phe_dsr
 #'
-#' @return Returns a lower confidence limit for an observed number of events using Byar's method
+#' @return Returns lower confidence limits for observed numbers of events using Byar's method
 #'
 #' @examples
 #' byars_lower(65)
@@ -44,12 +44,12 @@ byars_lower <- function(x, confidence = 0.95) {
 # -------------------------------------------------------------------------------------------------
 #' byars_upper
 #'
-#' Calculates the upper confidence limit for an observed number of events using Byar's method.
+#' Calculates the upper confidence limits for observed numbers of events using Byar's method.
 #'
-#' @param x the observed number of events; numeric vector; no default
+#' @param x the observed numbers of events; numeric vector; no default
 #' @inheritParams phe_dsr
 #'
-#' @return Returns an upper confidence limit for an observed number of events using Byar's method
+#' @return Returns upper confidence limits for observed numbers of events using Byar's method
 #'
 #' @examples
 #' byars_upper(65)

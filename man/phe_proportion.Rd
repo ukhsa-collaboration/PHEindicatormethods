@@ -15,7 +15,7 @@ phe_proportion(data, x, n, type = "standard", confidence = 0.95,
 \item{n}{field name from data containing the number of cases in the sample;
 unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -23,11 +23,11 @@ or 90 and 100; numeric; default 0.95}
 \item{percentage}{whether the output should be returned as a percentage; logical; default FALSE}
 }
 \value{
-When type=full, returns the original data.frame with the following columns appended:
+When type = "full", returns the original data.frame with the following appended:
         proportion, lower confidence limit, upper confidence limit, confidence level, statistic and method
 }
 \description{
-Calculates a proportion with confidence limits using Wilson Score method.
+Calculates proportions with confidence limits using Wilson Score method.
 }
 \examples{
 df <- data.frame(area = c("Area1","Area2","Area3"),

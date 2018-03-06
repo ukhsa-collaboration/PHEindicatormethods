@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
 #' phe_dsr
 #'
-#' Calculates a directly standardised rate with confidence limits using Dobson method.
+#' Calculates directly standardised rates with confidence limits using Dobson method.
 #'
 #' @param data data.frame containing the data to be standarised, pre-grouped if multiple DSRs required; unquoted string; no default
 #' @param x field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
@@ -9,16 +9,16 @@
 #' @param n field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
 #'          unquoted string; no default
 #' @param stdpop the standard populations for each standardisation category (eg age band);
-#'               unquoted numeric vector or field name from data depending on value of stdpoptype argument; default = esp2013
-#' @param stdpoptype whether the stdpop has been specified as a vector or a field name from data argument;
-#'                   quoted string "field" or "vector"; default = vector
-#' @param type type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined
+#'               unquoted string referencing a numeric vector or field name from data depending on value of stdpoptype; default = esp2013
+#' @param stdpoptype whether the stdpop has been specified as a vector or a field name from data;
+#'                   quoted string "field" or "vector"; default = "vector"
+#' @param type type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard
 #' @param confidence the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000
 #'
-#' @return When type = "full", returns a data.frame of total_count, total_pop, value, lowercl, uppercl, confidence, statistic and method
-#'         for each grouping set
+#' @return When type = "full", returns a tibble of total counts, total populations, directly standardised rates,
+#'  lower confidence limits, upper confidence limitsvalue, confidence level, statistic and method for each grouping set
 #'
 #' @importFrom rlang sym quo_name
 #'
@@ -43,8 +43,7 @@
 #'     group_by(indicatorid, year, sex) %>%
 #'     phe_dsr(obs, pop, type = "full")
 #'
-#' @section Notes: DSRs are not reliable and will therefore not be calculated
-#'  when sum(x) < 10.
+#' @section Notes: When sum(x) < 10 DSRs are not reliable and will therefore not be calculated
 #'
 #' @references
 #' 1: Breslow NE, Day NE. Statistical methods in cancer research,

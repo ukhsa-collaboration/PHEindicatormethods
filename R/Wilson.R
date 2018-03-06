@@ -1,13 +1,13 @@
 # -------------------------------------------------------------------------------------------------
 #' wilson_lower
 #'
-#' Calculates lower confidence limit for an observed number of events using Wilson's method.
+#' Calculates lower confidence limits for observed numbers of events using the Wilson Score method.
 #'
-#' @param x the observed number of cases in the sample meeting the required condition; numeric vector; no default
-#' @param n the number of cases in the sample; numeric vector; no default
+#' @param x the observed numbers of cases in the samples meeting the required condition; numeric vector; no default
+#' @param n the numbers of cases in the samples; numeric vector; no default
 #' @inheritParams phe_dsr
 #'
-#' @return Returns a lower confidence limit for an observed number of events using Wilson's method
+#' @return Returns lower confidence limits for observed numbers of events using the Wilson Score method
 #'
 #' @examples
 #' wilson_lower(65,100)
@@ -51,13 +51,13 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 # -------------------------------------------------------------------------------------------------
 #' wilson_upper
 #'
-#' Calculates upper confidence limit for an observed number of events using Wilson's method.
+#' Calculates upper confidence limits for observed numbers of events using the Wilson Score method.
 #'
-#' @param x the observed number of cases in the sample meeting the required condition; numeric vector; no default
-#' @param n the number of cases in the sample; numeric vector; no default
+#' @param x the observed numbers of cases in the samples meeting the required condition; numeric vector; no default
+#' @param n the numbers of cases in the samples; numeric vector; no default
 #' @inheritParams phe_dsr
 #'
-#' @return Returns an upper confidence limit for an observed number of events using Wilson's method
+#' @return Returns upper confidence limits for observed numbers of events using the Wilson Score method
 #'
 #' @examples
 #' wilson_upper(65,100)
