@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
 #' phe_rate
 #'
-#' Calculates a rate with confidence limits using Byar's or exact CI method.
+#' Calculates rates with confidence limits using Byar's or exact CI method.
 #'
 #' @param data the data.frame containing the data to calculate rates for; unquoted string; no default
 #' @param x field name from data containing the rate numerators (eg observed number of events); unquoted string; no default
@@ -9,8 +9,8 @@
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return When type=full, returns the original data.frame with the following columns appended:
-#'         value, lowercl, uppercl, confidence, statistic and method
+#' @return When type = "full", returns the original data.frame with the following appended:
+#'         rate, lower confidence limit, upper confidence limit, confidence level, statistic and method
 #'
 #' @importFrom rlang sym quo_name
 #'

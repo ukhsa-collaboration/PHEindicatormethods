@@ -11,7 +11,7 @@ phe_mean(data, x, type = "standard", confidence = 0.95)
 
 \item{x}{field name from data containing the values to calculate the means for; unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -21,7 +21,7 @@ When type = "full", returns a data.frame of value_sum, value_count, stdev, value
         for each grouping set
 }
 \description{
-Calculates a mean with confidence limits using Student's t-distribution method.
+Calculates means with confidence limits using Student's t-distribution method.
 }
 \examples{
 library(dplyr)
