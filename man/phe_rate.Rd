@@ -5,7 +5,7 @@
 \title{phe_rate}
 \usage{
 phe_rate(data, x, n, type = "standard", confidence = 0.95,
-  multiplier = 100000)
+  multiplier = 1e+05)
 }
 \arguments{
 \item{data}{the data.frame containing the data to calculate rates for; unquoted string; no default}

@@ -5,7 +5,7 @@
 \title{phe_dsr}
 \usage{
 phe_dsr(data, x, n, stdpop = esp2013, stdpoptype = "vector",
-  type = "standard", confidence = 0.95, multiplier = 100000)
+  type = "standard", confidence = 0.95, multiplier = 1e+05)
 }
 \arguments{
 \item{data}{data.frame containing the data to be standarised, pre-grouped if multiple DSRs required; unquoted string; no default}

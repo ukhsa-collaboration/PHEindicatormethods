@@ -5,7 +5,7 @@
 \title{phe_isr}
 \usage{
 phe_isr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "standard",
-  confidence = 0.95, multiplier = 100000)
+  confidence = 0.95, multiplier = 1e+05)
 }
 \arguments{
 \item{data}{data.frame containing the data to be standarised, pre-grouped if multiple ISRs required; unquoted string; no default}
