@@ -13,8 +13,6 @@ knitr::opts_chunk$set(
 ```
 
 
-# PACKAGE IN DRAFT FORM - NOT YET RELEASED
-
 # PHEindicatormethods
 
 This is an R package to support analysts in the execution of statistical methods approved for use in the production of PHE indicators such as those presented via Fingertips.  It provides functions for the generation of Proportions, Rates, DSRs, ISRs, SMRs and Means including confidence intervals for these statistics.  
