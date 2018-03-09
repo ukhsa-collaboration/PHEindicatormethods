@@ -31,7 +31,7 @@ Calculates rates with confidence limits using Byar's or exact CI method.
 \section{Notes}{
  Byar's method is used for numerators >= 10.  For small
  numerators Byar's method is less accurate and so an exact method based
- on the Poisson ditribution is used.
+ on the Poisson distribution is used.
 }
 
 \examples{

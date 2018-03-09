@@ -26,7 +26,7 @@
 #'
 #' @section Notes: Byar's method is used for numerators >= 10.  For small
 #'  numerators Byar's method is less accurate and so an exact method based
-#'  on the Poisson ditribution is used.
+#'  on the Poisson distribution is used.
 #'
 #' @references
 #' 1: Breslow NE, Day NE. Statistical methods in cancer research,
@@ -70,6 +70,7 @@ phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier
   }
 
   # calculate rate and CIs
+
   phe_rate <- data %>%
               mutate(value = (!!x)/(!!n)*multiplier,
               lowercl = if_else((!!x) < 10, qchisq((1-confidence)/2,2*(!!x))/2/(!!n)*multiplier,
