@@ -1,5 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+DEVELOPMENT VERSION NOT YET RELEASED
+====================================
+
+If you have installed this package, type 'packageVersion(PHEindicatormethods)' in the RStudio console to show the package version. If it is suffixed with a 9000 number then you are using an unapproved development version.
+
 PHEindicatormethods
 ===================
 
