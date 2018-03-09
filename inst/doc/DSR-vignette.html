@@ -12,9 +12,9 @@
 
 <meta name="author" content="Georgina Anderson" />
 
-<meta name="date" content="2018-02-07" />
+<meta name="date" content="2018-03-08" />
 
-<title>Calculating DSRs using PHEstatmethods</title>
+<title>PHEindicatormethods DSR function</title>
 
 
 
@@ -68,15 +68,15 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<h1 class="title toc-ignore">Calculating DSRs using PHEstatmethods</h1>
+<h1 class="title toc-ignore">PHEindicatormethods DSR function</h1>
 <h4 class="author"><em>Georgina Anderson</em></h4>
-<h4 class="date"><em>2018-02-07</em></h4>
+<h4 class="date"><em>2018-03-08</em></h4>
 
 
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>This vignette documents the method for calculating DSRs using the PHEstatmethods::phe_dsr function which calculates DSRs and their confidence limits using the Dobson method.</p>
+<p>This vignette documents the method for calculating DSRs using the PHEindicatormethods::phe_dsr function which calculates DSRs and their confidence limits using the Dobson method.</p>
 <p>The function can be used to calculate DSRs for grouping single or multiple geographic areas/ genders/ timeperiods/ indicators in a single execution and takes the following arguments as inputs:</p>
 <p><br /> <br /></p>
 <table style="width:100%;">
@@ -144,128 +144,225 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>If multiple DSRs are required from a single data frame then the data frame must be grouped prior to inputting to the function - this is demonstrated below</p>
 <div id="the-following-packages-must-be-installed-and-loaded-if-not-already-available" class="section level4">
 <h4>The following packages must be installed and loaded if not already available</h4>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(PHEstatmethods)
-<span class="kw">library</span>(RODBC)
-<span class="kw">library</span>(dplyr)
-<span class="kw">library</span>(rlang)
-<span class="kw">library</span>(tidyr)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(PHEindicatormethods)
+<span class="kw">library</span>(dplyr)</code></pre></div>
 </div>
 </div>
-<div id="first-lets-extract-some-data-to-play-with" class="section level2">
-<h2>First let’s extract some data to play with</h2>
-<div id="define-connections-to-data-lake" class="section level4">
-<h4>Define Connections to Data Lake</h4>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbhandle1 &lt;-<span class="st"> </span><span class="kw">odbcDriverConnect</span>(<span class="st">'driver={SQL Server};server=SQLClusColLake</span><span class="ch">\\</span><span class="st">Lake;</span>
-<span class="st">database=z_Populations_DEV;Encrypt=true;trusted_connection=true'</span>)
-dbhandle2 &lt;-<span class="st"> </span><span class="kw">odbcDriverConnect</span>(<span class="st">'driver={SQL Server};server=SQLClusColLake</span><span class="ch">\\</span><span class="st">Lake;</span>
-<span class="st">database=BirthsDeaths;Encrypt=true;trusted_connection=true'</span>)</code></pre></div>
-</div>
-<div id="execute-sql-queries-and-save-results-to-r-data-frames" class="section level4">
-<h4>Execute SQL queries and save results to R data frames</h4>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pops &lt;-<span class="st"> </span><span class="kw">sqlQuery</span>(dbhandle1,<span class="st">&quot;SELECT Period, OfficialCode as RGN09CD, GeoName as RGN09NM, </span>
-<span class="st">QuinaryAgeBandMin as AgeBand, Population</span>
-<span class="st">FROM [z_Populations_DEV].[dbo].[vRes_RGN09_FiveYear]</span>
-<span class="st">WHERE OfficialCode in ('E12000001','E12000002','E12000003')</span>
-<span class="st">AND Period in ('2014','2015','2016')</span>
-<span class="st">AND Sex = 4</span>
-<span class="st">ORDER BY Period, OfficialCode, QuinaryAgeBandMin&quot;</span>)
+<div id="first-lets-create-some-data-to-play-with" class="section level2">
+<h2>First let’s create some data to play with</h2>
+<p>In a real situation we’d most likely be sourcing our numerators and denominators from different places so let’s create them separately for now.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pops &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">indicator =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;Ind1&quot;</span>,<span class="st">&quot;Ind2&quot;</span>,<span class="st">&quot;Ind3&quot;</span>,<span class="st">&quot;Ind4&quot;</span>), <span class="dt">each =</span> <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">5</span>),
+                   <span class="dt">period =</span> <span class="kw">rep</span>(<span class="dv">2012</span><span class="op">:</span><span class="dv">2016</span>, <span class="dt">each =</span> <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span>),
+                   <span class="dt">region =</span> <span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;Area1&quot;</span>,<span class="st">&quot;Area2&quot;</span>),<span class="dt">each=</span><span class="dv">19</span>), <span class="dt">times =</span> <span class="dv">5</span>),
+                   <span class="dt">ageband =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,
+                                   <span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>),<span class="dt">times =</span> <span class="dv">10</span>),
+                   <span class="dt">pop =</span> <span class="kw">sample</span>(<span class="dv">10000</span><span class="op">:</span><span class="dv">20000</span>, <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="dv">4</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>))
+<span class="kw">head</span>(pops)
+<span class="co">#&gt;   indicator period region ageband   pop</span>
+<span class="co">#&gt; 1      Ind1   2012  Area1       0 16745</span>
+<span class="co">#&gt; 2      Ind1   2012  Area1       5 18529</span>
+<span class="co">#&gt; 3      Ind1   2012  Area1      10 11700</span>
+<span class="co">#&gt; 4      Ind1   2012  Area1      15 12822</span>
+<span class="co">#&gt; 5      Ind1   2012  Area1      20 19823</span>
+<span class="co">#&gt; 6      Ind1   2012  Area1      25 17322</span>
 
-deaths &lt;-<span class="st"> </span><span class="kw">sqlQuery</span>(dbhandle2,<span class="st">&quot;SELECT xYEAR as Period, RGN09CD, RGN09NM, </span>
-<span class="st">       CASE WHEN xAge_Year&gt;=90 THEN 90 ELSE FLOOR(CAST(LEFT(xAge_Year,2) AS FLOAT)/5)*5 END AS AgeBand, COUNT(*) AS Dths</span>
-<span class="st">FROM BirthsDeaths.dbo.vDeathsALL d</span>
-<span class="st">LEFT JOIN LookupsShared.dbo.vLKP_RGN09 l</span>
-<span class="st">ON d.GOR_Resi = l.RGN09CDO </span>
-<span class="st">WHERE RGN09CD IN ('E12000001','E12000002','E12000003')</span>
-<span class="st">AND xYEAR in ('2014','2015','2016')</span>
-<span class="st">GROUP BY xYEAR, RGN09CD, RGN09NM, </span>
-<span class="st">       CASE WHEN xAge_Year&gt;=90 THEN 90 ELSE FLOOR(CAST(LEFT(xAge_Year,2) AS FLOAT)/5)*5 END</span>
-<span class="st">ORDER BY xYear, RGN09CD, AgeBand&quot;</span>)</code></pre></div>
+
+deaths &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">indicator =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;Ind1&quot;</span>,<span class="st">&quot;Ind2&quot;</span>,<span class="st">&quot;Ind3&quot;</span>,<span class="st">&quot;Ind4&quot;</span>), <span class="dt">each =</span> <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">5</span>),
+                   <span class="dt">period =</span> <span class="kw">rep</span>(<span class="dv">2012</span><span class="op">:</span><span class="dv">2016</span>, <span class="dt">each =</span> <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span>),
+                   <span class="dt">region =</span> <span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;Area1&quot;</span>,<span class="st">&quot;Area2&quot;</span>),<span class="dt">each=</span><span class="dv">19</span>), <span class="dt">times =</span> <span class="dv">5</span>),
+                   <span class="dt">ageband =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,
+                                   <span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>),<span class="dt">times =</span> <span class="dv">10</span>),
+                   <span class="dt">dths =</span> <span class="kw">sample</span>(<span class="dv">200</span>, <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="dv">4</span>, <span class="dt">replace=</span><span class="ot">TRUE</span>))
+<span class="kw">head</span>(deaths)
+<span class="co">#&gt;   indicator period region ageband dths</span>
+<span class="co">#&gt; 1      Ind1   2012  Area1       0   76</span>
+<span class="co">#&gt; 2      Ind1   2012  Area1       5  165</span>
+<span class="co">#&gt; 3      Ind1   2012  Area1      10  141</span>
+<span class="co">#&gt; 4      Ind1   2012  Area1      15  173</span>
+<span class="co">#&gt; 5      Ind1   2012  Area1      20  166</span>
+<span class="co">#&gt; 6      Ind1   2012  Area1      25   35</span></code></pre></div>
 </div>
-<div id="close-data-lake-connections" class="section level4">
-<h4>Close Data Lake Connections</h4>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odbcClose</span>(dbhandle1)
-<span class="kw">odbcClose</span>(dbhandle2)</code></pre></div>
-</div>
-</div>
-<div id="now-lets-calculate-a-dsr-for-each-period-and-geography-combination" class="section level2">
-<h2>Now let’s calculate a DSR for each period and geography combination</h2>
+<div id="then-lets-prepare-and-validate-our-data" class="section level2">
+<h2>Then let’s prepare and validate our data</h2>
+<p>Our data contains records for 4 different indicators, 5 time periods and 2 geographies so let’s calculate a DSR for each combination - that’s 40 separate DSRs from a single execution of the phe_dsr function……</p>
 <div id="prepare-the-data-frame" class="section level4">
 <h4>Prepare the data frame</h4>
 <p>First we’ll need to join our datasets to create the input data.frame for the function and specify the grouping sets:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">left_join</span>(pops,deaths, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;Period&quot;</span>,<span class="st">&quot;RGN09CD&quot;</span>,<span class="st">&quot;RGN09NM&quot;</span>,<span class="st">&quot;AgeBand&quot;</span>)) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">group_by</span>(Period, RGN09CD)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">left_join</span>(pops,deaths, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;indicator&quot;</span>,<span class="st">&quot;period&quot;</span>,<span class="st">&quot;region&quot;</span>,<span class="st">&quot;ageband&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">group_by</span>(indicator, period, region)</code></pre></div>
 </div>
-<div id="caution-the-order-of-your-records-is-important" class="section level4">
-<h4>Caution: The order of your records is important!</h4>
-<p>The phe_dsr function has built in error handling to ensure that when the standard population is provided as a vector (stdpoptype=“vector”), the data you provide contains the same number of records per group as the standard population you are using. However, <strong>it will assume that those records are provided in the same order in your data and in the standard population vector</strong>. For example if the standard population vector is sorted from highest ageband to lowest ageband but the data records are sorted from lowest ageband to highest ageband then the function will still provide a result but it will have incorrectly standardised the data and this may not be apparent to the user.</p>
-<p>In this example we’ll use the esp2013 vector that is provided with the PHEstatmethods package for our standard population - it contains 19 ordered values representing the 5-year age bands 0-4, 5-9, 10-14….85-89, 90+.</p>
-<p>You can run code like this to check that you also have 19 records per group within your data.frame, but <strong>you will also need to ensure that your data records are ordered to match the order of those in the standard population vector</strong>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summarise</span>(df,<span class="dt">n=</span><span class="kw">n</span>())
-<span class="co">#&gt; Error in loadNamespace(name): there is no package called 'utf8'</span></code></pre></div>
+<div id="check-the-data-meets-the-function-requirements" class="section level4">
+<h4>Check the data meets the function requirements</h4>
+<p>It is important that your data meets the following criteria in order for the phe_dsr function to work so it is wise to check this before we move on.</p>
+<p><strong>1. Each grouping set within your data must contain an equal number of records.</strong></p>
+<p>The phe_dsr function has built in error handling to check this requirement, or you can check your data manually using code like this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># check equal number of records in each grouping set - eyeball check</span>
+<span class="kw">summarise</span>(df,<span class="dt">n=</span><span class="kw">n</span>())
+<span class="co">#&gt; # A tibble: 40 x 4</span>
+<span class="co">#&gt; # Groups:   indicator, period [?]</span>
+<span class="co">#&gt;    indicator period region     n</span>
+<span class="co">#&gt;    &lt;fct&gt;      &lt;int&gt; &lt;fct&gt;  &lt;int&gt;</span>
+<span class="co">#&gt;  1 Ind1        2012 Area1     19</span>
+<span class="co">#&gt;  2 Ind1        2012 Area2     19</span>
+<span class="co">#&gt;  3 Ind1        2013 Area1     19</span>
+<span class="co">#&gt;  4 Ind1        2013 Area2     19</span>
+<span class="co">#&gt;  5 Ind1        2014 Area1     19</span>
+<span class="co">#&gt;  6 Ind1        2014 Area2     19</span>
+<span class="co">#&gt;  7 Ind1        2015 Area1     19</span>
+<span class="co">#&gt;  8 Ind1        2015 Area2     19</span>
+<span class="co">#&gt;  9 Ind1        2016 Area1     19</span>
+<span class="co">#&gt; 10 Ind1        2016 Area2     19</span>
+<span class="co">#&gt; # ... with 30 more rows</span>
+<span class="co"># or alternatively the following should return TRUE</span>
+<span class="kw">n_distinct</span>(<span class="kw">select</span>(<span class="kw">ungroup</span>(<span class="kw">summarise</span>(df,<span class="dt">n=</span><span class="kw">n</span>())),n)) <span class="op">==</span><span class="st"> </span><span class="dv">1</span>
+<span class="co">#&gt; [1] TRUE</span></code></pre></div>
+<p><strong>2. If you are supplying your standard population in vector format (stdpoptype=“vector”) then this vector must also contain the same number of records as each grouping set within your data.</strong></p>
+<p>In this example we’re going to use the default esp2013 vector that is provided with the PHEindicatormethods package for our standard population - it contains 19 ordered values representing the 5-year age bands 0-4, 5-9, 10-14….85-89, 90+.</p>
+<p>The phe_dsr function has built in error handling to check this requirement, or you can check your data manually using code like this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># check standard population has same number of records as in each grouping set of data in check 1 above - eyeball check</span>
+<span class="kw">length</span>(esp2013)
+<span class="co">#&gt; [1] 19</span>
+<span class="co"># or alternatively the following should return TRUE</span>
+<span class="kw">pull</span>(<span class="kw">slice</span>(<span class="kw">select</span>(<span class="kw">ungroup</span>(<span class="kw">summarise</span>(df,<span class="dt">n=</span><span class="kw">n</span>())),n),<span class="dv">1</span>)) <span class="op">==</span><span class="st"> </span><span class="kw">length</span>(esp2013)
+<span class="co">#&gt; [1] TRUE</span></code></pre></div>
+<p><strong>3. If you are supplying your standard population in vector format (stdpoptype=“vector”) then the standard population and your data (for each grouping set) must be sorted in the same standardisation category order because the function will join these by position.</strong> This would normally mean sorting both the standard population vector and the records for each group within your data by age band from youngest to oldest.</p>
+<p><em>The phe_dsr function does not have any built in error handling to check this requirement</em> as the function does not require the standardisation category labels to be provided in your data. It is therefore the responsibility of the function user to ensure this requirement is met. If the standardisation category labels are included with your data (as in our example) then the following code can be used to check the requirment manually:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># check data is ordered by required agebands from youngest to oldest</span>
+<span class="kw">all</span>(df<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="kw">rep</span>(<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,<span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>)))
+<span class="co">#&gt; [1] TRUE</span></code></pre></div>
+<p><em>CAUTION: Failure to ensure that this 3rd requirement is met could result in apparent successful execution of the phe_dsr function even though the data may have been incorrectly standardised</em>. This is demonstrated in the sample code below:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+right &lt;-<span class="st"> </span><span class="kw">phe_dsr</span>(df,dths,pop)
+
+wrong &lt;-<span class="st"> </span>df <span class="op">%&gt;%</span>
+<span class="st">          </span><span class="kw">arrange</span>(<span class="kw">desc</span>(ageband)) <span class="op">%&gt;%</span>
+<span class="st">          </span><span class="kw">phe_dsr</span>(dths,pop)
+
+<span class="co"># the following statement shows that execution of the phe_dsr function on the incorrectly sorted data frame produces different (and incorrect) results.</span>
+<span class="kw">identical</span>(right,wrong)
+<span class="co">#&gt; [1] FALSE</span></code></pre></div>
 </div>
-<div id="execute-the-function" class="section level4">
-<h4>Execute the function</h4>
-<p>Now we’re ready to calculate the DSRs.</p>
+</div>
+<div id="now-lets-calculate-some-dsrs" class="section level2">
+<h2>Now let’s calculate some DSRs</h2>
+<p>Now we’re ready to calculate the DSRs using our correctly ordered df data frame.</p>
 <p>By default the function will apply 95% confidence, a 100,000 multiplier and will output just 3 fields against each grouping set - the dsr, the lower confidence limit and the upper confidence limit:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">phe_dsr</span>(df, Dths, Population)
-<span class="co">#&gt; Error in loadNamespace(name): there is no package called 'utf8'</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">phe_dsr</span>(df, dths, pop)
+<span class="co">#&gt; # A tibble: 40 x 6</span>
+<span class="co">#&gt; # Groups:   indicator, period [20]</span>
+<span class="co">#&gt;    indicator period region value lowercl uppercl</span>
+<span class="co">#&gt;    &lt;fct&gt;      &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 Ind1        2012 Area1    860     822     900</span>
+<span class="co">#&gt;  2 Ind1        2012 Area2    685     652     720</span>
+<span class="co">#&gt;  3 Ind1        2013 Area1    696     663     731</span>
+<span class="co">#&gt;  4 Ind1        2013 Area2    648     615     681</span>
+<span class="co">#&gt;  5 Ind1        2014 Area1    622     591     654</span>
+<span class="co">#&gt;  6 Ind1        2014 Area2    753     718     790</span>
+<span class="co">#&gt;  7 Ind1        2015 Area1    778     744     814</span>
+<span class="co">#&gt;  8 Ind1        2015 Area2    615     585     647</span>
+<span class="co">#&gt;  9 Ind1        2016 Area1    742     708     778</span>
+<span class="co">#&gt; 10 Ind1        2016 Area2    722     689     756</span>
+<span class="co">#&gt; # ... with 30 more rows</span></code></pre></div>
 <p>Alternatively, we can add further arguments to specify:</p>
 <ul>
 <li>the level of detail required in the output (type)</li>
 <li>the confidence level (confidence)</li>
 <li>the multiplier (multiplier)</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">phe_dsr</span>(df, Dths, Population, <span class="dt">type =</span> <span class="st">&quot;full&quot;</span>, <span class="dt">confidence =</span> <span class="fl">99.8</span>, <span class="dt">multiplier =</span> <span class="dv">10000</span>)
-<span class="co">#&gt; Error in loadNamespace(name): there is no package called 'utf8'</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">phe_dsr</span>(df, dths, pop, <span class="dt">type =</span> <span class="st">&quot;full&quot;</span>, <span class="dt">confidence =</span> <span class="fl">99.8</span>, <span class="dt">multiplier =</span> <span class="dv">10000</span>)
+<span class="co">#&gt; # A tibble: 40 x 11</span>
+<span class="co">#&gt; # Groups:   indicator, period [20]</span>
+<span class="co">#&gt;    indicator period region total_count total_pop value lowercl uppercl</span>
+<span class="co">#&gt;    &lt;fct&gt;      &lt;int&gt; &lt;fct&gt;        &lt;int&gt;     &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 Ind1        2012 Area1         2167    281501  86.0    80.1    92.3</span>
+<span class="co">#&gt;  2 Ind1        2012 Area2         1842    288837  68.5    63.3    74.0</span>
+<span class="co">#&gt;  3 Ind1        2013 Area1         1884    280662  69.6    64.4    75.1</span>
+<span class="co">#&gt;  4 Ind1        2013 Area2         1773    293465  64.8    59.7    70.0</span>
+<span class="co">#&gt;  5 Ind1        2014 Area1         1784    282051  62.2    57.3    67.2</span>
+<span class="co">#&gt;  6 Ind1        2014 Area2         1980    275110  75.3    69.8    81.1</span>
+<span class="co">#&gt;  7 Ind1        2015 Area1         2062    274065  77.8    72.4    83.5</span>
+<span class="co">#&gt;  8 Ind1        2015 Area2         1733    296283  61.5    56.8    66.5</span>
+<span class="co">#&gt;  9 Ind1        2016 Area1         1968    274716  74.2    68.9    79.9</span>
+<span class="co">#&gt; 10 Ind1        2016 Area2         2031    288049  72.2    67.0    77.7</span>
+<span class="co">#&gt; # ... with 30 more rows, and 3 more variables: confidence &lt;chr&gt;,</span>
+<span class="co">#&gt; #   statistic &lt;chr&gt;, method &lt;chr&gt;</span></code></pre></div>
 </div>
-</div>
-<div id="specifying-non-default-standard-populations" class="section level2">
-<h2>Specifying non-default Standard Populations</h2>
-<p>In some cases you may wish to standardise against a different population such as the 1976 European Standard Population or an age and sex standardised population. There are two ways to specify an alternative standard population:</p>
+<div id="alternative-standard-populations" class="section level2">
+<h2>Alternative Standard Populations</h2>
+<p>In some cases you may wish to standardise against a different population to the default esp2013 one provided - such as the 1976 European Standard Population or an age and sex standardised population. There are two ways to specify an alternative standard population:</p>
 <div id="provide-the-custom-standard-population-as-a-vector" class="section level4">
-<h4>Provide the custom standard population as a vector</h4>
+<h4>1. Provide the custom standard population as a vector</h4>
 <p>In the example below, the 1976 European Standard Population (which has 18 age groups) is provided as a vector and then referenced in the function call. To ensure the function works we must also ensure that our data has been broken down into these same 18 age bands (for the purposes of this example I’ve just combined the 85-90 and 90+ age band data into a single 85+ age band from the data.frame we used earlier).</p>
 <p>The phe_dsr function can then be executed using a user-defined standard population:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">esp1976 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">8000</span>,  <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">6000</span>,   <span class="dv">5000</span>,   <span class="dv">4000</span>,   <span class="dv">3000</span>,   <span class="dv">2000</span>,   <span class="dv">1000</span>,   <span class="dv">1000</span>)
 
 df18 &lt;-<span class="st"> </span>df
-df18<span class="op">$</span>Dths[df18<span class="op">$</span>AgeBand <span class="op">==</span><span class="st"> </span><span class="dv">85</span>]       &lt;-<span class="st"> </span>df18<span class="op">$</span>Dths[df18<span class="op">$</span>AgeBand <span class="op">==</span><span class="st"> </span><span class="dv">85</span>] <span class="op">+</span><span class="st"> </span>df18<span class="op">$</span>Dths[df18<span class="op">$</span>AgeBand <span class="op">==</span><span class="st"> </span><span class="dv">90</span>]
-df18<span class="op">$</span>Population[df18<span class="op">$</span>AgeBand <span class="op">==</span><span class="st"> </span><span class="dv">85</span>] &lt;-<span class="st"> </span>df18<span class="op">$</span>Population[df18<span class="op">$</span>AgeBand <span class="op">==</span><span class="st"> </span><span class="dv">85</span>] <span class="op">+</span><span class="st"> </span>df18<span class="op">$</span>Population[df18<span class="op">$</span>AgeBand <span class="op">==</span><span class="st"> </span><span class="dv">90</span>]
-df18 &lt;-<span class="st"> </span><span class="kw">filter</span>(df18,AgeBand <span class="op">!=</span><span class="st"> </span><span class="dv">90</span>)
+df18<span class="op">$</span>dths[df18<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="dv">85</span>] &lt;-<span class="st"> </span>df18<span class="op">$</span>dths[df18<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="dv">85</span>] <span class="op">+</span><span class="st"> </span>df18<span class="op">$</span>dths[df18<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="dv">90</span>]
+df18<span class="op">$</span>pop[df18<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="dv">85</span>]  &lt;-<span class="st"> </span>df18<span class="op">$</span>pop[df18<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="dv">85</span>] <span class="op">+</span><span class="st"> </span>df18<span class="op">$</span>pop[df18<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="dv">90</span>]
+df18 &lt;-<span class="st"> </span><span class="kw">filter</span>(df18,ageband <span class="op">!=</span><span class="st"> </span><span class="dv">90</span>)
 
-<span class="kw">phe_dsr</span>(df18,Dths,Population,<span class="dt">stdpop =</span> esp1976)
-<span class="co">#&gt; Error in loadNamespace(name): there is no package called 'utf8'</span></code></pre></div>
+<span class="kw">phe_dsr</span>(df18,dths,pop,<span class="dt">stdpop =</span> esp1976)
+<span class="co">#&gt; # A tibble: 40 x 6</span>
+<span class="co">#&gt; # Groups:   indicator, period [20]</span>
+<span class="co">#&gt;    indicator period region value lowercl uppercl</span>
+<span class="co">#&gt;    &lt;fct&gt;      &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 Ind1        2012 Area1    866     827     906</span>
+<span class="co">#&gt;  2 Ind1        2012 Area2    687     652     723</span>
+<span class="co">#&gt;  3 Ind1        2013 Area1    699     664     735</span>
+<span class="co">#&gt;  4 Ind1        2013 Area2    667     632     702</span>
+<span class="co">#&gt;  5 Ind1        2014 Area1    653     620     687</span>
+<span class="co">#&gt;  6 Ind1        2014 Area2    730     694     768</span>
+<span class="co">#&gt;  7 Ind1        2015 Area1    801     763     840</span>
+<span class="co">#&gt;  8 Ind1        2015 Area2    601     569     634</span>
+<span class="co">#&gt;  9 Ind1        2016 Area1    772     734     811</span>
+<span class="co">#&gt; 10 Ind1        2016 Area2    722     687     759</span>
+<span class="co">#&gt; # ... with 30 more rows</span></code></pre></div>
 </div>
 <div id="append-the-standard-populations-to-your-data-frame-before-executing-the-function" class="section level4">
-<h4>Append the standard populations to your data frame before executing the function</h4>
+<h4>2. Append the standard populations to your data frame before executing the function</h4>
 <p>In the example below, the esp2013 standard population is appended to our data frame prior to calling the phe_dsr function. The field name can then be specified in the function call. If stdpop is specified as a field name we must also tell the function this by specifying stdpoptype = “field” as below:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df_with_stdpop &lt;-<span class="st"> </span><span class="kw">mutate</span>(df,<span class="dt">spop =</span> esp2013)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df_with_stdpop &lt;-<span class="st"> </span>df <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">spop =</span> esp2013)
 <span class="kw">names</span>(df_with_stdpop)
-<span class="co">#&gt; [1] &quot;Period&quot;     &quot;RGN09CD&quot;    &quot;RGN09NM&quot;    &quot;AgeBand&quot;    &quot;Population&quot;</span>
-<span class="co">#&gt; [6] &quot;Dths&quot;       &quot;spop&quot;</span>
-<span class="kw">phe_dsr</span>(df_with_stdpop, Dths, Population, <span class="dt">stdpop =</span> spop, <span class="dt">stdpoptype =</span> <span class="st">&quot;field&quot;</span>)
-<span class="co">#&gt; Error in loadNamespace(name): there is no package called 'utf8'</span></code></pre></div>
+<span class="co">#&gt; [1] &quot;indicator&quot; &quot;period&quot;    &quot;region&quot;    &quot;ageband&quot;   &quot;pop&quot;       &quot;dths&quot;     </span>
+<span class="co">#&gt; [7] &quot;spop&quot;</span>
+<span class="kw">phe_dsr</span>(df_with_stdpop, dths, pop, <span class="dt">stdpop =</span> spop, <span class="dt">stdpoptype =</span> <span class="st">&quot;field&quot;</span>)
+<span class="co">#&gt; # A tibble: 40 x 6</span>
+<span class="co">#&gt; # Groups:   indicator, period [20]</span>
+<span class="co">#&gt;    indicator period region value lowercl uppercl</span>
+<span class="co">#&gt;    &lt;fct&gt;      &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 Ind1        2012 Area1    860     822     900</span>
+<span class="co">#&gt;  2 Ind1        2012 Area2    685     652     720</span>
+<span class="co">#&gt;  3 Ind1        2013 Area1    696     663     731</span>
+<span class="co">#&gt;  4 Ind1        2013 Area2    648     615     681</span>
+<span class="co">#&gt;  5 Ind1        2014 Area1    622     591     654</span>
+<span class="co">#&gt;  6 Ind1        2014 Area2    753     718     790</span>
+<span class="co">#&gt;  7 Ind1        2015 Area1    778     744     814</span>
+<span class="co">#&gt;  8 Ind1        2015 Area2    615     585     647</span>
+<span class="co">#&gt;  9 Ind1        2016 Area1    742     708     778</span>
+<span class="co">#&gt; 10 Ind1        2016 Area2    722     689     756</span>
+<span class="co">#&gt; # ... with 30 more rows</span></code></pre></div>
 </div>
 </div>
-<div id="but-what-if-the-data-are-not-so-tidy" class="section level2">
-<h2>But what if the data are not so tidy?</h2>
+<div id="and-what-if-the-data-are-not-so-tidy" class="section level2">
+<h2>And what if the data are not so tidy?</h2>
 <div id="zero-deaths-for-a-specific-age-band-within-a-small-geography" class="section level4">
 <h4>Zero deaths for a specific age band within a small geography</h4>
 <p>This would be a fairly common scenario - maybe you have Local Authority data and there are no deaths in some of the younger age groups for some of the smaller areas.</p>
 <p>Let’s fudge a couple of data frames to represent this. In this example, there are no deaths in the 10-14, 15-20 and 20-14 age bands:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pops2   &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">AgeBand    =</span> <span class="kw">c</span>( <span class="dv">0</span>, <span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,<span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>),
-                      <span class="dt">Population =</span> <span class="kw">c</span>(<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">35</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,<span class="dv">50</span>,<span class="dv">50</span>,<span class="dv">60</span>,<span class="dv">60</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">70</span>,<span class="dv">60</span>,<span class="dv">20</span>,<span class="dv">20</span>,<span class="dv">15</span>))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pops2   &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">ageband    =</span> <span class="kw">c</span>( <span class="dv">0</span>, <span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,<span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>),
+                      <span class="dt">pop =</span> <span class="kw">c</span>(<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">35</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,<span class="dv">50</span>,<span class="dv">50</span>,<span class="dv">60</span>,<span class="dv">60</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">70</span>,<span class="dv">60</span>,<span class="dv">20</span>,<span class="dv">20</span>,<span class="dv">15</span>))
 
-deaths2 &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">AgeBand =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,<span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>),
-                      <span class="dt">Dths    =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>,<span class="dv">10</span>,<span class="dv">10</span>,<span class="dv">10</span>,<span class="dv">10</span>, <span class="dv">8</span>, <span class="dv">8</span>, <span class="dv">8</span>, <span class="dv">8</span>))</code></pre></div>
+deaths2 &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">ageband =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,<span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>),
+                      <span class="dt">dths    =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>,<span class="dv">10</span>,<span class="dv">10</span>,<span class="dv">10</span>,<span class="dv">10</span>, <span class="dv">8</span>, <span class="dv">8</span>, <span class="dv">8</span>, <span class="dv">8</span>))</code></pre></div>
 <p>If we simply join these data frames to produce the input data frame required for the phe_dsr function then we get NA values in the Deaths column and the function will return an error:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df2 &lt;-<span class="st"> </span><span class="kw">left_join</span>(pops2, deaths2, <span class="dt">by=</span><span class="st">&quot;AgeBand&quot;</span>)
-<span class="kw">phe_dsr</span>(df2, Dths, Population)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df2 &lt;-<span class="st"> </span><span class="kw">left_join</span>(pops2, deaths2, <span class="dt">by=</span><span class="st">&quot;ageband&quot;</span>)
+<span class="kw">phe_dsr</span>(df2, dths, pop)
 <span class="co">#&gt; Error in if (any(pull(data, !(!x)) &lt; 0)) {: missing value where TRUE/FALSE needed</span></code></pre></div>
 <p>The NA values must be replaced with zeros before executing the function:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df3 &lt;-<span class="st"> </span>df2 <span class="op">%&gt;%</span>
-<span class="st">        </span><span class="kw">mutate</span>(<span class="dt">Dths =</span> <span class="kw">replace</span>(Dths, <span class="kw">which</span>(<span class="kw">is.na</span>(Dths)), <span class="dv">0</span>))
-<span class="kw">phe_dsr</span>(df3, Dths, Population)
+<span class="st">        </span><span class="kw">mutate</span>(<span class="dt">dths =</span> <span class="kw">replace</span>(dths, <span class="kw">which</span>(<span class="kw">is.na</span>(dths)), <span class="dv">0</span>))
+<span class="kw">phe_dsr</span>(df3, dths, pop)
 <span class="co">#&gt;      value  lowercl  uppercl</span>
 <span class="co">#&gt; 1 8283.016 6570.819 10289.65</span></code></pre></div>
 </div>

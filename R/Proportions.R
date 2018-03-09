@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
 #' phe_proportion
 #'
-#' Calculates a proportion with confidence limits using Wilson Score method.
+#' Calculates proportions with confidence limits using Wilson Score method.
 #'
 #' @param data a data.frame containing the data to calculate proportions for; unquoted string; no default
 #' @param x field name from data containing the observed numbers of cases in the sample meeting the required condition; unquoted string; no default
@@ -11,7 +11,7 @@
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return When type=full, returns the original data.frame with the following columns appended:
+#' @return When type = "full", returns the original data.frame with the following appended:
 #'         proportion, lower confidence limit, upper confidence limit, confidence level, statistic and method
 #'
 #' @importFrom rlang sym quo_name
@@ -28,6 +28,13 @@
 #' @import dplyr
 #'
 #' @export
+#'
+#' @references
+#' 1: Wilson EB. Probable inference, the law of succession, and statistical
+#'  inference. J Am Stat Assoc; 1927; 22: 209–12.
+#' 2: Newcombe RG, Altman DG. Proportions and their differences. In Altman
+#'  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
+#'  2000: 46–8.
 #'
 #' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------

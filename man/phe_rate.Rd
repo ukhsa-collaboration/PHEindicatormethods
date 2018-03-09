@@ -14,7 +14,7 @@ phe_rate(data, x, n, type = "standard", confidence = 0.95,
 
 \item{n}{field name from data containing the rate denominators (eg populations); unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -22,12 +22,18 @@ or 90 and 100; numeric; default 0.95}
 \item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000}
 }
 \value{
-When type=full, returns the original data.frame with the following columns appended:
-        value, lowercl, uppercl, confidence, statistic and method
+When type = "full", returns the original data.frame with the following appended:
+        rate, lower confidence limit, upper confidence limit, confidence level, statistic and method
 }
 \description{
-Calculates a rate with confidence limits using Byar's or Exact CI method.
+Calculates rates with confidence limits using Byar's or exact CI method.
 }
+\section{Notes}{
+ Byar's method is used for numerators >= 10.  For small
+ numerators Byar's method is less accurate and so an exact method based
+ on the Poisson ditribution is used.
+}
+
 \examples{
 df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), 2),
                  year = rep(2015:2016, each = 4),
@@ -36,6 +42,13 @@ df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), 2),
 phe_rate(df, obs, pop)
 phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
 
+}
+\references{
+1: Breslow NE, Day NE. Statistical methods in cancer research,
+ volume II: The design and analysis of cohort studies. Lyon: International
+ Agency for Research on Cancer, World Health Organisation; 1987.
+ 2: Armitage P, Berry G. Statistical methods in medical research (3rd edn).
+  Oxford: Blackwell; 1994.
 }
 \seealso{
 Other PHEindicatormethods package functions: \code{\link{byars_lower}},

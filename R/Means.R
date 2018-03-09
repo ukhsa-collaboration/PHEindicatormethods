@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
 #' phe_mean
 #'
-#' Calculates a mean with confidence limits using Student's t-distribution method.
+#' Calculates means with confidence limits using Student's t-distribution method.
 #'
 #' @param data a data.frame containing the data to calculate means for, pre-grouped if multiple means required; unquoted string; no default
 #' @param x field name from data containing the values to calculate the means for; unquoted string; no default

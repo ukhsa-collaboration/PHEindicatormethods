@@ -1,20 +1,20 @@
 # -------------------------------------------------------------------------------------------------
 #' phe_isr
 #'
-#' Calculates an indirectly standardised rate with confidence limits using Byars or Exact CI method.
+#' Calculates indirectly standardised rates with confidence limits using Byar's or exact CI method.
 #'
 #' @param data data.frame containing the data to be standarised, pre-grouped if multiple ISRs required; unquoted string; no default
-#' @param x_ref the observed number of events in the reference population for each standardisation category
-#'              (eg age band); unquoted numeric vector or field name from data depending on value of refpoptype argument; no default
+#' @param x_ref the observed number of events in the reference population for each standardisation category (eg age band);
+#'              unquoted string referencing a numeric vector or field name from data depending on value of refpoptype; no default
 #' @param n_ref the reference population for each standardisation category (eg age band);
-#'              unquoted numeric vector or field name from data depending on value of refpoptype argument; no default
-#' @param refpoptype whether x_ref and n_ref have been specified as vectors or a field name from data argument;
-#'                   quoted string "field" or "vector"; default = vector
+#'              unquoted string referencing a numeric vector or field name from data depending on value of refpoptype; no default
+#' @param refpoptype whether x_ref and n_ref have been specified as vectors or a field name from data;
+#'                   quoted string "field" or "vector"; default = "vector"
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return When type = "full", returns a data frame of observed, expected, value, lowercl, uppercl, confidence, statistic and method
-#'         for each grouping set
+#' @return When type = "full", returns a tibble of observed events, expected events, indirectly standardised rate,
+#'  lower confidence limit, upper confidence limit, confidence level, statistic and method for each grouping set
 #'
 #' @examples
 #' library(dplyr)
@@ -38,6 +38,17 @@
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
 #'     phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8)
+#'
+#' @section Notes: Byar's method is used for numerators >= 10.  For small
+#'  numerators Byar's method is less accurate and so an exact method based
+#'  on the Poisson ditribution is used.
+#'
+#' @references
+#' 1: Breslow NE, Day NE. Statistical methods in cancer research,
+#'  volume II: The design and analysis of cohort studies. Lyon: International
+#'  Agency for Research on Cancer, World Health Organisation; 1987.
+#'  2: Armitage P, Berry G. Statistical methods in medical research (3rd edn).
+#'   Oxford: Blackwell; 1994.
 #'
 #' @export
 #'

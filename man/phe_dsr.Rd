@@ -17,12 +17,12 @@ unquoted string; no default}
 unquoted string; no default}
 
 \item{stdpop}{the standard populations for each standardisation category (eg age band);
-unquoted numeric vector or field name from data depending on value of stdpoptype argument; default = esp2013}
+unquoted string referencing a numeric vector or field name from data depending on value of stdpoptype; default = esp2013}
 
-\item{stdpoptype}{whether the stdpop has been specified as a vector or a field name from data argument;
-quoted string "field" or "vector"; default = vector}
+\item{stdpoptype}{whether the stdpop has been specified as a vector or a field name from data;
+quoted string "field" or "vector"; default = "vector"}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -30,12 +30,16 @@ or 90 and 100; numeric; default 0.95}
 \item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000}
 }
 \value{
-When type = "full", returns a data.frame of total_count, total_pop, value, lowercl, uppercl, confidence, statistic and method
-        for each grouping set
+When type = "full", returns a tibble of total counts, total populations, directly standardised rates,
+ lower confidence limits, upper confidence limitsvalue, confidence level, statistic and method for each grouping set
 }
 \description{
-Calculates a directly standardised rate with confidence limits using Dobson method.
+Calculates directly standardised rates with confidence limits using Dobson method.
 }
+\section{Notes}{
+ When sum(x) < 10 DSRs are not reliable and will therefore not be calculated
+}
+
 \examples{
 library(dplyr)
 df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
@@ -55,6 +59,11 @@ df \%>\%
     group_by(indicatorid, year, sex) \%>\%
     phe_dsr(obs, pop, type = "full")
 
+}
+\references{
+1: Breslow NE, Day NE. Statistical methods in cancer research,
+ volume II: The design and analysis of cohort studies. Lyon: International
+ Agency for Research on Cancer, World Health Organisation; 1987.
 }
 \seealso{
 Other PHEindicatormethods package functions: \code{\link{byars_lower}},

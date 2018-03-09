@@ -16,16 +16,16 @@ unquoted string; no default}
 \item{n}{field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
 unquoted string; no default}
 
-\item{x_ref}{the observed number of events in the reference population for each standardisation category
-(eg age band); unquoted numeric vector or field name from data depending on value of refpoptype argument; no default}
+\item{x_ref}{the observed number of events in the reference population for each standardisation category (eg age band);
+unquoted string referencing a numeric vector or field name from data depending on value of refpoptype; no default}
 
 \item{n_ref}{the reference population for each standardisation category (eg age band);
-unquoted numeric vector or field name from data depending on value of refpoptype argument; no default}
+unquoted string referencing a numeric vector or field name from data depending on value of refpoptype; no default}
 
-\item{refpoptype}{whether x_ref and n_ref have been specified as vectors or a field name from data argument;
-quoted string "field" or "vector"; default = vector}
+\item{refpoptype}{whether x_ref and n_ref have been specified as vectors or a field name from data;
+quoted string "field" or "vector"; default = "vector"}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default combined}
+\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -33,12 +33,18 @@ or 90 and 100; numeric; default 0.95}
 \item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000}
 }
 \value{
-When type = "full", returns a data frame of observed, expected, value, lowercl, uppercl, confidence, statistic and method
-        for each grouping set
+When type = "full", returns a tibble of observed events, expected events, indirectly standardised rate,
+ lower confidence limit, upper confidence limit, confidence level, statistic and method for each grouping set
 }
 \description{
-Calculates an indirectly standardised rate with confidence limits using Byars or Exact CI method.
+Calculates indirectly standardised rates with confidence limits using Byar's or exact CI method.
 }
+\section{Notes}{
+ Byar's method is used for numerators >= 10.  For small
+ numerators Byar's method is less accurate and so an exact method based
+ on the Poisson ditribution is used.
+}
+
 \examples{
 library(dplyr)
 df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
@@ -62,6 +68,13 @@ df \%>\%
     group_by(indicatorid, year, sex) \%>\%
     phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8)
 
+}
+\references{
+1: Breslow NE, Day NE. Statistical methods in cancer research,
+ volume II: The design and analysis of cohort studies. Lyon: International
+ Agency for Research on Cancer, World Health Organisation; 1987.
+ 2: Armitage P, Berry G. Statistical methods in medical research (3rd edn).
+  Oxford: Blackwell; 1994.
 }
 \seealso{
 Other PHEindicatormethods package functions: \code{\link{byars_lower}},
