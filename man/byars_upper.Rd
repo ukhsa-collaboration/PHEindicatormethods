@@ -18,6 +18,11 @@ Returns upper confidence limits for observed numbers of events using Byar's meth
 \description{
 Calculates the upper confidence limits for observed numbers of events using Byar's method.
 }
+\section{Notes}{
+ if the confidence level is close to 1 (or 100) or the number of events is very small
+Byar's method is inaccurate and could return a negative number - in these cases an error is returned.
+}
+
 \examples{
 byars_upper(65)
 byars_upper(65,99.8)

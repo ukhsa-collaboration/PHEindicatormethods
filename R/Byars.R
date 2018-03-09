@@ -8,6 +8,9 @@
 #'
 #' @return Returns lower confidence limits for observed numbers of events using Byar's method
 #'
+#' @section Notes: if the confidence level is very close to 1 or the number of events is very small
+#' Byar's method is inaccurate and may return a negative number - in these cases an error is returned.
+#'
 #' @examples
 #' byars_lower(65)
 #' byars_lower(65,99.8)
@@ -37,7 +40,15 @@ byars_lower <- function(x, confidence = 0.95) {
 
   # calculate
   byars_lower <- x*(1-1/(9*x)-z/(3*sqrt(x)))^3
+
+ # if(any(byars_lower < 0)) {
+#    warning("some lower confidence limits could not be calculated due to small numerators or high confidence levels")
+#  }
+
+  byars_lower[byars_lower < 0]  <- NA
+
   return(byars_lower)
+
 }
 
 
@@ -50,6 +61,9 @@ byars_lower <- function(x, confidence = 0.95) {
 #' @inheritParams phe_dsr
 #'
 #' @return Returns upper confidence limits for observed numbers of events using Byar's method
+#'
+#' @section Notes: if the confidence level is close to 1 (or 100) or the number of events is very small
+#' Byar's method is inaccurate and could return a negative number - in these cases an error is returned.
 #'
 #' @examples
 #' byars_upper(65)

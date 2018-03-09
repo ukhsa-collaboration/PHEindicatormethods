@@ -18,6 +18,11 @@ Returns lower confidence limits for observed numbers of events using Byar's meth
 \description{
 Calculates the lower confidence limits for observed numbers of events using Byar's method.
 }
+\section{Notes}{
+ if the confidence level is very close to 1 or the number of events is very small
+Byar's method is inaccurate and may return a negative number - in these cases an error is returned.
+}
+
 \examples{
 byars_lower(65)
 byars_lower(65,99.8)
