@@ -41,10 +41,7 @@ byars_lower <- function(x, confidence = 0.95) {
   # calculate
   byars_lower <- x*(1-1/(9*x)-z/(3*sqrt(x)))^3
 
- # if(any(byars_lower < 0)) {
-#    warning("some lower confidence limits could not be calculated due to small numerators or high confidence levels")
-#  }
-
+  # set negative values to NA
   byars_lower[byars_lower < 0]  <- NA
 
   return(byars_lower)
