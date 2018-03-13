@@ -1,11 +1,12 @@
 # -------------------------------------------------------------------------------------------------
 #' phe_proportion
 #'
-#' Calculates proportions with confidence limits using Wilson Score method.
+#' Calculates proportions with confidence limits using Wilson Score method [1,2].
 #'
 #' @param data a data.frame containing the data to calculate proportions for; unquoted string; no default
-#' @param x field name from data containing the observed numbers of cases in the sample meeting the required condition; unquoted string; no default
-#' @param n field name from data containing the number of cases in the sample;
+#' @param x field name from data containing the observed numbers of cases in the sample meeting the required condition
+#'          (the numerator for the proportion); unquoted string; no default
+#' @param n field name from data containing the number of cases in the sample (the denominator for the proportion);
 #'          unquoted string; no default
 #' @param percentage whether the output should be returned as a percentage; logical; default FALSE
 #'
@@ -15,6 +16,9 @@
 #'         proportion, lower confidence limit, upper confidence limit, confidence level, statistic and method
 #'
 #' @importFrom rlang sym quo_name
+#'
+#' @section Notes: Wilson Score method [1,2] is applied using the \code{\link{wilson_lower}}
+#'  and \code{\link{wilson_upper}} functions.
 #'
 #' @examples
 #' df <- data.frame(area = c("Area1","Area2","Area3"),
@@ -30,9 +34,9 @@
 #' @export
 #'
 #' @references
-#' 1: Wilson EB. Probable inference, the law of succession, and statistical
-#'  inference. J Am Stat Assoc; 1927; 22: 209–12.
-#' 2: Newcombe RG, Altman DG. Proportions and their differences. In Altman
+#' [1] Wilson EB. Probable inference, the law of succession, and statistical
+#'  inference. J Am Stat Assoc; 1927; 22: 209–12. \cr
+#' [2] Newcombe RG, Altman DG. Proportions and their differences. In Altman
 #'  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
 #'  2000: 46–8.
 #'

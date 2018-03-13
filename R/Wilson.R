@@ -1,17 +1,28 @@
 # -------------------------------------------------------------------------------------------------
 #' wilson_lower
 #'
-#' Calculates lower confidence limits for observed numbers of events using the Wilson Score method.
+#' Calculates lower confidence limits for observed numbers of events using the Wilson Score method [1,2].
 #'
 #' @param x the observed numbers of cases in the samples meeting the required condition; numeric vector; no default
 #' @param n the numbers of cases in the samples; numeric vector; no default
 #' @inheritParams phe_dsr
 #'
-#' @return Returns lower confidence limits for observed numbers of events using the Wilson Score method
+#' @return Returns lower confidence limits for observed numbers of events using the Wilson Score method [1,2]
+#'
+#' @section Notes: \code{wilson_lower} and \code{\link{wilson_upper}} together return symmetric confidence
+#'  intervals, therefore for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the lower limit returned
+#'  will be above the true underlying value, is \eqn{\alpha}/2.#'
 #'
 #' @examples
 #' wilson_lower(65,100)
 #' wilson_lower(65,100,99.8)
+#'
+#' @references
+#' [1] Wilson EB. Probable inference, the law of succession, and statistical
+#'  inference. J Am Stat Assoc; 1927; 22: 209–12. \cr
+#' [2] Newcombe RG, Altman DG. Proportions and their differences. In Altman
+#'  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
+#'  2000: 46–8.
 #'
 #' @export
 #'
@@ -57,17 +68,28 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 # -------------------------------------------------------------------------------------------------
 #' wilson_upper
 #'
-#' Calculates upper confidence limits for observed numbers of events using the Wilson Score method.
+#' Calculates upper confidence limits for observed numbers of events using the Wilson Score method [1,2].
 #'
 #' @param x the observed numbers of cases in the samples meeting the required condition; numeric vector; no default
 #' @param n the numbers of cases in the samples; numeric vector; no default
 #' @inheritParams phe_dsr
 #'
-#' @return Returns upper confidence limits for observed numbers of events using the Wilson Score method
+#' @return Returns upper confidence limits for observed numbers of events using the Wilson Score method [1,2]
+#'
+#' @section Notes: \code{\link{wilson_lower}} and \code{wilson_upper} together return symmetric confidence
+#'  intervals, therefore for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the upper limit returned
+#'  will be below the true underlying value, is \eqn{\alpha}/2.#'
 #'
 #' @examples
 #' wilson_upper(65,100)
 #' wilson_upper(65,100,99.8)
+#'
+#' @references
+#' [1] Wilson EB. Probable inference, the law of succession, and statistical
+#'  inference. J Am Stat Assoc; 1927; 22: 209–12. \cr
+#' [2] Newcombe RG, Altman DG. Proportions and their differences. In Altman
+#'  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
+#'  2000: 46–8.
 #'
 #' @export
 #'

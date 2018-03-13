@@ -13,20 +13,29 @@ byars_lower(x, confidence = 0.95)
 or 90 and 100; numeric; default 0.95}
 }
 \value{
-Returns lower confidence limits for observed numbers of events using Byar's method
+Returns lower confidence limits for observed numbers of events using Byar's method [1]
 }
 \description{
-Calculates the lower confidence limits for observed numbers of events using Byar's method.
+Calculates the lower confidence limits for observed numbers of events using Byar's method [1].
 }
 \section{Notes}{
- if the confidence level is very close to 1 or the number of events is very small
-Byar's method is inaccurate and may return a negative number - in these cases an error is returned.
+ \code{byars_lower} and \code{\link{byars_upper}} together return symmetric confidence
+ intervals around counts, therefore
+ for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the lower limit returned
+ will be above the true underlying value, is \eqn{\alpha}/2.
+ If the confidence level is very close to 1 or the number of events is very small
+ Byar's method is inaccurate and may return a negative number - in these cases an error is returned.
 }
 
 \examples{
 byars_lower(65)
 byars_lower(65,99.8)
 
+}
+\references{
+[1] Breslow NE, Day NE. Statistical methods in cancer research,
+ volume II: The design and analysis of cohort studies. Lyon: International
+ Agency for Research on Cancer, World Health Organisation; 1987.
 }
 \seealso{
 Other PHEindicatormethods package functions: \code{\link{byars_upper}},

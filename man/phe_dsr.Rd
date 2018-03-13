@@ -31,13 +31,15 @@ or 90 and 100; numeric; default 0.95}
 }
 \value{
 When type = "full", returns a tibble of total counts, total populations, directly standardised rates,
- lower confidence limits, upper confidence limitsvalue, confidence level, statistic and method for each grouping set
+ lower confidence limits, upper confidence limits, confidence level, statistic and method for each grouping set
 }
 \description{
-Calculates directly standardised rates with confidence limits using Dobson method.
+Calculates directly standardised rates with confidence limits using Byar's method [1] with Dobson method adjustment [2].
 }
 \section{Notes}{
- When sum(x) < 10 DSRs are not reliable and will therefore not be calculated
+ For total counts >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
+and \code{\link{byars_upper}} functions.  When the total count is < 10 DSRs are not reliable and will
+therefore not be calculated.
 }
 
 \examples{
@@ -61,9 +63,10 @@ df \%>\%
 
 }
 \references{
-1: Breslow NE, Day NE. Statistical methods in cancer research,
+[1] Breslow NE, Day NE. Statistical methods in cancer research,
  volume II: The design and analysis of cohort studies. Lyon: International
- Agency for Research on Cancer, World Health Organisation; 1987.
+ Agency for Research on Cancer, World Health Organisation; 1987. \cr
+[2] Dobson A et al. Confidence intervals for weighted sums of Poisson parameters. Stat Med 1991;10:457-62.
 }
 \seealso{
 Other PHEindicatormethods package functions: \code{\link{byars_lower}},

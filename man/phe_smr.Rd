@@ -33,15 +33,16 @@ or 90 and 100; numeric; default 0.95}
 \item{refvalue}{the standardised reference ratio, numeric, default = 1}
 }
 \value{
-When type = "full", returns a data frame of observed events, expected events, standardised mortality ratios,
+When type = "full", returns a tibble of observed events, expected events, standardised mortality ratios,
  lower confidence limits, upper confidence limits, confidence level, statistic and method for each grouping set
 }
 \description{
-Calculates standard mortality ratios (or indirectly standardised ratios) with confidence limits using Byar's or exact CI method.
+Calculates standard mortality ratios (or indirectly standardised ratios) with confidence limits using Byar's [1] or exact [2] CI method.
 }
 \section{Notes}{
- Byar's method is used for numerators >= 10.  For small
- numerators Byar's method is less accurate and so an exact method based
+ For numerators >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
+ and \code{\link{byars_upper}} functions.  For small
+ numerators Byar's method is less accurate and so an exact method [2] based
  on the Poisson ditribution is used.
 }
 
@@ -70,10 +71,10 @@ df \%>\%
 
 }
 \references{
-1: Breslow NE, Day NE. Statistical methods in cancer research,
+[1] Breslow NE, Day NE. Statistical methods in cancer research,
  volume II: The design and analysis of cohort studies. Lyon: International
- Agency for Research on Cancer, World Health Organisation; 1987.
- 2: Armitage P, Berry G. Statistical methods in medical research (3rd edn).
+ Agency for Research on Cancer, World Health Organisation; 1987. \cr
+[2] Armitage P, Berry G. Statistical methods in medical research (3rd edn).
   Oxford: Blackwell; 1994.
 }
 \seealso{

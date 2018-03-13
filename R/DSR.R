@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
 #' phe_dsr
 #'
-#' Calculates directly standardised rates with confidence limits using Dobson method.
+#' Calculates directly standardised rates with confidence limits using Byar's method [1] with Dobson method adjustment [2].
 #'
 #' @param data data.frame containing the data to be standarised, pre-grouped if multiple DSRs required; unquoted string; no default
 #' @param x field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
@@ -18,7 +18,7 @@
 #' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000
 #'
 #' @return When type = "full", returns a tibble of total counts, total populations, directly standardised rates,
-#'  lower confidence limits, upper confidence limitsvalue, confidence level, statistic and method for each grouping set
+#'  lower confidence limits, upper confidence limits, confidence level, statistic and method for each grouping set
 #'
 #' @importFrom rlang sym quo_name
 #'
@@ -43,12 +43,15 @@
 #'     group_by(indicatorid, year, sex) %>%
 #'     phe_dsr(obs, pop, type = "full")
 #'
-#' @section Notes: When sum(x) < 10 DSRs are not reliable and will therefore not be calculated
+#' @section Notes: For total counts >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
+#' and \code{\link{byars_upper}} functions.  When the total count is < 10 DSRs are not reliable and will
+#' therefore not be calculated.
 #'
 #' @references
-#' 1: Breslow NE, Day NE. Statistical methods in cancer research,
+#' [1] Breslow NE, Day NE. Statistical methods in cancer research,
 #'  volume II: The design and analysis of cohort studies. Lyon: International
-#'  Agency for Research on Cancer, World Health Organisation; 1987.
+#'  Agency for Research on Cancer, World Health Organisation; 1987. \cr
+#' [2] Dobson A et al. Confidence intervals for weighted sums of Poisson parameters. Stat Med 1991;10:457-62.
 #'
 #' @export
 #'
