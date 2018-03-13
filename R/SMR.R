@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
 #' phe_smr
 #'
-#' Calculates standard mortality ratios (or indirectly standardised ratios) with confidence limits using Byar's or exact CI method.
+#' Calculates standard mortality ratios (or indirectly standardised ratios) with confidence limits using Byar's [1] or exact [2] CI method.
 #'
 #' @param data data.frame containing the data to be standarised, pre-grouped if multiple SMRs required; unquoted string; no default
 #' @param x_ref the observed number of events in the reference population for each standardisation category
@@ -14,7 +14,7 @@
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return When type = "full", returns a data frame of observed events, expected events, standardised mortality ratios,
+#' @return When type = "full", returns a tibble of observed events, expected events, standardised mortality ratios,
 #'  lower confidence limits, upper confidence limits, confidence level, statistic and method for each grouping set
 #'
 #' @examples
@@ -40,15 +40,16 @@
 #'     group_by(indicatorid, year, sex) %>%
 #'     phe_smr(obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8, refvalue=100)
 #'
-#' @section Notes: Byar's method is used for numerators >= 10.  For small
-#'  numerators Byar's method is less accurate and so an exact method based
+#' @section Notes: For numerators >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
+#'  and \code{\link{byars_upper}} functions.  For small
+#'  numerators Byar's method is less accurate and so an exact method [2] based
 #'  on the Poisson ditribution is used.
 #'
 #' @references
-#' 1: Breslow NE, Day NE. Statistical methods in cancer research,
+#' [1] Breslow NE, Day NE. Statistical methods in cancer research,
 #'  volume II: The design and analysis of cohort studies. Lyon: International
-#'  Agency for Research on Cancer, World Health Organisation; 1987.
-#'  2: Armitage P, Berry G. Statistical methods in medical research (3rd edn).
+#'  Agency for Research on Cancer, World Health Organisation; 1987. \cr
+#' [2] Armitage P, Berry G. Statistical methods in medical research (3rd edn).
 #'   Oxford: Blackwell; 1994.
 #'
 #' @export

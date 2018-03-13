@@ -10,9 +10,10 @@ phe_proportion(data, x, n, type = "standard", confidence = 0.95,
 \arguments{
 \item{data}{a data.frame containing the data to calculate proportions for; unquoted string; no default}
 
-\item{x}{field name from data containing the observed numbers of cases in the sample meeting the required condition; unquoted string; no default}
+\item{x}{field name from data containing the observed numbers of cases in the sample meeting the required condition
+(the numerator for the proportion); unquoted string; no default}
 
-\item{n}{field name from data containing the number of cases in the sample;
+\item{n}{field name from data containing the number of cases in the sample (the denominator for the proportion);
 unquoted string; no default}
 
 \item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
@@ -27,8 +28,13 @@ When type = "full", returns the original data.frame with the following appended:
         proportion, lower confidence limit, upper confidence limit, confidence level, statistic and method
 }
 \description{
-Calculates proportions with confidence limits using Wilson Score method.
+Calculates proportions with confidence limits using Wilson Score method [1,2].
 }
+\section{Notes}{
+ Wilson Score method [1,2] is applied using the \code{\link{wilson_lower}}
+ and \code{\link{wilson_upper}} functions.
+}
+
 \examples{
 df <- data.frame(area = c("Area1","Area2","Area3"),
                  numerator = c(65,82,100),
@@ -40,9 +46,9 @@ phe_proportion(df, numerator, denominator, type="full")
 
 }
 \references{
-1: Wilson EB. Probable inference, the law of succession, and statistical
- inference. J Am Stat Assoc; 1927; 22: 209–12.
-2: Newcombe RG, Altman DG. Proportions and their differences. In Altman
+[1] Wilson EB. Probable inference, the law of succession, and statistical
+ inference. J Am Stat Assoc; 1927; 22: 209–12. \cr
+[2] Newcombe RG, Altman DG. Proportions and their differences. In Altman
  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
  2000: 46–8.
 }

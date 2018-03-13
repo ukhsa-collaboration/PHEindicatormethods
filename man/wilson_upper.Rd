@@ -15,15 +15,28 @@ wilson_upper(x, n, confidence = 0.95)
 or 90 and 100; numeric; default 0.95}
 }
 \value{
-Returns upper confidence limits for observed numbers of events using the Wilson Score method
+Returns upper confidence limits for observed numbers of events using the Wilson Score method [1,2]
 }
 \description{
-Calculates upper confidence limits for observed numbers of events using the Wilson Score method.
+Calculates upper confidence limits for observed numbers of events using the Wilson Score method [1,2].
 }
+\section{Notes}{
+ \code{\link{wilson_lower}} and \code{wilson_upper} together return symmetric confidence
+ intervals, therefore for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the upper limit returned
+ will be below the true underlying value, is \eqn{\alpha}/2.#'
+}
+
 \examples{
 wilson_upper(65,100)
 wilson_upper(65,100,99.8)
 
+}
+\references{
+[1] Wilson EB. Probable inference, the law of succession, and statistical
+ inference. J Am Stat Assoc; 1927; 22: 209–12. \cr
+[2] Newcombe RG, Altman DG. Proportions and their differences. In Altman
+ DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
+ 2000: 46–8.
 }
 \seealso{
 Other PHEindicatormethods package functions: \code{\link{byars_lower}},
