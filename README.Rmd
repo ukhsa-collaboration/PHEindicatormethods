@@ -12,14 +12,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-# PLEASE ENSURE YOU INSTALL AN APPROVED VERSION OF THIS PACKAGE
-If you have installed this package, type 'packageVersion("PHEindicatormethods")' in the R console to show the package version.  If it is suffixed with a 9000 number then you are using an unapproved development version.
-
-Released versions of this package will have version numbers consisting of three parts: <major>.<minor>.<patch>
-In-development versions of this package will have a fourth component, the development version number, which will increment from 9000.
-
-See http://r-pkgs.had.co.nz/description.html for further information on package versioning
-
 
 # PHEindicatormethods
 
@@ -32,7 +24,7 @@ Any feedback would be appreciated and can be provided using the Issues section o
 
 ## Installation
 
-### From zip
+#### From zip
 
 Download this repository from GitLab and either build from source or do:
 
@@ -41,7 +33,7 @@ source <- devtools:::source_pkg("C:/path/to/PHEindicatormethods-master")
 install(source)
 ```
 
-### With devtools
+#### With devtools
 
 You can install the latest version of PHEindicatormethods from GitLab with:
 
@@ -50,12 +42,23 @@ if (!require(devtools)) install.packages("devtools")
 devtools::install_git('https://gitlab.phe.gov.uk/packages/PHEindicatormethods', build_vignettes=TRUE)
 ```
 
+Some users may receive a Lazy Load error following installation and loading of this package using devtools in RStudio.  In these cases, please close and re-open RStudio and then re-load the package using the library command. 
 
 <br/>
 <br/>
 
-## Contents
-The package contains the following functions and datasets - see individual item documentation for full details 
+
+## Package Versioning
+Following installation of this package, type 'packageVersion("PHEindicatormethods")' in the R console to show the package version.  If it is suffixed with a 9000 number then you are using an unapproved development version.
+
+Released versions of this package will have version numbers consisting of three parts: <major>.<minor>.<patch>
+In-development versions of this package will have a fourth component, the development version number, which will increment from 9000.
+
+See http://r-pkgs.had.co.nz/description.html for further information on package versioning
+
+
+## Package Contents
+The package contains the following functions, datasets and vignettes - see individual item documentation for full details 
 
 **Functions:**  
 - byars_lower  
