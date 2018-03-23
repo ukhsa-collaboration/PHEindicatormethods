@@ -47,7 +47,7 @@ You can install the latest version of PHEindicatormethods from GitLab with:
 
 ```{r gl-installation, eval = FALSE}
 if (!require(devtools)) install.packages("devtools")
-devtools::install_git('https://gitlab.phe.gov.uk/Georgina.Anderson/PHEindicatormethods', build_vignettes=TRUE)
+devtools::install_git('https://gitlab.phe.gov.uk/packages/PHEindicatormethods', build_vignettes=TRUE)
 ```
 
 

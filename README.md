@@ -1,9 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-DEVELOPMENT VERSION NOT YET RELEASED
-====================================
+PLEASE ENSURE YOU INSTALL AN APPROVED VERSION OF THIS PACKAGE
+=============================================================
 
-If you have installed this package, type 'packageVersion(PHEindicatormethods)' in the RStudio console to show the package version. If it is suffixed with a 9000 number then you are using an unapproved development version.
+If you have installed this package, type 'packageVersion("PHEindicatormethods")' in the R console to show the package version. If it is suffixed with a 9000 number then you are using an unapproved development version.
+
+Released versions of this package will have version numbers consisting of three parts: <major>.<minor>.<patch> In-development versions of this package will have a fourth component, the development version number, which will increment from 9000.
+
+See <http://r-pkgs.had.co.nz/description.html> for further information on package versioning
 
 PHEindicatormethods
 ===================
@@ -32,7 +36,7 @@ You can install the latest version of PHEindicatormethods from GitLab with:
 
 ``` r
 if (!require(devtools)) install.packages("devtools")
-devtools::install_git('https://gitlab.phe.gov.uk/Georgina.Anderson/PHEindicatormethods', build_vignettes=TRUE)
+devtools::install_git('https://gitlab.phe.gov.uk/packages/PHEindicatormethods', build_vignettes=TRUE)
 ```
 
 <br/> <br/>

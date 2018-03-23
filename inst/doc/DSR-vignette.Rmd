@@ -30,6 +30,7 @@ The function can be used to calculate DSRs for grouping single or multiple geogr
 
 <br/>
 <br/>
+<br/>
 
 
 | Argument     | Type             | Definition                                                             |Default value  |
