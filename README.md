@@ -60,3 +60,7 @@ The package contains the following functions and datasets - see individual item 
 
 **Datasets:**
 - esp2013
+
+**Vignettes:**
+- Vignette for calculating DSRs for multiple geographies and time periods
+(type 'browseVignettes("PHEindicatormethods")' to view in HTML)

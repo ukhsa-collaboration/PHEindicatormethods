@@ -40,7 +40,9 @@ When type = "full", returns a tibble of observed events, expected events, standa
 Calculates standard mortality ratios (or indirectly standardised ratios) with confidence limits using Byar's [1] or exact [2] CI method.
 }
 \section{Notes}{
- For numerators >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
+ User MUST ensure that x, n, x_ref and n_ref vectors are all ordered by
+the same standardisation category values as records will be matched by position  \cr
+For numerators >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
  and \code{\link{byars_upper}} functions.  For small
  numerators Byar's method is less accurate and so an exact method [2] based
  on the Poisson ditribution is used.
