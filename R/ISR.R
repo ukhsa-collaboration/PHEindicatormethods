@@ -40,7 +40,7 @@
 #'     phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8)
 #'
 #' @section Notes: User MUST ensure that x, n, x_ref and n_ref vectors are all ordered by
-#' the same standardisation category values as records will be matched by position  \cr
+#' the same standardisation category values as records will be matched by position. \cr  \cr
 #' For numerators >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
 #'  and \code{\link{byars_upper}} functions.  For small
 #'  numerators Byar's method is less accurate and so an exact method [2] based
@@ -49,7 +49,7 @@
 #' @references
 #' [1] Breslow NE, Day NE. Statistical methods in cancer research,
 #'  volume II: The design and analysis of cohort studies. Lyon: International
-#'  Agency for Research on Cancer, World Health Organisation; 1987. \cr
+#'  Agency for Research on Cancer, World Health Organisation; 1987. \cr \cr
 #' [2] Armitage P, Berry G. Statistical methods in medical research (3rd edn).
 #'   Oxford: Blackwell; 1994.
 #'

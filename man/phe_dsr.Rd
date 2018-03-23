@@ -38,7 +38,7 @@ Calculates directly standardised rates with confidence limits using Byar's metho
 }
 \section{Notes}{
  User MUST ensure that x, n and stdpop vectors are all ordered by
-the same standardisation category values as records will be matched by position  \cr
+the same standardisation category values as records will be matched by position. \cr \cr
 For total counts >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
 and \code{\link{byars_upper}} functions.  When the total count is < 10 DSRs are not reliable and will
 therefore not be calculated.
@@ -67,7 +67,7 @@ df \%>\%
 \references{
 [1] Breslow NE, Day NE. Statistical methods in cancer research,
  volume II: The design and analysis of cohort studies. Lyon: International
- Agency for Research on Cancer, World Health Organisation; 1987. \cr
+ Agency for Research on Cancer, World Health Organisation; 1987. \cr \cr
 [2] Dobson A et al. Confidence intervals for weighted sums of Poisson parameters. Stat Med 1991;10:457-62.
 }
 \seealso{
