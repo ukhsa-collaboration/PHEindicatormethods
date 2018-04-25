@@ -1,16 +1,14 @@
 ---
 title: "Introduction to PHEindicatormethods"
-#author: "Georgina Anderson"
-#date: "`r Sys.Date()`"
+author: "Georgina Anderson"
+date: "`r Sys.Date()`"
 output: 
-  phecharts::html_phe:
-    includes:
-      in_header: phe_logo.html
-#    css: style.css
-#vignette: >
-#  %\VignetteIndexEntry{Vignette demonstrating the PHEindicatormethods package functions}
-#  %\VignetteEngine{knitr::rmarkdown}
-#  %\VignetteEncoding{UTF-8}
+  rmarkdown::html_vignette:
+    css: style.css
+vignette: >
+  %\VignetteIndexEntry{Vignette demonstrating the PHEindicatormethods package functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
@@ -153,7 +151,7 @@ head(df_std)
 
 ```
 
-#### 2. Execute phe_dsr
+#### Execute phe_dsr
 **INPUT:** The minimum input requirement for the phe_dsr function is a single data frame with columns representing the numerators and denominators for each standardisation category. This is sufficient if the data is:  
 
 * broken down into 19 standardisation categories per grouping set representing the 19 x 5-year age bands from 00-04 to 90+
@@ -162,8 +160,10 @@ head(df_std)
 
 The 2013 European Standard Population is provided within the package in vector form (esp2013) and is used by default by this function.  Alternative standard populations can be used but must be provided by the user.  When the function joins a standard population vector to the input data frame it does this by position so it is important that the data is sorted accordingly.  **This is a user responsibility.**  
 
-The function can also accept standard populations provided as a column within the input data frame.    
-* standard populations provided as a vector - the vector and the input data frame must both contain rows for the same standardisation categories, and both must be sorted, within each grouping set, by these standardisation categories in the same order
+The function can also accept standard populations provided as a column within the input data frame.  
+
+* standard populations provided as a vector - the vector and the input data frame must both contain rows for the same standardisation categories, and both must be sorted, within each grouping set, by these standardisation categories in the same order  
+
 * standard populations provided as a column within the input data frame - the standard populations can be appended to the input data frame by the user prior to execution of the function - if the data is grouped to generate multiple dsrs then the standard populations will need to be repeated and appended to the data rows for every grouping set. 
 
 **OUTPUT:** By default, the function outputs one row per grouping set containing the grouping variable values, the dsr, the lower 95% confidence limit, and the upper 95% confidence limit
@@ -208,12 +208,14 @@ df_std %>%
 
 
 
-#### 3. Execute phe_smr and phe_isr
+#### Execute phe_smr and phe_isr
 **INPUT:** Unlike the phe_dsr function, there is no default standard or reference data for the phe_smr and phe_isr functions.  These functions take a single data frame as input, with columns representing the numerators and denominators for each standardisation category, PLUS reference numerators and denominators for each standardisation category.  
 
 The reference data can either be provided in a separate data frame/vectors or as columns within the input data frame:  
-* reference data provided as a data frame or as vectors - the data frame/vectors and the input data frame must both contain rows for the same standardisation categories, and both must be sorted, within each grouping set, by these standardisation categories in the same order
-* reference data provided as a column within the input data frame  - the reference numerators and denominators can be appended to the input data frame prior to execution of the function - if the data is grouped to generate multiple smrs/isrs then the reference data will need to be repeated and appended to the data rows for every grouping set. 
+
+* reference data provided as a data frame or as vectors - the data frame/vectors and the input data frame must both contain rows for the same standardisation categories, and both must be sorted, within each grouping set, by these standardisation categories in the same order.  
+
+* reference data provided as columns within the input data frame - the reference numerators and denominators can be appended to the input data frame prior to execution of the function - if the data is grouped to generate multiple smrs/isrs then the reference data will need to be repeated and appended to the data rows for every grouping set. 
 
 **OUTPUT:** By default, the functions output one row per grouping set containing the grouping variable values, the smr or isr, the lower 95% confidence limit, and the upper 95% confidence limit
 
@@ -234,7 +236,7 @@ head(df_ref)
 
 ```
 
-Here are some example code chunks to demonstrate the phe_smr and phe_isr functions and the arguments that can optionally be specified
+Here are some example code chunks to demonstrate the phe_smr function and the arguments that can optionally be specified
 
 ```{r Execute phe_smr}
 
@@ -260,7 +262,7 @@ df_std %>%
 
 ```
 
-The phe_isr function works exactly the same way but instead of expressing the result as a ratio of the observed and expected rates the result is expressed as a rate and the reference rate is also provided:
+The phe_isr function works exactly the same way but instead of expressing the result as a ratio of the observed and expected rates the result is expressed as a rate and the reference rate is also provided.  Here are some examples:
 
 ```{r Execute phe_isr}
 
