@@ -14,7 +14,7 @@
 
 <meta name="date" content="2018-04-25" />
 
-<title>PHEindicatormethods DSR function</title>
+<title>Introduction to PHEindicatormethods</title>
 
 
 
@@ -68,7 +68,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<h1 class="title toc-ignore">PHEindicatormethods DSR function</h1>
+<h1 class="title toc-ignore">Introduction to PHEindicatormethods</h1>
 <h4 class="author"><em>Georgina Anderson</em></h4>
 <h4 class="date"><em>2018-04-25</em></h4>
 
@@ -76,295 +76,512 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>This vignette documents the method for calculating DSRs using the PHEindicatormethods::phe_dsr function which calculates DSRs and their confidence limits using the Dobson method.</p>
-<p>The function can be used to calculate DSRs for grouping single or multiple geographic areas/ genders/ timeperiods/ indicators in a single execution and takes the following arguments as inputs:</p>
-<p><br /> <br /></p>
-<table style="width:100%;">
-<colgroup>
-<col width="12%"></col>
-<col width="15%"></col>
-<col width="59%"></col>
-<col width="13%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Argument</th>
-<th align="left">Type</th>
-<th align="left">Definition</th>
-<th align="left">Default value</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">data</td>
-<td align="left">data.frame</td>
-<td align="left">data.frame containing the data to be standardised</td>
-<td align="left">none</td>
-</tr>
-<tr class="even">
-<td align="left">x</td>
-<td align="left">unquoted string</td>
-<td align="left">field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area or indicator)</td>
-<td align="left">none</td>
-</tr>
-<tr class="odd">
-<td align="left">n</td>
-<td align="left">unquoted string</td>
-<td align="left">field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area or indicator)</td>
-<td align="left">none</td>
-</tr>
-<tr class="even">
-<td align="left">stdpop</td>
-<td align="left">unquoted string</td>
-<td align="left">standard populations for each standardisation category (eg age band) specified as a field name from data or a vector.</td>
-<td align="left">esp2013</td>
-</tr>
-<tr class="odd">
-<td align="left">stdpoptype</td>
-<td align="left">quoted string</td>
-<td align="left">whether the stdpop argument has been specified as a vactor or a field name</td>
-<td align="left">“vector”</td>
-</tr>
-<tr class="even">
-<td align="left">confidence</td>
-<td align="left">numeric value</td>
-<td align="left">the required level of confidence expressed as a number between 0.9 and 1 or 90 and 100</td>
-<td align="left">0.95</td>
-</tr>
-<tr class="odd">
-<td align="left">multiplier</td>
-<td align="left">numeric value</td>
-<td align="left">the multiplier used to express the final values (eg 100,000 = rate per 100,000</td>
-<td align="left">100,000</td>
-</tr>
-</tbody>
-</table>
-<p><br /> <br /></p>
-<p>Note that the European Standard Population 2013 divided into 19 five-year agebands (0-4, 5-9, 10-14, …..90+) is provided in vector format within the package and will be used as the default for the stdpop argument</p>
-<p>If multiple DSRs are required from a single data frame then the data frame must be grouped prior to inputting to the function - this is demonstrated below</p>
+<p>This vignette introduces each of the functions within the PHEindicatormethods package and provides basic sample code to demonstrate their execution. The code included is based on the code provided within the ‘examples’ section of the function documentation. This vignette does not explain the methods applied in detail but these can (optionally) be output alongside the statistics or for a more detailed explanation, please see the references section of the function documentation.</p>
 <div id="the-following-packages-must-be-installed-and-loaded-if-not-already-available" class="section level4">
 <h4>The following packages must be installed and loaded if not already available</h4>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(PHEindicatormethods)
 <span class="kw">library</span>(dplyr)</code></pre></div>
 </div>
 </div>
-<div id="first-lets-create-some-data-to-play-with" class="section level2">
-<h2>First let’s create some data to play with</h2>
-<p>In a real situation we’d most likely be sourcing our numerators and denominators from different places so let’s create them separately for now.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pops &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">indicator =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;Ind1&quot;</span>,<span class="st">&quot;Ind2&quot;</span>,<span class="st">&quot;Ind3&quot;</span>,<span class="st">&quot;Ind4&quot;</span>), <span class="dt">each =</span> <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">5</span>),
-                   <span class="dt">period =</span> <span class="kw">rep</span>(<span class="dv">2012</span><span class="op">:</span><span class="dv">2016</span>, <span class="dt">each =</span> <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span>),
-                   <span class="dt">region =</span> <span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;Area1&quot;</span>,<span class="st">&quot;Area2&quot;</span>),<span class="dt">each=</span><span class="dv">19</span>), <span class="dt">times =</span> <span class="dv">5</span>),
-                   <span class="dt">ageband =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,
-                                   <span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>),<span class="dt">times =</span> <span class="dv">10</span>),
-                   <span class="dt">pop =</span> <span class="kw">sample</span>(<span class="dv">10000</span><span class="op">:</span><span class="dv">20000</span>, <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="dv">4</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>))
-<span class="kw">head</span>(pops)
-<span class="co">#&gt;   indicator period region ageband   pop</span>
-<span class="co">#&gt; 1      Ind1   2012  Area1       0 16745</span>
-<span class="co">#&gt; 2      Ind1   2012  Area1       5 18529</span>
-<span class="co">#&gt; 3      Ind1   2012  Area1      10 11700</span>
-<span class="co">#&gt; 4      Ind1   2012  Area1      15 12822</span>
-<span class="co">#&gt; 5      Ind1   2012  Area1      20 19823</span>
-<span class="co">#&gt; 6      Ind1   2012  Area1      25 17322</span>
-
-
-deaths &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">indicator =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;Ind1&quot;</span>,<span class="st">&quot;Ind2&quot;</span>,<span class="st">&quot;Ind3&quot;</span>,<span class="st">&quot;Ind4&quot;</span>), <span class="dt">each =</span> <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">5</span>),
-                   <span class="dt">period =</span> <span class="kw">rep</span>(<span class="dv">2012</span><span class="op">:</span><span class="dv">2016</span>, <span class="dt">each =</span> <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span>),
-                   <span class="dt">region =</span> <span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;Area1&quot;</span>,<span class="st">&quot;Area2&quot;</span>),<span class="dt">each=</span><span class="dv">19</span>), <span class="dt">times =</span> <span class="dv">5</span>),
-                   <span class="dt">ageband =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,
-                                   <span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>),<span class="dt">times =</span> <span class="dv">10</span>),
-                   <span class="dt">dths =</span> <span class="kw">sample</span>(<span class="dv">200</span>, <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="dv">4</span>, <span class="dt">replace=</span><span class="ot">TRUE</span>))
-<span class="kw">head</span>(deaths)
-<span class="co">#&gt;   indicator period region ageband dths</span>
-<span class="co">#&gt; 1      Ind1   2012  Area1       0   76</span>
-<span class="co">#&gt; 2      Ind1   2012  Area1       5  165</span>
-<span class="co">#&gt; 3      Ind1   2012  Area1      10  141</span>
-<span class="co">#&gt; 4      Ind1   2012  Area1      15  173</span>
-<span class="co">#&gt; 5      Ind1   2012  Area1      20  166</span>
-<span class="co">#&gt; 6      Ind1   2012  Area1      25   35</span></code></pre></div>
+<div id="package-functions" class="section level2">
+<h2>Package functions</h2>
+<p>This vignette covers the following functions available within the first release of the package (v1.0.0). If further functions are added to the package in future releases these will be explained elsewhere.</p>
+<table>
+<colgroup>
+<col width="17%"></col>
+<col width="34%"></col>
+<col width="47%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Function</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">phe_proportion</td>
+<td align="left">Non-aggregate</td>
+<td align="left">Performs a calculation on each row of data</td>
+</tr>
+<tr class="even">
+<td align="left">phe_rate</td>
+<td align="left">Non-aggregate</td>
+<td align="left">Performs a calculation on each row of data</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">phe_mean</td>
+<td align="left">Aggregate</td>
+<td align="left">Performs a calculation on each grouping set</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">phe_dsr</td>
+<td align="left">Aggregate, standardised</td>
+<td align="left">Performs a calculation on each grouping set and requires additional reference inputs</td>
+</tr>
+<tr class="odd">
+<td align="left">phe_smr</td>
+<td align="left">Aggregate, standardised</td>
+<td align="left">Performs a calculation on each grouping set and requires additional reference inputs</td>
+</tr>
+<tr class="even">
+<td align="left">phe_isr</td>
+<td align="left">Aggregate, standardised</td>
+<td align="left">Performs a calculation on each grouping set and requires additional reference inputs</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="then-lets-prepare-and-validate-our-data" class="section level2">
-<h2>Then let’s prepare and validate our data</h2>
-<p>Our data contains records for 4 different indicators, 5 time periods and 2 geographies so let’s calculate a DSR for each combination - that’s 40 separate DSRs from a single execution of the phe_dsr function……</p>
-<div id="prepare-the-data-frame" class="section level4">
-<h4>Prepare the data frame</h4>
-<p>First we’ll need to join our datasets to create the input data.frame for the function and specify the grouping sets:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">left_join</span>(pops,deaths, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;indicator&quot;</span>,<span class="st">&quot;period&quot;</span>,<span class="st">&quot;region&quot;</span>,<span class="st">&quot;ageband&quot;</span>)) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">group_by</span>(indicator, period, region)</code></pre></div>
-</div>
-<div id="check-the-data-meets-the-function-requirements" class="section level4">
-<h4>Check the data meets the function requirements</h4>
-<p>It is important that your data meets the following criteria in order for the phe_dsr function to work so it is wise to check this before we move on.</p>
-<p><strong>1. Each grouping set within your data must contain an equal number of records.</strong></p>
-<p>The phe_dsr function has built in error handling to check this requirement, or you can check your data manually using code like this:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># check equal number of records in each grouping set - eyeball check</span>
-<span class="kw">summarise</span>(df,<span class="dt">n=</span><span class="kw">n</span>())
-<span class="co">#&gt; # A tibble: 40 x 4</span>
-<span class="co">#&gt; # Groups:   indicator, period [?]</span>
-<span class="co">#&gt;    indicator period region     n</span>
-<span class="co">#&gt;    &lt;fct&gt;      &lt;int&gt; &lt;fct&gt;  &lt;int&gt;</span>
-<span class="co">#&gt;  1 Ind1        2012 Area1     19</span>
-<span class="co">#&gt;  2 Ind1        2012 Area2     19</span>
-<span class="co">#&gt;  3 Ind1        2013 Area1     19</span>
-<span class="co">#&gt;  4 Ind1        2013 Area2     19</span>
-<span class="co">#&gt;  5 Ind1        2014 Area1     19</span>
-<span class="co">#&gt;  6 Ind1        2014 Area2     19</span>
-<span class="co">#&gt;  7 Ind1        2015 Area1     19</span>
-<span class="co">#&gt;  8 Ind1        2015 Area2     19</span>
-<span class="co">#&gt;  9 Ind1        2016 Area1     19</span>
-<span class="co">#&gt; 10 Ind1        2016 Area2     19</span>
-<span class="co">#&gt; # ... with 30 more rows</span>
-<span class="co"># or alternatively the following should return TRUE</span>
-<span class="kw">n_distinct</span>(<span class="kw">select</span>(<span class="kw">ungroup</span>(<span class="kw">summarise</span>(df,<span class="dt">n=</span><span class="kw">n</span>())),n)) <span class="op">==</span><span class="st"> </span><span class="dv">1</span>
-<span class="co">#&gt; [1] TRUE</span></code></pre></div>
-<p><strong>2. If you are supplying your standard population in vector format (stdpoptype=“vector”) then this vector must also contain the same number of records as each grouping set within your data.</strong></p>
-<p>In this example we’re going to use the default esp2013 vector that is provided with the PHEindicatormethods package for our standard population - it contains 19 ordered values representing the 5-year age bands 0-4, 5-9, 10-14….85-89, 90+.</p>
-<p>The phe_dsr function has built in error handling to check this requirement, or you can check your data manually using code like this:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># check standard population has same number of records as in each grouping set of data in check 1 above - eyeball check</span>
-<span class="kw">length</span>(esp2013)
-<span class="co">#&gt; [1] 19</span>
-<span class="co"># or alternatively the following should return TRUE</span>
-<span class="kw">pull</span>(<span class="kw">slice</span>(<span class="kw">select</span>(<span class="kw">ungroup</span>(<span class="kw">summarise</span>(df,<span class="dt">n=</span><span class="kw">n</span>())),n),<span class="dv">1</span>)) <span class="op">==</span><span class="st"> </span><span class="kw">length</span>(esp2013)
-<span class="co">#&gt; [1] TRUE</span></code></pre></div>
-<p><strong>3. If you are supplying your standard population in vector format (stdpoptype=“vector”) then the standard population and your data (for each grouping set) must be sorted in the same standardisation category order because the function will join these by position.</strong> This would normally mean sorting both the standard population vector and the records for each group within your data by age band from youngest to oldest.</p>
-<p><em>The phe_dsr function does not have any built in error handling to check this requirement</em> as the function does not require the standardisation category labels to be provided in your data. It is therefore the responsibility of the function user to ensure this requirement is met. If the standardisation category labels are included with your data (as in our example) then the following code can be used to check the requirment manually:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># check data is ordered by required agebands from youngest to oldest</span>
-<span class="kw">all</span>(df<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="kw">rep</span>(<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,<span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>)))
-<span class="co">#&gt; [1] TRUE</span></code></pre></div>
-<p><em>CAUTION: Failure to ensure that this 3rd requirement is met could result in apparent successful execution of the phe_dsr function even though the data may have been incorrectly standardised</em>. This is demonstrated in the sample code below:</p>
+<div id="non-aggregate-functions" class="section level2">
+<h2>Non-aggregate functions</h2>
+<div id="create-some-test-data-for-the-non-aggregate-functions" class="section level4">
+<h4>Create some test data for the non-aggregate functions</h4>
+<p>The following code chunk creates a data frame containing observed number of events and populations for 4 geographical areas over 2 time periods that is used later to demonstrate the PHEindicatormethods package functions:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-right &lt;-<span class="st"> </span><span class="kw">phe_dsr</span>(df,dths,pop)
+df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(
+        <span class="dt">area =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;Area1&quot;</span>,<span class="st">&quot;Area2&quot;</span>,<span class="st">&quot;Area3&quot;</span>,<span class="st">&quot;Area4&quot;</span>), <span class="dv">2</span>),
+        <span class="dt">year =</span> <span class="kw">rep</span>(<span class="dv">2015</span><span class="op">:</span><span class="dv">2016</span>, <span class="dt">each =</span> <span class="dv">4</span>),
+        <span class="dt">obs =</span> <span class="kw">sample</span>(<span class="dv">100</span>, <span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">4</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>),
+        <span class="dt">pop =</span> <span class="kw">sample</span>(<span class="dv">100</span><span class="op">:</span><span class="dv">200</span>, <span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">4</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>))
 
-wrong &lt;-<span class="st"> </span>df <span class="op">%&gt;%</span>
-<span class="st">          </span><span class="kw">arrange</span>(<span class="kw">desc</span>(ageband)) <span class="op">%&gt;%</span>
-<span class="st">          </span><span class="kw">phe_dsr</span>(dths,pop)
+df
+<span class="co">#&gt;    area year obs pop</span>
+<span class="co">#&gt; 1 Area1 2015  87 131</span>
+<span class="co">#&gt; 2 Area2 2015   1 164</span>
+<span class="co">#&gt; 3 Area3 2015  44 134</span>
+<span class="co">#&gt; 4 Area4 2015  13 109</span>
+<span class="co">#&gt; 5 Area1 2016  83 131</span>
+<span class="co">#&gt; 6 Area2 2016   7 139</span>
+<span class="co">#&gt; 7 Area3 2016  43 137</span>
+<span class="co">#&gt; 8 Area4 2016   5 163</span></code></pre></div>
+</div>
+<div id="execute-phe_proportion-and-phe_rate" class="section level4">
+<h4>Execute phe_proportion and phe_rate</h4>
+<p><strong>INPUT:</strong> The phe_proportion and phe_rate functions take a single data frame as input with columns representing the numerators and denominators for the statistic. Any other columns present will be retained in the output.</p>
+<p><strong>OUTPUT:</strong> The functions output the original data frame with additional columns appended. By default the additional columns are the proportion or rate, the lower 95% confidence limit, and the upper 95% confidence limit</p>
+<p><strong>OPTIONS:</strong> The functions also accept additional arguments to specify the level of confidence, the multiplier and the level of detail to be output.</p>
+<p>Here are some example code chunks to demonstrate these two functions and the arguments that can optionally be specified</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="co"># default proportion</span>
+<span class="kw">phe_proportion</span>(df, obs, pop)
+<span class="co">#&gt;    area year obs pop       value     lowercl    uppercl</span>
+<span class="co">#&gt; 1 Area1 2015  87 131 0.664122137 0.579592491 0.73930053</span>
+<span class="co">#&gt; 2 Area2 2015   1 164 0.006097561 0.001077181 0.03372625</span>
+<span class="co">#&gt; 3 Area3 2015  44 134 0.328358209 0.254598570 0.41168471</span>
+<span class="co">#&gt; 4 Area4 2015  13 109 0.119266055 0.071039739 0.19341500</span>
+<span class="co">#&gt; 5 Area1 2016  83 131 0.633587786 0.548367919 0.71119617</span>
+<span class="co">#&gt; 6 Area2 2016   7 139 0.050359712 0.024605552 0.10029837</span>
+<span class="co">#&gt; 7 Area3 2016  43 137 0.313868613 0.242136529 0.39575419</span>
+<span class="co">#&gt; 8 Area4 2016   5 163 0.030674847 0.013172190 0.06978956</span>
 
-<span class="co"># the following statement shows that execution of the phe_dsr function on the incorrectly sorted data frame produces different (and incorrect) results.</span>
-<span class="kw">identical</span>(right,wrong)
-<span class="co">#&gt; [1] FALSE</span></code></pre></div>
+<span class="co"># specify confidence level for proportion</span>
+<span class="kw">phe_proportion</span>(df, obs, pop, <span class="dt">confidence=</span><span class="fl">99.8</span>)
+<span class="co">#&gt;    area year obs pop       value      lowercl    uppercl</span>
+<span class="co">#&gt; 1 Area1 2015  87 131 0.664122137 0.5293576135 0.77658434</span>
+<span class="co">#&gt; 2 Area2 2015   1 164 0.006097561 0.0005322047 0.06601672</span>
+<span class="co">#&gt; 3 Area3 2015  44 134 0.328358209 0.2181147658 0.46143836</span>
+<span class="co">#&gt; 4 Area4 2015  13 109 0.119266055 0.0529712429 0.24689949</span>
+<span class="co">#&gt; 5 Area1 2016  83 131 0.633587786 0.4985908973 0.75043163</span>
+<span class="co">#&gt; 6 Area2 2016   7 139 0.050359712 0.0167360401 0.14179381</span>
+<span class="co">#&gt; 7 Area3 2016  43 137 0.313868613 0.2069168113 0.44507799</span>
+<span class="co">#&gt; 8 Area4 2016   5 163 0.030674847 0.0084801369 0.10481797</span>
+
+<span class="co"># specify to output proportions as percentages</span>
+<span class="kw">phe_proportion</span>(df, obs, pop, <span class="dt">percentage=</span><span class="ot">TRUE</span>)
+<span class="co">#&gt;    area year obs pop      value    lowercl   uppercl</span>
+<span class="co">#&gt; 1 Area1 2015  87 131 66.4122137 57.9592491 73.930053</span>
+<span class="co">#&gt; 2 Area2 2015   1 164  0.6097561  0.1077181  3.372625</span>
+<span class="co">#&gt; 3 Area3 2015  44 134 32.8358209 25.4598570 41.168471</span>
+<span class="co">#&gt; 4 Area4 2015  13 109 11.9266055  7.1039739 19.341500</span>
+<span class="co">#&gt; 5 Area1 2016  83 131 63.3587786 54.8367919 71.119617</span>
+<span class="co">#&gt; 6 Area2 2016   7 139  5.0359712  2.4605552 10.029837</span>
+<span class="co">#&gt; 7 Area3 2016  43 137 31.3868613 24.2136529 39.575419</span>
+<span class="co">#&gt; 8 Area4 2016   5 163  3.0674847  1.3172190  6.978956</span>
+
+<span class="co"># specify level of detail to output for proportion</span>
+<span class="kw">phe_proportion</span>(df, obs, pop, <span class="dt">confidence=</span><span class="fl">99.8</span>, <span class="dt">percentage=</span><span class="ot">TRUE</span>, <span class="dt">type=</span><span class="st">&quot;full&quot;</span>)
+<span class="co">#&gt;    area year obs pop      value     lowercl   uppercl confidence</span>
+<span class="co">#&gt; 1 Area1 2015  87 131 66.4122137 52.93576135 77.658434      99.8%</span>
+<span class="co">#&gt; 2 Area2 2015   1 164  0.6097561  0.05322047  6.601672      99.8%</span>
+<span class="co">#&gt; 3 Area3 2015  44 134 32.8358209 21.81147658 46.143836      99.8%</span>
+<span class="co">#&gt; 4 Area4 2015  13 109 11.9266055  5.29712429 24.689949      99.8%</span>
+<span class="co">#&gt; 5 Area1 2016  83 131 63.3587786 49.85908973 75.043163      99.8%</span>
+<span class="co">#&gt; 6 Area2 2016   7 139  5.0359712  1.67360401 14.179381      99.8%</span>
+<span class="co">#&gt; 7 Area3 2016  43 137 31.3868613 20.69168113 44.507799      99.8%</span>
+<span class="co">#&gt; 8 Area4 2016   5 163  3.0674847  0.84801369 10.481797      99.8%</span>
+<span class="co">#&gt;    statistic method</span>
+<span class="co">#&gt; 1 percentage Wilson</span>
+<span class="co">#&gt; 2 percentage Wilson</span>
+<span class="co">#&gt; 3 percentage Wilson</span>
+<span class="co">#&gt; 4 percentage Wilson</span>
+<span class="co">#&gt; 5 percentage Wilson</span>
+<span class="co">#&gt; 6 percentage Wilson</span>
+<span class="co">#&gt; 7 percentage Wilson</span>
+<span class="co">#&gt; 8 percentage Wilson</span>
+
+<span class="co"># default rate</span>
+<span class="kw">phe_rate</span>(df, obs, pop)
+<span class="co">#&gt;    area year obs pop      value     lowercl   uppercl</span>
+<span class="co">#&gt; 1 Area1 2015  87 131 66412.2137 53191.89721 81920.133</span>
+<span class="co">#&gt; 2 Area2 2015   1 164   609.7561    15.43769  3397.344</span>
+<span class="co">#&gt; 3 Area3 2015  44 134 32835.8209 23856.24577 44081.622</span>
+<span class="co">#&gt; 4 Area4 2015  13 109 11926.6055  6344.25775 20396.080</span>
+<span class="co">#&gt; 5 Area1 2016  83 131 63358.7786 50463.30549 78543.665</span>
+<span class="co">#&gt; 6 Area2 2016   7 139  5035.9712  2024.72162 10376.025</span>
+<span class="co">#&gt; 7 Area3 2016  43 137 31386.8613 22712.53344 42278.943</span>
+<span class="co">#&gt; 8 Area4 2016   5 163  3067.4847   996.00392  7158.486</span>
+
+<span class="co"># specify rate parameters</span>
+<span class="kw">phe_rate</span>(df, obs, pop, <span class="dt">type=</span><span class="st">&quot;full&quot;</span>, <span class="dt">confidence=</span><span class="fl">99.8</span>, <span class="dt">multiplier=</span><span class="dv">100</span>)
+<span class="co">#&gt;    area year obs pop      value      lowercl  uppercl confidence</span>
+<span class="co">#&gt; 1 Area1 2015  87 131 66.4122137 4.654873e+01 91.51034      99.8%</span>
+<span class="co">#&gt; 2 Area2 2015   1 164  0.6097561 6.100612e-04  5.63013      99.8%</span>
+<span class="co">#&gt; 3 Area3 2015  44 134 32.8358209 1.961417e+01 51.21896      99.8%</span>
+<span class="co">#&gt; 4 Area4 2015  13 109 11.9266055 4.192660e+00 26.14598      99.8%</span>
+<span class="co">#&gt; 5 Area1 2016  83 131 63.3587786 4.400613e+01 87.94878      99.8%</span>
+<span class="co">#&gt; 6 Area2 2016   7 139  5.0359712 1.093767e+00 14.11955      99.8%</span>
+<span class="co">#&gt; 7 Area3 2016  43 137 31.3868613 1.862510e+01 49.19876      99.8%</span>
+<span class="co">#&gt; 8 Area4 2016   5 163  3.0674847 4.536023e-01 10.09494      99.8%</span>
+<span class="co">#&gt;      statistic method</span>
+<span class="co">#&gt; 1 rate per 100  Byars</span>
+<span class="co">#&gt; 2 rate per 100  Exact</span>
+<span class="co">#&gt; 3 rate per 100  Byars</span>
+<span class="co">#&gt; 4 rate per 100  Byars</span>
+<span class="co">#&gt; 5 rate per 100  Byars</span>
+<span class="co">#&gt; 6 rate per 100  Exact</span>
+<span class="co">#&gt; 7 rate per 100  Byars</span>
+<span class="co">#&gt; 8 rate per 100  Exact</span></code></pre></div>
+<p><br /> <br /></p>
 </div>
 </div>
-<div id="now-lets-calculate-some-dsrs" class="section level2">
-<h2>Now let’s calculate some DSRs</h2>
-<p>Now we’re ready to calculate the DSRs using our correctly ordered df data frame.</p>
-<p>By default the function will apply 95% confidence, a 100,000 multiplier and will output just 3 fields against each grouping set - the dsr, the lower confidence limit and the upper confidence limit:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">phe_dsr</span>(df, dths, pop)
-<span class="co">#&gt; # A tibble: 40 x 6</span>
-<span class="co">#&gt; # Groups:   indicator, period [20]</span>
-<span class="co">#&gt;    indicator period region value lowercl uppercl</span>
-<span class="co">#&gt;    &lt;fct&gt;      &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 Ind1        2012 Area1    860     822     900</span>
-<span class="co">#&gt;  2 Ind1        2012 Area2    685     652     720</span>
-<span class="co">#&gt;  3 Ind1        2013 Area1    696     663     731</span>
-<span class="co">#&gt;  4 Ind1        2013 Area2    648     615     681</span>
-<span class="co">#&gt;  5 Ind1        2014 Area1    622     591     654</span>
-<span class="co">#&gt;  6 Ind1        2014 Area2    753     718     790</span>
-<span class="co">#&gt;  7 Ind1        2015 Area1    778     744     814</span>
-<span class="co">#&gt;  8 Ind1        2015 Area2    615     585     647</span>
-<span class="co">#&gt;  9 Ind1        2016 Area1    742     708     778</span>
-<span class="co">#&gt; 10 Ind1        2016 Area2    722     689     756</span>
-<span class="co">#&gt; # ... with 30 more rows</span></code></pre></div>
-<p>Alternatively, we can add further arguments to specify:</p>
+<div id="aggregate-functions" class="section level2">
+<h2>Aggregate functions</h2>
+<p>The remaining functions aggregate the rows in the input data frame to produce a single statistic. It is also possible to calculate multiple statistics in a single execution of these functions if the input data frame is grouped - for example by indicator ID, geographic area or time period (or all three). The output contains only the grouping variables and the values calculated by the function - any additional unused columns provided in the input data frame will not be retained in the output.</p>
+<p>The df test data generated earlier can be used to demonstrate phe_mean:</p>
+<div id="execute-phe_mean" class="section level4">
+<h4>Execute phe_mean</h4>
+<p><strong>INPUT:</strong> The phe_mean function take a single data frame as input with a column representing the numbers to be averaged.</p>
+<p><strong>OUTPUT:</strong> By default, the function outputs one row per grouping set containing the grouping variable values (if applicable), the mean, the lower 95% confidence limit, and the upper 95% confidence limit</p>
+<p><strong>OPTIONS:</strong> The function also accepts additional arguments to specify the level of confidence and the level of detail to be output.</p>
+<p>Here are some example code chunks to demonstrate the phe_mean function and the arguments that can optionally be specified</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="co"># default mean</span>
+<span class="kw">phe_mean</span>(df,obs)
+<span class="co">#&gt;    value  lowercl  uppercl</span>
+<span class="co">#&gt; 1 35.375 6.283883 64.46612</span>
+
+<span class="co"># multiple means in a single execution with 99.8% confidence and full output</span>
+df <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(year) <span class="op">%&gt;%</span>
+<span class="st">        </span><span class="kw">phe_mean</span>(obs,<span class="dt">type=</span><span class="st">&quot;full&quot;</span>, <span class="dt">confidence=</span><span class="fl">0.998</span>)
+<span class="co">#&gt; # A tibble: 2 x 10</span>
+<span class="co">#&gt;    year value_sum value_count stdev value lowercl uppercl confidence</span>
+<span class="co">#&gt;   &lt;int&gt;     &lt;int&gt;       &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;     </span>
+<span class="co">#&gt; 1  2015       145           4  38.4  36.2    -160     232 99.8%     </span>
+<span class="co">#&gt; 2  2016       138           4  36.7  34.5    -153     222 99.8%     </span>
+<span class="co">#&gt; # ... with 2 more variables: statistic &lt;chr&gt;, method &lt;chr&gt;</span></code></pre></div>
+</div>
+<div id="standardised-aggregate-functions" class="section level3">
+<h3>Standardised Aggregate functions</h3>
+<div id="create-some-test-data-for-the-standardised-aggregate-functions" class="section level4">
+<h4>Create some test data for the standardised aggregate functions</h4>
+<p>The following code chunk creates a data frame containing observed number of events and populations by age band for 4 areas, 5 time periods and 2 sexes:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+df_std &lt;-<span class="st"> </span><span class="kw">data.frame</span>(
+            <span class="dt">area =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;Area1&quot;</span>, <span class="st">&quot;Area2&quot;</span>, <span class="st">&quot;Area3&quot;</span>, <span class="st">&quot;Area4&quot;</span>), <span class="dt">each =</span> <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">5</span>),
+            <span class="dt">year =</span> <span class="kw">rep</span>(<span class="dv">2006</span><span class="op">:</span><span class="dv">2010</span>, <span class="dt">each =</span> <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span>),
+            <span class="dt">sex =</span> <span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;Male&quot;</span>, <span class="st">&quot;Female&quot;</span>), <span class="dt">each =</span> <span class="dv">19</span>), <span class="dv">5</span>),
+            <span class="dt">ageband =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,
+                           <span class="dv">50</span>,<span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>), <span class="dt">times =</span> <span class="dv">10</span>),
+            <span class="dt">obs =</span> <span class="kw">sample</span>(<span class="dv">200</span>, <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="dv">4</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>),
+            <span class="dt">pop =</span> <span class="kw">sample</span>(<span class="dv">10000</span><span class="op">:</span><span class="dv">20000</span>, <span class="dv">19</span> <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="dv">4</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>))
+
+<span class="kw">head</span>(df_std)
+<span class="co">#&gt;    area year  sex ageband obs   pop</span>
+<span class="co">#&gt; 1 Area1 2006 Male       0  31 19051</span>
+<span class="co">#&gt; 2 Area1 2006 Male       5  60 18336</span>
+<span class="co">#&gt; 3 Area1 2006 Male      10  66 12394</span>
+<span class="co">#&gt; 4 Area1 2006 Male      15  52 14613</span>
+<span class="co">#&gt; 5 Area1 2006 Male      20  76 13630</span>
+<span class="co">#&gt; 6 Area1 2006 Male      25  40 13528</span></code></pre></div>
+</div>
+<div id="execute-phe_dsr" class="section level4">
+<h4>Execute phe_dsr</h4>
+<p><strong>INPUT:</strong> The minimum input requirement for the phe_dsr function is a single data frame with columns representing the numerators and denominators for each standardisation category. This is sufficient if the data is:</p>
 <ul>
-<li>the level of detail required in the output (type)</li>
-<li>the confidence level (confidence)</li>
-<li>the multiplier (multiplier)</li>
+<li>broken down into 19 standardisation categories per grouping set representing the 19 x 5-year age bands from 00-04 to 90+</li>
+<li>sorted, within each grouping set, by these 19 age bands in ascending order</li>
+<li>to be standardised against the 2013 European Standard Population</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">phe_dsr</span>(df, dths, pop, <span class="dt">type =</span> <span class="st">&quot;full&quot;</span>, <span class="dt">confidence =</span> <span class="fl">99.8</span>, <span class="dt">multiplier =</span> <span class="dv">10000</span>)
-<span class="co">#&gt; # A tibble: 40 x 11</span>
-<span class="co">#&gt; # Groups:   indicator, period [20]</span>
-<span class="co">#&gt;    indicator period region total_count total_pop value lowercl uppercl</span>
-<span class="co">#&gt;    &lt;fct&gt;      &lt;int&gt; &lt;fct&gt;        &lt;int&gt;     &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 Ind1        2012 Area1         2167    281501  86.0    80.1    92.3</span>
-<span class="co">#&gt;  2 Ind1        2012 Area2         1842    288837  68.5    63.3    74.0</span>
-<span class="co">#&gt;  3 Ind1        2013 Area1         1884    280662  69.6    64.4    75.1</span>
-<span class="co">#&gt;  4 Ind1        2013 Area2         1773    293465  64.8    59.7    70.0</span>
-<span class="co">#&gt;  5 Ind1        2014 Area1         1784    282051  62.2    57.3    67.2</span>
-<span class="co">#&gt;  6 Ind1        2014 Area2         1980    275110  75.3    69.8    81.1</span>
-<span class="co">#&gt;  7 Ind1        2015 Area1         2062    274065  77.8    72.4    83.5</span>
-<span class="co">#&gt;  8 Ind1        2015 Area2         1733    296283  61.5    56.8    66.5</span>
-<span class="co">#&gt;  9 Ind1        2016 Area1         1968    274716  74.2    68.9    79.9</span>
-<span class="co">#&gt; 10 Ind1        2016 Area2         2031    288049  72.2    67.0    77.7</span>
-<span class="co">#&gt; # ... with 30 more rows, and 3 more variables: confidence &lt;chr&gt;,</span>
-<span class="co">#&gt; #   statistic &lt;chr&gt;, method &lt;chr&gt;</span></code></pre></div>
-</div>
-<div id="alternative-standard-populations" class="section level2">
-<h2>Alternative Standard Populations</h2>
-<p>In some cases you may wish to standardise against a different population to the default esp2013 one provided - such as the 1976 European Standard Population or an age and sex standardised population. There are two ways to specify an alternative standard population:</p>
-<div id="provide-the-custom-standard-population-as-a-vector" class="section level4">
-<h4>1. Provide the custom standard population as a vector</h4>
-<p>In the example below, the 1976 European Standard Population (which has 18 age groups) is provided as a vector and then referenced in the function call. To ensure the function works we must also ensure that our data has been broken down into these same 18 age bands (for the purposes of this example I’ve just combined the 85-90 and 90+ age band data into a single 85+ age band from the data.frame we used earlier).</p>
-<p>The phe_dsr function can then be executed using a user-defined standard population:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">esp1976 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">8000</span>,  <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">7000</span>,   <span class="dv">6000</span>,   <span class="dv">5000</span>,   <span class="dv">4000</span>,   <span class="dv">3000</span>,   <span class="dv">2000</span>,   <span class="dv">1000</span>,   <span class="dv">1000</span>)
-
-df18 &lt;-<span class="st"> </span>df
-df18<span class="op">$</span>dths[df18<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="dv">85</span>] &lt;-<span class="st"> </span>df18<span class="op">$</span>dths[df18<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="dv">85</span>] <span class="op">+</span><span class="st"> </span>df18<span class="op">$</span>dths[df18<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="dv">90</span>]
-df18<span class="op">$</span>pop[df18<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="dv">85</span>]  &lt;-<span class="st"> </span>df18<span class="op">$</span>pop[df18<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="dv">85</span>] <span class="op">+</span><span class="st"> </span>df18<span class="op">$</span>pop[df18<span class="op">$</span>ageband <span class="op">==</span><span class="st"> </span><span class="dv">90</span>]
-df18 &lt;-<span class="st"> </span><span class="kw">filter</span>(df18,ageband <span class="op">!=</span><span class="st"> </span><span class="dv">90</span>)
-
-<span class="kw">phe_dsr</span>(df18,dths,pop,<span class="dt">stdpop =</span> esp1976)
+<p>The 2013 European Standard Population is provided within the package in vector form (esp2013) and is used by default by this function. Alternative standard populations can be used but must be provided by the user. When the function joins a standard population vector to the input data frame it does this by position so it is important that the data is sorted accordingly. <strong>This is a user responsibility.</strong></p>
+<p>The function can also accept standard populations provided as a column within the input data frame.</p>
+<ul>
+<li><p>standard populations provided as a vector - the vector and the input data frame must both contain rows for the same standardisation categories, and both must be sorted, within each grouping set, by these standardisation categories in the same order</p></li>
+<li><p>standard populations provided as a column within the input data frame - the standard populations can be appended to the input data frame by the user prior to execution of the function - if the data is grouped to generate multiple dsrs then the standard populations will need to be repeated and appended to the data rows for every grouping set.</p></li>
+</ul>
+<p><strong>OUTPUT:</strong> By default, the function outputs one row per grouping set containing the grouping variable values, the dsr, the lower 95% confidence limit, and the upper 95% confidence limit</p>
+<p><strong>OPTIONS:</strong> If standard populations are being provided as a column within the input data frame then the user must specify this using the stdpoptype argument as the function expects a vector by default. The function also accepts additional arguments to specify the standard populations, the level of confidence, the multiplier and the level of detail to be output.</p>
+<p>Here are some example code chunks to demonstrate the phe_dsr function and the arguments that can optionally be specified</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="co"># calculate separate dsrs for each area, year and sex</span>
+df_std <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(area, year, sex) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">phe_dsr</span>(obs, pop)
 <span class="co">#&gt; # A tibble: 40 x 6</span>
-<span class="co">#&gt; # Groups:   indicator, period [20]</span>
-<span class="co">#&gt;    indicator period region value lowercl uppercl</span>
-<span class="co">#&gt;    &lt;fct&gt;      &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 Ind1        2012 Area1    866     827     906</span>
-<span class="co">#&gt;  2 Ind1        2012 Area2    687     652     723</span>
-<span class="co">#&gt;  3 Ind1        2013 Area1    699     664     735</span>
-<span class="co">#&gt;  4 Ind1        2013 Area2    667     632     702</span>
-<span class="co">#&gt;  5 Ind1        2014 Area1    653     620     687</span>
-<span class="co">#&gt;  6 Ind1        2014 Area2    730     694     768</span>
-<span class="co">#&gt;  7 Ind1        2015 Area1    801     763     840</span>
-<span class="co">#&gt;  8 Ind1        2015 Area2    601     569     634</span>
-<span class="co">#&gt;  9 Ind1        2016 Area1    772     734     811</span>
-<span class="co">#&gt; 10 Ind1        2016 Area2    722     687     759</span>
-<span class="co">#&gt; # ... with 30 more rows</span></code></pre></div>
-</div>
-<div id="append-the-standard-populations-to-your-data-frame-before-executing-the-function" class="section level4">
-<h4>2. Append the standard populations to your data frame before executing the function</h4>
-<p>In the example below, the esp2013 standard population is appended to our data frame prior to calling the phe_dsr function. The field name can then be specified in the function call. If stdpop is specified as a field name we must also tell the function this by specifying stdpoptype = “field” as below:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df_with_stdpop &lt;-<span class="st"> </span>df <span class="op">%&gt;%</span>
-<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">spop =</span> esp2013)
-<span class="kw">names</span>(df_with_stdpop)
-<span class="co">#&gt; [1] &quot;indicator&quot; &quot;period&quot;    &quot;region&quot;    &quot;ageband&quot;   &quot;pop&quot;       &quot;dths&quot;     </span>
-<span class="co">#&gt; [7] &quot;spop&quot;</span>
-<span class="kw">phe_dsr</span>(df_with_stdpop, dths, pop, <span class="dt">stdpop =</span> spop, <span class="dt">stdpoptype =</span> <span class="st">&quot;field&quot;</span>)
-<span class="co">#&gt; # A tibble: 40 x 6</span>
-<span class="co">#&gt; # Groups:   indicator, period [20]</span>
-<span class="co">#&gt;    indicator period region value lowercl uppercl</span>
-<span class="co">#&gt;    &lt;fct&gt;      &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 Ind1        2012 Area1    860     822     900</span>
-<span class="co">#&gt;  2 Ind1        2012 Area2    685     652     720</span>
-<span class="co">#&gt;  3 Ind1        2013 Area1    696     663     731</span>
-<span class="co">#&gt;  4 Ind1        2013 Area2    648     615     681</span>
-<span class="co">#&gt;  5 Ind1        2014 Area1    622     591     654</span>
-<span class="co">#&gt;  6 Ind1        2014 Area2    753     718     790</span>
-<span class="co">#&gt;  7 Ind1        2015 Area1    778     744     814</span>
-<span class="co">#&gt;  8 Ind1        2015 Area2    615     585     647</span>
-<span class="co">#&gt;  9 Ind1        2016 Area1    742     708     778</span>
-<span class="co">#&gt; 10 Ind1        2016 Area2    722     689     756</span>
-<span class="co">#&gt; # ... with 30 more rows</span></code></pre></div>
-</div>
-</div>
-<div id="and-what-if-the-data-are-not-so-tidy" class="section level2">
-<h2>And what if the data are not so tidy?</h2>
-<div id="zero-deaths-for-a-specific-age-band-within-a-small-geography" class="section level4">
-<h4>Zero deaths for a specific age band within a small geography</h4>
-<p>This would be a fairly common scenario - maybe you have Local Authority data and there are no deaths in some of the younger age groups for some of the smaller areas.</p>
-<p>Let’s fudge a couple of data frames to represent this. In this example, there are no deaths in the 10-14, 15-20 and 20-14 age bands:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pops2   &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">ageband    =</span> <span class="kw">c</span>( <span class="dv">0</span>, <span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,<span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>),
-                      <span class="dt">pop =</span> <span class="kw">c</span>(<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">35</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,<span class="dv">50</span>,<span class="dv">50</span>,<span class="dv">60</span>,<span class="dv">60</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">70</span>,<span class="dv">60</span>,<span class="dv">20</span>,<span class="dv">20</span>,<span class="dv">15</span>))
+<span class="co">#&gt; # Groups:   area, year [20]</span>
+<span class="co">#&gt;    area   year sex    value lowercl uppercl</span>
+<span class="co">#&gt;    &lt;fct&gt; &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 Area1  2006 Female   856     819     895</span>
+<span class="co">#&gt;  2 Area1  2006 Male     485     458     513</span>
+<span class="co">#&gt;  3 Area1  2007 Female   745     708     783</span>
+<span class="co">#&gt;  4 Area1  2007 Male     474     448     502</span>
+<span class="co">#&gt;  5 Area1  2008 Female   760     724     797</span>
+<span class="co">#&gt;  6 Area1  2008 Male     840     803     878</span>
+<span class="co">#&gt;  7 Area1  2009 Female   685     653     718</span>
+<span class="co">#&gt;  8 Area1  2009 Male     756     722     792</span>
+<span class="co">#&gt;  9 Area1  2010 Female   737     701     775</span>
+<span class="co">#&gt; 10 Area1  2010 Male     686     654     718</span>
+<span class="co">#&gt; # ... with 30 more rows</span>
 
-deaths2 &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">ageband =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">25</span>,<span class="dv">30</span>,<span class="dv">35</span>,<span class="dv">40</span>,<span class="dv">45</span>,<span class="dv">50</span>,<span class="dv">55</span>,<span class="dv">60</span>,<span class="dv">65</span>,<span class="dv">70</span>,<span class="dv">75</span>,<span class="dv">80</span>,<span class="dv">85</span>,<span class="dv">90</span>),
-                      <span class="dt">dths    =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>,<span class="dv">10</span>,<span class="dv">10</span>,<span class="dv">10</span>,<span class="dv">10</span>, <span class="dv">8</span>, <span class="dv">8</span>, <span class="dv">8</span>, <span class="dv">8</span>))</code></pre></div>
-<p>If we simply join these data frames to produce the input data frame required for the phe_dsr function then we get NA values in the Deaths column and the function will return an error:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df2 &lt;-<span class="st"> </span><span class="kw">left_join</span>(pops2, deaths2, <span class="dt">by=</span><span class="st">&quot;ageband&quot;</span>)
-<span class="kw">phe_dsr</span>(df2, dths, pop)
-<span class="co">#&gt; Error in if (any(pull(data, !(!x)) &lt; 0)) {: missing value where TRUE/FALSE needed</span></code></pre></div>
-<p>The NA values must be replaced with zeros before executing the function:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df3 &lt;-<span class="st"> </span>df2 <span class="op">%&gt;%</span>
-<span class="st">        </span><span class="kw">mutate</span>(<span class="dt">dths =</span> <span class="kw">replace</span>(dths, <span class="kw">which</span>(<span class="kw">is.na</span>(dths)), <span class="dv">0</span>))
-<span class="kw">phe_dsr</span>(df3, dths, pop)
-<span class="co">#&gt;      value  lowercl  uppercl</span>
-<span class="co">#&gt; 1 8283.016 6570.819 10289.65</span></code></pre></div>
+<span class="co"># calculate same specifying standard population in vector form</span>
+df_std <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(area, year, sex) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">phe_dsr</span>(obs, pop, <span class="dt">stdpop =</span> esp2013)
+<span class="co">#&gt; # A tibble: 40 x 6</span>
+<span class="co">#&gt; # Groups:   area, year [20]</span>
+<span class="co">#&gt;    area   year sex    value lowercl uppercl</span>
+<span class="co">#&gt;    &lt;fct&gt; &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 Area1  2006 Female   856     819     895</span>
+<span class="co">#&gt;  2 Area1  2006 Male     485     458     513</span>
+<span class="co">#&gt;  3 Area1  2007 Female   745     708     783</span>
+<span class="co">#&gt;  4 Area1  2007 Male     474     448     502</span>
+<span class="co">#&gt;  5 Area1  2008 Female   760     724     797</span>
+<span class="co">#&gt;  6 Area1  2008 Male     840     803     878</span>
+<span class="co">#&gt;  7 Area1  2009 Female   685     653     718</span>
+<span class="co">#&gt;  8 Area1  2009 Male     756     722     792</span>
+<span class="co">#&gt;  9 Area1  2010 Female   737     701     775</span>
+<span class="co">#&gt; 10 Area1  2010 Male     686     654     718</span>
+<span class="co">#&gt; # ... with 30 more rows</span>
+
+<span class="co"># calculate the same dsrs by appending the standard populations to the data frame</span>
+df_std <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">refpop =</span> <span class="kw">rep</span>(esp2013,<span class="dv">40</span>)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(area, year, sex) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">phe_dsr</span>(obs,pop, <span class="dt">stdpop=</span>refpop, <span class="dt">stdpoptype=</span><span class="st">&quot;field&quot;</span>)
+<span class="co">#&gt; # A tibble: 40 x 6</span>
+<span class="co">#&gt; # Groups:   area, year [20]</span>
+<span class="co">#&gt;    area   year sex    value lowercl uppercl</span>
+<span class="co">#&gt;    &lt;fct&gt; &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 Area1  2006 Female   856     819     895</span>
+<span class="co">#&gt;  2 Area1  2006 Male     485     458     513</span>
+<span class="co">#&gt;  3 Area1  2007 Female   745     708     783</span>
+<span class="co">#&gt;  4 Area1  2007 Male     474     448     502</span>
+<span class="co">#&gt;  5 Area1  2008 Female   760     724     797</span>
+<span class="co">#&gt;  6 Area1  2008 Male     840     803     878</span>
+<span class="co">#&gt;  7 Area1  2009 Female   685     653     718</span>
+<span class="co">#&gt;  8 Area1  2009 Male     756     722     792</span>
+<span class="co">#&gt;  9 Area1  2010 Female   737     701     775</span>
+<span class="co">#&gt; 10 Area1  2010 Male     686     654     718</span>
+<span class="co">#&gt; # ... with 30 more rows</span>
+
+<span class="co"># calculate for under 75s by filtering out records for 75+ from input data frame and standard population</span>
+check &lt;-<span class="st"> </span>df_std <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">filter</span>(ageband <span class="op">&lt;=</span><span class="st"> </span><span class="dv">70</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(area, year, sex) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">phe_dsr</span>(obs, pop, <span class="dt">stdpop =</span> esp2013[<span class="dv">1</span><span class="op">:</span><span class="dv">15</span>])
+    
+<span class="co"># calculate separate dsrs for persons for each area and year)</span>
+df_std <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(area, year, ageband) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">obs =</span> <span class="kw">sum</span>(obs),
+              <span class="dt">pop =</span> <span class="kw">sum</span>(pop)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(area, year) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">phe_dsr</span>(obs,pop, <span class="dt">type=</span><span class="st">&quot;full&quot;</span>)
+<span class="co">#&gt; # A tibble: 20 x 10</span>
+<span class="co">#&gt; # Groups:   area [4]</span>
+<span class="co">#&gt;    area   year total_count total_pop value lowercl uppercl confidence</span>
+<span class="co">#&gt;    &lt;fct&gt; &lt;int&gt;       &lt;int&gt;     &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;     </span>
+<span class="co">#&gt;  1 Area1  2006        3525    596573   652     630     675 95%       </span>
+<span class="co">#&gt;  2 Area1  2007        3156    524381   594     572     617 95%       </span>
+<span class="co">#&gt;  3 Area1  2008        4192    574267   777     752     802 95%       </span>
+<span class="co">#&gt;  4 Area1  2009        4079    562702   709     686     732 95%       </span>
+<span class="co">#&gt;  5 Area1  2010        3708    555412   702     679     726 95%       </span>
+<span class="co">#&gt;  6 Area2  2006        3644    588600   606     585     627 95%       </span>
+<span class="co">#&gt;  7 Area2  2007        3940    576135   652     630     675 95%       </span>
+<span class="co">#&gt;  8 Area2  2008        3352    561253   638     615     661 95%       </span>
+<span class="co">#&gt;  9 Area2  2009        3576    575446   596     574     617 95%       </span>
+<span class="co">#&gt; 10 Area2  2010        4006    570974   739     715     765 95%       </span>
+<span class="co">#&gt; 11 Area3  2006        4067    615964   669     647     691 95%       </span>
+<span class="co">#&gt; 12 Area3  2007        3802    583916   705     681     729 95%       </span>
+<span class="co">#&gt; 13 Area3  2008        4379    579484   817     792     843 95%       </span>
+<span class="co">#&gt; 14 Area3  2009        3747    552311   691     668     715 95%       </span>
+<span class="co">#&gt; 15 Area3  2010        4174    562022   814     788     841 95%       </span>
+<span class="co">#&gt; 16 Area4  2006        3345    563042   647     625     671 95%       </span>
+<span class="co">#&gt; 17 Area4  2007        3242    583480   599     577     621 95%       </span>
+<span class="co">#&gt; 18 Area4  2008        3867    581544   652     630     674 95%       </span>
+<span class="co">#&gt; 19 Area4  2009        3770    559130   740     715     765 95%       </span>
+<span class="co">#&gt; 20 Area4  2010        4123    576235   724     701     748 95%       </span>
+<span class="co">#&gt; # ... with 2 more variables: statistic &lt;chr&gt;, method &lt;chr&gt;</span></code></pre></div>
+</div>
+<div id="execute-phe_smr-and-phe_isr" class="section level4">
+<h4>Execute phe_smr and phe_isr</h4>
+<p><strong>INPUT:</strong> Unlike the phe_dsr function, there is no default standard or reference data for the phe_smr and phe_isr functions. These functions take a single data frame as input, with columns representing the numerators and denominators for each standardisation category, PLUS reference numerators and denominators for each standardisation category.</p>
+<p>The reference data can either be provided in a separate data frame/vectors or as columns within the input data frame:</p>
+<ul>
+<li><p>reference data provided as a data frame or as vectors - the data frame/vectors and the input data frame must both contain rows for the same standardisation categories, and both must be sorted, within each grouping set, by these standardisation categories in the same order.</p></li>
+<li><p>reference data provided as columns within the input data frame - the reference numerators and denominators can be appended to the input data frame prior to execution of the function - if the data is grouped to generate multiple smrs/isrs then the reference data will need to be repeated and appended to the data rows for every grouping set.</p></li>
+</ul>
+<p><strong>OUTPUT:</strong> By default, the functions output one row per grouping set containing the grouping variable values, the smr or isr, the lower 95% confidence limit, and the upper 95% confidence limit</p>
+<p><strong>OPTIONS:</strong> If reference data are being provided as columns within the input data frame then the user must specify this as the function expects vectors by default. The function also accepts additional arguments to specify the level of confidence, the multiplier and the level of detail to be output.</p>
+<p>The following code chunk creates a data frame containing the reference data - this example uses the all area data for persons in the baseline year:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df_ref &lt;-<span class="st"> </span>df_std <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">filter</span>(year <span class="op">==</span><span class="st"> </span><span class="dv">2006</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(ageband) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">obs =</span> <span class="kw">sum</span>(obs),
+              <span class="dt">pop =</span> <span class="kw">sum</span>(pop))
+    
+<span class="kw">head</span>(df_ref)
+<span class="co">#&gt; # A tibble: 6 x 3</span>
+<span class="co">#&gt;   ageband   obs    pop</span>
+<span class="co">#&gt;     &lt;dbl&gt; &lt;int&gt;  &lt;int&gt;</span>
+<span class="co">#&gt; 1    0      604 119380</span>
+<span class="co">#&gt; 2    5.00   934 128454</span>
+<span class="co">#&gt; 3   10.0    508 112592</span>
+<span class="co">#&gt; 4   15.0    586 115497</span>
+<span class="co">#&gt; 5   20.0    721 138691</span>
+<span class="co">#&gt; 6   25.0    685 134740</span></code></pre></div>
+<p>Here are some example code chunks to demonstrate the phe_smr function and the arguments that can optionally be specified</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="co"># calculate separate smrs for each area, year and sex</span>
+df_std <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(area, year, sex) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">phe_smr</span>(obs, pop, df_ref<span class="op">$</span>obs, df_ref<span class="op">$</span>pop)
+<span class="co">#&gt; # A tibble: 40 x 6</span>
+<span class="co">#&gt; # Groups:   area, year [20]</span>
+<span class="co">#&gt;    area   year sex    value lowercl uppercl</span>
+<span class="co">#&gt;    &lt;fct&gt; &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 Area1  2006 Female 1.20    1.15    1.25 </span>
+<span class="co">#&gt;  2 Area1  2006 Male   0.713   0.675   0.753</span>
+<span class="co">#&gt;  3 Area1  2007 Female 1.22    1.17    1.28 </span>
+<span class="co">#&gt;  4 Area1  2007 Male   0.783   0.741   0.826</span>
+<span class="co">#&gt;  5 Area1  2008 Female 1.09    1.05    1.14 </span>
+<span class="co">#&gt;  6 Area1  2008 Male   1.30    1.25    1.35 </span>
+<span class="co">#&gt;  7 Area1  2009 Female 1.14    1.09    1.19 </span>
+<span class="co">#&gt;  8 Area1  2009 Male   1.22    1.17    1.27 </span>
+<span class="co">#&gt;  9 Area1  2010 Female 1.01    0.966   1.06 </span>
+<span class="co">#&gt; 10 Area1  2010 Male   1.13    1.08    1.18 </span>
+<span class="co">#&gt; # ... with 30 more rows</span>
+
+<span class="co"># calculate the same smrs by appending the reference data to the data frame</span>
+df_std <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">refobs =</span> <span class="kw">rep</span>(df_ref<span class="op">$</span>obs,<span class="dv">40</span>),
+           <span class="dt">refpop =</span> <span class="kw">rep</span>(df_ref<span class="op">$</span>pop,<span class="dv">40</span>)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(area, year, sex) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">phe_smr</span>(obs, pop, refobs, refpop, <span class="dt">refpoptype=</span><span class="st">&quot;field&quot;</span>)
+<span class="co">#&gt; # A tibble: 40 x 6</span>
+<span class="co">#&gt; # Groups:   area, year [20]</span>
+<span class="co">#&gt;    area   year sex    value lowercl uppercl</span>
+<span class="co">#&gt;    &lt;fct&gt; &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 Area1  2006 Female 1.20    1.15    1.25 </span>
+<span class="co">#&gt;  2 Area1  2006 Male   0.713   0.675   0.753</span>
+<span class="co">#&gt;  3 Area1  2007 Female 1.22    1.17    1.28 </span>
+<span class="co">#&gt;  4 Area1  2007 Male   0.783   0.741   0.826</span>
+<span class="co">#&gt;  5 Area1  2008 Female 1.09    1.05    1.14 </span>
+<span class="co">#&gt;  6 Area1  2008 Male   1.30    1.25    1.35 </span>
+<span class="co">#&gt;  7 Area1  2009 Female 1.14    1.09    1.19 </span>
+<span class="co">#&gt;  8 Area1  2009 Male   1.22    1.17    1.27 </span>
+<span class="co">#&gt;  9 Area1  2010 Female 1.01    0.966   1.06 </span>
+<span class="co">#&gt; 10 Area1  2010 Male   1.13    1.08    1.18 </span>
+<span class="co">#&gt; # ... with 30 more rows</span>
+
+<span class="co"># calculate separate smrs for each year</span>
+df_std <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(year, ageband) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">obs =</span> <span class="kw">sum</span>(obs),
+              <span class="dt">pop =</span> <span class="kw">sum</span>(pop)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(year) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">phe_smr</span>(obs, pop, df_ref<span class="op">$</span>obs, df_ref<span class="op">$</span>pop, <span class="dt">type=</span><span class="st">&quot;full&quot;</span>)
+<span class="co">#&gt; # A tibble: 5 x 9</span>
+<span class="co">#&gt;    year observed expected value lowercl uppercl confidence statistic</span>
+<span class="co">#&gt;   &lt;int&gt;    &lt;int&gt;    &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;    </span>
+<span class="co">#&gt; 1  2006    14581    14581  1.00   0.984    1.02 95%        smr x 1  </span>
+<span class="co">#&gt; 2  2007    14140    13931  1.02   0.998    1.03 95%        smr x 1  </span>
+<span class="co">#&gt; 3  2008    15790    14189  1.11   1.10     1.13 95%        smr x 1  </span>
+<span class="co">#&gt; 4  2009    15172    13929  1.09   1.07     1.11 95%        smr x 1  </span>
+<span class="co">#&gt; 5  2010    16011    14063  1.14   1.12     1.16 95%        smr x 1  </span>
+<span class="co">#&gt; # ... with 1 more variable: method &lt;chr&gt;</span></code></pre></div>
+<p>The phe_isr function works exactly the same way but instead of expressing the result as a ratio of the observed and expected rates the result is expressed as a rate and the reference rate is also provided. Here are some examples:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="co"># calculate separate isrs for each area, year and sex</span>
+df_std <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(area, year, sex) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">phe_isr</span>(obs, pop, df_ref<span class="op">$</span>obs, df_ref<span class="op">$</span>pop)
+<span class="co">#&gt; # A tibble: 40 x 6</span>
+<span class="co">#&gt; # Groups:   area, year [20]</span>
+<span class="co">#&gt;    area   year sex    value lowercl uppercl</span>
+<span class="co">#&gt;    &lt;fct&gt; &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 Area1  2006 Female   740     709     771</span>
+<span class="co">#&gt;  2 Area1  2006 Male     440     416     464</span>
+<span class="co">#&gt;  3 Area1  2007 Female   754     720     789</span>
+<span class="co">#&gt;  4 Area1  2007 Male     483     457     510</span>
+<span class="co">#&gt;  5 Area1  2008 Female   675     645     705</span>
+<span class="co">#&gt;  6 Area1  2008 Male     801     768     835</span>
+<span class="co">#&gt;  7 Area1  2009 Female   704     673     735</span>
+<span class="co">#&gt;  8 Area1  2009 Male     753     721     786</span>
+<span class="co">#&gt;  9 Area1  2010 Female   625     596     656</span>
+<span class="co">#&gt; 10 Area1  2010 Male     696     665     727</span>
+<span class="co">#&gt; # ... with 30 more rows</span>
+
+<span class="co"># calculate the same isrs by appending the reference data to the data frame</span>
+df_std <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">refobs =</span> <span class="kw">rep</span>(df_ref<span class="op">$</span>obs,<span class="dv">40</span>),
+           <span class="dt">refpop =</span> <span class="kw">rep</span>(df_ref<span class="op">$</span>pop,<span class="dv">40</span>)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(area, year, sex) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">phe_isr</span>(obs, pop, refobs, refpop, <span class="dt">refpoptype=</span><span class="st">&quot;field&quot;</span>)
+<span class="co">#&gt; # A tibble: 40 x 6</span>
+<span class="co">#&gt; # Groups:   area, year [20]</span>
+<span class="co">#&gt;    area   year sex    value lowercl uppercl</span>
+<span class="co">#&gt;    &lt;fct&gt; &lt;int&gt; &lt;fct&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 Area1  2006 Female   740     709     771</span>
+<span class="co">#&gt;  2 Area1  2006 Male     440     416     464</span>
+<span class="co">#&gt;  3 Area1  2007 Female   754     720     789</span>
+<span class="co">#&gt;  4 Area1  2007 Male     483     457     510</span>
+<span class="co">#&gt;  5 Area1  2008 Female   675     645     705</span>
+<span class="co">#&gt;  6 Area1  2008 Male     801     768     835</span>
+<span class="co">#&gt;  7 Area1  2009 Female   704     673     735</span>
+<span class="co">#&gt;  8 Area1  2009 Male     753     721     786</span>
+<span class="co">#&gt;  9 Area1  2010 Female   625     596     656</span>
+<span class="co">#&gt; 10 Area1  2010 Male     696     665     727</span>
+<span class="co">#&gt; # ... with 30 more rows</span>
+
+<span class="co"># calculate separate isrs for each year</span>
+df_std <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(year, ageband) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">summarise</span>(<span class="dt">obs =</span> <span class="kw">sum</span>(obs),
+              <span class="dt">pop =</span> <span class="kw">sum</span>(pop)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(year) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">phe_isr</span>(obs, pop, df_ref<span class="op">$</span>obs, df_ref<span class="op">$</span>pop, <span class="dt">type=</span><span class="st">&quot;full&quot;</span>)
+<span class="co">#&gt; # A tibble: 5 x 10</span>
+<span class="co">#&gt;    year observed expected ref_rate value lowercl uppercl confidence</span>
+<span class="co">#&gt;   &lt;int&gt;    &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;     </span>
+<span class="co">#&gt; 1  2006    14581    14581      617   617     607     627 95%       </span>
+<span class="co">#&gt; 2  2007    14140    13931      617   626     616     636 95%       </span>
+<span class="co">#&gt; 3  2008    15790    14189      617   686     676     697 95%       </span>
+<span class="co">#&gt; 4  2009    15172    13929      617   672     661     683 95%       </span>
+<span class="co">#&gt; 5  2010    16011    14063      617   702     691     713 95%       </span>
+<span class="co">#&gt; # ... with 2 more variables: statistic &lt;chr&gt;, method &lt;chr&gt;</span></code></pre></div>
+</div>
 </div>
 </div>
 
