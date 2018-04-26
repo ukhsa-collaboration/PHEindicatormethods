@@ -6,7 +6,7 @@ output:
   rmarkdown::html_vignette:
     css: style.css
 vignette: >
-  %\VignetteIndexEntry{Vignette demonstrating the PHEindicatormethods package functions}
+  %\VignetteIndexEntry{Introduction to PHEindicatormethods}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -129,7 +129,7 @@ df %>%
 ```
 
 
-### Standardised Aggregate functions
+## Standardised Aggregate functions
 
 
 #### Create some test data for the standardised aggregate functions
