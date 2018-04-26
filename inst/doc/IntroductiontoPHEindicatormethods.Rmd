@@ -1,0 +1,294 @@
+---
+title: "Introduction to PHEindicatormethods"
+author: "Georgina Anderson"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    css: style.css
+vignette: >
+  %\VignetteIndexEntry{Introduction to PHEindicatormethods}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  error = TRUE,
+  purl=FALSE,
+  comment = "#>"
+)
+```
+
+
+## Introduction
+This vignette introduces each of the functions within the PHEindicatormethods package and provides basic sample code to demonstrate their execution.  The code included is based on the code provided within the 'examples' section of the function documentation.  This vignette does not explain the methods applied in detail but these can (optionally) be output alongside the statistics or for a more detailed explanation, please see the references section of the function documentation.
+
+#### The following packages must be installed and loaded if not already available
+
+```{r libraries, message=FALSE}
+library(PHEindicatormethods)
+library(dplyr)
+```
+
+## Package functions
+
+This vignette covers the following functions available within the first release of the package (v1.0.0).  If further functions are added to the package in future releases these will be explained elsewhere.
+
+| Function       | Type                           | Description                                 |
+|:---------------|:-------------------------------|:--------------------------------------------|
+| phe_proportion | Non-aggregate                  | Performs a calculation on each row of data  |
+| phe_rate       | Non-aggregate                  | Performs a calculation on each row of data  |
+|                |                                |                                             |
+| phe_mean       | Aggregate                      | Performs a calculation on each grouping set |
+|                |                                |                                             |
+| phe_dsr        | Aggregate, standardised        | Performs a calculation on each grouping set and requires additional reference inputs |
+| phe_smr        | Aggregate, standardised        | Performs a calculation on each grouping set and requires additional reference inputs |
+| phe_isr        | Aggregate, standardised        | Performs a calculation on each grouping set and requires additional reference inputs |
+
+
+## Non-aggregate functions
+
+#### Create some test data for the non-aggregate functions
+
+The following code chunk creates a data frame containing observed number of events and populations for 4 geographical areas over 2 time periods that is used later to demonstrate the PHEindicatormethods package functions:
+
+``` {r create test data1}
+
+df <- data.frame(
+        area = rep(c("Area1","Area2","Area3","Area4"), 2),
+        year = rep(2015:2016, each = 4),
+        obs = sample(100, 2 * 4, replace = TRUE),
+        pop = sample(100:200, 2 * 4, replace = TRUE))
+
+df
+```
+
+
+#### Execute phe_proportion and phe_rate
+
+**INPUT:** The phe_proportion and phe_rate functions take a single data frame as input with columns representing the numerators and denominators for the statistic.  Any other columns present will be retained in the output.
+
+**OUTPUT:** The functions output the original data frame with additional columns appended.  By default the additional columns are the proportion or rate, the lower 95% confidence limit, and the upper 95% confidence limit
+
+**OPTIONS:** The functions also accept additional arguments to specify the level of confidence, the multiplier and the level of detail to be output. 
+
+
+Here are some example code chunks to demonstrate these two functions and the arguments that can optionally be specified
+
+```{r Execute phe_proportion and phe_rate}
+
+# default proportion
+phe_proportion(df, obs, pop)
+
+# specify confidence level for proportion
+phe_proportion(df, obs, pop, confidence=99.8)
+
+# specify to output proportions as percentages
+phe_proportion(df, obs, pop, percentage=TRUE)
+
+# specify level of detail to output for proportion
+phe_proportion(df, obs, pop, confidence=99.8, percentage=TRUE, type="full")
+
+# default rate
+phe_rate(df, obs, pop)
+
+# specify rate parameters
+phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
+
+
+```
+
+<br/>
+<br/>
+
+## Aggregate functions
+The remaining functions aggregate the rows in the input data frame to produce a single statistic.  It is also possible to calculate multiple statistics in a single execution of these functions if the input data frame is grouped - for example by indicator ID, geographic area or time period (or all three).  The output contains only the grouping variables and the values calculated by the function - any additional unused columns provided in the input data frame will not be retained in the output.  
+
+The df test data generated earlier can be used to demonstrate phe_mean:
+
+#### Execute phe_mean
+**INPUT:** The phe_mean function take a single data frame as input with a column representing the numbers to be averaged.  
+
+**OUTPUT:** By default, the function outputs one row per grouping set containing the grouping variable values (if applicable), the mean, the lower 95% confidence limit, and the upper 95% confidence limit
+
+**OPTIONS:** The function also accepts additional arguments to specify the level of confidence and the level of detail to be output. 
+
+Here are some example code chunks to demonstrate the phe_mean function and the arguments that can optionally be specified
+
+```{r Execute phe_mean}
+
+# default mean
+phe_mean(df,obs)
+
+# multiple means in a single execution with 99.8% confidence and full output
+df %>%
+    group_by(year) %>%
+        phe_mean(obs,type="full", confidence=0.998)
+
+```
+
+
+## Standardised Aggregate functions
+
+
+#### Create some test data for the standardised aggregate functions
+
+The following code chunk creates a data frame containing observed number of events and populations by age band for 4 areas, 5 time periods and 2 sexes:
+
+``` {r create test data2}
+
+df_std <- data.frame(
+            area = rep(c("Area1", "Area2", "Area3", "Area4"), each = 19 * 2 * 5),
+            year = rep(2006:2010, each = 19 * 2),
+            sex = rep(rep(c("Male", "Female"), each = 19), 5),
+            ageband = rep(c(0, 5,10,15,20,25,30,35,40,45,
+                           50,55,60,65,70,75,80,85,90), times = 10),
+            obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
+            pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
+
+head(df_std)
+
+```
+
+#### Execute phe_dsr
+**INPUT:** The minimum input requirement for the phe_dsr function is a single data frame with columns representing the numerators and denominators for each standardisation category. This is sufficient if the data is:  
+
+* broken down into 19 standardisation categories per grouping set representing the 19 x 5-year age bands from 00-04 to 90+
+* sorted, within each grouping set, by these 19 age bands in ascending order 
+* to be standardised against the 2013 European Standard Population
+
+The 2013 European Standard Population is provided within the package in vector form (esp2013) and is used by default by this function.  Alternative standard populations can be used but must be provided by the user.  When the function joins a standard population vector to the input data frame it does this by position so it is important that the data is sorted accordingly.  **This is a user responsibility.**  
+
+The function can also accept standard populations provided as a column within the input data frame.  
+
+* standard populations provided as a vector - the vector and the input data frame must both contain rows for the same standardisation categories, and both must be sorted, within each grouping set, by these standardisation categories in the same order  
+
+* standard populations provided as a column within the input data frame - the standard populations can be appended to the input data frame by the user prior to execution of the function - if the data is grouped to generate multiple dsrs then the standard populations will need to be repeated and appended to the data rows for every grouping set. 
+
+**OUTPUT:** By default, the function outputs one row per grouping set containing the grouping variable values, the dsr, the lower 95% confidence limit, and the upper 95% confidence limit
+
+**OPTIONS:** If standard populations are being provided as a column within the input data frame then the user must specify this using the stdpoptype argument as the function expects a vector by default.  The function also accepts additional arguments to specify the standard populations, the level of confidence, the multiplier and the level of detail to be output.
+
+Here are some example code chunks to demonstrate the phe_dsr function and the arguments that can optionally be specified
+
+```{r Execute phe_dsr}
+
+# calculate separate dsrs for each area, year and sex
+df_std %>%
+    group_by(area, year, sex) %>%
+    phe_dsr(obs, pop)
+
+# calculate same specifying standard population in vector form
+df_std %>%
+    group_by(area, year, sex) %>%
+    phe_dsr(obs, pop, stdpop = esp2013)
+
+# calculate the same dsrs by appending the standard populations to the data frame
+df_std %>%
+    mutate(refpop = rep(esp2013,40)) %>%
+    group_by(area, year, sex) %>%
+    phe_dsr(obs,pop, stdpop=refpop, stdpoptype="field")
+
+# calculate for under 75s by filtering out records for 75+ from input data frame and standard population
+check <- df_std %>%
+    filter(ageband <= 70) %>%
+    group_by(area, year, sex) %>%
+    phe_dsr(obs, pop, stdpop = esp2013[1:15])
+    
+# calculate separate dsrs for persons for each area and year)
+df_std %>%
+    group_by(area, year, ageband) %>%
+    summarise(obs = sum(obs),
+              pop = sum(pop)) %>%
+    group_by(area, year) %>%
+    phe_dsr(obs,pop, type="full")
+
+```
+
+
+
+#### Execute phe_smr and phe_isr
+**INPUT:** Unlike the phe_dsr function, there is no default standard or reference data for the phe_smr and phe_isr functions.  These functions take a single data frame as input, with columns representing the numerators and denominators for each standardisation category, PLUS reference numerators and denominators for each standardisation category.  
+
+The reference data can either be provided in a separate data frame/vectors or as columns within the input data frame:  
+
+* reference data provided as a data frame or as vectors - the data frame/vectors and the input data frame must both contain rows for the same standardisation categories, and both must be sorted, within each grouping set, by these standardisation categories in the same order.  
+
+* reference data provided as columns within the input data frame - the reference numerators and denominators can be appended to the input data frame prior to execution of the function - if the data is grouped to generate multiple smrs/isrs then the reference data will need to be repeated and appended to the data rows for every grouping set. 
+
+**OUTPUT:** By default, the functions output one row per grouping set containing the grouping variable values, the smr or isr, the lower 95% confidence limit, and the upper 95% confidence limit
+
+**OPTIONS:** If reference data are being provided as columns within the input data frame then the user must specify this as the function expects vectors by default.  The function also accepts additional arguments to specify the level of confidence, the multiplier and the level of detail to be output.
+
+
+The following code chunk creates a data frame containing the reference data - this example uses the all area data for persons in the baseline year:
+
+
+``` {r create reference data}
+df_ref <- df_std %>%
+    filter(year == 2006) %>%
+    group_by(ageband) %>%
+    summarise(obs = sum(obs),
+              pop = sum(pop))
+    
+head(df_ref)
+
+```
+
+Here are some example code chunks to demonstrate the phe_smr function and the arguments that can optionally be specified
+
+```{r Execute phe_smr}
+
+# calculate separate smrs for each area, year and sex
+df_std %>%
+    group_by(area, year, sex) %>%
+    phe_smr(obs, pop, df_ref$obs, df_ref$pop)
+
+# calculate the same smrs by appending the reference data to the data frame
+df_std %>%
+    mutate(refobs = rep(df_ref$obs,40),
+           refpop = rep(df_ref$pop,40)) %>%
+    group_by(area, year, sex) %>%
+    phe_smr(obs, pop, refobs, refpop, refpoptype="field")
+
+# calculate separate smrs for each year
+df_std %>%
+    group_by(year, ageband) %>%
+    summarise(obs = sum(obs),
+              pop = sum(pop)) %>%
+    group_by(year) %>%
+    phe_smr(obs, pop, df_ref$obs, df_ref$pop, type="full")
+
+```
+
+The phe_isr function works exactly the same way but instead of expressing the result as a ratio of the observed and expected rates the result is expressed as a rate and the reference rate is also provided.  Here are some examples:
+
+```{r Execute phe_isr}
+
+# calculate separate isrs for each area, year and sex
+df_std %>%
+    group_by(area, year, sex) %>%
+    phe_isr(obs, pop, df_ref$obs, df_ref$pop)
+
+# calculate the same isrs by appending the reference data to the data frame
+df_std %>%
+    mutate(refobs = rep(df_ref$obs,40),
+           refpop = rep(df_ref$pop,40)) %>%
+    group_by(area, year, sex) %>%
+    phe_isr(obs, pop, refobs, refpop, refpoptype="field")
+
+# calculate separate isrs for each year
+df_std %>%
+    group_by(year, ageband) %>%
+    summarise(obs = sum(obs),
+              pop = sum(pop)) %>%
+    group_by(year) %>%
+    phe_isr(obs, pop, df_ref$obs, df_ref$pop, type="full")
+
+```
+
+
+
+
+
