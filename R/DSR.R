@@ -69,7 +69,7 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
   }
 
   # check same number of rows per group
-  if (n_distinct(select(ungroup(summarise(data,n=n())),n)) != 1) {
+  if (n_distinct(select(ungroup(count(data)),n)) != 1) {
     stop("data must contain the same number of rows for each group")
   }
 
@@ -77,7 +77,7 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
   if (!(stdpoptype %in% c("vector","field"))) {
     stop("valid values for stdpoptype are vector and field")
   } else if (stdpoptype == "vector") {
-     if (pull(slice(select(ungroup(summarise(data,n=n())),n),1)) != length(stdpop)) {
+     if (pull(slice(select(ungroup(count(data)),n),1)) != length(stdpop)) {
         stop("stdpop length must equal number of rows in each group within data")
      }
 #     data <- bind_cols(data,stdpop_calc = rep(stdpop,times=nrow(summarise(data,n=n())))) - below alternative simpler
