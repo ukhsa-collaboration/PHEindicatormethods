@@ -12,6 +12,7 @@
 #/*.Rcheck/
 # RStudio files
 .Rproj.user/
+.Rproj/user/62752565
 # produced vignettes
 #vignettes/*.html
 #vignettes/*.pdf
@@ -27,3 +28,5 @@
 #rsconnect/
 .Rproj.user
 inst/doc
+data-raw
+README.Rmd
