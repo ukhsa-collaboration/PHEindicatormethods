@@ -1,5 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+[![Build Status](https://travis-ci.org/PublicHealthEngland/PHEindicatormethods.svg)](https://travis-ci.org/PublicHealthEngland/PHEindicatormethods)
+
+[![Coverage Status](https://coveralls.io/repos/github/PublicHealthEngland/PHEindicatormethods/badge.svg?branch=master)](https://coveralls.io/github/PublicHealthEngland/PHEindicatormethods?branch=master)
+
 PHEindicatormethods
 ===================
 
