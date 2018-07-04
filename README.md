@@ -5,32 +5,35 @@ PHEindicatormethods
 
 This is an R package to support analysts in the execution of statistical methods approved for use in the production of PHE indicators such as those presented via Fingertips. It provides functions for the generation of Proportions, Rates, DSRs, ISRs, SMRs and Means including confidence intervals for these statistics.
 
-Any feedback would be appreciated and can be provided using the Issues section of the GitLab repository, or by emailing <PHDS@phe.gov.uk>
+Any feedback would be appreciated and can be provided using the Issues section of the GitHub repository, or by emailing <PHDS@phe.gov.uk>
 
 <br/> <br/>
 
 Installation
 ------------
 
-#### From zip
+#### From GitHub using devtools
 
-Download this repository from GitLab and either build from source or do:
-
-``` r
-source <- devtools:::source_pkg("C:/path/to/PHEindicatormethods-master")
-install(source)
-```
-
-#### With devtools
-
-You can install the latest version of PHEindicatormethods from GitLab with:
+You can install the latest version of PHEindicatormethods from GitHub with:
 
 ``` r
 if (!require(devtools)) install.packages("devtools")
-devtools::install_git('https://gitlab.phe.gov.uk/packages/PHEindicatormethods', build_vignettes=TRUE)
+
+devtools::install_github("PublicHealthEngland/PHEindicatormethods",
+                         build_vignettes = TRUE,
+                         dependencies = "suggests")
 ```
 
 Some users may receive a Lazy Load error following installation and loading of this package using devtools in RStudio. In these cases, please close and re-open RStudio and then re-load the package using the library command.
+
+#### From zip
+
+Download this repository from GitHub and either build from source or do:
+
+``` r
+source <- devtools:::source_pkg("C:/path/to/PHEindicatormethods-master")
+devtools::install(source)
+```
 
 <br/> <br/>
 
