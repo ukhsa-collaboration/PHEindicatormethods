@@ -1,6 +1,3 @@
-library(testthat)
-library(readxl)
-
 context("test_byars")
 
 #test calculations

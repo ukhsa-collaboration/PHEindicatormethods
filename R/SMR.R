@@ -68,7 +68,7 @@ phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "sta
   }
 
   # check same number of rows per group
-  if (n_distinct(select(ungroup(summarise(data,n=n())),n)) != 1) {
+  if (n_distinct(select(ungroup(count(data)),n)) != 1) {
     stop("data must contain the same number of rows for each group")
   }
 
@@ -76,9 +76,9 @@ phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "sta
   if (!(refpoptype %in% c("vector","field"))) {
     stop("valid values for refpoptype are vector and field")
   } else if (refpoptype == "vector") {
-    if (pull(slice(select(ungroup(summarise(data,n=n())),n),1)) != length(x_ref)) {
+    if (pull(slice(select(ungroup(count(data)),n),1)) != length(x_ref)) {
       stop("x_ref length must equal number of rows in each group within data")
-    } else if (pull(slice(select(ungroup(summarise(data,n=n())),n),1)) != length(n_ref)) {
+    } else if (pull(slice(select(ungroup(count(data)),n),1)) != length(n_ref)) {
       stop("n_ref length must equal number of rows in each group within data")
     }
     data <- mutate(data,xrefpop_calc = x_ref,
