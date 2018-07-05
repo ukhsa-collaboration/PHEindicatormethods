@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 Status](https://travis-ci.org/PublicHealthEngland/PHEindicatormethods.svg)](https://travis-ci.org/PublicHealthEngland/PHEindicatormethods)
 
 
+
 [![Coverage
 Status](https://coveralls.io/repos/github/PublicHealthEngland/PHEindicatormethods/badge.svg?branch=master)](https://coveralls.io/github/PublicHealthEngland/PHEindicatormethods?branch=master)
 
