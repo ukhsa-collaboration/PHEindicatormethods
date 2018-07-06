@@ -1,16 +1,16 @@
 Package: PHEindicatormethods
 Type: Package
-Version: 1.0.6
+Version: 1.0.7
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate commonly used public health statistics and their confidence intervals.
     Includes the following functions:
     1. confidence limits for observed number of events using Wilson Score method.
     2. confidence limits for observed number of events using Byar's method.
-    3. proportions and their CIs using Wilson score method.
-    4. rates and their CIs using Byar's or exact Poisson method.
-    5. DSRs and their CIs using Dobson method.
-    6. ISRs and their CIs using Byar's or exact Poisson method. 
-    7. SMRs and their CIs using Byar's or exact Poisson method. 
+    3. proportions and their confidence intervals using Wilson score method.
+    4. rates and their confidence intervals using Byar's or exact Poisson method.
+    5. directly standardised rates and their confidence intervals using Dobson method.
+    6. indirectly standardised rates and their confidence intervals using Byar's or exact Poisson method. 
+    7. standardised mortality ratios and their confidence intervals using Byar's or exact Poisson method. 
 Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@phe.gov.uk", c("aut", "cre")),
              person("Fox", "Sebastian", , "sebastian.fox@phe.gov.uk", c("ctb")),
              person("Francis", "Matthew", , "matthew.francis@phe.gov.uk", c("ctb")),
