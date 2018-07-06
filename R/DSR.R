@@ -3,7 +3,7 @@
 #'
 #' Calculates directly standardised rates with confidence limits using Byar's method [1] with Dobson method adjustment [2].
 #'
-#' @param data data.frame containing the data to be standarised, pre-grouped if multiple DSRs required; unquoted string; no default
+#' @param data data.frame containing the data to be standardised, pre-grouped if multiple DSRs required; unquoted string; no default
 #' @param x field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
 #'          unquoted string; no default
 #' @param n field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);

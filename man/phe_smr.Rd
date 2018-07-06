@@ -8,7 +8,7 @@ phe_smr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "standard",
   confidence = 0.95, refvalue = 1)
 }
 \arguments{
-\item{data}{data.frame containing the data to be standarised, pre-grouped if multiple SMRs required; unquoted string; no default}
+\item{data}{data.frame containing the data to be standardised, pre-grouped if multiple SMRs required; unquoted string; no default}
 
 \item{x}{field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
 unquoted string; no default}
@@ -45,7 +45,7 @@ the same standardisation category values as records will be matched by position.
 For numerators >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
  and \code{\link{byars_upper}} functions.  For small
  numerators Byar's method is less accurate and so an exact method [2] based
- on the Poisson ditribution is used.
+ on the Poisson distribution is used.
 }
 
 \examples{

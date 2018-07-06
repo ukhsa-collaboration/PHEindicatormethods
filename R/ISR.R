@@ -3,7 +3,7 @@
 #'
 #' Calculates indirectly standardised rates with confidence limits using Byar's [1] or exact [2] CI method.
 #'
-#' @param data data.frame containing the data to be standarised, pre-grouped if multiple ISRs required; unquoted string; no default
+#' @param data data.frame containing the data to be standardised, pre-grouped if multiple ISRs required; unquoted string; no default
 #' @param x_ref the observed number of events in the reference population for each standardisation category (eg age band);
 #'              unquoted string referencing a numeric vector or field name from data depending on value of refpoptype; no default
 #' @param n_ref the reference population for each standardisation category (eg age band);
@@ -44,7 +44,7 @@
 #' For numerators >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
 #'  and \code{\link{byars_upper}} functions.  For small
 #'  numerators Byar's method is less accurate and so an exact method [2] based
-#'  on the Poisson ditribution is used.
+#'  on the Poisson distribution is used.
 #'
 #' @references
 #' [1] Breslow NE, Day NE. Statistical methods in cancer research,

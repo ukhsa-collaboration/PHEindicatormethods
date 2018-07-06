@@ -47,10 +47,10 @@ phe_proportion(df, numerator, denominator, type="full")
 }
 \references{
 [1] Wilson EB. Probable inference, the law of succession, and statistical
- inference. J Am Stat Assoc; 1927; 22: 209–12. \cr
+ inference. J Am Stat Assoc; 1927; 22. Pg 209–12. \cr
 [2] Newcombe RG, Altman DG. Proportions and their differences. In Altman
  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
- 2000: 46–8.
+ 2000. Pg 46–8.
 }
 \seealso{
 Other PHEindicatormethods package functions: \code{\link{byars_lower}},
