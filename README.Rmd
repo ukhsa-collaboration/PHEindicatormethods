@@ -59,6 +59,7 @@ devtools::install(source)
 <br/>
 
 
+
 ## Package Versioning
 Following installation of this package, type 'packageVersion("PHEindicatormethods")' in the R console to show the package version.  If it is suffixed with a 9000 number then you are using an unapproved development version.
 
