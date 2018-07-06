@@ -35,10 +35,10 @@
 #'
 #' @references
 #' [1] Wilson EB. Probable inference, the law of succession, and statistical
-#'  inference. J Am Stat Assoc; 1927; 22. Pg 209–12. \cr
+#'  inference. J Am Stat Assoc; 1927; 22. Pg 209 to 212. \cr
 #' [2] Newcombe RG, Altman DG. Proportions and their differences. In Altman
 #'  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
-#'  2000. Pg 46–8.
+#'  2000. Pg 46 to 48.
 #'
 #' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
