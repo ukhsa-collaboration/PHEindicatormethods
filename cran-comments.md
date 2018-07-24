@@ -1,8 +1,19 @@
 
-## This is the first submission of this package
+## Resubmission
+I have amended the description text in the DESCRIPTION file to include doi or 
+ISBN references to the statistical methods used by the package functions. I also made
+the description text more concise.
+
+I also updated one of the references cited in the function documentation for 
+the phe_rate, phe_isr and phe_smr functions.
+
+This package is new to CRAN.
 
 ## Description
-This is an R package to support analysts in the execution of statistical methods approved for use in the production of PHE indicators such as those presented via Fingertips. It provides functions for the generation of Proportions, Rates, DSRs, ISRs, SMRs and Means including confidence intervals for these statistics.
+This is an R package to support analysts in the execution of statistical methods approved for
+use in the production of PHE indicators such as those presented via Fingertips. It provides
+functions for the generation of Proportions, Rates, DSRs, ISRs, SMRs and Means including
+confidence intervals for these statistics.
 
 ## Test Environments
 * local Windows 7 install, R 3.5.1
