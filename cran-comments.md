@@ -1,8 +1,9 @@
 
 ## Resubmission
-I have amended the description text in the DESCRIPTION file to include doi or 
-ISBN references to the statistical methods used by the package functions. I also made
-the description text more concise.
+I have amended the description text in the DESCRIPTION file to include doi 
+<doi:10.prefix.suffix> or 
+ISBN references to the statistical methods used by the package functions. 
+I also made the description text more concise.
 
 I also updated one of the references cited in the function documentation for 
 the phe_rate, phe_isr and phe_smr functions.

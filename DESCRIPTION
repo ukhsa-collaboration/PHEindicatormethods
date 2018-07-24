@@ -9,10 +9,10 @@ Description: Functions to calculate commonly used public health statistics and
     of proportions, crude rates, means, directly standardised rates, indirectly 
     standardised rates and standardised mortality ratios. Statistical methods 
     are referenced in the following publications. 
-    Breslow NE, Day NE (1987) <doi:https://doi.org/10.1002/sim.4780080614>.
-    Dobson et al (1991) <doi:https://doi.org/10.1002/sim.4780100317>. 
-    Armitage P, Berry G (2002) <doi:https://doi.org/10.1002/9780470773666>.
-    Wilson EB. (1927) <doi:https://doi.org/10.1080/01621459.1927.10502953>.
+    Breslow NE, Day NE (1987) <doi:10.1002/sim.4780080614>.
+    Dobson et al (1991) <doi:10.1002/sim.4780100317>. 
+    Armitage P, Berry G (2002) <doi:10.1002/9780470773666>.
+    Wilson EB. (1927) <doi:10.1080/01621459.1927.10502953>.
     Altman DG et al (2000, ISBN: 978-0-727-91375-3).
 Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@phe.gov.uk", c("aut", "cre")),
              person("Fox", "Sebastian", , "sebastian.fox@phe.gov.uk", c("ctb")),
