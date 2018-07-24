@@ -51,8 +51,8 @@
 #' [1] Breslow NE, Day NE. Statistical methods in cancer research,
 #'  volume II: The design and analysis of cohort studies. Lyon: International
 #'  Agency for Research on Cancer, World Health Organisation; 1987. \cr \cr
-#' [2] Armitage P, Berry G. Statistical methods in medical research (3rd edn).
-#'   Oxford: Blackwell; 1994.
+#' [2] Armitage P, Berry G. Statistical methods in medical research (4th edn).
+#'   Oxford: Blackwell; 2002.
 #'
 #' @export
 #'
