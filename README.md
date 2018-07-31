@@ -16,15 +16,26 @@ of Proportions, Rates, DSRs, ISRs, SMRs and Means including confidence
 intervals for these statistics.
 
 Any feedback would be appreciated and can be provided using the Issues
-section of the GitHub repository, or by emailing <PHDS@phe.gov.uk>
+section of the GitHub repository
+<https://github.com/PublicHealthEngland/PHEindicatormethods>, or by
+emailing <PHDS@phe.gov.uk>
 
 <br/> <br/>
 
 ## Installation
 
-#### From GitHub using devtools
+#### Install from CRAN
 
-You can install the latest version of PHEindicatormethods from GitHub
+Install the latest release version of PHEindicatormethods directly from
+CRAN with:
+
+``` r
+install.packages("PHEindicatormethods")
+```
+
+#### Install a development version from GitHub using devtools
+
+You can install a development version of PHEindicatormethods from GitHub
 with:
 
 ``` r
@@ -35,16 +46,15 @@ devtools::install_github("PublicHealthEngland/PHEindicatormethods",
                          dependencies = "suggests")
 ```
 
-Some users may receive a Lazy Load error following installation and
-loading of this package using devtools in RStudio. In these cases,
-please close and re-open RStudio and then re-load the package using the
-library command.
+#### Install a development version from zip
 
-#### From zip
-
-Download this repository from GitHub and either build from source or do:
+Download the PHEindicatormethods repository from GitHub
+<https://github.com/PublicHealthEngland/PHEindicatormethods> and either
+build from source or do:
 
 ``` r
+if (!require(devtools)) install.packages("devtools")
+
 source <- devtools:::source_pkg("C:/path/to/PHEindicatormethods-master")
 devtools::install(source)
 ```
@@ -59,34 +69,45 @@ package version. If it is suffixed with a 9000 number then you are using
 an unapproved development version.
 
 Released versions of this package will have version numbers consisting
-of three parts: <major>.<minor>.<patch> In-development versions of this
-package will have a fourth component, the development version number,
-which will increment from 9000.
+of three parts:
+
+major.minor.patch
+
+In-development versions of this package will have a fourth component,
+the development version number, which will increment from 9000.
 
 See <http://r-pkgs.had.co.nz/description.html> for further information
 on package versioning
+
+<br/> <br/>
 
 ## Package Contents
 
 The package contains the following functions, datasets and vignettes -
 see individual item documentation for full details
 
-**Functions:**  
-\- byars\_lower  
-\- byars\_upper  
-\- phe\_dsr  
-\- phe\_isr  
-\- phe\_mean  
-\- phe\_proportion  
-\- phe\_rate  
-\- phe\_smr  
-\- wilson\_lower  
-\- wilson\_upper
+**Functions:**
 
-**Datasets:**  
-\- esp2013
+  - byars\_lower  
+  - byars\_upper  
+  - phe\_dsr  
+  - phe\_isr  
+  - phe\_mean  
+  - phe\_proportion  
+  - phe\_rate  
+  - phe\_smr  
+  - wilson\_lower  
+  - wilson\_upper
 
-**Vignettes:**  
-\- Vignette for calculating DSRs for multiple geographies and time
-periods  
+**Datasets:**
+
+  - esp2013
+
+**Vignettes:**
+
+  - Vignette to introduce the package functions included in the original
+    package release
+  - Vignette for calculating DSRs for multiple geographies and time
+    periods
+
 (type ‘browseVignettes(“PHEindicatormethods”)’ to view in HTML)
