@@ -48,7 +48,7 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
 
     # check required arguments present
   if (missing(data)|missing(x)|missing(n)) {
-    stop("function phe_dsr requires at least 3 arguments: data, x, n")
+    stop("function phe_proportion requires at least 3 arguments: data, x, n")
   }
 
   # apply quotes
@@ -80,6 +80,13 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
     multiplier <- 100
   }
 
+  # if data is grouped then summarise - not working ??
+#  if(!is.null(groups(data))) {
+#    data <- data %>%
+#      summarise(x = sum((!!x)),
+#                n = sum((!!n)))
+#  }
+
   # calculate proportion and CIs
   phe_proportion <- data %>%
                     mutate(value = (!!x)/(!!n) * multiplier,
@@ -89,7 +96,7 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
                            statistic = if_else(percentage == TRUE,"percentage","proportion"),
                            method = "Wilson")
 
-  if (type == "lower") {
+    if (type == "lower") {
     phe_proportion <- phe_proportion %>%
       select(-value, -uppercl, -confidence, -statistic, -method)
   } else if (type == "upper") {
