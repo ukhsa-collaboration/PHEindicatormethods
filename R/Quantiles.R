@@ -32,19 +32,91 @@
 #' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
+
+# temp for function testing
+
+# read in test data
+library(fingertipsR)
+library(dplyr)
+fd <- fingertips_data(IndicatorID = c(90366,40501), AreaTypeID = 102, rank = TRUE) %>%
+  group_by(IndicatorID, Sex) %>%
+  filter(TimeperiodSortable == max(TimeperiodSortable) & AreaType == "County & UA") %>%
+  select(IndicatorID, IndicatorName, ParentCode, ParentName, AreaCode, AreaName, Rank, Polarity, Sex, Value, AreaValuesCount)
+
+# write to csv to test in Excel tool
+# write.csv(fd,"fd_quantiles.csv")
+
+
+
+#  data <- fd
+#  values <- "Value"
+#  basegeog <- "AreaCode"
+#  highergeog <- "ParentCode"
+#  nquantiles <- 10L
+#  polarity = "Polarity"
+
+
+check <- phe_quantiles(data=fd, values=Value, basegeog = AreaCode,
+                       highergeog = ParentCode)
+
+
+
 # create phe_proportion function using Wilson's method
-phe_quantiles <- function(data, values, smallarea, highergeog,
-                          quantiles=10L, dir = "ascending", type="standard", confidence=0.95, percentage=FALSE) {
+phe_quantiles <- function(data, values, basegeog, highergeog,
+                          nquantiles=10L, polarity = Polarity) {
 
+  # check required arguments present
+  if (missing(data)|missing(values)|missing(basegeog)|missing(highergeog)) {
+    stop("function phe_quantiles requires at least 4 arguments: data, values, smallarea, highergeog")
+  }
 
+  # apply quotes
+  values_q     <- enquo(values)
+  smallarea_q  <- enquo(basegeog)
+  highergeog_q <- enquo(highergeog)
+  polarity_q   <- enquo(polarity)
 
+  # error handling for valid field names and data types
+  if (!(all(pull(data, !!polarity_q) %in% c("RAG - High is good", "RAG - Low is good","High","Low")))) {
+    stop("polarity argument is invalid")
+#  } else if (!(is.numeric(!!data$values_q))) {
+#      stop("values must be numeric")
+  }
+
+  # assign field name for quantiles
+  qnames <- data.frame(quantiles = c(2L,3L,4L,5L,6L,7L,8L,10L,12L,16L,20L),
+                       qname     = c("Half","Tertile","Quartile","Quintile","Sextile","Septile",
+                                     "Octile","Decile","Duo-decile","Hexadecile","Ventile"),
+                       stringsAsFactors = FALSE) %>%
+              filter(quantiles == nquantiles)
+
+  qname <- qnames$qname
+
+  # assign quantiles
 
   df <- data %>%
-    arrange(highergeog,desc(values)) %>%
-    group_by(highergeog) %>%
+    group_by(!!highergeog_q, add=TRUE) %>%
     add_tally() %>%
-    mutate(rank = (n+1) - rank(values,ties.method="max"),
-           quantile = floor((quantiles+1)-ceiling(((n+1)-rank)/(n/quantiles))))
-
+    mutate(adj_value = if_else(!!polarity_q %in% c("RAG - Low is good","Low"),max(!!values_q,na.rm=TRUE)-!!values_q,!!values_q),
+           rank = min_rank(adj_value),
+           quantile = floor((nquantiles+1)-ceiling(((n+1)-rank)/(n/nquantiles))))
 
 }
+
+
+
+# QA against Excel Tool
+
+Tooldata <- read.csv(".\\fd_quantiles.csv", stringsAsFactors=FALSE) %>%
+  select(IndicatorID, Sex, ParentCode, AreaCode, AreaName, Value, MaxValue,
+         Rank.within.Region, Tool.output...number.of.areas, Tool.Output.Decile)
+QAdf <- check %>%
+    filter((IndicatorID == 40501 & Sex == "Female") |
+          IndicatorID == 90366 & Sex == "Female") %>%
+  select(IndicatorID, Sex, ParentCode, AreaCode, AreaName, Value, adj_value,
+         rank, n, quantile) %>%
+  full_join(Tooldata, by = c("IndicatorID", "Sex", "ParentCode","AreaCode")) %>%
+  filter(round(Value.x,2) != round(Value.y,2) |
+         rank != Rank.within.Region |
+         quantile != Tool.Output.Decile)
+
