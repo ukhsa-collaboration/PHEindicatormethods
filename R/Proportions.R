@@ -3,7 +3,8 @@
 #'
 #' Calculates proportions with confidence limits using Wilson Score method [1,2].
 #'
-#' @param data a data.frame containing the data to calculate proportions for; unquoted string; no default
+#' @param data a data.frame containing the data to calculate proportions for, pre-grouped if proportions required for
+#'             group aggregates; unquoted string; no default
 #' @param x field name from data containing the observed numbers of cases in the sample meeting the required condition
 #'          (the numerator for the proportion); unquoted string; no default
 #' @param n field name from data containing the number of cases in the sample (the denominator for the proportion);
@@ -29,6 +30,13 @@
 #' phe_proportion(df, numerator, denominator, confidence=99.8)
 #' phe_proportion(df, numerator, denominator, type="full")
 #'
+#' dfg <- data.frame(area = rep(c("Area1","Area2","Area3"), each=3),
+#'                  numerator = c(65,82,100, 6500,8200,10000,250,500,750),
+#'                  denominator = rep(c(100,10000,1000), each=3)) %>%
+#'                  group_by(area)
+#'
+#' phe_proportion(dfg,numerator, denominator, type="full")
+#'
 #' @import dplyr
 #'
 #' @export
@@ -46,7 +54,7 @@
 # create phe_proportion function using Wilson's method
 phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percentage=FALSE) {
 
-    # check required arguments present
+  # check required arguments present
   if (missing(data)|missing(x)|missing(n)) {
     stop("function phe_proportion requires at least 3 arguments: data, x, n")
   }
@@ -80,11 +88,11 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
     multiplier <- 100
   }
 
-  # if data is grouped then summarise - not working ??
+  # if data is grouped then summarise
   if(!is.null(groups(data))) {
     data <- data %>%
-      summarise(x = sum(pull(data,!!x)),
-                n = sum(pull(data,!!n)))
+      summarise(x = sum(!!x),
+                n = sum(!!n))
   } else{
     data <- data %>%
       mutate(x = pull(data,!!x),
@@ -109,20 +117,20 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
 #           statistic = if_else(percentage == TRUE,"percentage","proportion"),
 #           method = "Wilson")
 
-
+    # generate output in required format
     if (type == "lower") {
-    phe_proportion <- phe_proportion %>%
-      select(-value, -uppercl, -confidence, -statistic, -method)
-  } else if (type == "upper") {
-    phe_proportion <- phe_proportion %>%
-      select(-value, -lowercl, -confidence, -statistic, -method)
-  } else if (type == "value") {
-    phe_proportion<- phe_proportion %>%
-      select(-lowercl, -uppercl, -confidence, -statistic, -method)
-  } else if (type == "standard") {
-    phe_proportion <- phe_proportion %>%
-      select( -confidence, -statistic, -method)
-  }
+      phe_proportion <- phe_proportion %>%
+        select(-value, -uppercl, -confidence, -statistic, -method)
+    } else if (type == "upper") {
+        phe_proportion <- phe_proportion %>%
+          select(-value, -lowercl, -confidence, -statistic, -method)
+    } else if (type == "value") {
+        phe_proportion<- phe_proportion %>%
+          select(-lowercl, -uppercl, -confidence, -statistic, -method)
+    } else if (type == "standard") {
+        phe_proportion <- phe_proportion %>%
+          select( -confidence, -statistic, -method)
+    }
 
-return(phe_proportion)
+  return(phe_proportion)
 }

@@ -3,7 +3,8 @@
 #'
 #' Assigns small areas to quantiles based on numeric data rankings.
 #'
-#' @param data a data.frame containing the geography data and quantitive data for assigning quantiles;
+#' @param data a data.frame containing the geography data and quantitive data for assigning quantiles,
+#'             pre-grouped if quantiles required for breakdowns other than the defined higher geographies;
 #'             unquoted string; no default
 #' @param values field name from data containing the numeric values to rank data by and assign quantiles from;
 #'          unquoted string; no default
@@ -12,7 +13,8 @@
 #' @param highergeog field name from data containing the higher geographies to assign separate quantile categories within;
 #'          unquoted string; no default
 #' @param quantiles the number of quantiles to assign per higher geography; numeric; default=10L
-#' @param dir the direction for ranking values, ascending or descending; quoted string; default="ascending"
+#' @param polarity field name from data containing the polarity or direction for ranking values;
+#'                 unquoted string with valid values RAG - High is good, RAG Low is good, High or Low; default = Polarity
 #'
 #' @inheritParams phe_dsr
 #'
