@@ -79,8 +79,8 @@ phe_quantiles <- function(data, values, basegeog, highergeog,
   # error handling for valid field names and data types
   if (!(all(pull(data, !!polarity_q) %in% c("RAG - High is good", "RAG - Low is good","High","Low")))) {
     stop("polarity argument is invalid")
-#  } else if (!(is.numeric(!!data$values_q))) {
-#      stop("values must be numeric")
+  } else if (!(is.numeric(pull(data, !!values_q)))) {
+      stop("values argument must be a numeric field from data")
   }
 
   # assign field name for quantiles

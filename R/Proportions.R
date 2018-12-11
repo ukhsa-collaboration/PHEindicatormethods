@@ -81,20 +81,34 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
   }
 
   # if data is grouped then summarise - not working ??
-#  if(!is.null(groups(data))) {
-#    data <- data %>%
-#      summarise(x = sum((!!x)),
-#                n = sum((!!n)))
-#  }
+  if(!is.null(groups(data))) {
+    data <- data %>%
+      summarise(x = sum(pull(data,!!x)),
+                n = sum(pull(data,!!n)))
+  } else{
+    data <- data %>%
+      mutate(x = pull(data,!!x),
+             n = pull(data,!!n)) %>%
+      select(-(!!x), -(!!n))
+  }
 
   # calculate proportion and CIs
   phe_proportion <- data %>%
-                    mutate(value = (!!x)/(!!n) * multiplier,
-                           lowercl = wilson_lower((!!x),(!!n),confidence) * multiplier,
-                           uppercl = wilson_upper((!!x),(!!n),confidence) * multiplier,
+                    mutate(value = x/n * multiplier,
+                           lowercl = wilson_lower(x,n,confidence) * multiplier,
+                           uppercl = wilson_upper(x,n,confidence) * multiplier,
                            confidence = paste(confidence*100,"%",sep=""),
                            statistic = if_else(percentage == TRUE,"percentage","proportion"),
                            method = "Wilson")
+
+#  phe_proportion <- data %>%
+#    mutate(value = (!!x)/(!!n) * multiplier,
+#           lowercl = wilson_lower((!!x),(!!n),confidence) * multiplier,
+#           uppercl = wilson_upper((!!x),(!!n),confidence) * multiplier,
+#           confidence = paste(confidence*100,"%",sep=""),
+#           statistic = if_else(percentage == TRUE,"percentage","proportion"),
+#           method = "Wilson")
+
 
     if (type == "lower") {
     phe_proportion <- phe_proportion %>%
