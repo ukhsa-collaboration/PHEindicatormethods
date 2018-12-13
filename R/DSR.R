@@ -80,7 +80,6 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
      if (pull(slice(select(ungroup(count(data)),n),1)) != length(stdpop)) {
         stop("stdpop length must equal number of rows in each group within data")
      }
-#     data <- bind_cols(data,stdpop_calc = rep(stdpop,times=nrow(summarise(data,n=n())))) - below alternative simpler
       data <- mutate(data,stdpop_calc = stdpop)
      } else if (stdpoptype == "field") {
       enquostdpop <- enquo(stdpop)

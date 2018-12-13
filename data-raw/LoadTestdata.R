@@ -5,38 +5,81 @@ library(dplyr)
 library(testthat)
 library(devtools)
 library(readxl)
+library(usethis)
 
-# use this code to save loaded data to R\sysdata.rda file:
-usethis::use_data(test_BW, test_Prop, test_Prop_g,
-                     test_Rate,
-                     test_Mean, test_Mean_Grp, test_Mean_results,
-                     test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results,
-                     test_ISR_refdata, test_ISR_results, test_ISR_ownref,
-                     internal = TRUE, overwrite = TRUE)
+
+########################################
+###### SAVE TEST DATA TO PACKAGE #######
+########################################
+
+# SAVE EXTERNALLY AVAILABLE DATA IN data\XXXXXX.rda - data available to user
+usethis::use_data(esp2013,internal=FALSE, overwrite=FALSE)
+
+
+# SAVE INTERNAL DATA IN R\Sysdata.rda - data available to functions and test scripts but not available to user:
+usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g,
+                  test_Rate,
+                  test_Mean, test_Mean_Grp, test_Mean_results,
+                  test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results,
+                  test_ISR_refdata, test_ISR_results, test_ISR_ownref,
+                  internal = TRUE, overwrite = TRUE)
+
+
+########################################
+######### CREATE TEST DATA #############
+########################################
+
+##############
+## EXTERNAL ##
+##############
 
 # esp2013
 esp2013 <- c(5000,5500,5500,5500,6000,6000,6500,7000,7000,7000,7000,6500,6000,5500,5000,4000,2500,1500,1000)
 
-# Byars Wilson
+
+##############
+## INTERNAL ##
+##############
+
+# quantile lookup
+qnames <- data.frame(quantiles = c(2L,3L,4L,5L,6L,7L,8L,10L,12L,16L,20L),
+                     qname     = c("Half","Tertile","Quartile","Quintile","Sextile","Septile",
+                                  "Octile","Decile","Duo-decile","Hexadecile","Ventile"),
+                     stringsAsFactors = FALSE)
+
+
+# quantile test data
+test_quantiles <- read_excel(".\\tests\\testthat\\testdata_Quantiles.xlsx", sheet="testdata_Quantiles",   col_names=TRUE) %>%
+  group_by(IndicatorID, Sex)
+
+test_quantiles$Polarity[test_quantiles$Polarity == "RAG - High is good"] <- FALSE
+test_quantiles$Polarity[test_quantiles$Polarity == "RAG - Low is good"] <- TRUE
+test_quantiles$Value <- as.numeric(test_quantiles$Value, digits = 10)
+
+test_quantiles_ug <-test_quantiles %>%
+  ungroup() %>%
+  filter(IndicatorID == 90366 & Sex == "Female")
+
+# Byars Wilson test data
 test_BW <- read_excel(".\\tests\\testthat\\testdata_Byars_Wilson.xlsx", sheet="testdata_B_W",   col_names=TRUE)
 
-# Proportions
+# Proportions test data
 test_Prop   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)
 
 test_Prop_g <- test_Prop %>%
   group_by(Area)
 
-#Rates
+#Rates test data
 test_Rate <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate", col_names=TRUE)
 
-#Means
+#Means test data
 test_Mean         <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet="testdata_Mean",         col_names=TRUE)
 test_Mean_results <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet="testdata_Mean_results", col_names=TRUE)
 
 test_Mean_Grp <- group_by(test_Mean,area)
 
 
-# DSRs, ISRs and SMRs
+# DSRs, ISRs and SMRs test data
 test_multiarea   <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multiarea", col_names=TRUE) %>%
                        group_by(area)
 test_DSR_1976    <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_1976",   col_names=TRUE)
