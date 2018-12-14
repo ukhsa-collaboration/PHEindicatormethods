@@ -39,7 +39,7 @@ phe_mean <- function(data, x, type = "standard", confidence=0.95) {
 
   # check required arguments present
   if (missing(data)|missing(x)) {
-    stop("function phe_dsr requires at least 2 arguments: data, x")
+    stop("function phe_mean requires at least 2 arguments: data, x")
   }
 
   # apply quotes

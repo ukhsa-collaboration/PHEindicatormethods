@@ -18,6 +18,7 @@ usethis::use_data(esp2013,internal=FALSE, overwrite=FALSE)
 
 # SAVE INTERNAL DATA IN R\Sysdata.rda - data available to functions and test scripts but not available to user:
 usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g,
+                  test_quantiles_g, test_quantiles_ug, test_quantiles_fail,
                   test_Rate,
                   test_Mean, test_Mean_Grp, test_Mean_results,
                   test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results,
@@ -49,16 +50,23 @@ qnames <- data.frame(quantiles = c(2L,3L,4L,5L,6L,7L,8L,10L,12L,16L,20L),
 
 
 # quantile test data
-test_quantiles <- read_excel(".\\tests\\testthat\\testdata_Quantiles.xlsx", sheet="testdata_Quantiles",   col_names=TRUE) %>%
-  group_by(IndicatorID, Sex)
+test_quantiles <- read_excel(".\\tests\\testthat\\testdata_Quantiles.xlsx", sheet="testdata_Quantiles",   col_names=TRUE)
 
 test_quantiles$Polarity[test_quantiles$Polarity == "RAG - High is good"] <- FALSE
 test_quantiles$Polarity[test_quantiles$Polarity == "RAG - Low is good"] <- TRUE
 test_quantiles$Value <- as.numeric(test_quantiles$Value, digits = 10)
 
+
+
+test_quantiles_g <- test_quantiles %>%
+  group_by(IndicatorID, Sex) %>%
+  filter(substr(Test,1,4) == "Good" & GroupSet == "IndSexReg")
+
 test_quantiles_ug <-test_quantiles %>%
-  ungroup() %>%
-  filter(IndicatorID == 90366 & Sex == "Female")
+  filter(substr(Test,1,4) == "Good" & GroupSet == "IndSex")
+
+test_quantiles_fail <- test_quantiles %>%
+  filter(Test == "BadPolarity")
 
 # Byars Wilson test data
 test_BW <- read_excel(".\\tests\\testthat\\testdata_Byars_Wilson.xlsx", sheet="testdata_B_W",   col_names=TRUE)

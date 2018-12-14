@@ -45,7 +45,7 @@ phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier
 
     # check required arguments present
   if (missing(data)|missing(x)|missing(n)) {
-    stop("function phe_dsr requires at least 3 arguments: data, x, n")
+    stop("function phe_rate requires at least 3 arguments: data, x, n")
   }
 
 

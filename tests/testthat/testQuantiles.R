@@ -1,54 +1,44 @@
 context("test_phe_quantiles")
 
-
+#library(dplyr)
+#library(readxl)
+#library(testthat)
 
 
 
 #test calculations
 test_that("quantiles calculate correctly",{
-  expect_equal(phe_quantiles(test_quantiles,Value, AreaCode, ParentCode,
-                                        invert = Polarity, inverttype = "field")[23],
-               rename(test_quantiles[18],qname = DecileInRegion),check.attributes=FALSE, check.names=FALSE,info="test default")
+  expect_equal(phe_quantile(test_quantiles_g,Value, AreaCode, ParentCode,
+                             invert = Polarity, inverttype = "field")[24],
+               rename(test_quantiles_g,quantile = QuantileInGrp)[19],
+                      check.attributes=FALSE, check.names=FALSE,info="test grouped df field")
+  expect_equal(phe_quantile(filter(test_quantiles_g,Ref_ug == "90366Female"),Value, AreaCode, ParentCode,
+                             invert = FALSE)[25],
+               rename(filter(test_quantiles_g,Ref_ug == "90366Female"),quantile = QuantileInGrp)[19],
+               check.attributes=FALSE, check.names=FALSE,info="test grouped df logical")
+  expect_equal(phe_quantile(test_quantiles_ug, Value, AreaCode, Ref_ug,
+                             invert = Polarity, nquantiles = 7L, inverttype = "field")[24],
+               rename(test_quantiles_ug,quantile = QuantileInGrp)[19],check.attributes=FALSE, check.names=FALSE,info="test ungrouped df field")
+  expect_equal(phe_quantile(test_quantiles_ug, Value, AreaCode, Ref_ug,
+                             invert = FALSE, nquantiles = 7L)[25],
+               rename(test_quantiles_ug,quantile = QuantileInGrp)[19],check.attributes=FALSE, check.names=FALSE,info="test ungrouped df logical")
 })
-
-
-
-
-function phe_quantiles requires at least 4 arguments: data, values, smallarea, highergeog
-data must contain the same number of rows for each group
-valid values for inverttype are vector and field
-invert length must be a factor of the number of rows in each group within data
-invert argument is not a field name from data
-values argument must be a numeric field from data
-invert values must take the same logical value for each data grouping set and highergeog
 
 
 #test error handling
-test_that("means - errors are generated when invalid arguments are used",{
-  expect_error(phe_mean(test_Mean),
-               "function phe_dsr requires at least 2 arguments: data, x",info="error invalid number of arguments")
-
-
+test_that("quantiles - errors are generated when invalid arguments are used",{
+  expect_error(phe_quantile(test_quantiles_g),
+               "function phe_quantile requires at least 3 arguments: data, values, basegeog",info="error invalid number of arguments")
+  expect_error(phe_quantile(test_quantiles_g, Value, AreaCode, ParentCode,
+                            invert = Polarity, inverttype = "vector"),
+               "valid values for inverttype are logical and field",info="error inverttype is invalid")
+  expect_error(phe_quantile(test_quantiles_g, Value, AreaCode, ParentCode,
+                            invert = 6, inverttype = "logical"),
+               "invert expressed as a logical must equal TRUE or FALSE",info="error logical invert is invalid")
+  expect_error(phe_quantile(test_quantiles_g, AreaName, AreaCode, ParentCode,
+                            invert = Polarity, inverttype = "field"),
+               "values argument must be a numeric field from data",info="error value is invalid")
+  expect_error(phe_quantile(test_quantiles_fail, Value, AreaCode, Ref_ug,
+                            invert = Polarity, inverttype = "field"),
+               "invert field values must take the same logical value for each data grouping set and highergeog",info="error invert varies")
 })
-
-
-
-
-
-
-
-# QA against Excel Tool
-
-Tooldata <- read.csv(".\\fd_quantiles.csv", stringsAsFactors=FALSE) %>%
-  select(IndicatorID, Sex, ParentCode, AreaCode, AreaName, Value, MaxValue,
-         Rank.within.Region, Tool.output...number.of.areas, Tool.Output.Decile)
-QAdf <- check %>%
-  filter((IndicatorID == 40501 & Sex == "Female") |
-           IndicatorID == 90366 & Sex == "Female") %>%
-  select(IndicatorID, Sex, ParentCode, AreaCode, AreaName, Value, adj_value,
-         rank, n, quantile) %>%
-  full_join(Tooldata, by = c("IndicatorID", "Sex", "ParentCode","AreaCode")) %>%
-  filter(round(Value.x,2) != round(Value.y,2) |
-           rank != Rank.within.Region |
-           quantile != Tool.Output.Decile)
-
