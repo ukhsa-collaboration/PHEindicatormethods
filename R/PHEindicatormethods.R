@@ -28,5 +28,14 @@ globalVariables(c("esp2013",
                   "value_sum",
                   "vardsr",
                   "wt_rate",
-                  "xrefpop_calc")
-)
+                  "xrefpop_calc",
+                  "ei",
+                  "l_2b_removed",
+                  "Li_2b_removed",
+                  "p_2b_removed",
+                  "qi_2b_removed",
+                  "startage_2b_removed",
+                  "STi_2b_removed",
+                  "SeSE_2b_removed",
+                  "W_spi_2b_removed"))
+
