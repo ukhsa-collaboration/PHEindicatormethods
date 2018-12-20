@@ -138,6 +138,8 @@ answer2 <- cbind(df1[c(3, 7),],
 
 test1 <- phe_life_expectancy(df1, deaths, pops, startage) %>%
   select(value:uppercl)
+test1.1 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = 95) %>%
+  select(value:uppercl)
 test2 <- phe_life_expectancy(df2, deaths, pops, startage) %>%
   select(value:uppercl)
 test3 <- df1 %>%
@@ -173,7 +175,9 @@ age_contents_short <- c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L,
                         40L, 45L, 50L, 55L, 60L, 65L, 70L, 75L, 80L, 85L)
 low_pops_warning <- capture_warnings(test_low_pops <- phe_life_expectancy(df_low_pops, deaths, pop, age) %>%
                                       select(value:uppercl))
-
+missing_warning <- capture_warnings(test_missing_ageband <- phe_life_expectancy(df_missing_age, deaths, pop, age,
+                                                                                age_contents = age_contents_short) %>%
+                                      select(value:uppercl))
 multi_warnings <- capture_warnings(
   test_grouped_with_warnings <- df_grouped_with_warnings %>%
                                     group_by(area) %>%
@@ -185,6 +189,8 @@ multi_warnings <- capture_warnings(
 test_that("LE and CIs calculate correctly",{
   expect_equal(round(test1, n), round(answer1, n),
                info = "test default")
+  expect_equal(round(test1.1, n), round(answer1, n),
+               info = "test confidence = 95")
   expect_equal(round(test2, n), round(answer1, n),
                info = "incorrect ageband order")
   expect_equal(round(test3, n), round(answer1, n),
@@ -203,6 +209,8 @@ test_that("LE and CIs calculate correctly",{
                info = "zero in pop age band produces only NAs")
   expect_equal(sum(!is.na(test_greater_than_pops)), 0,
                info = "deaths in age band greater than pops produces only NAs")
+  expect_equal(sum(!is.na(test_missing_ageband)), 0,
+               info = "missing age band produces only NAs")
   expect_equal(nrow(test_grouped_with_warnings), 119,
                info = "correct number of rows for grouped calcs")
 
@@ -212,6 +220,8 @@ test_that("LE and CIs calculate correctly",{
 test_that("LE - warnings are generated when invalid arguments are used",{
   expect_warning(phe_life_expectancy(df1, deaths, pops, startage, le_age = 4),
                  "le_age not in the vector described by age_contents; all life expectancies will be returned")
+  expect_warning(phe_life_expectancy(df1, deaths, pops, startage, le_age = c(4, 6)),
+                 "le_age not in the vector described by age_contents; all life expectancies will be returned")
   expect_match(negative_warning,
                "some age bands have negative deaths; outputs have been suppressed to NAs")
   expect_match(zero_warning,
@@ -220,11 +230,13 @@ test_that("LE - warnings are generated when invalid arguments are used",{
                "some age bands have more deaths than population; outputs have been suppressed to NAs")
   expect_match(low_pops_warning,
                "some groups have a total population of less than 5,000; outputs have been suppressed to NAs")
+  expect_match(missing_warning,
+               "some groups contain a different number of age bands than 20; life expectancy cannot be calculated for these\\. These groups will contain NAs\\.")
   expect_match(multi_warnings, "some age bands have negative deaths; outputs have been suppressed to NAs",
                all = FALSE)
   expect_match(multi_warnings, "some age bands have a zero or less population; outputs have been suppressed to NAs",
                all = FALSE)
-  expect_match(multi_warnings, "some groups contain a different number of rows than the number of age groups described by the age_contents input; life expectancy cannot be calculated for these. These groups will contain NAs.",
+  expect_match(multi_warnings, "some groups contain a different number of age bands than 20; life expectancy cannot be calculated for these\\. These groups will contain NAs\\.",
                all = FALSE)
   expect_match(multi_warnings, "some age bands have more deaths than population; outputs have been suppressed to NAs",
                all = FALSE)
@@ -250,8 +262,13 @@ test_that("LE - errors are generated when invalid arguments are used",{
                                                     "80 – 84", "85 – 89",
                                                     "90 +")),
                "age_contents doesn't appear to be in ascending order; the following age bands appear out of position: 20 – 24, 25 – 29, 10 – 14, 15 – 19")
-  expect_error(phe_life_expectancy(df_missing_age, deaths, pop, age,
-                                   age_contents = age_contents_short),
-               "this function requires 20 age bands to work \\(0, 1\\-4, 5\\-9, 10\\-14, \\.\\.\\., 85\\-89, 90\\+\\)")
+  expect_error(phe_life_expectancy(),
+               "function life_expectancy requires at least 4 arguments: data, deaths, population, startage")
+  expect_error(phe_life_expectancy(df1, deaths, pop, age,
+                                   age_contents = c(1L, 0L, seq(5, 90, by = 5))),
+               "first age band in age_contents must be 0")
+  expect_error(phe_life_expectancy(df1, deaths, pop, age,
+                                   confidence = 0.8),
+               "confidence level must be between 90 and 100 or between 0.9 and 1")
 
 })

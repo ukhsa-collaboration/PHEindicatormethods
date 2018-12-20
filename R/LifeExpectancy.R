@@ -7,19 +7,55 @@
 #'   band; unquoted string; no default
 #' @param population field name from data containing the population within age
 #'   band; unquoted string; no default
-#' @param startage field name from data containing the startage for the age
-#'   band; no default
+#' @param startage field name from data containing the age band; no default
 #' @param age_contents vector; describes the contents of startage in the
-#'   ascending order. This vector will be used to check whether each group
-#'   contains the complete set of age bands for the calculation to occur and
-#'   will apply the correct order to the data
+#'   ascending order. This vector is used to check whether each group in data
+#'   contains the complete set of age bands for the calculation to occur. It is also
+#'   used to reorder the data based on the startage field
 #' @param le_age the age band to return the life expectancy for. The default is
-#'   "all", where the function returns the life expectancy values appended onto
-#'   the input table. Any other value (or vector of values) must be age bands
+#'   "all", where the function returns the life expectancy values for all ages
+#'   appended onto the input table. Any other value (or vector of values) must be age bands
 #'   described by the age_contents input
 #' @param type type of output; can be "standard" or "full" (which contains
 #'   details added details on the calculation within the dataframe); quoted
 #'   string; default standard
+#' @details This function aligns with the methodology in Public Health England's
+#'   \href{https://fingertips.phe.org.uk/documents/PHE Life Expectancy Calculator.xlsm}{Life Expectancy Excel Tool}.
+#'
+#'   The function is for an abridged life table using 5 year age intervals with
+#'   a final age interval of 90+. The table has been completed using the methods
+#'   described by Chiang.[1],[2]  This age structure and methodology is used by
+#'   The Office for National Statistics to produce life expectancy at national
+#'   and local authority level.[3]
+#'
+#'   This function includes an adjustment to the method for calculating the
+#'   variance of the life expectancy estimate to include a term for the variance
+#'   associated with the final age interval. This adjustment is based on Eayres
+#'   and Williams[4] having assessed confidence limit accuracy following a publication
+#'   by Silcocks et al.[5]
+#'
+#'   Life expectancy cannot be calculated if the person-years in any given age
+#'   interval is zero. It will also not be calculated if the total person-years
+#'   is less than 5,000 as this is considered to be the minimum size for robust
+#'   calculation of life expectancy.[6]  Zero death counts are not a problem,
+#'   except for the final age interval - there must be at least one death in
+#'   the 90+ interval for the calculations to be possible.
+#'
+#' @references
+#' [1] Chiang CL. The Life Table and its Construction. In: Introduction to
+#' Stochastic Processes in Biostatistics. New York, John Wiley & Sons, 1968:189-214. \cr \cr
+#' [2] Newell C. Methods and Models in Demography. Chichester, John Wiley & Sons, 1994:63-81 \cr \cr
+#' [3] Office for National Statistics Report. Life expectancy at birth by
+#' health and local authorities in the United Kingdom, 1998 to 2000 (3-year
+#' aggregate figures.) Health Statistics Quarterly 2002;13:83-90 \cr \cr
+#' [4] Eayres DP, Williams ES. Evaluation of methodologies for small area
+#' life expectancy estimation. J Epidemiol Community Health 2004;58:243-249 \cr \cr
+#' [5] Silcocks PBS, Jenner DA, Reza R.  Life expectancy as a summary of mortality
+#' in a population: statistical considerations and suitability for use by health
+#' authorities. J Epidemiol Community Health 2001;55:38-43 \cr \cr
+#' [6] Toson B, Baker A. Life expectancy at birth: methodological options for
+#' small populations. National Statistics  Methodological Series No 33. HMSO 2003.
+#'
 #' @inheritParams phe_dsr
 #' @import dplyr
 #' @examples
@@ -91,7 +127,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   }
 
   # check for 20 age bands
-  if (length(age_contents) != 20) stop("this function requires 20 age bands to work (0, 1-4, 5-9, 10-14, ..., 85-89, 90+)")
+  #if (length(age_contents) != 20) stop("this function requires 20 age bands to work (0, 1-4, 5-9, 10-14, ..., 85-89, 90+)")
 
   # check that min age  is 0
   stripped_age_contents <- as.integer(sub("\\D*(\\d+).*", "\\1", age_contents))
@@ -191,14 +227,14 @@ phe_life_expectancy <- function(data, deaths, population, startage,
 
   }
   # check for all rows per group
-  number_age_bands <- length(age_contents)
-          incomplete_areas <- data %>%
-          count() %>%
-          ungroup() %>%
-          filter(n != number_age_bands) %>%
-          select(-n)
+  number_age_bands <- 20 #length(age_contents)
+  incomplete_areas <- data %>%
+    count() %>%
+    ungroup() %>%
+    filter(n != number_age_bands) %>%
+    select(-n)
   if (nrow(incomplete_areas) > 0) {
-          warning("some groups contain a different number of rows than the number of age groups described by the age_contents input; life expectancy cannot be calculated for these. These groups will contain NAs.")
+          warning("some groups contain a different number of age bands than 20; life expectancy cannot be calculated for these. These groups will contain NAs.")
 
           # Insert NAs into output fields to be row bound to the final output at end
           if (length(group_vars(data)) > 0) {
