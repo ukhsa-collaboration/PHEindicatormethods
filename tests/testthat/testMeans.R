@@ -28,7 +28,7 @@ test_that("means and CIs calculate correctly",{
 #test error handling
 test_that("means - errors are generated when invalid arguments are used",{
   expect_error(phe_mean(test_Mean),
-               "function phe_dsr requires at least 2 arguments: data, x",info="error invalid number of arguments")
+               "function phe_mean requires at least 2 arguments: data, x",info="error invalid number of arguments")
   expect_error(phe_mean(test_Mean, values, confidence = 0.2),
                "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence < 0.9")
   expect_error(phe_mean(test_Mean, values, confidence = 202),

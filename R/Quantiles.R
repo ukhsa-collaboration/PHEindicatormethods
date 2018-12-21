@@ -48,33 +48,33 @@
 # temp for function testing
 
 # read in test data
-library(fingertipsR)
-library(dplyr)
-fd <- fingertips_data(IndicatorID = c(90366,40501, 40502), AreaTypeID = 102, rank = TRUE) %>%
-  group_by(IndicatorID, Sex) %>%
-  filter(TimeperiodSortable == max(TimeperiodSortable) & AreaType == "County & UA") %>%
-  select(IndicatorID, IndicatorName, ParentCode, ParentName, AreaCode, AreaName, Rank, Polarity, Sex, Value, AreaValuesCount) %>%
-  mutate(Polarity_i = if_else(Polarity == "RAG - High is good",FALSE,TRUE),
-         Ref_ug = paste0(IndicatorID,Sex))
-
-  data <- test_quantiles_g
-  values <- "Value"
-  basegeog <- "AreaCode"
-  highergeog <- "ParentCode"
-  nquantiles <- 7L
-  invert <- test_quantiles_g$Polarity
-  inverttype <- "vector"
-
-
-
-check1 <- phe_quantiles(data=fd, values=Value, basegeog = AreaCode,
-                       highergeog = ParentCode, invert = Polarity_i, inverttype = "field")
-
-check2 <- phe_quantiles(data=fd, values=Value, basegeog = AreaCode,
-                        highergeog = Ref_ug, nquantiles = 7L, invert = Polarity_i, inverttype = "field")
-
-check3 <- phe_quantiles(data=fd, values=Value, basegeog = AreaCode,
-                        highergeog = Ref_ug, nquantiles = 7L, invert = FALSE, inverttype = "logical")
+# library(fingertipsR)
+# library(dplyr)
+# fd <- fingertips_data(IndicatorID = c(90366,40501, 40502), AreaTypeID = 102, rank = TRUE) %>%
+#   group_by(IndicatorID, Sex) %>%
+#   filter(TimeperiodSortable == max(TimeperiodSortable) & AreaType == "County & UA") %>%
+#   select(IndicatorID, IndicatorName, ParentCode, ParentName, AreaCode, AreaName, Rank, Polarity, Sex, Value, AreaValuesCount) %>%
+#   mutate(Polarity_i = if_else(Polarity == "RAG - High is good",FALSE,TRUE),
+#          Ref_ug = paste0(IndicatorID,Sex))
+#
+#   data <- test_quantiles_g
+#   values <- "Value"
+#   basegeog <- "AreaCode"
+#   highergeog <- "ParentCode"
+#   nquantiles <- 7L
+#   invert <- test_quantiles_g$Polarity
+#   inverttype <- "vector"
+#
+#
+#
+# check1 <- phe_quantiles(data=fd, values=Value, basegeog = AreaCode,
+#                        highergeog = ParentCode, invert = Polarity_i, inverttype = "field")
+#
+# check2 <- phe_quantiles(data=fd, values=Value, basegeog = AreaCode,
+#                         highergeog = Ref_ug, nquantiles = 7L, invert = Polarity_i, inverttype = "field")
+#
+# check3 <- phe_quantiles(data=fd, values=Value, basegeog = AreaCode,
+#                         highergeog = Ref_ug, nquantiles = 7L, invert = FALSE, inverttype = "logical")
 
 ## NEED TO EDIT SO HIGHERGEOG NOT REAUIRED (EG FOR NATIONAL QUANTILES)
 
@@ -85,7 +85,7 @@ phe_quantile <- function(data, values, basegeog, highergeog,
 
   # check required arguments present
   if (missing(data)|missing(values)|missing(basegeog)) {
-    stop("function phe_quantiles requires at least 3 arguments: data, values, basegeog")
+    stop("function phe_quantile requires at least 3 arguments: data, values, basegeog")
   }
 
   # check invert is valid and append to data

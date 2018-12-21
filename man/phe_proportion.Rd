@@ -8,7 +8,8 @@ phe_proportion(data, x, n, type = "standard", confidence = 0.95,
   percentage = FALSE)
 }
 \arguments{
-\item{data}{a data.frame containing the data to calculate proportions for; unquoted string; no default}
+\item{data}{a data.frame containing the data to calculate proportions for, pre-grouped if proportions required for
+group aggregates; unquoted string; no default}
 
 \item{x}{field name from data containing the observed numbers of cases in the sample meeting the required condition
 (the numerator for the proportion); unquoted string; no default}
@@ -44,6 +45,13 @@ phe_proportion(df, numerator, denominator)
 phe_proportion(df, numerator, denominator, confidence=99.8)
 phe_proportion(df, numerator, denominator, type="full")
 
+dfg <- data.frame(area = rep(c("Area1","Area2","Area3"), each=3),
+                 numerator = c(65,82,100, 6500,8200,10000,250,500,750),
+                 denominator = rep(c(100,10000,1000), each=3)) \%>\%
+                 group_by(area)
+
+phe_proportion(dfg,numerator, denominator, type="full")
+
 }
 \references{
 [1] Wilson EB. Probable inference, the law of succession, and statistical
@@ -56,6 +64,8 @@ phe_proportion(df, numerator, denominator, type="full")
 Other PHEindicatormethods package functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_mean}},
-  \code{\link{phe_rate}}, \code{\link{phe_smr}},
-  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
+  \code{\link{phe_quantile}}, \code{\link{phe_rate}},
+  \code{\link{phe_smr}}, \code{\link{wilson_lower}},
+  \code{\link{wilson_upper}}
 }
+\concept{PHEindicatormethods package functions}

@@ -35,7 +35,7 @@ test_that("rates - errors are generated when invalid arguments are used",{
   expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
                                    obs =c(65,80,30),
                                    pop =c(100,100,100)), obs),
-               "function phe_dsr requires at least 3 arguments: data, x, n", info="error invalid number of arguments")
+               "function phe_rate requires at least 3 arguments: data, x, n", info="error invalid number of arguments")
 
   expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
                                    obs =c(-65,80,30),

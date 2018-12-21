@@ -38,7 +38,7 @@ test_that("proportions - errors are generated when invalid arguments are used",{
   expect_error(phe_proportion(data.frame(area=c("Area1","Area2","Area3"),
                                          obs =c(65,80,30),
                                          pop =c(100,100,100)), obs),
-               "function phe_dsr requires at least 3 arguments: data, x, n", info="error not enough arguments")
+               "function phe_proportion requires at least 3 arguments: data, x, n", info="error not enough arguments")
 
   expect_error(phe_proportion(data.frame(area=c("Area1","Area2","Area3"),
                                          obs =c(65,-80,30),
