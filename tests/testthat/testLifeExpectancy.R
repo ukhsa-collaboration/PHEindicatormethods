@@ -211,7 +211,7 @@ test_that("LE and CIs calculate correctly",{
                info = "deaths in age band greater than pops produces only NAs")
   expect_equal(sum(!is.na(test_missing_ageband)), 0,
                info = "missing age band produces only NAs")
-  expect_equal(nrow(test_grouped_with_warnings), 119,
+  expect_equal(nrow(test_grouped_with_warnings), nrow(df_grouped_with_warnings),
                info = "correct number of rows for grouped calcs")
 
 })
