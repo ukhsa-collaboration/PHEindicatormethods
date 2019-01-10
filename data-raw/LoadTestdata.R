@@ -17,7 +17,7 @@ usethis::use_data(esp2013,internal=FALSE, overwrite=FALSE)
 
 
 # SAVE INTERNAL DATA IN R\Sysdata.rda - data available to functions and test scripts but not available to user:
-usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g,
+usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results,
                   test_quantiles_g, test_quantiles_ug, test_quantiles_fail,
                   test_Rate,
                   test_Mean, test_Mean_Grp, test_Mean_results,
@@ -56,17 +56,17 @@ test_quantiles$Polarity[test_quantiles$Polarity == "RAG - High is good"] <- FALS
 test_quantiles$Polarity[test_quantiles$Polarity == "RAG - Low is good"] <- TRUE
 test_quantiles$Value <- as.numeric(test_quantiles$Value, digits = 10)
 
+test_quantiles_ug <- test_quantiles %>%
+  filter(substr(Test,1,4) == "Good")
 
-
-test_quantiles_g <- test_quantiles %>%
-  group_by(IndicatorID, Sex) %>%
-  filter(substr(Test,1,4) == "Good" & GroupSet == "IndSexReg")
-
-test_quantiles_ug <-test_quantiles %>%
-  filter(substr(Test,1,4) == "Good" & GroupSet == "IndSex")
+test_quantiles_g <-test_quantiles_ug %>%
+  group_by(IndicatorID, Sex)
 
 test_quantiles_fail <- test_quantiles %>%
   filter(Test == "BadPolarity")
+
+
+
 
 # Byars Wilson test data
 test_BW <- read_excel(".\\tests\\testthat\\testdata_Byars_Wilson.xlsx", sheet="testdata_B_W",   col_names=TRUE)
@@ -77,6 +77,12 @@ test_Prop   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet=
 test_Prop_g <- test_Prop %>%
   group_by(Area)
 
+test_Prop_g_results   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop_g",   col_names=TRUE)
+
+
+
+
+
 #Rates test data
 test_Rate <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate", col_names=TRUE)
 
@@ -85,6 +91,9 @@ test_Mean         <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet=
 test_Mean_results <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet="testdata_Mean_results", col_names=TRUE)
 
 test_Mean_Grp <- group_by(test_Mean,area)
+
+
+
 
 
 # DSRs, ISRs and SMRs test data

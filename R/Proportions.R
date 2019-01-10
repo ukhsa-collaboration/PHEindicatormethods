@@ -35,7 +35,6 @@
 #'                  denominator = rep(c(100,10000,1000), each=3)) %>%
 #'                  group_by(area)
 #'
-#' phe_proportion(dfg,numerator, denominator, type="full")
 #'
 #' @import dplyr
 #'
@@ -50,16 +49,6 @@
 #'
 #' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
-
-#
-# data <- test_Prop
-# #data <- test_Prop_g
-# x <- "Numerator"
-# n <- "Denominator"
-# confidence <- 0.95
-# type <- "full"
-# percentage <- FALSE
-
 
 # create phe_proportion function using Wilson's method
 phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percentage=FALSE) {
@@ -94,40 +83,38 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
 
   # set multiplier
   multiplier <- 1
+
   if (percentage == TRUE) {
     multiplier <- 100
   }
 
-  # if data is grouped then summarise
-#  if(!is.null(groups(data))) {
-#    data <- data %>%
-#      summarise(newx = sum(!!x),
-#                newn = sum(!!n))
-#  } # else{
-#    data <- data %>%
-#      mutate(newx = pull(data,!!x),
-#             newn = pull(data,!!n)) %>%
-#      select(-(!!x), -(!!n))
-#  }
+  # if data is grouped then summarise ### WORKS BUT OUTPUT HAS NEWX AND NEWN AS COLUMN NAMES
+  if(!is.null(groups(data))) {
+    data <- data %>%
+      summarise(newx = sum(!!x),
+                newn = sum(!!n))
 
-  # calculate proportion and CIs
-#  phe_proportion <- data %>%
-#                    mutate(value = newx/newn * multiplier,
-#                           lowercl = wilson_lower(newx,newn,confidence) * multiplier,
-#                           uppercl = wilson_upper(newx,newn,confidence) * multiplier,
-#                           confidence = paste0(confidence*100,"%",sep=""),
-#                           statistic = if_else(percentage == TRUE,"percentage","proportion"),
-#                           method = "Wilson")
+    #calculate proportion and CIs for grouped input dataframe
+    phe_proportion <- data %>%
+                      mutate(value = newx/newn * multiplier,
+                             lowercl = wilson_lower(newx,newn,confidence) * multiplier,
+                             uppercl = wilson_upper(newx,newn,confidence) * multiplier,
+                             confidence = paste0(confidence*100,"%",sep=""),
+                             statistic = if_else(percentage == TRUE,"percentage","proportion"),
+                             method = "Wilson")
 
-  phe_proportion <- data %>%
-    mutate(value = (!!x)/(!!n) * multiplier,
-           lowercl = wilson_lower((!!x),(!!n),confidence) * multiplier,
-           uppercl = wilson_upper((!!x),(!!n),confidence) * multiplier,
-           confidence = paste(confidence*100,"%",sep=""),
-           statistic = if_else(percentage == TRUE,"percentage","proportion"),
-           method = "Wilson")
+  } else {
+    #calculate proportion and CIs for ungrouped input dataframe
+    phe_proportion <- data %>%
+      mutate(value = (!!x)/(!!n) * multiplier,
+             lowercl = wilson_lower((!!x),(!!n),confidence) * multiplier,
+             uppercl = wilson_upper((!!x),(!!n),confidence) * multiplier,
+             confidence = paste(confidence*100,"%",sep=""),
+             statistic = if_else(percentage == TRUE,"percentage","proportion"),
+             method = "Wilson")
+  }
 
-    # generate output in required format
+  # generate output in required format
     if (type == "lower") {
       phe_proportion <- phe_proportion %>%
         select(-value, -uppercl, -confidence, -statistic, -method)

@@ -28,6 +28,9 @@ test_that("proportions and CIs calculate correctly",{
   expect_equal(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, type="upper"),
                select(slice(test_Prop,1:8),1:3,6),check.attributes=FALSE, check.names=FALSE, info="test upper")
 
+  expect_equal(phe_proportion(slice(test_Prop_g,1:8)[1:3], Numerator, Denominator),
+               test_Prop_g_results[1:6],check.attributes=FALSE, check.names=FALSE, info="test upper")
+
 })
 
 
