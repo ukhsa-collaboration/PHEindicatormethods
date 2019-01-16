@@ -3,7 +3,8 @@
 #'
 #' Calculates rates with confidence limits using Byar's [1] or exact [2] CI method.
 #'
-#' @param data the data.frame containing the data to calculate rates for; unquoted string; no default
+#' @param data the data.frame containing the data to calculate rates for, pre-grouped if proportions required for
+#'             group aggregates; unquoted string; no default
 #' @param x field name from data containing the rate numerators (eg observed number of events); unquoted string; no default
 #' @param n field name from data containing the rate denominators (eg populations); unquoted string; no default
 #'
@@ -17,12 +18,17 @@
 #' @import dplyr
 #'
 #' @examples
-#' df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), 2),
-#'                  year = rep(2015:2016, each = 4),
-#'                  obs = sample(100, 2 * 4, replace = TRUE),
-#'                  pop = sample(100:200, 2 * 4, replace = TRUE))
+#' # ungrouped data frame
+#' df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), each=3),
+#'                  obs = c(NA,82,9,48, 6500,8200,10000,NA,8,7,750,900),
+#'                  pop = rep(c(100,10000,NA,10000), each=3))
+#'
 #' phe_rate(df, obs, pop)
 #' phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
+#'
+#' # grouped data frame
+#' dfg <- df %>% group_by(area)
+#' phe_rate(dfg, obs, pop)
 #'
 #' @section Notes: For numerators >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
 #'  and \code{\link{byars_upper}} functions.  For small numerators Byar's method is less accurate and so
@@ -54,9 +60,9 @@ phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier
   n <- enquo(n)
 
   # validate arguments
-  if (any(pull(data, !!x) < 0)) {
+  if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
         stop("numerators must be greater than or equal to zero")
-    } else if (any(pull(data, !!n) <= 0)) {
+    } else if (any(pull(data, !!n) <= 0, na.rm=TRUE)) {
         stop("denominators must be greater than zero")
     } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
@@ -69,9 +75,27 @@ phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier
     confidence <- confidence/100
   }
 
-  # calculate rate and CIs
+  # if data is grouped then summarise ### WORKS BUT OUTPUT HAS NEWX AND NEWN AS COLUMN NAMES
+  if(!is.null(groups(data))) {
+    data <- data %>%
+      summarise(newx = sum(!!x),
+                newn = sum(!!n))
 
-  phe_rate <- data %>%
+    #calculate rate and CIs for grouped input dataframe
+    phe_rate <- data %>%
+      mutate(value = newx/newn * multiplier,
+             lowercl = if_else(newx < 10, qchisq((1-confidence)/2,2*newx)/2/newn*multiplier,
+                               byars_lower(newx,confidence)/newn*multiplier),
+             uppercl = if_else(newx < 10, qchisq(confidence+(1-confidence)/2,2*newx+2)/2/newn*multiplier,
+                               byars_upper(newx,confidence)/newn*multiplier),
+             confidence = paste(confidence*100,"%",sep=""),
+             statistic = paste("rate per",as.character(format(multiplier, scientific=F))),
+             method  = if_else(newx < 10, "Exact","Byars"))
+
+  } else {
+    #calculate rate and CIs for ungrouped input dataframe
+
+      phe_rate <- data %>%
               mutate(value = (!!x)/(!!n)*multiplier,
               lowercl = if_else((!!x) < 10, qchisq((1-confidence)/2,2*(!!x))/2/(!!n)*multiplier,
                                 byars_lower((!!x),confidence)/(!!n)*multiplier),
@@ -80,6 +104,7 @@ phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier
               confidence = paste(confidence*100,"%",sep=""),
               statistic = paste("rate per",as.character(format(multiplier, scientific=F))),
               method  = if_else((!!x) < 10, "Exact","Byars"))
+  }
 
   if (type == "lower") {
     phe_rate <- phe_rate %>%

@@ -34,7 +34,7 @@
 byars_lower <- function(x, confidence = 0.95) {
 
   # validate arguments
-  if (any(x < 0)) {
+  if (any(x < 0, na.rm=TRUE)) {
         stop("observed events must all be greater than or equal to zero")
     } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
@@ -92,7 +92,7 @@ byars_lower <- function(x, confidence = 0.95) {
 byars_upper <- function(x, confidence = 0.95) {
 
   # validate arguments
-  if (any(x < 0)) {
+  if (any(x < 0, na.rm=TRUE)) {
       stop("observed events must all be greater than or equal to zero")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")

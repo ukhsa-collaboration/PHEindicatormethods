@@ -71,6 +71,9 @@ test_quantiles_fail <- test_quantiles %>%
 # Byars Wilson test data
 test_BW <- read_excel(".\\tests\\testthat\\testdata_Byars_Wilson.xlsx", sheet="testdata_B_W",   col_names=TRUE)
 
+
+
+
 # Proportions test data
 test_Prop   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)
 
@@ -82,9 +85,15 @@ test_Prop_g_results   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xls
 
 
 
-
 #Rates test data
 test_Rate <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate", col_names=TRUE)
+
+test_Rate_g <- test_Rate %>%
+  group_by(Area)
+
+test_Rate_g_results   <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate_g",   col_names=TRUE)
+
+
 
 #Means test data
 test_Mean         <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet="testdata_Mean",         col_names=TRUE)

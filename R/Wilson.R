@@ -33,11 +33,11 @@
 wilson_lower <- function(x, n, confidence = 0.95) {
 
   # validate arguments
-  if (any(x < 0)) {
+  if (any(x < 0, na.rm=TRUE)) {
     stop("observed events must all be greater than or equal to zero")
-  } else if (any(n < 0)) {
+  } else if (any(n < 0, na.rm=TRUE)) {
       stop("sample sizes must all be greater than zero")
-  } else if (any(x > n)) {
+  } else if (any(x > n, na.rm=TRUE)) {
       stop("numerators must be less than or equal to denominator for a Wilson score to be calculated")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")
@@ -100,11 +100,11 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 wilson_upper <- function(x, n, confidence = 0.95) {
 
   # validate arguments
-  if (any(x < 0)) {
+  if (any(x < 0, na.rm=TRUE)) {
       stop("observed events must all be greater than or equal to zero")
-  } else if (any(n < 0)) {
+  } else if (any(n < 0, na.rm=TRUE)) {
       stop("sample sizes must all be greater than zero")
-  } else if (any(x > n)) {
+  } else if (any(x > n, na.rm=TRUE)) {
       stop("numerators must be less than or equal to denominator for a Wilson score to be calculated")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
       stop("confidence level must be between 90 and 100 or between 0.9 and 1")

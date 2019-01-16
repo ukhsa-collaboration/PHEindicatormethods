@@ -22,19 +22,19 @@
 #'  and \code{\link{wilson_upper}} functions.
 #'
 #' @examples
-#' df <- data.frame(area = c("Area1","Area2","Area3"),
-#'                  numerator = c(65,82,100),
-#'                  denominator = c(100,100,100))
+#' # ungrouped data frame
+#' df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), each=3),
+#'                  numerator = c(NA,82,9,48, 6500,8200,10000,NA,8,7,750,900),
+#'                  denominator = rep(c(100,10000,NA,10000), each=3))
 #'
 #' phe_proportion(df, numerator, denominator)
 #' phe_proportion(df, numerator, denominator, confidence=99.8)
 #' phe_proportion(df, numerator, denominator, type="full")
 #'
-#' dfg <- data.frame(area = rep(c("Area1","Area2","Area3"), each=3),
-#'                  numerator = c(65,82,100, 6500,8200,10000,250,500,750),
-#'                  denominator = rep(c(100,10000,1000), each=3)) %>%
-#'                  group_by(area)
 #'
+#' # grouped data frame
+#' dfg <- df %>% group_by(area)
+#' phe_proportion(dfg, numerator, denominator)
 #'
 #' @import dplyr
 #'
@@ -64,11 +64,11 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
 
 
   # validate arguments
-  if (any(pull(data, !!x) < 0)) {
+  if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
         stop("numerators must be greater than or equal to zero")
-    } else if (any(pull(data, !!n) <= 0)) {
+    } else if (any(pull(data, !!n) <= 0, na.rm=TRUE)) {
         stop("denominators must be greater than zero")
-    } else if (any(pull(data, !!x) > pull(data, !!n))) {
+    } else if (any(pull(data, !!x) > pull(data, !!n), na.rm=TRUE)) {
         stop("numerators must be less than or equal to denominator for a proportion statistic")
     } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
