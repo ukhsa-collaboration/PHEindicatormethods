@@ -38,7 +38,7 @@ The function can be used to calculate DSRs for grouping single or multiple geogr
 | x            | unquoted string   | field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area or indicator)    | none          |
 | n            | unquoted string  | field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area or indicator)| none          |
 | stdpop       | unquoted string  | standard populations for each standardisation category (eg age band) specified as a field name from data or a vector.    | esp2013         | 
-| stdpoptype   | quoted string    | whether the stdpop argument has been specified as a vactor or a field name | "vector"      | 
+| stdpoptype   | quoted string    | whether the stdpop argument has been specified as a vector or a field name | "vector"      | 
 | confidence   | numeric value    | the required level of confidence expressed as a number between 0.9 and 1 or 90 and 100  | 0.95          |
 | multiplier   | numeric value    | the multiplier used to express the final values (eg 100,000 = rate per 100,000 | 100,000       |
 
@@ -127,7 +127,7 @@ pull(slice(select(ungroup(summarise(df,n=n())),n),1)) == length(esp2013)
 
 **3. If you are supplying your standard population in vector format (stdpoptype="vector") then the standard population and your data (for each grouping set) must be sorted in the same standardisation category order because the function will join these by position.**  This would normally mean sorting both the standard population vector and the records for each group within your data by age band from youngest to oldest.  
 
-*The phe_dsr function does not have any built in error handling to check this requirement* as the function does not require the standardisation category labels to be provided in your data.  It is therefore the responsibility of the function user to ensure this requirement is met.  If the standardisation category labels are included with your data (as in our example) then the following code can be used to check the requirment manually: 
+*The phe_dsr function does not have any built in error handling to check this requirement* as the function does not require the standardisation category labels to be provided in your data.  It is therefore the responsibility of the function user to ensure this requirement is met.  If the standardisation category labels are included with your data (as in our example) then the following code can be used to check the requirement manually: 
 
 ``` {r check repeats of stdpop}
 # check data is ordered by required agebands from youngest to oldest
