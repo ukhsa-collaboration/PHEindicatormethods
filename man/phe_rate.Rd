@@ -8,7 +8,8 @@ phe_rate(data, x, n, type = "standard", confidence = 0.95,
   multiplier = 1e+05)
 }
 \arguments{
-\item{data}{the data.frame containing the data to calculate rates for; unquoted string; no default}
+\item{data}{the data.frame containing the data to calculate rates for, pre-grouped if proportions required for
+group aggregates; unquoted string; no default}
 
 \item{x}{field name from data containing the rate numerators (eg observed number of events); unquoted string; no default}
 
@@ -35,12 +36,17 @@ Calculates rates with confidence limits using Byar's [1] or exact [2] CI method.
 }
 
 \examples{
-df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), 2),
-                 year = rep(2015:2016, each = 4),
-                 obs = sample(100, 2 * 4, replace = TRUE),
-                 pop = sample(100:200, 2 * 4, replace = TRUE))
+# ungrouped data frame
+df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), each=3),
+                 obs = c(NA,82,9,48, 6500,8200,10000,10000,8,7,750,900),
+                 pop = rep(c(100,10000,10000,10000), each=3))
+
 phe_rate(df, obs, pop)
 phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
+
+# grouped data frame
+dfg <- df \%>\% group_by(area)
+phe_rate(dfg, obs, pop)
 
 }
 \references{

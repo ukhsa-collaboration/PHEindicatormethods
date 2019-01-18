@@ -44,6 +44,7 @@
 #' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
+
 # create phe_quantile function using PHE method
 phe_quantile <- function(data, values, basegeog, highergeog = NULL,
                           nquantiles=10L, invert=TRUE, inverttype = "logical") {
@@ -88,23 +89,35 @@ phe_quantile <- function(data, values, basegeog, highergeog = NULL,
 
       phe_quantile <- data %>%
       group_by(!!highergeog_q, add=TRUE) %>%
-      add_count(is.na(Value)) %>%
+      add_count(naflag = is.na(Value)) %>%
       mutate(adj_value = if_else(invert_calc == TRUE,max(!!values_q,na.rm=TRUE)-!!values_q,!!values_q),
              rank = rank(adj_value, ties.method="min", na.last = "keep"),
              quantile = floor((nquantiles+1)-ceiling(((n+1)-rank)/(n/nquantiles))),
-             quantile = if_else(quantile == 0,1,quantile))
+             quantile = if_else(quantile == 0,1,quantile)) %>%
+      select(-naflag,-n,-adj_value, -rank)
+
   } else {
 
       phe_quantile <- data %>%
-      add_count(is.na(Value)) %>%
+      add_count(naflag = is.na(Value)) %>%
       mutate(adj_value = if_else(invert_calc == TRUE,max(!!values_q,na.rm=TRUE)-!!values_q,!!values_q),
            rank = rank(adj_value, ties.method="min", na.last = "keep"),
            quantile = floor((nquantiles+1)-ceiling(((n+1)-rank)/(n/nquantiles))),
-           quantile = if_else(quantile == 0,1,quantile))
+           quantile = if_else(quantile == 0,1,quantile)) %>%
+        select(-naflag,-n,-adj_value, -rank)
   }
 
-#rename quantile column in output - not working
-# names(phe_quantiles$quantile) <- qnames$qname[qnames$quantiles == nquantiles]
+  #rename quantile column in output
+  if (nquantiles %in% qnames$quantiles) {
+    colname <- qnames$qname[qnames$quantiles == nquantiles]
+    colnames(phe_quantile)[colnames(phe_quantile )=="quantile"] <- colname
+  }
+
+  # if invert provided as logical then delete invert_calc column created for calculation
+  if (inverttype == "logical") {
+    phe_quantile <- phe_quantile %>% select(-invert_calc)
+  }
+
 
   return(phe_quantile)
 }

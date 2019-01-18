@@ -28,5 +28,11 @@ globalVariables(c("esp2013",
                   "value_sum",
                   "vardsr",
                   "wt_rate",
-                  "xrefpop_calc")
+                  "xrefpop_calc",
+                  "invert_calc",
+                  "Value",
+                  "adj_value",
+                  "quantile",
+                  "naflag"
+                  )
 )

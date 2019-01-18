@@ -3,39 +3,45 @@ context("test_phe_quantiles")
 #library(dplyr)
 #library(readxl)
 #library(testthat)
-## test line
+
+# test grouped df field
+df1 <- test_quantiles_g %>% filter(GroupSet == "IndSexReg")
+
+# test grouped df logical
+df2 <- test_quantiles_g %>% filter(IndSexRef == "90366Female"& GroupSet == "IndSexReg")
+
+# test ungrouped df field
+df3 <- test_quantiles_g %>% filter(GroupSet == "IndSex")
+
+# test ungrouped df logical
+df4 <- test_quantiles_ug %>% filter(GroupSet == "None")
 
 
 
 #test calculations
 test_that("quantiles calculate correctly",{
-  expect_equal(phe_quantile(filter(test_quantiles_g,GroupSet == "IndSexReg"),Value, AreaCode, ParentCode,
-                             invert = Polarity, inverttype = "field")[23],
-               rename(filter(test_quantiles_g,GroupSet == "IndSexReg"),quantile = QuantileInGrp)[18],
-                      check.attributes=FALSE, check.names=FALSE,info="test grouped df field")
+  expect_equal(phe_quantile(df1,Value, AreaCode, ParentCode,
+                            invert = Polarity, inverttype = "field")[15],
+               rename(df1,Decile = QuantileInGrp)[14],
+               check.attributes=FALSE, check.names=FALSE,info="test grouped df field")
 
-  expect_equal(phe_quantile(filter(test_quantiles_g,IndSexRef == "90366Female" & GroupSet == "IndSexReg"),Value, AreaCode, ParentCode,
-                             invert = FALSE)[24],
-               rename(filter(test_quantiles_g,IndSexRef == "90366Female"& GroupSet == "IndSexReg"),quantile = QuantileInGrp)[18],
+  expect_equal(phe_quantile(df2,Value, AreaCode, ParentCode,
+                            invert = FALSE)[15],
+               rename(df2,Decile = QuantileInGrp)[14],
                check.attributes=FALSE, check.names=FALSE,info="test grouped df logical")
 
-#  expect_equal(phe_quantile(filter(test_quantiles_g,GroupSet == "IndSex"), Value, AreaCode,
-#                            nquantiles = 4L)[24],
-#               rename(filter(test_quantiles_g,GroupSet == "IndSex"),quantile = QuantileInGrp)[18],
-#               check.attributes=FALSE, check.names=FALSE,info="test grouped df logical nohighergeog")
-
-  expect_equal(phe_quantile(test_quantiles_ug, Value, AreaCode, Ref_ug,
-                             invert = Polarity, nquantiles = 7L, inverttype = "field")[24],
-               rename(test_quantiles_ug,quantile = QuantileInGrp)[19],check.attributes=FALSE,
+  expect_equal(phe_quantile(df3, Value, AreaCode, IndSexRef,
+                            invert = Polarity, inverttype = "field", nquantiles = 7L)[15],
+               rename(df3,Septile = QuantileInGrp)[14],check.attributes=FALSE,
                check.names=FALSE,info="test ungrouped df field")
 
-  expect_equal(phe_quantile(test_quantiles_ug, Value, AreaCode,
-                             invert = FALSE, nquantiles = 4L)[25],
-               rename(test_quantiles_ug,quantile = QuantileInGrp)[19],check.attributes=FALSE, check.names=FALSE,info="test ungrouped df logical")
+  expect_equal(phe_quantile(df4, Value, AreaCode, GroupSet, nquantiles = 4L)[15],
+               rename(df4,Quartile = QuantileInGrp)[14],
+               check.attributes=FALSE, check.names=FALSE,info="test ungrouped df logical")
 
-  expect_equal(phe_quantile(test_quantiles_ug, Value, AreaCode,
-                            invert = FALSE, nquantiles = 4L)[25],
-               rename(test_quantiles_ug,quantile = QuantileInGrp)[19],check.attributes=FALSE, check.names=FALSE,info="test ungrouped df logical nohighergeog")
+  expect_equal(phe_quantile(df4, Value, AreaCode, nquantiles = 4L)[15],
+               rename(df4,Quartile = QuantileInGrp)[14],
+               check.attributes=FALSE, check.names=FALSE,info="test ungrouped df logical nohighergeog")
 
 })
 

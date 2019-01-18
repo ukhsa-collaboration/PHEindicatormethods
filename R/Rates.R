@@ -20,8 +20,8 @@
 #' @examples
 #' # ungrouped data frame
 #' df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), each=3),
-#'                  obs = c(NA,82,9,48, 6500,8200,10000,NA,8,7,750,900),
-#'                  pop = rep(c(100,10000,NA,10000), each=3))
+#'                  obs = c(NA,82,9,48, 6500,8200,10000,10000,8,7,750,900),
+#'                  pop = rep(c(100,10000,10000,10000), each=3))
 #'
 #' phe_rate(df, obs, pop)
 #' phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
@@ -49,7 +49,8 @@
 # create function to calculate rate and CIs using Byar's method
 phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier = 100000) {
 
-    # check required arguments present
+
+  # check required arguments present
   if (missing(data)|missing(x)|missing(n)) {
     stop("function phe_rate requires at least 3 arguments: data, x, n")
   }
@@ -58,6 +59,7 @@ phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier
   # apply quotes
   x <- enquo(x)
   n <- enquo(n)
+
 
   # validate arguments
   if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
@@ -70,42 +72,34 @@ phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier
       stop("type must be one of value, lower, upper, standard or full")
     }
 
+
   # scale confidence level
   if (confidence >= 90) {
     confidence <- confidence/100
   }
 
-  # if data is grouped then summarise ### WORKS BUT OUTPUT HAS NEWX AND NEWN AS COLUMN NAMES
+
+  # if data is grouped then summarise
   if(!is.null(groups(data))) {
     data <- data %>%
-      summarise(newx = sum(!!x),
-                newn = sum(!!n))
-
-    #calculate rate and CIs for grouped input dataframe
-    phe_rate <- data %>%
-      mutate(value = newx/newn * multiplier,
-             lowercl = if_else(newx < 10, qchisq((1-confidence)/2,2*newx)/2/newn*multiplier,
-                               byars_lower(newx,confidence)/newn*multiplier),
-             uppercl = if_else(newx < 10, qchisq(confidence+(1-confidence)/2,2*newx+2)/2/newn*multiplier,
-                               byars_upper(newx,confidence)/newn*multiplier),
-             confidence = paste(confidence*100,"%",sep=""),
-             statistic = paste("rate per",as.character(format(multiplier, scientific=F))),
-             method  = if_else(newx < 10, "Exact","Byars"))
-
-  } else {
-    #calculate rate and CIs for ungrouped input dataframe
-
-      phe_rate <- data %>%
-              mutate(value = (!!x)/(!!n)*multiplier,
-              lowercl = if_else((!!x) < 10, qchisq((1-confidence)/2,2*(!!x))/2/(!!n)*multiplier,
-                                byars_lower((!!x),confidence)/(!!n)*multiplier),
-              uppercl = if_else((!!x) < 10, qchisq(confidence+(1-confidence)/2,2*(!!x)+2)/2/(!!n)*multiplier,
-                                byars_upper((!!x),confidence)/(!!n)*multiplier),
-              confidence = paste(confidence*100,"%",sep=""),
-              statistic = paste("rate per",as.character(format(multiplier, scientific=F))),
-              method  = if_else((!!x) < 10, "Exact","Byars"))
+      summarise(!!quo_name(x) := sum(!!x),
+                !!quo_name(n) := sum(!!n))
   }
 
+
+  #calculate rate and CIs for ungrouped input dataframe
+  phe_rate <- data %>%
+          mutate(value = (!!x)/(!!n)*multiplier,
+          lowercl = if_else((!!x) < 10, qchisq((1-confidence)/2,2*(!!x))/2/(!!n)*multiplier,
+                            byars_lower((!!x),confidence)/(!!n)*multiplier),
+          uppercl = if_else((!!x) < 10, qchisq(confidence+(1-confidence)/2,2*(!!x)+2)/2/(!!n)*multiplier,
+                            byars_upper((!!x),confidence)/(!!n)*multiplier),
+          confidence = paste(confidence*100,"%",sep=""),
+          statistic = paste("rate per",as.character(format(multiplier, scientific=F))),
+          method  = if_else((!!x) < 10, "Exact","Byars"))
+
+
+  # generate output in required format
   if (type == "lower") {
     phe_rate <- phe_rate %>%
       select(-value, -uppercl, -confidence, -statistic, -method)
@@ -119,6 +113,7 @@ phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier
     phe_rate <- phe_rate %>%
       select( -confidence, -statistic, -method)
   }
+
 
   return(phe_rate)
 }

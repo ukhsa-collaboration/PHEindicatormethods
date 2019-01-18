@@ -37,20 +37,21 @@ Calculates proportions with confidence limits using Wilson Score method [1,2].
 }
 
 \examples{
-df <- data.frame(area = c("Area1","Area2","Area3"),
-                 numerator = c(65,82,100),
-                 denominator = c(100,100,100))
+
+# ungrouped data frame
+df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), each=3),
+                 numerator = c(NA,82,9,48, 6500,8200,10000,10000,8,7,750,900),
+                 denominator = rep(c(100,10000,10000,10000), each=3))
 
 phe_proportion(df, numerator, denominator)
 phe_proportion(df, numerator, denominator, confidence=99.8)
 phe_proportion(df, numerator, denominator, type="full")
 
-dfg <- data.frame(area = rep(c("Area1","Area2","Area3"), each=3),
-                 numerator = c(65,82,100, 6500,8200,10000,250,500,750),
-                 denominator = rep(c(100,10000,1000), each=3)) \%>\%
-                 group_by(area)
 
-phe_proportion(dfg,numerator, denominator, type="full")
+# grouped data frame
+library(dplyr)
+dfg <- df \%>\% group_by(area)
+phe_proportion(dfg, numerator, denominator)
 
 }
 \references{

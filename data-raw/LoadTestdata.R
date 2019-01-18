@@ -19,7 +19,7 @@ usethis::use_data(esp2013,internal=FALSE, overwrite=FALSE)
 # SAVE INTERNAL DATA IN R\Sysdata.rda - data available to functions and test scripts but not available to user:
 usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results,
                   test_quantiles_g, test_quantiles_ug, test_quantiles_fail,
-                  test_Rate,
+                  test_Rate, test_Rate_g, test_Rate_g_results,
                   test_Mean, test_Mean_Grp, test_Mean_results,
                   test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results,
                   test_ISR_refdata, test_ISR_results, test_ISR_ownref,
@@ -50,7 +50,9 @@ qnames <- data.frame(quantiles = c(2L,3L,4L,5L,6L,7L,8L,10L,12L,16L,20L),
 
 
 # quantile test data
-test_quantiles <- read_excel(".\\tests\\testthat\\testdata_Quantiles.xlsx", sheet="testdata_Quantiles",   col_names=TRUE)
+test_quantiles <- read_excel(".\\tests\\testthat\\testdata_Quantiles.xlsx",
+                             sheet="testdata_Quantiles",   col_names=TRUE)  %>%
+  select(-Rank, -RevValue, -Sex, -RowsInGrp)
 
 test_quantiles$Polarity[test_quantiles$Polarity == "RAG - High is good"] <- FALSE
 test_quantiles$Polarity[test_quantiles$Polarity == "RAG - Low is good"] <- TRUE
@@ -60,7 +62,7 @@ test_quantiles_ug <- test_quantiles %>%
   filter(substr(Test,1,4) == "Good")
 
 test_quantiles_g <-test_quantiles_ug %>%
-  group_by(IndicatorID, Sex)
+  group_by(IndSexRef)
 
 test_quantiles_fail <- test_quantiles %>%
   filter(Test == "BadPolarity")
@@ -92,6 +94,7 @@ test_Rate_g <- test_Rate %>%
   group_by(Area)
 
 test_Rate_g_results   <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate_g",   col_names=TRUE)
+
 
 
 

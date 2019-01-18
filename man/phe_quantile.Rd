@@ -4,8 +4,8 @@
 \alias{phe_quantile}
 \title{phe_quantiles}
 \usage{
-phe_quantile(data, values, basegeog, highergeog, nquantiles = 10L,
-  invert = TRUE, inverttype = "logical")
+phe_quantile(data, values, basegeog, highergeog = NULL,
+  nquantiles = 10L, invert = TRUE, inverttype = "logical")
 }
 \arguments{
 \item{data}{a data.frame containing the base and higher geography data and quantitive data for assigning quantiles,
@@ -18,8 +18,8 @@ unquoted string; no default}
 \item{basegeog}{field name from data containing the small area geographies to be assigned to quantiles;
 unquoted string; no default}
 
-\item{highergeog}{field name from data containing the higher geographies to assign separate quantile categories within;
-unquoted string; no default}
+\item{highergeog}{field name from data containing the higher geographies to assign separate quantile categories within if required;
+unquoted string; default = NULL}
 
 \item{nquantiles}{the number of quantiles to assign per higher geography; numeric; default=10L}
 

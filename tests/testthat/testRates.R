@@ -28,8 +28,8 @@ test_that("rates and CIs calculate correctly",{
   expect_equal(data.frame(phe_rate(slice(test_Rate,33:35)[1:3],Numerator,Denominator, type="full")),
                data.frame(select(slice(test_Rate,33:35),1:9)),check.attributes=FALSE, check.names=FALSE, info="test NAs")
 
-  expect_equal(phe_rate(slice(test_Rate_g,1:8)[1:3], Numerator, Denominator),
-               select(test_Rate_g_results,1:6),check.attributes=FALSE, check.names=FALSE, info="test grouped")
+  expect_equal(data.frame(phe_rate(slice(test_Rate_g,1:8)[1:3], Numerator, Denominator)),
+               data.frame(select(test_Rate_g_results,1:6)),check.attributes=FALSE, check.names=FALSE, info="test grouped")
   })
 
 
