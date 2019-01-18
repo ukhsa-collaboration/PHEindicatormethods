@@ -33,9 +33,23 @@
 #'
 #' @examples
 #'
+#'   df <- data.frame(region = as.character(rep(c("Region1","Region2","Region3","Region4"), each=250)),
+#'                    smallarea = as.character(paste0("Area",seq_along(1:1000))),
+#'                    vals = as.numeric(sample(200, 1000, replace = TRUE)),
+#'                    stringsAsFactors=FALSE)
 #'
+#' # assign small areas to deciles within regions - method 1
+#' phe_quantile(df, vals, smallarea, region)
 #'
+#' # assign small area to deciles within regions - method 2
+#' df_grp <- df %>% group_by(region)
+#' phe_quantile(df_grp, vals, smallarea)
 #'
+#' # assign smallareas to decile across whole data frame (ignoring region)
+#' phe_quantile(df, vals, smallarea)
+#'
+#' # assign smallareas to quintiles within regions, where high val = lowest quantile
+#' phe_quantile(df, vals, smallarea, region, invert=FALSE)
 #'
 #' @import dplyr
 #'
@@ -44,15 +58,16 @@
 #' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
-
 # create phe_quantile function using PHE method
 phe_quantile <- function(data, values, basegeog, highergeog = NULL,
-                          nquantiles=10L, invert=TRUE, inverttype = "logical") {
+                         nquantiles=10L, invert=TRUE, inverttype = "logical") {
+
 
   # check required arguments present
   if (missing(data)|missing(values)|missing(basegeog)) {
     stop("function phe_quantile requires at least 3 arguments: data, values, basegeog")
   }
+
 
   # check invert is valid and append to data
   if (!(inverttype %in% c("logical","field"))) {
@@ -71,47 +86,53 @@ phe_quantile <- function(data, values, basegeog, highergeog = NULL,
   # apply quotes to field names
   values_q     <- enquo(values)
   smallarea_q  <- enquo(basegeog)
+
   if(!missing(highergeog)) {
     highergeog_q = enquo(highergeog)
   }
 
+
   # error handling for valid data types and values
   if (!(is.numeric(pull(data, !!values_q)))) {
       stop("values argument must be a numeric field from data")
+
 
   #check all invert values are identical within groups and highergeogs   #CHECK THIS WITH CHANGES TO ALLOW NO HIGHERGEOG TO BE SPECIFIED
   } else if (nrow(count(data,invert_calc)) != nrow(count(data))) {
     stop("invert field values must take the same logical value for each data grouping set and highergeog")
   }
 
-  # assign quantiles
+
+  # add highergeog to grouping set
   if(!missing(highergeog)) {
 
-      phe_quantile <- data %>%
-      group_by(!!highergeog_q, add=TRUE) %>%
-      add_count(naflag = is.na(Value)) %>%
-      mutate(adj_value = if_else(invert_calc == TRUE,max(!!values_q,na.rm=TRUE)-!!values_q,!!values_q),
+      if (is.null(groups(data))) {
+          data <- data %>%
+                    group_by(!!highergeog_q)
+      } else {
+        data <- data %>%
+                  group_by(!!highergeog_q, add=TRUE)
+      }
+
+  }
+
+
+  # assign quantiles
+  phe_quantile <- data %>%
+      add_count(naflag = is.na(!!values_q)) %>%
+      mutate(adj_value = if_else(invert_calc == TRUE, max(!!values_q, na.rm=TRUE)-!!values_q,!!values_q),
              rank = rank(adj_value, ties.method="min", na.last = "keep"),
              quantile = floor((nquantiles+1)-ceiling(((n+1)-rank)/(n/nquantiles))),
              quantile = if_else(quantile == 0,1,quantile)) %>%
       select(-naflag,-n,-adj_value, -rank)
 
-  } else {
-
-      phe_quantile <- data %>%
-      add_count(naflag = is.na(Value)) %>%
-      mutate(adj_value = if_else(invert_calc == TRUE,max(!!values_q,na.rm=TRUE)-!!values_q,!!values_q),
-           rank = rank(adj_value, ties.method="min", na.last = "keep"),
-           quantile = floor((nquantiles+1)-ceiling(((n+1)-rank)/(n/nquantiles))),
-           quantile = if_else(quantile == 0,1,quantile)) %>%
-        select(-naflag,-n,-adj_value, -rank)
-  }
 
   #rename quantile column in output
   if (nquantiles %in% qnames$quantiles) {
     colname <- qnames$qname[qnames$quantiles == nquantiles]
     colnames(phe_quantile)[colnames(phe_quantile )=="quantile"] <- colname
   }
+
 
   # if invert provided as logical then delete invert_calc column created for calculation
   if (inverttype == "logical") {

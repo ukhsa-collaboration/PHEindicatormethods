@@ -45,6 +45,7 @@ phe_rate(df, obs, pop)
 phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
 
 # grouped data frame
+library(dplyr)
 dfg <- df \%>\% group_by(area)
 phe_rate(dfg, obs, pop)
 

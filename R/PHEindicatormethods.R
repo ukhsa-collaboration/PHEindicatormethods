@@ -4,7 +4,8 @@
 #' @docType package
 #' @name PHEindicatormethods
 NULL
-globalVariables(c("esp2013",
+globalVariables(c(":-",
+                  "esp2013",
                   "exp_x",
                   "expected",
                   "lowercl",
