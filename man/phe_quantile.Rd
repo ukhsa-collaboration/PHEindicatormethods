@@ -2,7 +2,7 @@
 % Please edit documentation in R/Quantiles.R
 \name{phe_quantile}
 \alias{phe_quantile}
-\title{phe_quantiles}
+\title{phe_quantile}
 \usage{
 phe_quantile(data, values, basegeog, highergeog = NULL,
   nquantiles = 10L, invert = TRUE, inverttype = "logical")
@@ -46,7 +46,7 @@ Assigns small areas to quantiles based on numeric data rankings.
 
 \examples{
 
-  df <- data.frame(region = as.character(rep(c("Region1","Region2","Region3","Region4"), each=250)),
+df <- data.frame(region = as.character(rep(c("Region1","Region2","Region3","Region4"), each=250)),
                    smallarea = as.character(paste0("Area",seq_along(1:1000))),
                    vals = as.numeric(sample(200, 1000, replace = TRUE)),
                    stringsAsFactors=FALSE)
@@ -55,6 +55,7 @@ Assigns small areas to quantiles based on numeric data rankings.
 phe_quantile(df, vals, smallarea, region)
 
 # assign small area to deciles within regions - method 2
+library(dplyr)
 df_grp <- df \%>\% group_by(region)
 phe_quantile(df_grp, vals, smallarea)
 

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' phe_quantiles
+#' phe_quantile
 #'
 #' Assigns small areas to quantiles based on numeric data rankings.
 #'
@@ -33,7 +33,7 @@
 #'
 #' @examples
 #'
-#'   df <- data.frame(region = as.character(rep(c("Region1","Region2","Region3","Region4"), each=250)),
+#' df <- data.frame(region = as.character(rep(c("Region1","Region2","Region3","Region4"), each=250)),
 #'                    smallarea = as.character(paste0("Area",seq_along(1:1000))),
 #'                    vals = as.numeric(sample(200, 1000, replace = TRUE)),
 #'                    stringsAsFactors=FALSE)
@@ -42,6 +42,7 @@
 #' phe_quantile(df, vals, smallarea, region)
 #'
 #' # assign small area to deciles within regions - method 2
+#' library(dplyr)
 #' df_grp <- df %>% group_by(region)
 #' phe_quantile(df_grp, vals, smallarea)
 #'
