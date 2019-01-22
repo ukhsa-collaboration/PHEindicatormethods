@@ -16,7 +16,8 @@
 #' @return When type = "full", returns the original data.frame with the following appended:
 #'         proportion, lower confidence limit, upper confidence limit, confidence level, statistic and method
 #'
-#' @importFrom rlang sym quo_name
+#' @import dplyr
+#' @importFrom rlang sym quo_name :=
 #'
 #' @section Notes: Wilson Score method [1,2] is applied using the \code{\link{wilson_lower}}
 #'  and \code{\link{wilson_upper}} functions.
@@ -38,7 +39,6 @@
 #' dfg <- df %>% group_by(area)
 #' phe_proportion(dfg, numerator, denominator)
 #'
-#' @import dplyr
 #'
 #' @export
 #'

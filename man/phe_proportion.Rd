@@ -53,6 +53,7 @@ library(dplyr)
 dfg <- df \%>\% group_by(area)
 phe_proportion(dfg, numerator, denominator)
 
+
 }
 \references{
 [1] Wilson EB. Probable inference, the law of succession, and statistical

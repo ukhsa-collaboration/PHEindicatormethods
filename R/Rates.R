@@ -13,7 +13,7 @@
 #' @return When type = "full", returns the original data.frame with the following appended:
 #'         rate, lower confidence limit, upper confidence limit, confidence level, statistic and method
 #'
-#' @importFrom rlang sym quo_name
+#' @importFrom rlang sym quo_name :=
 #'
 #' @import dplyr
 #'

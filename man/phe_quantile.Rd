@@ -8,7 +8,7 @@ phe_quantile(data, values, basegeog, highergeog = NULL,
   nquantiles = 10L, invert = TRUE, inverttype = "logical")
 }
 \arguments{
-\item{data}{a data.frame containing the base and higher geography data and quantitive data for assigning quantiles,
+\item{data}{a data.frame containing the base (and optionally higher) geography data and quantitative data for assigning quantiles,
 pre-grouped if quantiles required for breakdowns other than the defined higher geographies;
 unquoted string; no default}
 
@@ -40,7 +40,7 @@ Assigns small areas to quantiles based on numeric data rankings.
 \section{Notes}{
  See [PHE Technical Guide](https://fingertips.phe.org.uk/profile/guidance) for methodology.
          In particular, note that this function strictly applies the algorithm defined but some manual
-         review and potentially adjutustment is advised in some cases where multiple small areas with equal rank
+         review and potentially adjustment is advised in some cases where multiple small areas with equal rank
          fall across a natural quantile boundary.
 }
 
