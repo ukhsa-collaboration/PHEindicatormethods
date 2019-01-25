@@ -99,9 +99,9 @@ phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "sta
   n <- enquo(n)
 
   # validate arguments
-  if (any(pull(data, !!x) < 0)) {
+  if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
     stop("numerators must all be greater than or equal to zero")
-  } else if (any(pull(data, !!n) < 0)) {
+  } else if (any(pull(data, !!n) < 0, na.rm=TRUE)) {
     stop("denominators must all be greater than or equal to zero")
   } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
     stop("confidence level must be between 90 and 100 or between 0.9 and 1")
@@ -119,7 +119,7 @@ phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "sta
 
   phe_smr <- data %>%
     mutate(exp_x = xrefpop_calc/nrefpop_calc * (!!n)) %>%
-    summarise(observed  = sum((!!x)),
+    summarise(observed  = sum(!!x, na.rm=TRUE),
               expected  = sum(exp_x)) %>%
     mutate(value     = observed / expected * refvalue,
            lowercl = if_else(observed<10, qchisq((1-confidence)/2,2*observed)/2/expected * refvalue,

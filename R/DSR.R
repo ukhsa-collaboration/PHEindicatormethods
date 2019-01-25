@@ -93,7 +93,7 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
   n <- enquo(n)
 
   # validate arguments
-  if (any(pull(data, !!x) < 0)) {
+  if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
     stop("numerators must all be greater than or equal to zero")
   } else if (any(pull(data, !!n) <= 0)) {
     stop("denominators must all be greater than zero")
@@ -110,14 +110,14 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
 
 # calculate DSR and CIs
   phe_dsr <- data %>%
-    mutate(wt_rate = (!!x) * stdpop_calc / (!!n),
-           sq_rate = (!!x) * (stdpop_calc/(!!n))^2) %>%
-    summarise(total_count = sum(!!x),
+    mutate(wt_rate = na.zero(!!x) * stdpop_calc / (!!n),
+           sq_rate = na.zero(!!x) * (stdpop_calc/(!!n))^2, na.rm=TRUE) %>%
+    summarise(total_count = sum(!!x,na.rm=TRUE),
               total_pop = sum(!!n),
               value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
               vardsr = 1/sum(stdpop_calc)^2 * sum(sq_rate),
-              lowercl = value + sqrt((vardsr/sum(!!x)))*(byars_lower(sum(!!x),confidence)-sum(!!x)) * multiplier,
-              uppercl = value + sqrt((vardsr/sum(!!x)))*(byars_upper(sum(!!x),confidence)-sum(!!x)) * multiplier) %>%
+              lowercl = value + sqrt((vardsr/sum(!!x,na.rm=TRUE)))*(byars_lower(sum(!!x,na.rm=TRUE),confidence)-sum(!!x,na.rm=TRUE)) * multiplier,
+              uppercl = value + sqrt((vardsr/sum(!!x,na.rm=TRUE)))*(byars_upper(sum(!!x,na.rm=TRUE),confidence)-sum(!!x,na.rm=TRUE)) * multiplier) %>%
     select(-vardsr) %>%
     mutate(confidence = paste(confidence*100,"%",sep=""),
            statistic = paste("dsr per",format(multiplier,scientific=F)),
