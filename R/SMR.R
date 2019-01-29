@@ -116,9 +116,14 @@ phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "sta
     confidence <- confidence/100
   }
 
+  # create na.zero function
+  na.zero <- function (y) {
+    y[is.na(y)] <- 0
+    return(y)
+  }
 
   phe_smr <- data %>%
-    mutate(exp_x = xrefpop_calc/nrefpop_calc * (!!n)) %>%
+    mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero(!!n)) %>%
     summarise(observed  = sum(!!x, na.rm=TRUE),
               expected  = sum(exp_x)) %>%
     mutate(value     = observed / expected * refvalue,

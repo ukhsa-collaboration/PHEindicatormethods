@@ -59,7 +59,8 @@
 # -------------------------------------------------------------------------------------------------
 
 
-phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "standard", confidence = 0.95, multiplier = 100000) {
+phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
+                    type = "standard", confidence = 0.95, multiplier = 100000) {
 
   # check required arguments present
   if (missing(data)|missing(x)|missing(n)|missing(x_ref)|missing(n_ref)) {
@@ -114,11 +115,17 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "sta
     confidence <- confidence/100
   }
 
+  # create na.zero function
+  na.zero <- function (y) {
+    y[is.na(y)] <- 0
+    return(y)
+  }
+
   phe_isr <- data %>%
-    mutate(exp_x = xrefpop_calc/nrefpop_calc * (!!n)) %>%
+    mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero(!!n)) %>%
     summarise(observed  = sum(!!x, na.rm=TRUE),
               expected  = sum(exp_x),
-              ref_rate = sum(xrefpop_calc) / sum(nrefpop_calc) * multiplier) %>%
+              ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier) %>%
     mutate(value     = observed / expected * ref_rate,
            lowercl = if_else(observed<10, qchisq((1-confidence)/2,2*observed)/2/expected * ref_rate,
                              byars_lower(observed,confidence)/expected * ref_rate),

@@ -3,7 +3,7 @@ context("test_phe_isr")
 #test calculations
 test_that("isrs and CIs calculate correctly",{
 
-  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop)),
+  expect_equal(data.frame(phe_isr(select(test_ISR_ownref,-refcount,-refpop), count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop)),
                data.frame(select(slice(test_ISR_results,1:3),1,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test default")
 
@@ -11,7 +11,7 @@ test_that("isrs and CIs calculate correctly",{
                data.frame(select(slice(test_ISR_results,1:3),1,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test default with own ref data by col name")
 
-  expect_equal(data.frame(phe_isr(test_ISR_ownref, count, pop, test_ISR_ownref$refcount[1:19], test_ISR_ownref$refpop[1:19])),
+  expect_equal(data.frame(phe_isr(select(test_ISR_ownref,-refcount,-refpop), count, pop, test_ISR_ownref$refcount[1:19], test_ISR_ownref$refpop[1:19])),
                data.frame(select(slice(test_ISR_results,1:3),1,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test default with own ref data as vector")
 
@@ -19,8 +19,8 @@ test_that("isrs and CIs calculate correctly",{
                data.frame(select(slice(test_ISR_results,25:26),1,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test zero population")
 
-  expect_equal(data.frame(phe_isr(test_multiarea, count, pop,
-                       x_ref = c(10303,2824,3225,3615,3641,3490,3789,3213,3031,2771,3089,3490,3595,4745,5514,7125,5694,6210,5757),
+  expect_equal(data.frame(phe_isr(select(test_ISR_ownref,-refcount,-refpop), count, pop,
+                       x_ref = c(10303,2824,NA,3615,3641,3490,3789,3213,3031,2771,3089,3490,3595,4745,5514,7125,5694,6210,5757),
                        n_ref = c(50520,57173,60213,54659,44345,50128,62163,67423,62899,55463,60479,49974,44140,40888,37239,30819,18136,15325,13918))),
                data.frame(select(slice(test_ISR_results,1:3),1,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test ref as specified vector")

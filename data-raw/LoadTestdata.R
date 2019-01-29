@@ -122,5 +122,5 @@ test_multigroup  <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", 
 
 test_ISR_results <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testresults_ISR", col_names=TRUE)
 test_ISR_refdata <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="refdata",         col_names=TRUE)
-test_ISR_ownref  <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multiarea_ref", col_names=TRUE) %>%
+test_ISR_ownref  <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multiarea_isrsmr", col_names=TRUE) %>%
                       group_by(area)
