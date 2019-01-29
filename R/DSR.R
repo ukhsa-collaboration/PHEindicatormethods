@@ -108,6 +108,13 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
     confidence <- confidence/100
   }
 
+# create na.zero function
+    na.zero <- function (y) {
+    y[is.na(y)] <- 0
+    return(y)
+  }
+
+
 # calculate DSR and CIs
   phe_dsr <- data %>%
     mutate(wt_rate = na.zero(!!x) * stdpop_calc / (!!n),
