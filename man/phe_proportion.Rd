@@ -5,7 +5,7 @@
 \title{phe_proportion}
 \usage{
 phe_proportion(data, x, n, type = "standard", confidence = 0.95,
-  percentage = FALSE)
+  multiplier = 1, percentage = NULL)
 }
 \arguments{
 \item{data}{a data.frame containing the data to calculate proportions for, pre-grouped if proportions required for
@@ -22,7 +22,9 @@ unquoted string; no default}
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
-\item{percentage}{whether the output should be returned as a percentage; logical; default FALSE}
+\item{multiplier}{the multiplier used to express the final values (eg 100 = percentage); numeric; default 1}
+
+\item{percentage}{this argument is deprecated, please use multiplier argument instead}
 }
 \value{
 When type = "full", returns the original data.frame with the following appended:

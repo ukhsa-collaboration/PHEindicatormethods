@@ -8,11 +8,11 @@ test_that("proportions and CIs calculate correctly",{
                select(slice(test_Prop,1:8),1:6),check.attributes=FALSE, check.names=FALSE, info="test default")
 
   expect_equal(phe_proportion(slice(test_Prop,9:16)[1:3], Numerator, Denominator,
-                              percentage = TRUE, type="full"),
+                              multiplier = 100, type="full"),
                select(slice(test_Prop,9:16),1:9),check.attributes=FALSE, check.names=FALSE, info="test full, percentage")
 
   expect_equal(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator,
-                              percentage=FALSE, type="full"),
+                              multiplier = 1, type="full"),
                select(slice(test_Prop,1:8),1:9),check.attributes=FALSE, check.names=FALSE, info="test full")
 
   expect_equal(data.frame(phe_proportion(slice(test_Prop,17:24)[1:3], Numerator, Denominator,
@@ -33,6 +33,10 @@ test_that("proportions and CIs calculate correctly",{
 
   expect_equal(data.frame(phe_proportion(slice(test_Prop_g,1:8)[1:3], Numerator, Denominator)),
                arrange(data.frame(test_Prop_g_results[1:6]),Area),check.attributes=FALSE, check.names=FALSE, info="test grouped")
+
+  expect_equal(phe_proportion(slice(test_Prop,9:16)[1:3], Numerator, Denominator,
+                              percentage=TRUE, type="full"),
+               select(slice(test_Prop,9:16),1:9),check.attributes=FALSE, check.names=FALSE, info="test percentage supplied")
 
 })
 
@@ -88,3 +92,17 @@ test_that("proportions - errors are generated when invalid arguments are used",{
 
 })
 
+
+# test warnings for back-compatibility
+
+test_that("proportions - warnings are generated when deprecated arguments are passed",{
+
+  expect_warning(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, percentage = TRUE),
+               "PERCENTAGE argument is deprecated, please use MULTIPLIER argument instead. MULTIPLIER has been set to 100.",
+               info="error not enough arguments")
+
+  expect_warning(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, percentage = FALSE),
+                 "PERCENTAGE argument is deprecated, please use MULTIPLIER argument instead. MULTIPLIER has been set to 1.",
+                 info="error not enough arguments")
+
+})

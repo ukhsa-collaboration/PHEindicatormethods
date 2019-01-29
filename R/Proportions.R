@@ -9,7 +9,8 @@
 #'          (the numerator for the proportion); unquoted string; no default
 #' @param n field name from data containing the number of cases in the sample (the denominator for the proportion);
 #'          unquoted string; no default
-#' @param percentage whether the output should be returned as a percentage; logical; default FALSE
+#' @param multiplier the multiplier used to express the final values (eg 100 = percentage); numeric; default 1
+#' @param percentage this argument is deprecated, please use multiplier argument instead
 #'
 #' @inheritParams phe_dsr
 #'
@@ -53,7 +54,7 @@
 # -------------------------------------------------------------------------------------------------
 
 # create phe_proportion function using Wilson's method
-phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percentage=FALSE) {
+phe_proportion <- function(data, x, n, type="standard", confidence=0.95, multiplier=1, percentage=NULL) {
 
 
   # check required arguments present
@@ -61,6 +62,15 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
     stop("function phe_proportion requires at least 3 arguments: data, x, n")
   }
 
+  # back-compatibility warning for deprecated percentage argument
+  if (!is.null(percentage)) {
+    if (percentage == TRUE) {
+      multiplier <- 100
+      warning("PERCENTAGE argument is deprecated, please use MULTIPLIER argument instead. MULTIPLIER has been set to 100.")
+    } else if (percentage == FALSE) {
+      warning("PERCENTAGE argument is deprecated, please use MULTIPLIER argument instead. MULTIPLIER has been set to 1.")
+    }
+  }
 
   # apply quotes
   x <- enquo(x)
@@ -87,14 +97,6 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
   }
 
 
-  # set multiplier
-  multiplier <- 1
-
-  if (percentage == TRUE) {
-    multiplier <- 100
-  }
-
-
   # if data is grouped then summarise
   if(!is.null(groups(data))) {
     data <- data %>%
@@ -109,7 +111,7 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, percent
              lowercl = wilson_lower((!!x),(!!n),confidence) * multiplier,
              uppercl = wilson_upper((!!x),(!!n),confidence) * multiplier,
              confidence = paste(confidence*100,"%",sep=""),
-             statistic = if_else(percentage == TRUE,"percentage","proportion"),
+             statistic = if_else(multiplier == 100,"percentage",paste0("proportion of ",multiplier)),
              method = "Wilson")
 
 
