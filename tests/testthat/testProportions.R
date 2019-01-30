@@ -34,9 +34,9 @@ test_that("proportions and CIs calculate correctly",{
   expect_equal(data.frame(phe_proportion(slice(test_Prop_g,1:8)[1:3], Numerator, Denominator)),
                arrange(data.frame(test_Prop_g_results[1:6]),Area),check.attributes=FALSE, check.names=FALSE, info="test grouped")
 
-  expect_equal(phe_proportion(slice(test_Prop,9:16)[1:3], Numerator, Denominator,
-                              percentage=TRUE, type="full"),
-               select(slice(test_Prop,9:16),1:9),check.attributes=FALSE, check.names=FALSE, info="test percentage supplied")
+#  expect_equal(phe_proportion(slice(test_Prop,9:16)[1:3], Numerator, Denominator,
+#                              percentage=TRUE, type="full"),
+#               select(slice(test_Prop,9:16),1:9),check.attributes=FALSE, check.names=FALSE, info="test percentage supplied")
 
 })
 
