@@ -1,6 +1,6 @@
 Package: PHEindicatormethods
 Type: Package
-Version: 1.0.8.9900
+Version: 1.0.8.9901
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate commonly used public health statistics and 
     their confidence intervals using methods approved for use in the production  
@@ -14,6 +14,10 @@ Description: Functions to calculate commonly used public health statistics and
     Armitage P, Berry G (2002) <doi:10.1002/9780470773666>.
     Wilson EB. (1927) <doi:10.1080/01621459.1927.10502953>.
     Altman DG et al (2000, ISBN: 978-0-727-91375-3).
+    Chiang CL. (1968, ISBN: 978-0-882-75200-6).
+    Newell C. (1994, ISBN: 978-0-898-62451-9).
+    Eayres DP, Williams ES (2004) <doi:10.1136/jech.2003.009654>.
+    Silcocks PBS et al (2001) <doi:10.1136/jech.55.1.38>.
 Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@phe.gov.uk", c("aut", "cre")),
              person("Fox", "Sebastian", , "sebastian.fox@phe.gov.uk", c("ctb")),
              person("Francis", "Matthew", , "matthew.francis@phe.gov.uk", c("ctb")),
@@ -32,5 +36,5 @@ Suggests:
     rmarkdown,
     RODBC,
     testthat,
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 VignetteBuilder: knitr

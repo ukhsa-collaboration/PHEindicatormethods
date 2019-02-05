@@ -1,0 +1,274 @@
+context("test_phe_life_expectancy")
+
+# dps to test to
+n <- 4
+
+df1 <- data.frame(startage = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L,
+                               60L, 65L, 70L, 75L, 80L, 85L, 90L),
+                  pops = c(7060L, 35059L, 46974L, 48489L, 43219L, 38561L, 46009L, 57208L,
+                           61435L, 55601L, 50209L, 56416L, 46411L, 39820L, 37978L,
+                           37039L, 33288L, 23306L, 11936L, 11936L),
+                  deaths = c(17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L,
+                             263L, 304L, 536L, 872L, 1390L, 1605L, 1936L, 1937L))
+
+df2 <- data.frame(startage = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L,
+                               60L, 70L, 75L, 80L, 85L, 90L, 65L),
+                  pops = c(7060L, 35059L, 46974L, 48489L, 43219L, 38561L, 46009L, 57208L,
+                           61435L, 55601L, 50209L, 56416L, 46411L, 39820L, 37039L,
+                           33288L, 23306L, 11936L, 11936L, 37978L),
+                  deaths = c(17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L,
+                             263L, 304L, 872L, 1390L, 1605L, 1936L, 1937L, 536L))
+
+df3 <- data.frame(startage = c("0", "1-4", "5-9", "10 – 14", "15 – 19", "20 – 24", "25 – 29",
+                               "30 – 34", "35 – 39", "40 – 44", "45 – 49", "50 – 54",
+                               "55 – 59", "60 – 64", "65 – 69", "75 – 79", "80 – 84",
+                               "85 – 89", "90 +", "70 – 74"),
+                  pops = c(7060L, 35059L, 46974L, 48489L, 43219L, 38561L, 46009L, 57208L,
+                           61435L, 55601L, 50209L, 56416L, 46411L, 39820L, 37978L,
+                           33288L, 23306L, 11936L, 11936L, 37039L),
+                  deaths = c(17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L,
+                             263L, 304L, 536L, 1390L, 1605L, 1936L, 1937L, 872L))
+df_neg_deaths <- data.frame(age = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L,
+                                    60L, 65L, 70L, 75L, 80L, 85L, 90L),
+                            pop = c(7060L, 35059L, 46974L, 48489L, 43219L, 38561L, 46009L, 57208L,
+                                    61435L, 55601L, 50209L, 56416L, 46411L, 39820L, 37978L,
+                                    37039L, 33288L, 23306L, 11936L, 11936L),
+                            deaths = c(17L, 9L, 4L, -5L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L,
+                                       263L, 304L, 536L, 872L, 1390L, 1605L, 1936L, 1937L))
+df_zero_pop <- data.frame(age = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L,
+                                  60L, 65L, 70L, 75L, 80L, 85L, 90L),
+                          pop = c(7060L, 35059L, 46974L, 48489L, 43219L, 0L, 46009L, 57208L,
+                                  61435L, 55601L, 50209L, 56416L, 46411L, 39820L, 37978L,
+                                  37039L, 33288L, 23306L, 11936L, 11936L),
+                          deaths = c(17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L,
+                                     263L, 304L, 536L, 872L, 1390L, 1605L, 1936L, 1937L))
+df_deaths_greater_pops <- data.frame(age = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L,
+                                                  60L, 65L, 70L, 75L, 80L, 85L, 90L),
+                                     pop = c(7060L, 35059L, 46974L, 48489L, 43219L, 38561L, 46009L, 57208L,
+                                              61435L, 55601L, 50209L, 56416L, 46411L, 39820L, 37978L,
+                                              37039L, 33288L, 23306L, 119L, 11936L),
+                                     deaths = c(17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L,
+                                                263L, 304L, 536L, 872L, 1390L, 1605L, 1936L, 1937L))
+df_missing_age <- data.frame(age = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L,
+                                     60L, 65L, 70L, 75L, 80L, 85L),
+                             pop = c(7060L, 35059L, 46974L, 48489L, 43219L, 38561L, 46009L, 57208L,
+                                     61435L, 55601L, 50209L, 56416L, 46411L, 39820L, 37978L,
+                                     37039L, 33288L, 23306L, 11936L),
+                             deaths = c(17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L,
+                                        263L, 304L, 536L, 872L, 1390L, 1605L, 1936L))
+df_low_pops <- data.frame(stringsAsFactors=FALSE,
+                          age = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L,
+                                  60L, 65L, 70L, 75L, 80L, 85L, 90L),
+                          pop = c(128L, 152L, 120L, 176L, 194L, 180L, 145L, 149L, 107L, 185L,
+                                  165L, 109L, 100L, 122L, 133L, 189L, 123L, 121L, 147L,
+                                  138L),
+                          deaths = c(58L, 93L, 78L, 94L, 59L, 71L, 80L, 73L, 69L, 72L, 91L, 69L,
+                                     78L, 71L, 54L, 91L, 82L, 53L, 50L, 84L))
+
+df_grouped_with_warnings <- data.frame(stringsAsFactors=FALSE,
+                                       area = c(rep("Good data", 20),
+                                                rep("Negative deaths", 20),
+                                                rep("Negative pops", 20),
+                                                rep("Deaths more than pops", 20),
+                                                rep("Low pops", 20),
+                                                rep("Missing age band", 19)),
+                                       age = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L,
+                                               60L, 65L, 70L, 75L, 80L, 85L, 90L, 0L, 1L, 5L, 10L, 15L, 20L,
+                                               25L, 30L, 35L, 40L, 45L, 50L, 55L, 60L, 65L, 70L, 75L, 80L, 85L,
+                                               90L, 0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L,
+                                               55L, 60L, 65L, 70L, 75L, 80L, 85L, 90L, 0L, 1L, 5L, 10L, 15L,
+                                               20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L, 60L, 65L, 70L, 75L, 80L,
+                                               85L, 90L, 0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L,
+                                               55L, 60L, 65L, 70L, 75L, 80L, 85L, 90L, 0L, 1L, 5L, 10L, 15L,
+                                               20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L, 60L, 65L, 70L, 75L, 80L,
+                                               85L),
+                                       pop = c(7060L, 35059L, 46974L, 48489L, 43219L, 43219L, 46009L, 57208L,
+                                               61435L, 55601L, 50209L, 56416L, 46411L, 39820L, 37978L,
+                                               37039L, 33288L, 23306L, 11936L, 11936L, 7060L, 35059L, 46974L, 48489L,
+                                               43219L, 43219L, 46009L, 57208L, 61435L, 55601L, 50209L, 56416L,
+                                               46411L, 39820L, 37978L, 37039L, 33288L, 23306L, 11936L, 11936L,
+                                               7060L, 35059L, 46974L, -10L, 43219L, 43219L, 46009L, 57208L,
+                                               61435L, 55601L, 50209L, 56416L, 46411L, 39820L, 37978L, 37039L,
+                                               33288L, 23306L, 11936L, 11936L, 7060L, 35059L, 46974L, 48489L,
+                                               43219L, 43219L, 46009L, 57208L, 61435L, 55601L, 50209L, 56416L,
+                                               46411L, 39820L, 37978L, 37039L, 33288L, 23306L, 11936L, 11936L,
+                                               100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L,
+                                               100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 7060L,
+                                               35059L, 46974L, 48489L, 43219L, 43219L, 46009L, 57208L, 61435L,
+                                               55601L, 50209L, 56416L, 46411L, 39820L, 37978L, 37039L, 33288L,
+                                               23306L, 11936L),
+                                       deaths = c(17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L,
+                                                  263L, 304L, 536L, 872L, 1390L, 1605L, 1936L, 1937L, 17L, 9L,
+                                                  -2L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L, 263L, 304L,
+                                                  536L, 872L, 1390L, 1605L, 1936L, 1937L, 17L, 9L, 4L, 8L, 20L, 15L,
+                                                  24L, 33L, 50L, 71L, 100L, 163L, 263L, 304L, 536L, 872L, 1390L,
+                                                  1605L, 1936L, 1937L, 17L, 9L, 4L, 8L, 20L, 50000L, 24L, 33L,
+                                                  50L, 71L, 100L, 163L, 263L, 304L, 536L, 872L, 1390L, 1605L, 1936L,
+                                                  1937L, 17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 80L, 80L,
+                                                  80L, 80L, 80L, 80L, 80L, 80L, 80L, 80L, 17L, 9L, 4L, 8L, 20L,
+                                                  15L, 24L, 33L, 50L, 71L, 100L, 163L, 263L, 304L, 536L, 872L,
+                                                  1390L, 1605L, 1936L))
+
+answer1 <- round(data.frame(value = c(80.16960813, 79.36245674, 75.44193645, 70.47299936,
+                                       65.52909542, 60.67510088, 55.78835987,
+                                       50.92752727, 46.06740425, 41.24505636,
+                                       36.49322717, 31.83343842, 27.26027992, 22.9719144,
+                                       18.76856852, 14.95858336, 11.51684445,
+                                       8.618849241, 6.163942934, 6.16210635),
+                             lowercl = c(79.88337168, 79.09060694, 75.17481253, 70.20750187,
+                                         65.26623987, 60.41954365, 55.53881521,
+                                         50.68362127, 45.82750817, 41.00928998,
+                                         36.26312602, 31.6109055, 27.04437185, 22.76764785,
+                                         18.57698682, 14.7814455, 11.35046239, 8.45442059,
+                                         5.984349256, 5.910940059),
+                             uppercl = c(80.45584458, 79.63430655, 75.70906036, 70.73849686,
+                                         65.79195098, 60.93065811, 56.03790452,
+                                         51.17143328, 46.30730033, 41.48082274,
+                                         36.72332832, 32.05597133, 27.47618799, 23.17618094,
+                                         18.96015021, 15.13572121, 11.68322651,
+                                         8.783277893, 6.343536612, 6.413272641)),
+                  n)
+
+answer2 <- cbind(df1[c(3, 7),],
+                 round(answer1[c(3, 7),], n),
+                 data.frame(stringsAsFactors = FALSE,
+                            confidence  = rep(0.95, 2),
+                            statistic = paste("life expectancy at", c(5, 25)),
+                            method = rep("Chiang, using Silcocks et al for confidence limits", 2)))
+
+test1 <- phe_life_expectancy(df1, deaths, pops, startage) %>%
+  select(value:uppercl)
+test1.1 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = 95) %>%
+  select(value:uppercl)
+test2 <- phe_life_expectancy(df2, deaths, pops, startage) %>%
+  select(value:uppercl)
+test3 <- df1 %>%
+  mutate(area = "test") %>%
+  group_by(area) %>%
+  phe_life_expectancy(deaths, pops, startage) %>%
+  ungroup() %>%
+  select(value:uppercl) %>%
+  data.frame()
+test4 <- phe_life_expectancy(df3, deaths, pops, startage,
+                             age_contents = c("0", "1-4", "5-9",
+                                              "10 – 14", "15 – 19",
+                                              "20 – 24", "25 – 29",
+                                              "30 – 34", "35 – 39",
+                                              "40 – 44", "45 – 49",
+                                              "50 – 54", "55 – 59",
+                                              "60 – 64", "65 – 69",
+                                              "70 – 74", "75 – 79",
+                                              "80 – 84", "85 – 89",
+                                              "90 +")) %>%
+  select(value:uppercl)
+test5 <- phe_life_expectancy(df1, deaths, pops, startage, le_age = 5) %>%
+  select(value:uppercl)
+test6 <- phe_life_expectancy(df1, deaths, pops, startage, le_age = c(5, 25), type = "full") %>%
+  mutate_at(c("value", "lowercl", "uppercl"), round, digits = n)
+negative_warning <- capture_warnings(test_neg <- phe_life_expectancy(df_neg_deaths, deaths, pop, age) %>%
+                                       select(value:uppercl))
+zero_warning <- capture_warnings(test_zero_pop <- phe_life_expectancy(df_zero_pop, deaths, pop, age) %>%
+                                  select(value:uppercl))
+deaths_pops_warning <- capture_warnings(test_greater_than_pops <- phe_life_expectancy(df_deaths_greater_pops, deaths, pop, age) %>%
+                                          select(value:uppercl))
+age_contents_short <- c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L,
+                        40L, 45L, 50L, 55L, 60L, 65L, 70L, 75L, 80L, 85L)
+low_pops_warning <- capture_warnings(test_low_pops <- phe_life_expectancy(df_low_pops, deaths, pop, age) %>%
+                                      select(value:uppercl))
+missing_warning <- capture_warnings(test_missing_ageband <- phe_life_expectancy(df_missing_age, deaths, pop, age,
+                                                                                age_contents = age_contents_short) %>%
+                                      select(value:uppercl))
+multi_warnings <- capture_warnings(
+  test_grouped_with_warnings <- df_grouped_with_warnings %>%
+                                    group_by(area) %>%
+                                    phe_life_expectancy(deaths, pop, age)
+  )
+
+
+#test calculations
+test_that("LE and CIs calculate correctly",{
+  expect_equal(round(test1, n), round(answer1, n),
+               info = "test default")
+  expect_equal(round(test1.1, n), round(answer1, n),
+               info = "test confidence = 95")
+  expect_equal(round(test2, n), round(answer1, n),
+               info = "incorrect ageband order")
+  expect_equal(round(test3, n), round(answer1, n),
+               info = "single area grouping")
+  expect_equal(round(test4, n), round(answer1, n),
+               info = "custom age bands in wrong order")
+  expect_equal(round(test5, n), round(answer1[3, ], n),
+               check.attributes = FALSE, #because the row names are different and we are only interested in values
+               info = "return single age band")
+  expect_equal(test6, answer2,
+               check.attributes = FALSE, #because the row names are different and we are only interested in values
+               info = "type = 'full' with two filters")
+  expect_equal(sum(!is.na(test_neg)), 0,
+               info = "negative deaths produces only NAs")
+  expect_equal(sum(!is.na(test_zero_pop)), 0,
+               info = "zero in pop age band produces only NAs")
+  expect_equal(sum(!is.na(test_greater_than_pops)), 0,
+               info = "deaths in age band greater than pops produces only NAs")
+  expect_equal(sum(!is.na(test_missing_ageband)), 0,
+               info = "missing age band produces only NAs")
+  expect_equal(nrow(test_grouped_with_warnings), nrow(df_grouped_with_warnings),
+               info = "correct number of rows for grouped calcs")
+
+})
+
+# test warnings
+test_that("LE - warnings are generated when invalid arguments are used",{
+  expect_warning(phe_life_expectancy(df1, deaths, pops, startage, le_age = 4),
+                 "le_age not in the vector described by age_contents; all life expectancies will be returned")
+  expect_warning(phe_life_expectancy(df1, deaths, pops, startage, le_age = c(4, 6)),
+                 "le_age not in the vector described by age_contents; all life expectancies will be returned")
+  expect_match(negative_warning,
+               "some age bands have negative deaths; outputs have been suppressed to NAs")
+  expect_match(zero_warning,
+               "some age bands have a zero or less population; outputs have been suppressed to NAs")
+  expect_match(deaths_pops_warning,
+               "some age bands have more deaths than population; outputs have been suppressed to NAs")
+  expect_match(low_pops_warning,
+               "some groups have a total population of less than 5,000; outputs have been suppressed to NAs")
+  expect_match(missing_warning,
+               "some groups contain a different number of age bands than 20; life expectancy cannot be calculated for these\\. These groups will contain NAs\\.")
+  expect_match(multi_warnings, "some age bands have negative deaths; outputs have been suppressed to NAs",
+               all = FALSE)
+  expect_match(multi_warnings, "some age bands have a zero or less population; outputs have been suppressed to NAs",
+               all = FALSE)
+  expect_match(multi_warnings, "some groups contain a different number of age bands than 20; life expectancy cannot be calculated for these\\. These groups will contain NAs\\.",
+               all = FALSE)
+  expect_match(multi_warnings, "some age bands have more deaths than population; outputs have been suppressed to NAs",
+               all = FALSE)
+  expect_match(multi_warnings, "some groups have a total population of less than 5,000; outputs have been suppressed to NAs",
+               all = FALSE)
+})
+
+
+# test error handling
+
+test_that("LE - errors are generated when invalid arguments are used",{
+  expect_error(phe_life_expectancy(df3, deaths, pops, startage),
+               "the contents in the startage field do not match the contents of the age_contents vector")
+  expect_error(phe_life_expectancy(df3, deaths, pops, startage,
+                                   age_contents = c("0", "1-4", "5-9",
+                                                    "20 – 24", "25 – 29",
+                                                    "10 – 14", "15 – 19",
+                                                    "30 – 34", "35 – 39",
+                                                    "40 – 44", "45 – 49",
+                                                    "50 – 54", "55 – 59",
+                                                    "60 – 64", "65 – 69",
+                                                    "70 – 74", "75 – 79",
+                                                    "80 – 84", "85 – 89",
+                                                    "90 +")),
+               "age_contents doesn't appear to be in ascending order; the following age bands appear out of position: 20 – 24, 25 – 29, 10 – 14, 15 – 19")
+  expect_error(phe_life_expectancy(),
+               "function life_expectancy requires at least 4 arguments: data, deaths, population, startage")
+  expect_error(phe_life_expectancy(df1, deaths, pop, age,
+                                   age_contents = c(1L, 0L, seq(5, 90, by = 5))),
+               "first age band in age_contents must be 0")
+  expect_error(phe_life_expectancy(df1, deaths, pop, age,
+                                   confidence = 0.8),
+               "confidence level must be between 90 and 100 or between 0.9 and 1")
+
+})
