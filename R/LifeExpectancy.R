@@ -30,16 +30,26 @@
 #'
 #'   This function includes an adjustment to the method for calculating the
 #'   variance of the life expectancy estimate to include a term for the variance
-#'   associated with the final age interval. This adjustment is based on Eayres
-#'   and Williams[4] having assessed confidence limit accuracy following a publication
-#'   by Silcocks et al.[5]
+#'   associated with the final age interval. In the Chiang method the variance of
+#'   the life expectancy is the weighted sum of the variance of the probability
+#'   of survival across all the age intervals.  For the final age interval the
+#'   probability of survival is, by definition, zero and has zero variance.
+#'   However, Silcocks et al argue[4] that in the case of the final age interval
+#'   the life expectancy is dependent not on the probability of survival but on
+#'   the mean length of survival \eqn{(1/M_<sub>omega</sub>)}{(1/M_\omega)}.
+#'   Therefore the variance associated with the final age interval depends on the
+#'   age-specific mortality rate \eqn{M_<sub>omega</sub>}{M_\omega}.
 #'
 #'   Life expectancy cannot be calculated if the person-years in any given age
 #'   interval is zero. It will also not be calculated if the total person-years
 #'   is less than 5,000 as this is considered to be the minimum size for robust
-#'   calculation of life expectancy.[6]  Zero death counts are not a problem,
+#'   calculation of life expectancy.[5]  Zero death counts are not a problem,
 #'   except for the final age interval - there must be at least one death in
 #'   the 90+ interval for the calculations to be possible.
+#'
+#'   The methodology used in this function, along with discussion of alternative
+#'   options for life expectancy calculation for small areas, were described Eayres
+#'   and Williams.[6]
 #'
 #' @references
 #' [1] Chiang CL. The Life Table and its Construction. In: Introduction to
@@ -48,13 +58,13 @@
 #' [3] Office for National Statistics Report. Life expectancy at birth by
 #' health and local authorities in the United Kingdom, 1998 to 2000 (3-year
 #' aggregate figures.) Health Statistics Quarterly 2002;13:83-90 \cr \cr
-#' [4] Eayres DP, Williams ES. Evaluation of methodologies for small area
-#' life expectancy estimation. J Epidemiol Community Health 2004;58:243-249 \cr \cr
-#' [5] Silcocks PBS, Jenner DA, Reza R.  Life expectancy as a summary of mortality
+#' [4] Silcocks PBS, Jenner DA, Reza R.  Life expectancy as a summary of mortality
 #' in a population: statistical considerations and suitability for use by health
 #' authorities. J Epidemiol Community Health 2001;55:38-43 \cr \cr
-#' [6] Toson B, Baker A. Life expectancy at birth: methodological options for
+#' [5] Toson B, Baker A. Life expectancy at birth: methodological options for
 #' small populations. National Statistics  Methodological Series No 33. HMSO 2003.
+#' [6] Eayres DP, Williams ES. Evaluation of methodologies for small area
+#' life expectancy estimation. J Epidemiol Community Health 2004;58:243-249 \cr \cr
 #'
 #' @inheritParams phe_dsr
 #' @import dplyr
