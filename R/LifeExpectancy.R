@@ -360,11 +360,11 @@ phe_life_expectancy <- function(data, deaths, population, startage,
              di_2b_removed == 0 ~ 0,
              TRUE ~ (qi_2b_removed ^ 2) * (1 - qi_2b_removed) / !!deaths),
            spi_2b_removed = case_when(
-             id_2b_removed == number_age_bands ~ M_2b_removed * (1 - M_2b_removed) / !!population,
+             id_2b_removed == number_age_bands ~ 4 / (!!deaths * (M_2b_removed ^ 2)),
              TRUE ~ spi_2b_removed),
            W_spi_2b_removed = case_when(
              id_2b_removed < number_age_bands ~ spi_2b_removed * (l_2b_removed ^ 2) * (((1 - ai_2b_removed) * ni_2b_removed + lead(ei)) ^ 2),
-             TRUE ~ (l_2b_removed ^ 2) / (M_2b_removed ^ 4) * spi_2b_removed),
+             TRUE ~ ((l_2b_removed / 2) ^ 2) * spi_2b_removed),
            STi_2b_removed = rev(cumsum(rev(W_spi_2b_removed))),
            SeSE_2b_removed = sqrt(STi_2b_removed / (l_2b_removed ^ 2)),
                 lowercl = ei - z * SeSE_2b_removed,
