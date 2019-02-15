@@ -4,8 +4,8 @@
 \alias{phe_smr}
 \title{phe_smr}
 \usage{
-phe_smr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "standard",
-  confidence = 0.95, refvalue = 1)
+phe_smr(data, x, n, x_ref, n_ref, refpoptype = "vector",
+  type = "standard", confidence = 0.95, refvalue = 1)
 }
 \arguments{
 \item{data}{data.frame containing the data to be standardised, pre-grouped if multiple SMRs required; unquoted string; no default}
@@ -84,5 +84,7 @@ Other PHEindicatormethods package functions: \code{\link{byars_lower}},
   \code{\link{byars_upper}}, \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_mean}},
   \code{\link{phe_proportion}}, \code{\link{phe_rate}},
-  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
+  \code{\link{phe_sii}}, \code{\link{wilson_lower}},
+  \code{\link{wilson_upper}}
 }
+\concept{PHEindicatormethods package functions}

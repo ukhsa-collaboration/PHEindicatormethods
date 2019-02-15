@@ -68,8 +68,9 @@
 #' @param se field name within data that contains the standard error of the indicator
 #'        value. If not supplied, this will be calculated from the 95% lower and upper confidence
 #'        limits (i.e. one or the other of these fields must be supplied); unquoted string; no default
-#' @param multiplier factor to multiply outputted SII and SII confidence limits by
-#'        (e.g. set to -1 to return the absolute value of a negative SII);  numeric; default 1;
+#' @param multiplier factor to multiply the SII and SII confidence limits by (e.g. set to 100 to return
+#'        prevalences on a percentage scale between 0 and 100). If the multiplier is negative, the
+#'        inverse of the RII is taken to account for the change in polarity; numeric; default 1;
 #' @param repetitions number of random samples to perform to return confidence interval of SII;
 #'        numeric; default 100,000
 #' @param confidence confidence level used to calculate the lower and upper confidence limits of SII;
@@ -80,6 +81,9 @@
 #'        of once and return the Mean Average Difference between the first and subsequent samples (as a
 #'        measure of the amount of variation). Warning: this will significantly increase run time of the
 #'        function and should first be tested on a small number of repetitions; logical; default FALSE
+#' @param type "full" output includes columns in the output dataset specifying the parameters the user
+#'        has input to the function (value_type, multiplier, CI_confidence, CI_method); character string
+#'        either "full" or "standard"; default "full"
 #'
 #' @import dplyr
 #' @importFrom rlang quo_text
@@ -102,7 +106,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                     confidence = 0.95,
                     rii = FALSE,
                     reliability_stat = FALSE,
-                    type = "narrow") {
+                    type = "full") {
 
 
         # Part 1 - Checks on input data ---------------------------------------------
@@ -338,7 +342,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                 group_by(!!! syms(grouping_variables)) %>%
                 tidyr::nest() %>%  # create nested table
                    # perform linear model
-                mutate(model = purrr::map(data, ~ lm(yvals ~ sqrt_a + b_sqrt_a - 1, data = .))) %>%
+                mutate(model = purrr::map(data, ~ stats::lm(yvals ~ sqrt_a + b_sqrt_a - 1, data = .))) %>%
                    # extract model coefficients
                 tidyr::unnest(model %>% purrr::map(broom::tidy)) %>%
                    # remove unecessary fields

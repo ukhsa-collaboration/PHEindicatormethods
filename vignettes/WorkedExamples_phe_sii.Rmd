@@ -14,8 +14,6 @@ vignette: >
 ```{r output, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-#load("data/SII_example_data.rda")
-
 ```
 
 ## Introduction
@@ -25,11 +23,9 @@ This vignette provides examples of how to use the phe_sii function with differen
 *The following packages must be installed and loaded if not already available*
 
 ```{r setup, message = FALSE, warning = FALSE}
-
 # source functions required
 library(PHEindicatormethods)
-library(plyr)
-
+library(dplyr)
 ```
 
 ## Function and inputs

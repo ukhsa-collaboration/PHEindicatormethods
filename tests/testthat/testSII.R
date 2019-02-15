@@ -25,7 +25,8 @@ test1 <- data.frame(phe_sii(SII_test_grouped[1:20, 3:13],
                             value = Value, # value supplied
                             se = StandardError,
                             repetitions = 100,
-                            rii = TRUE))
+                            rii = TRUE,
+                            type = "standard"))
 
 set.seed(5)
 
@@ -35,7 +36,8 @@ test2 <- data.frame(phe_sii(SII_test_grouped[1:20, 3:13],
                             value = Value, # value supplied
                             se = StandardError,
                             repetitions = 100,
-                            rii = TRUE))
+                            rii = TRUE,
+                            type = "standard"))
 
 expect_equal(test1, test2)
 
@@ -53,7 +55,8 @@ test_that("SII and confidence limits calculate correctly",{
                                   value = Value, # value supplied
                                   se = StandardError,
                                   repetitions = no_reps,
-                                  rii = TRUE)),
+                                  rii = TRUE,
+                                  type = "standard")),
                data.frame(SII_test_grouped[c(1,11), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test default with SE provided", tolerance = tol)
@@ -66,7 +69,8 @@ test_that("SII and confidence limits calculate correctly",{
                                         lower_cl = LowerCL, # CLs supplied
                                         upper_cl = UpperCL,
                                         repetitions = no_reps,
-                                        rii = TRUE)),
+                                        rii = TRUE,
+                                  type = "standard")),
                      data.frame(SII_test_grouped[c(1,11), c(3:5,16:21)]),
                      check.attributes=FALSE, check.names=FALSE,
                      info="test default with CLs provided", tolerance = tol)
@@ -79,7 +83,8 @@ test_that("SII and confidence limits calculate correctly",{
                                   lower_cl = LowerCL, # CLs supplied
                                   upper_cl = UpperCL,
                                   repetitions = no_reps,
-                                  rii = TRUE)),
+                                  rii = TRUE,
+                                  type = "standard")),
                data.frame(SII_test_grouped[1, c(16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test on ungrouped data", tolerance = tol)
@@ -93,7 +98,8 @@ test_that("SII and confidence limits calculate correctly",{
                                   upper_cl = UpperCL,
                                   confidence = 0.99,
                                   repetitions = no_reps,
-                                  rii = TRUE)), # SII confidence changed
+                                  rii = TRUE,
+                                  type = "standard")), # SII confidence changed
                data.frame(SII_test_grouped[c(21,31), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test at 99% confidence (decimal)", tolerance = tol)
@@ -106,7 +112,8 @@ test_that("SII and confidence limits calculate correctly",{
                                   se = StandardError,
                                   confidence = 99,
                                   repetitions = no_reps,
-                                  rii = TRUE)), # SII confidence changed
+                                  rii = TRUE,
+                                  type = "standard")), # SII confidence changed
                data.frame(SII_test_grouped[c(21,31), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test at 99% confidence (%)", tolerance = tol)
@@ -118,7 +125,8 @@ test_that("SII and confidence limits calculate correctly",{
                                   value = Value,
                                   se = StandardError,
                                   repetitions = 100000,
-                                  rii = TRUE)), # No. repetitions changed
+                                  rii = TRUE,
+                                  type = "standard")), # No. repetitions changed
                data.frame(SII_test_grouped[c(41,51), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test on 10000 repetitions", tolerance = tol)
@@ -130,7 +138,8 @@ test_that("SII and confidence limits calculate correctly",{
                                   value = Value,
                                   se = StandardError,
                                   repetitions = no_reps,
-                                  rii = TRUE))[, 1:4], # only have SII available from Excel tool
+                                  rii = TRUE,
+                                  type = "standard"))[, 1:4], # only have SII available from Excel tool
                data.frame(SII_test_grouped[c(61,66), c(3:5,16)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test on quintiles", tolerance = tol)
@@ -146,7 +155,8 @@ test_that("SII and confidence limits calculate correctly",{
                                   value = Value,
                                   se = StandardError,
                                   repetitions = no_reps,
-                                  rii = TRUE)),
+                                  rii = TRUE,
+                                  type = "standard")),
                data.frame(SII_test_grouped[c(71,81), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test rate with SE provided", tolerance = tol)
@@ -160,7 +170,8 @@ test_that("SII and confidence limits calculate correctly",{
                                   lower_cl = LowerCL, # CLs supplied
                                   upper_cl = UpperCL,
                                   repetitions = no_reps,
-                                  rii = TRUE)),
+                                  rii = TRUE,
+                                  type = "standard")),
                data.frame(SII_test_grouped[c(71,81), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test rate with CLs provided", tolerance = tol)
@@ -177,7 +188,8 @@ test_that("SII and confidence limits calculate correctly",{
                                   value = Value,
                                   se = StandardError,
                                   repetitions = no_reps,
-                                  rii = TRUE)),
+                                  rii = TRUE,
+                                  type = "standard")),
                data.frame(SII_test_grouped[c(91,101), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test proportion with SE provided", tolerance = tol)
@@ -191,7 +203,8 @@ test_that("SII and confidence limits calculate correctly",{
                                   lower_cl = LowerCL, # CLs supplied
                                   upper_cl = UpperCL,
                                   repetitions = no_reps,
-                                  rii = TRUE)),
+                                  rii = TRUE,
+                                  type = "standard")),
                data.frame(SII_test_grouped[c(91,101), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test proportion with CLs provided", tolerance = tol)
@@ -204,7 +217,8 @@ test_that("SII and confidence limits calculate correctly",{
                                   lower_cl = LowerCL,
                                   upper_cl = UpperCL,
                                   repetitions = no_reps,
-                                  rii = TRUE)),
+                                  rii = TRUE,
+                                  type = "standard")),
                data.frame(SII_test_grouped[c(91,101), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test proportion with count provided", tolerance = tol)
@@ -218,7 +232,8 @@ test_that("SII and confidence limits calculate correctly",{
                                   lower_cl = LowerCL,
                                   upper_cl = UpperCL,
                                   repetitions = no_reps,
-                                  rii = TRUE)),
+                                  rii = TRUE,
+                                  type = "standard")),
                data.frame(SII_test_grouped[c(111,121), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test proportion with multiplier", tolerance = tol)
@@ -424,7 +439,8 @@ test_that("warnings are generated when data does not pass quality checks",{
                              Population,
                              value = Value,
                              lower_cl = LowerCL,
-                             upper_cl = UpperCL),
+                             upper_cl = UpperCL,
+                             type = "standard"),
                      "some records have been removed due to incomplete or invalid data")
 
         # TO ADD - reliability stat tolerance breached
@@ -445,7 +461,8 @@ test_that("reliaibility stats are returned when requested",{
                                lower_cl = LowerCL,
                                upper_cl = UpperCL,
                                repetitions = 100,
-                               reliability_stat = TRUE)),
+                               reliability_stat = TRUE,
+                               type = "standard")),
                        c(2,7))
 
         # check dimensions WITHOUT reliability stats
@@ -456,6 +473,19 @@ test_that("reliaibility stats are returned when requested",{
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
                                  repetitions = 100,
-                                 reliability_stat = FALSE)),
+                                 reliability_stat = FALSE,
+                                 type = "standard")),
                      c(2,6))
+
+        # check dimensions with default type = "full"
+        expect_equal(dim(phe_sii(SII_test_grouped[1:20, 3:13],
+                                 Quantile,
+                                 Population,
+                                 value = Value,
+                                 lower_cl = LowerCL,
+                                 upper_cl = UpperCL,
+                                 repetitions = 100,
+                                 reliability_stat = FALSE,
+                                 type = "full")),
+                     c(2,10))
 })
