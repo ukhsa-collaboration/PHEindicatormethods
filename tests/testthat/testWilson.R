@@ -20,6 +20,9 @@ test_that("wilson_lower calculate correctly",{
 
   expect_equal(data.frame(uppercl = wilson_upper(c(65,1045,0.445),c(100,5000,1),confidence=1)),
                data.frame(uppercl = 1),check.attributes=FALSE, check.names=FALSE, info="test default")
+
+  expect_equal(data.frame(uppercl = wilson_upper(c(65,1045,0.445),c(100,5000,1),confidence=99.8)),
+               data.frame(slice(test_BW,10:12)[4]),check.attributes=FALSE, check.names=FALSE, info="test default")
 })
 
 

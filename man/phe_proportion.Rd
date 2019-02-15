@@ -65,11 +65,9 @@ phe_proportion(dfg, numerator, denominator)
  2000. Pg 46 to 48.
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{byars_lower}},
-  \code{\link{byars_upper}}, \code{\link{phe_dsr}},
+Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_mean}},
   \code{\link{phe_quantile}}, \code{\link{phe_rate}},
-  \code{\link{phe_smr}}, \code{\link{wilson_lower}},
-  \code{\link{wilson_upper}}
+  \code{\link{phe_smr}}
 }
 \concept{PHEindicatormethods package functions}

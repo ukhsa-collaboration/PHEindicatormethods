@@ -41,7 +41,7 @@ test_that("isrs and CIs calculate correctly",{
                data.frame(select(slice(test_ISR_results,1:3),1,7)),
                check.attributes=FALSE, check.names=FALSE,info="test upper")
 
-  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop,confidence = 0.998)),
+  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop,confidence = 99.8)),
                data.frame(select(slice(test_ISR_results,4:6),1,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test confidence")
 

@@ -71,11 +71,9 @@ df \%>\%
 [2] Dobson A et al. Confidence intervals for weighted sums of Poisson parameters. Stat Med 1991;10:457-62.
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{byars_lower}},
-  \code{\link{byars_upper}}, \code{\link{phe_isr}},
+Other PHEindicatormethods package functions: \code{\link{phe_isr}},
   \code{\link{phe_mean}}, \code{\link{phe_proportion}},
   \code{\link{phe_quantile}}, \code{\link{phe_rate}},
-  \code{\link{phe_smr}}, \code{\link{wilson_lower}},
-  \code{\link{wilson_upper}}
+  \code{\link{phe_smr}}
 }
 \concept{PHEindicatormethods package functions}

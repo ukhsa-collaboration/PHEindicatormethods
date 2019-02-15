@@ -12,7 +12,8 @@
 #'               unquoted string referencing a numeric vector or field name from data depending on value of stdpoptype; default = esp2013
 #' @param stdpoptype whether the stdpop has been specified as a vector or a field name from data;
 #'                   quoted string "field" or "vector"; default = "vector"
-#' @param type type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard
+#' @param type type of output - defines whether to include metadata columns in output to reference the arguments passed;
+#'             can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default = "full"
 #' @param confidence the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000
@@ -61,93 +62,98 @@
 # -------------------------------------------------------------------------------------------------
 
 # define the DSR function using Dobson method
-phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = "standard", confidence = 0.95, multiplier = 100000) {
+phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = "full", confidence = 0.95, multiplier = 100000) {
 
-  # check required arguments present
-  if (missing(data)|missing(x)|missing(n)) {
-      stop("function phe_dsr requires at least 3 arguments: data, x, n")
-  }
+    # check required arguments present
+    if (missing(data)|missing(x)|missing(n)) {
+        stop("function phe_dsr requires at least 3 arguments: data, x, n")
+    }
 
-  # check same number of rows per group
-  if (n_distinct(select(ungroup(count(data)),n)) != 1) {
-    stop("data must contain the same number of rows for each group")
-  }
+    # check same number of rows per group
+    if (n_distinct(select(ungroup(count(data)),n)) != 1) {
+        stop("data must contain the same number of rows for each group")
+    }
 
-  # check stdpop is valid and append to data
-  if (!(stdpoptype %in% c("vector","field"))) {
-    stop("valid values for stdpoptype are vector and field")
-  } else if (stdpoptype == "vector") {
-     if (pull(slice(select(ungroup(count(data)),n),1)) != length(stdpop)) {
-        stop("stdpop length must equal number of rows in each group within data")
-     }
-      data <- mutate(data,stdpop_calc = stdpop)
-     } else if (stdpoptype == "field") {
-      enquostdpop <- enquo(stdpop)
-     if (deparse(substitute(stdpop)) %in% colnames(data)) {
-       data <- mutate(data,stdpop_calc = !!enquostdpop)
-     } else stop("stdpop is not a field name from data")
-  }
+    # check stdpop is valid and append to data
+    if (!(stdpoptype %in% c("vector","field"))) {
+        stop("valid values for stdpoptype are vector and field")
+    } else if (stdpoptype == "vector") {
+        if (pull(slice(select(ungroup(count(data)),n),1)) != length(stdpop)) {
+            stop("stdpop length must equal number of rows in each group within data")
+    }
 
-  # apply quotes
-  x <- enquo(x)
-  n <- enquo(n)
+    data <- mutate(data,stdpop_calc = stdpop)
 
-  # validate arguments
-  if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
-    stop("numerators must all be greater than or equal to zero")
-  } else if (any(pull(data, !!n) <= 0)) {
-    stop("denominators must all be greater than zero")
-  } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
-    stop("confidence level must be between 90 and 100 or between 0.9 and 1")
-  } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
-    stop("type must be one of value, lower, upper, standard or full")
-  }
+    } else if (stdpoptype == "field") {
 
-# scale confidence level
-  if (confidence >= 90) {
-    confidence <- confidence/100
-  }
+        enquostdpop <- enquo(stdpop)
+        if (deparse(substitute(stdpop)) %in% colnames(data)) {
 
-# create na.zero function
-    na.zero <- function (y) {
-    y[is.na(y)] <- 0
-    return(y)
-  }
+            data <- mutate(data,stdpop_calc = !!enquostdpop)
+
+        } else stop("stdpop is not a field name from data")
+    }
 
 
-# calculate DSR and CIs
-  phe_dsr <- data %>%
-    mutate(wt_rate = na.zero(!!x) * stdpop_calc / (!!n),
-           sq_rate = na.zero(!!x) * (stdpop_calc/(!!n))^2, na.rm=TRUE) %>%
-    summarise(total_count = sum(!!x,na.rm=TRUE),
-              total_pop = sum(!!n),
-              value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
-              vardsr = 1/sum(stdpop_calc)^2 * sum(sq_rate),
-              lowercl = value + sqrt((vardsr/sum(!!x,na.rm=TRUE)))*(byars_lower(sum(!!x,na.rm=TRUE),confidence)-sum(!!x,na.rm=TRUE)) * multiplier,
-              uppercl = value + sqrt((vardsr/sum(!!x,na.rm=TRUE)))*(byars_upper(sum(!!x,na.rm=TRUE),confidence)-sum(!!x,na.rm=TRUE)) * multiplier) %>%
-    select(-vardsr) %>%
-    mutate(confidence = paste(confidence*100,"%",sep=""),
-           statistic = paste("dsr per",format(multiplier,scientific=F)),
-           method = "Dobson")
+    # apply quotes
+    x <- enquo(x)
+    n <- enquo(n)
 
-  phe_dsr$value[phe_dsr$total_count < 10]    <- NA
-  phe_dsr$uppercl[phe_dsr$total_count < 10]  <- NA
-  phe_dsr$lowercl[phe_dsr$total_count < 10]  <- NA
-  phe_dsr$statistic[phe_dsr$total_count <10] <- "dsr NA for total count < 10"
 
-  if (type == "lower") {
-    phe_dsr <- phe_dsr %>%
-      select(-total_count, -total_pop, -value, -uppercl, -confidence, -statistic, -method)
-  } else if (type == "upper") {
-    phe_dsr <- phe_dsr %>%
-      select(-total_count, -total_pop, -value, -lowercl, -confidence, -statistic, -method)
-  } else if (type == "value") {
-    phe_dsr <- phe_dsr %>%
-      select(-total_count, -total_pop, -lowercl, -uppercl, -confidence, -statistic, -method)
-  } else if (type == "standard") {
-    phe_dsr <- phe_dsr %>%
-      select(-total_count, -total_pop, -confidence, -statistic, -method)
-  }
-  return(phe_dsr)
+    # validate arguments
+    if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
+        stop("numerators must all be greater than or equal to zero")
+    } else if (any(pull(data, !!n) <= 0)) {
+        stop("denominators must all be greater than zero")
+    } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
+        stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+    } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
+        stop("type must be one of value, lower, upper, standard or full")
+    }
+
+
+    # scale confidence level
+    if (confidence >= 90) {
+        confidence <- confidence/100
+    }
+
+
+    # calculate DSR and CIs
+    phe_dsr <- data %>%
+        mutate(wt_rate = na.zero(!!x) * stdpop_calc / (!!n),
+               sq_rate = na.zero(!!x) * (stdpop_calc/(!!n))^2, na.rm=TRUE) %>%
+        summarise(total_count = sum(!!x,na.rm=TRUE),
+                  total_pop = sum(!!n),
+                  value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
+                  vardsr = 1/sum(stdpop_calc)^2 * sum(sq_rate),
+                  lowercl = value + sqrt((vardsr/sum(!!x,na.rm=TRUE)))*(byars_lower(sum(!!x,na.rm=TRUE),confidence)-sum(!!x,na.rm=TRUE)) * multiplier,
+                  uppercl = value + sqrt((vardsr/sum(!!x,na.rm=TRUE)))*(byars_upper(sum(!!x,na.rm=TRUE),confidence)-sum(!!x,na.rm=TRUE)) * multiplier) %>%
+        select(-vardsr) %>%
+        mutate(confidence = paste(confidence*100,"%",sep=""),
+               statistic = paste("dsr per",format(multiplier,scientific=F)),
+               method = "Dobson")
+
+
+    phe_dsr$value[phe_dsr$total_count < 10]    <- NA
+    phe_dsr$uppercl[phe_dsr$total_count < 10]  <- NA
+    phe_dsr$lowercl[phe_dsr$total_count < 10]  <- NA
+    phe_dsr$statistic[phe_dsr$total_count <10] <- "dsr NA for total count < 10"
+
+
+    if (type == "lower") {
+        phe_dsr <- phe_dsr %>%
+        select(-total_count, -total_pop, -value, -uppercl, -confidence, -statistic, -method)
+    } else if (type == "upper") {
+        phe_dsr <- phe_dsr %>%
+        select(-total_count, -total_pop, -value, -lowercl, -confidence, -statistic, -method)
+    } else if (type == "value") {
+        phe_dsr <- phe_dsr %>%
+        select(-total_count, -total_pop, -lowercl, -uppercl, -confidence, -statistic, -method)
+    } else if (type == "standard") {
+        phe_dsr <- phe_dsr %>%
+        select(-total_count, -total_pop, -confidence, -statistic, -method)
+    }
+
+    return(phe_dsr)
 
 }

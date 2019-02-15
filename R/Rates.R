@@ -48,73 +48,73 @@
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate rate and CIs using Byar's method
-phe_rate <- function(data,x, n, type = "standard", confidence = 0.95, multiplier = 100000) {
+phe_rate <- function(data,x, n, type = "full", confidence = 0.95, multiplier = 100000) {
 
 
-  # check required arguments present
-  if (missing(data)|missing(x)|missing(n)) {
-    stop("function phe_rate requires at least 3 arguments: data, x, n")
-  }
+    # check required arguments present
+    if (missing(data)|missing(x)|missing(n)) {
+        stop("function phe_rate requires at least 3 arguments: data, x, n")
+    }
 
 
-  # apply quotes
-  x <- enquo(x)
-  n <- enquo(n)
+    # apply quotes
+    x <- enquo(x)
+    n <- enquo(n)
 
 
-  # validate arguments
-  if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
+    # validate arguments
+    if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
         stop("numerators must be greater than or equal to zero")
     } else if (any(pull(data, !!n) <= 0, na.rm=TRUE)) {
         stop("denominators must be greater than zero")
     } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
-      stop("type must be one of value, lower, upper, standard or full")
+        stop("type must be one of value, lower, upper, standard or full")
     }
 
 
-  # scale confidence level
-  if (confidence >= 90) {
-    confidence <- confidence/100
-  }
+    # scale confidence level
+    if (confidence >= 90) {
+        confidence <- confidence/100
+    }
 
 
-  # if data is grouped then summarise
-  if(!is.null(groups(data))) {
-    data <- data %>%
-      summarise(!!quo_name(x) := sum(!!x),
-                !!quo_name(n) := sum(!!n))
-  }
+    # if data is grouped then summarise
+    if(!is.null(groups(data))) {
+        data <- data %>%
+            summarise(!!quo_name(x) := sum(!!x),
+                      !!quo_name(n) := sum(!!n))
+    }
 
 
-  #calculate rate and CIs for ungrouped input dataframe
-  phe_rate <- data %>%
-          mutate(value = (!!x)/(!!n)*multiplier,
-          lowercl = if_else((!!x) < 10, qchisq((1-confidence)/2,2*(!!x))/2/(!!n)*multiplier,
-                            byars_lower((!!x),confidence)/(!!n)*multiplier),
-          uppercl = if_else((!!x) < 10, qchisq(confidence+(1-confidence)/2,2*(!!x)+2)/2/(!!n)*multiplier,
-                            byars_upper((!!x),confidence)/(!!n)*multiplier),
-          confidence = paste(confidence*100,"%",sep=""),
-          statistic = paste("rate per",as.character(format(multiplier, scientific=F))),
-          method  = if_else((!!x) < 10, "Exact","Byars"))
+    #calculate rate and CIs
+    phe_rate <- data %>%
+        mutate(value = (!!x)/(!!n)*multiplier,
+        lowercl = if_else((!!x) < 10, qchisq((1-confidence)/2,2*(!!x))/2/(!!n)*multiplier,
+                  byars_lower((!!x),confidence)/(!!n)*multiplier),
+        uppercl = if_else((!!x) < 10, qchisq(confidence+(1-confidence)/2,2*(!!x)+2)/2/(!!n)*multiplier,
+                  byars_upper((!!x),confidence)/(!!n)*multiplier),
+        confidence = paste(confidence*100,"%",sep=""),
+        statistic = paste("rate per",as.character(format(multiplier, scientific=F))),
+        method  = if_else((!!x) < 10, "Exact","Byars"))
 
 
-  # generate output in required format
-  if (type == "lower") {
-    phe_rate <- phe_rate %>%
-      select(-value, -uppercl, -confidence, -statistic, -method)
-  } else if (type == "upper") {
-    phe_rate <- phe_rate %>%
-      select(-value, -lowercl, -confidence, -statistic, -method)
-  } else if (type == "value") {
-    phe_rate<- phe_rate %>%
-      select(-lowercl, -uppercl, -confidence, -statistic, -method)
-  } else if (type == "standard") {
-    phe_rate <- phe_rate %>%
-      select( -confidence, -statistic, -method)
-  }
+    # generate output in required format
+    if (type == "lower") {
+        phe_rate <- phe_rate %>%
+            select(-value, -uppercl, -confidence, -statistic, -method)
+    } else if (type == "upper") {
+        phe_rate <- phe_rate %>%
+            select(-value, -lowercl, -confidence, -statistic, -method)
+    } else if (type == "value") {
+        phe_rate<- phe_rate %>%
+            select(-lowercl, -uppercl, -confidence, -statistic, -method)
+    } else if (type == "standard") {
+        phe_rate <- phe_rate %>%
+            select( -confidence, -statistic, -method)
+    }
 
 
-  return(phe_rate)
+    return(phe_rate)
 }

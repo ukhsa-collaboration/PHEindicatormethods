@@ -36,7 +36,7 @@ test_that("dsrs and CIs calculate correctly",{
                data.frame(select(slice(test_DSR_results,9:11),1,6)),
                check.attributes=FALSE, check.names=FALSE,info="test upper")
 
-  expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, stdpop = esp2013, confidence = 0.998)),
+  expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, stdpop = esp2013, confidence = 99.8)),
                data.frame(select(slice(test_DSR_results,13:15),1,4:6)),
                check.attributes=FALSE, check.names=FALSE,info="test confidence")
 

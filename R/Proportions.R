@@ -32,13 +32,13 @@
 #'
 #' phe_proportion(df, numerator, denominator)
 #' phe_proportion(df, numerator, denominator, confidence=99.8)
-#' phe_proportion(df, numerator, denominator, type="full")
+#' phe_proportion(df, numerator, denominator, type="standard")
 #'
 #'
 #' # grouped data frame
 #' library(dplyr)
 #' dfg <- df %>% group_by(area)
-#' phe_proportion(dfg, numerator, denominator)
+#' phe_proportion(dfg, numerator, denominator, multiplier=100)
 #'
 #'
 #' @export
@@ -54,31 +54,22 @@
 # -------------------------------------------------------------------------------------------------
 
 # create phe_proportion function using Wilson's method
-phe_proportion <- function(data, x, n, type="standard", confidence=0.95, multiplier=1, percentage=NULL) {
+phe_proportion <- function(data, x, n, type="full", confidence=0.95, multiplier=1) {
 
 
-  # check required arguments present
-  if (missing(data)|missing(x)|missing(n)) {
-    stop("function phe_proportion requires at least 3 arguments: data, x, n")
-  }
-
-  # back-compatibility warning for deprecated percentage argument
-  if (!is.null(percentage)) {
-    if (percentage == TRUE) {
-      multiplier <- 100
-      warning("PERCENTAGE argument is deprecated, please use MULTIPLIER argument instead. MULTIPLIER has been set to 100.")
-    } else if (percentage == FALSE) {
-      warning("PERCENTAGE argument is deprecated, please use MULTIPLIER argument instead. MULTIPLIER has been set to 1.")
+    # check required arguments present
+    if (missing(data)|missing(x)|missing(n)) {
+        stop("function phe_proportion requires at least 3 arguments: data, x, n")
     }
-  }
-
-  # apply quotes
-  x <- enquo(x)
-  n <- enquo(n)
 
 
-  # validate arguments
-  if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
+    # apply quotes
+    x <- enquo(x)
+    n <- enquo(n)
+
+
+    # validate arguments
+    if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
         stop("numerators must be greater than or equal to zero")
     } else if (any(pull(data, !!n) <= 0, na.rm=TRUE)) {
         stop("denominators must be greater than zero")
@@ -87,49 +78,49 @@ phe_proportion <- function(data, x, n, type="standard", confidence=0.95, multipl
     } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
-      stop("type must be one of value, lower, upper, standard or full")
+        stop("type must be one of value, lower, upper, standard or full")
     }
 
 
-  # scale confidence level
-  if (confidence >= 90) {
-    confidence <- confidence/100
-  }
+    # scale confidence level
+    if (confidence >= 90) {
+        confidence <- confidence/100
+    }
 
 
-  # if data is grouped then summarise
-  if(!is.null(groups(data))) {
-    data <- data %>%
-      summarise(!!quo_name(x) := sum(!!x),
-                !!quo_name(n) := sum(!!n))
-  }
+    # if data is grouped then summarise
+    if(!is.null(groups(data))) {
+        data <- data %>%
+        summarise(!!quo_name(x) := sum(!!x),
+                  !!quo_name(n) := sum(!!n))
+    }
 
 
-  # calculate proportion and CIs
-  phe_proportion <- data %>%
-      mutate(value = (!!x)/(!!n) * multiplier,
-             lowercl = wilson_lower((!!x),(!!n),confidence) * multiplier,
-             uppercl = wilson_upper((!!x),(!!n),confidence) * multiplier,
-             confidence = paste(confidence*100,"%",sep=""),
-             statistic = if_else(multiplier == 100,"percentage",paste0("proportion of ",multiplier)),
-             method = "Wilson")
+    # calculate proportion and CIs
+    phe_proportion <- data %>%
+        mutate(value = (!!x)/(!!n) * multiplier,
+               lowercl = wilson_lower((!!x),(!!n),confidence) * multiplier,
+               uppercl = wilson_upper((!!x),(!!n),confidence) * multiplier,
+               confidence = paste(confidence*100,"%",sep=""),
+               statistic = if_else(multiplier == 100,"percentage",paste0("proportion of ",multiplier)),
+               method = "Wilson")
 
 
-  # generate output in required format
-  if (type == "lower") {
-      phe_proportion <- phe_proportion %>%
-        select(-value, -uppercl, -confidence, -statistic, -method)
+    # generate output in required format
+    if (type == "lower") {
+        phe_proportion <- phe_proportion %>%
+            select(-value, -uppercl, -confidence, -statistic, -method)
     } else if (type == "upper") {
         phe_proportion <- phe_proportion %>%
-          select(-value, -lowercl, -confidence, -statistic, -method)
+            select(-value, -lowercl, -confidence, -statistic, -method)
     } else if (type == "value") {
         phe_proportion<- phe_proportion %>%
-          select(-lowercl, -uppercl, -confidence, -statistic, -method)
+            select(-lowercl, -uppercl, -confidence, -statistic, -method)
     } else if (type == "standard") {
         phe_proportion <- phe_proportion %>%
-          select( -confidence, -statistic, -method)
-  }
+            select( -confidence, -statistic, -method)
+    }
 
 
-  return(phe_proportion)
+    return(phe_proportion)
 }

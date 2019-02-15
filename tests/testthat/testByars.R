@@ -15,6 +15,9 @@ test_that("byars_lower calculate correctly",{
   expect_equal(data.frame(lowercl = byars_upper(c(65,1045,10),confidence=0.998)),
                data.frame(slice(test_BW,4:6)[4]),check.attributes=FALSE, check.names=FALSE, info="test default")
 
+  expect_equal(data.frame(lowercl = byars_upper(c(65,1045,10),confidence=99.8)),
+               data.frame(slice(test_BW,4:6)[4]),check.attributes=FALSE, check.names=FALSE, info="test default")
+
 })
 
 
