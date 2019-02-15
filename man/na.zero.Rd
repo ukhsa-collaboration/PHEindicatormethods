@@ -6,6 +6,9 @@
 \usage{
 na.zero(y)
 }
+\arguments{
+\item{y}{input vector}
+}
 \description{
 converts NAs to zeros
 }

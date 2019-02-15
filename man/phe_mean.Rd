@@ -4,14 +4,15 @@
 \alias{phe_mean}
 \title{phe_mean}
 \usage{
-phe_mean(data, x, type = "standard", confidence = 0.95)
+phe_mean(data, x, type = "full", confidence = 0.95)
 }
 \arguments{
 \item{data}{a data.frame containing the data to calculate means for, pre-grouped if multiple means required; unquoted string; no default}
 
 \item{x}{field name from data containing the values to calculate the means for; unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
+\item{type}{type of output - defines whether to include metadata columns in output to reference the arguments passed;
+can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}

@@ -1,9 +1,5 @@
 context("test_phe_quantiles")
 
-#library(dplyr)
-#library(readxl)
-#library(testthat)
-
 # test grouped df field
 df1 <- test_quantiles_g %>% filter(GroupSet == "IndSexReg")
 
@@ -20,27 +16,27 @@ df4 <- test_quantiles_ug %>% filter(GroupSet == "None")
 
 #test calculations
 test_that("quantiles calculate correctly",{
-  expect_equal(phe_quantile(df1,Value, AreaCode, ParentCode,
+  expect_equal(phe_quantile(df1,Value, ParentCode,
                             invert = Polarity, inverttype = "field")[15],
-               rename(df1,Decile = QuantileInGrp)[14],
+               rename(df1,quantile = QuantileInGrp)[14],
                check.attributes=FALSE, check.names=FALSE,info="test grouped df field")
 
-  expect_equal(phe_quantile(df2,Value, AreaCode, ParentCode,
+  expect_equal(phe_quantile(df2,Value, ParentCode,
                             invert = FALSE)[15],
-               rename(df2,Decile = QuantileInGrp)[14],
+               rename(df2,quantile = QuantileInGrp)[14],
                check.attributes=FALSE, check.names=FALSE,info="test grouped df logical")
 
-  expect_equal(phe_quantile(df3, Value, AreaCode, IndSexRef,
+  expect_equal(phe_quantile(df3, Value, IndSexRef,
                             invert = Polarity, inverttype = "field", nquantiles = 7L)[15],
-               rename(df3,Septile = QuantileInGrp)[14],check.attributes=FALSE,
+               rename(df3,quantile = QuantileInGrp)[14],check.attributes=FALSE,
                check.names=FALSE,info="test ungrouped df field")
 
-  expect_equal(phe_quantile(df4, Value, AreaCode, GroupSet, nquantiles = 4L)[15],
-               rename(df4,Quartile = QuantileInGrp)[14],
+  expect_equal(phe_quantile(df4, Value, GroupSet, nquantiles = 4L)[15],
+               rename(df4,quantile = QuantileInGrp)[14],
                check.attributes=FALSE, check.names=FALSE,info="test ungrouped df logical")
 
-  expect_equal(phe_quantile(df4, Value, AreaCode, nquantiles = 4L)[15],
-               rename(df4,Quartile = QuantileInGrp)[14],
+  expect_equal(phe_quantile(df4, Value, nquantiles = 4L)[15],
+               rename(df4,quantile = QuantileInGrp)[14],
                check.attributes=FALSE, check.names=FALSE,info="test ungrouped df logical nohighergeog")
 
 })
@@ -49,7 +45,8 @@ test_that("quantiles calculate correctly",{
 #test error handling
 test_that("quantiles - errors are generated when invalid arguments are used",{
   expect_error(phe_quantile(test_quantiles_g),
-               "function phe_quantile requires at least 3 arguments: data, values, basegeog",info="error invalid number of arguments")
+               "function phe_quantile requires at least 2 arguments: data and values",
+               info="error invalid number of arguments")
   expect_error(phe_quantile(test_quantiles_g, Value, AreaCode, ParentCode,
                             invert = Polarity, inverttype = "vector"),
                "valid values for inverttype are logical and field",info="error inverttype is invalid")

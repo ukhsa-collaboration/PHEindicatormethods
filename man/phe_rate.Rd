@@ -4,7 +4,7 @@
 \alias{phe_rate}
 \title{phe_rate}
 \usage{
-phe_rate(data, x, n, type = "standard", confidence = 0.95,
+phe_rate(data, x, n, type = "full", confidence = 0.95,
   multiplier = 1e+05)
 }
 \arguments{
@@ -15,7 +15,8 @@ group aggregates; unquoted string; no default}
 
 \item{n}{field name from data containing the rate denominators (eg populations); unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
+\item{type}{type of output - defines whether to include metadata columns in output to reference the arguments passed;
+can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}

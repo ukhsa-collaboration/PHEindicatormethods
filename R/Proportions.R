@@ -10,7 +10,6 @@
 #' @param n field name from data containing the number of cases in the sample (the denominator for the proportion);
 #'          unquoted string; no default
 #' @param multiplier the multiplier used to express the final values (eg 100 = percentage); numeric; default 1
-#' @param percentage this argument is deprecated, please use multiplier argument instead
 #'
 #' @inheritParams phe_dsr
 #'
@@ -21,7 +20,8 @@
 #' @importFrom rlang sym quo_name :=
 #'
 #' @section Notes: Wilson Score method [1,2] is applied using the \code{\link{wilson_lower}}
-#'  and \code{\link{wilson_upper}} functions.
+#'          and \code{\link{wilson_upper}} functions. \cr \cr
+#'          The percentage argument was deprecated in v1_1_0, please use multiplier argument instead
 #'
 #' @examples
 #'

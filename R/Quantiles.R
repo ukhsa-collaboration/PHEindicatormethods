@@ -82,13 +82,18 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
       data <- mutate(data,invert_calc = invert)
     } else if (inverttype == "field") {
       invert_q <- enquo(invert)
-      data <- rename(data,invert_calc = !!invert_q)
+      if (deparse(substitute(invert)) %in% colnames(data)) {
+
+          data <- mutate(data,invert_calc = !!invert_q)
+
+      } else stop("invert is not a field name from data")
+      #      data <- rename(data,invert_calc = !!invert_q)
     }
 
 
     # apply quotes to field names
     values_q     <- enquo(values)
-    highergeog_q = enquo(highergeog)
+    highergeog_q <- enquo(highergeog)
 
 
     # error handling for valid data types and values
@@ -118,13 +123,14 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
     phe_quantile <- data %>%
         add_count(naflag = is.na(!!values_q)) %>%
         mutate(adj_value = if_else(invert_calc == TRUE, max(!!values_q, na.rm=TRUE)-!!values_q,!!values_q),
-               rank = rank(adj_value, ties.method="min", na.last = "keep"),
-               quantile = floor((nquantiles+1)-ceiling(((n+1)-rank)/(n/nquantiles))),
-               quantile = if_else(quantile == 0,1,quantile)) %>%
+               rank      = rank(adj_value, ties.method="min", na.last = "keep"),
+               quantile  = floor((nquantiles+1)-ceiling(((n+1)-rank)/(n/nquantiles))),
+               quantile  = if_else(quantile == 0,1,quantile)) %>%
         select(-naflag,-n,-adj_value, -rank) %>%
-        mutate(nquantiles = nquantiles,
+        mutate(nquantiles        = nquantiles,
                highergeog_column = rlang::quo_name(highergeog_q),
-               invert = invert)
+               qinverted         = if_else(invert_calc == TRUE,"lowest quantile represents highest values",
+                                           "lowest quantile represents lowest values"))
 
 
     #rename quantile column in output - not implemented to ensure consistent output column names
@@ -135,9 +141,9 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
 
 
     # if invert provided as logical then delete invert_calc column created for calculation
-    if (inverttype == "logical") {
+#    if (inverttype == "logical") {
         phe_quantile <- phe_quantile %>% select(-invert_calc)
-    }
+ #   }
 
 
     # remove columns if not required based on value of type argument

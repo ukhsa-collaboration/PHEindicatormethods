@@ -4,8 +4,8 @@
 \alias{phe_isr}
 \title{phe_isr}
 \usage{
-phe_isr(data, x, n, x_ref, n_ref, refpoptype = "vector",
-  type = "standard", confidence = 0.95, multiplier = 1e+05)
+phe_isr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "full",
+  confidence = 0.95, multiplier = 1e+05)
 }
 \arguments{
 \item{data}{data.frame containing the data to be standardised, pre-grouped if multiple ISRs required; unquoted string; no default}
@@ -25,7 +25,8 @@ unquoted string referencing a numeric vector or field name from data depending o
 \item{refpoptype}{whether x_ref and n_ref have been specified as vectors or a field name from data;
 quoted string "field" or "vector"; default = "vector"}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
+\item{type}{type of output - defines whether to include metadata columns in output to reference the arguments passed;
+can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}

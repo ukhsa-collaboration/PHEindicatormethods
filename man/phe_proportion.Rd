@@ -4,8 +4,8 @@
 \alias{phe_proportion}
 \title{phe_proportion}
 \usage{
-phe_proportion(data, x, n, type = "standard", confidence = 0.95,
-  multiplier = 1, percentage = NULL)
+phe_proportion(data, x, n, type = "full", confidence = 0.95,
+  multiplier = 1)
 }
 \arguments{
 \item{data}{a data.frame containing the data to calculate proportions for, pre-grouped if proportions required for
@@ -17,14 +17,13 @@ group aggregates; unquoted string; no default}
 \item{n}{field name from data containing the number of cases in the sample (the denominator for the proportion);
 unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
+\item{type}{type of output - defines whether to include metadata columns in output to reference the arguments passed;
+can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
 \item{multiplier}{the multiplier used to express the final values (eg 100 = percentage); numeric; default 1}
-
-\item{percentage}{this argument is deprecated, please use multiplier argument instead}
 }
 \value{
 When type = "full", returns the original data.frame with the following appended:
@@ -35,7 +34,8 @@ Calculates proportions with confidence limits using Wilson Score method [1,2].
 }
 \section{Notes}{
  Wilson Score method [1,2] is applied using the \code{\link{wilson_lower}}
- and \code{\link{wilson_upper}} functions.
+         and \code{\link{wilson_upper}} functions. \cr \cr
+         The percentage argument was deprecated in v1_1_0, please use multiplier argument instead
 }
 
 \examples{
@@ -47,13 +47,13 @@ df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), each=3),
 
 phe_proportion(df, numerator, denominator)
 phe_proportion(df, numerator, denominator, confidence=99.8)
-phe_proportion(df, numerator, denominator, type="full")
+phe_proportion(df, numerator, denominator, type="standard")
 
 
 # grouped data frame
 library(dplyr)
 dfg <- df \%>\% group_by(area)
-phe_proportion(dfg, numerator, denominator)
+phe_proportion(dfg, numerator, denominator, multiplier=100)
 
 
 }

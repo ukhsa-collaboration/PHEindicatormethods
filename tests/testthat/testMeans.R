@@ -3,13 +3,10 @@ context("test_phe_mean")
 #test calculations
 test_that("means and CIs calculate correctly",{
   expect_equal(data.frame(phe_mean(test_Mean,values)),
-               data.frame(select(slice(test_Mean_results,3),5:7)),check.attributes=FALSE, check.names=FALSE,info="test default")
+               data.frame(select(slice(test_Mean_results,3),2:10)),check.attributes=FALSE, check.names=FALSE,info="test default")
 
-  expect_equal(data.frame(phe_mean(test_Mean_Grp,values)),
-                          data.frame(select(slice(test_Mean_results,1:2),1,5:7)),check.attributes=FALSE, check.names=FALSE,info="test default grouped")
-
-  expect_equal(data.frame(phe_mean(test_Mean_Grp,values, type="full")),
-                          data.frame(slice(test_Mean_results,1:2)),check.attributes=FALSE, check.names=FALSE,info="test full")
+  expect_equal(data.frame(phe_mean(test_Mean_Grp,values, type="standard")),
+                          data.frame(select(slice(test_Mean_results,1:2),1,5:7)),check.attributes=FALSE, check.names=FALSE,info="test grouped & standard")
 
   expect_equal(data.frame(phe_mean(test_Mean_Grp,values, type="value")),
                           data.frame(select(slice(test_Mean_results,1:2),1,5)),check.attributes=FALSE, check.names=FALSE,info="test value")
@@ -20,7 +17,7 @@ test_that("means and CIs calculate correctly",{
   expect_equal(data.frame(phe_mean(test_Mean_Grp,values, type="upper")),
                           data.frame(select(slice(test_Mean_results,1:2),1,7)),check.attributes=FALSE, check.names=FALSE,info="test upper")
 
-  expect_equal(data.frame(phe_mean(test_Mean_Grp,values, confidence = 99.8)),
+  expect_equal(data.frame(phe_mean(test_Mean_Grp,values, confidence = 99.8, type="standard")),
                           data.frame(select(slice(test_Mean_results,4:5),1,5:7)),check.attributes=FALSE, check.names=FALSE,info="test confidence")
 })
 

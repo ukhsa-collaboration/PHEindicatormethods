@@ -6,6 +6,14 @@
 \usage{
 wilson_lower(x, n, confidence = 0.95)
 }
+\arguments{
+\item{x}{the observed numbers of cases in the samples meeting the required condition; numeric vector; no default}
+
+\item{n}{the numbers of cases in the samples; numeric vector; no default}
+
+\item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
+or 90 and 100; numeric; default 0.95}
+}
 \value{
 Returns lower confidence limits for observed numbers of events using the Wilson Score method [1,2]
 }

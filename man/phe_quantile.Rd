@@ -4,18 +4,15 @@
 \alias{phe_quantile}
 \title{phe_quantile}
 \usage{
-phe_quantile(data, values, basegeog, highergeog = NULL,
-  nquantiles = 10L, invert = TRUE, inverttype = "logical")
+phe_quantile(data, values, highergeog = NULL, nquantiles = 10L,
+  invert = TRUE, inverttype = "logical", type = "full")
 }
 \arguments{
 \item{data}{a data.frame containing the base (and optionally higher) geography data and quantitative data for assigning quantiles,
 pre-grouped if quantiles required for breakdowns other than the defined higher geographies;
 unquoted string; no default}
 
-\item{values}{field name from data containing the numeric values to rank data by and assign quantiles from;
-unquoted string; no default}
-
-\item{basegeog}{field name from data containing the small area geographies to be assigned to quantiles;
+\item{values}{field name from data containing the numeric values for each base geography area to rank data by and assign quantiles from;
 unquoted string; no default}
 
 \item{highergeog}{field name from data containing the higher geographies to assign separate quantile categories within if required;
@@ -29,10 +26,12 @@ depending on value of inverttype; default = TRUE (ie highest values assigned to 
 
 \item{inverttype}{whether the invert argument has been specified as a single logical value or a field name from data;
 quoted string "field" or "logical"; default = "logical"}
+
+\item{type}{type of output - defines whether to include metadata columns in output to reference the arguments passed; can be "standard" or "full"; quoted string; default = "full"}
 }
 \value{
-When type = "full", returns the original data.frame with quantile field appended and
-        named according to nquantiles
+When type = "full", returns the original data.frame with quantile (quantile value), nquantiles (number of quantiles requested)
+        and invert (indicating direction of quantile assignment) fields appended.
 }
 \description{
 Assigns small areas to quantiles based on numeric data rankings.
@@ -40,7 +39,7 @@ Assigns small areas to quantiles based on numeric data rankings.
 \section{Notes}{
  See [PHE Technical Guide](https://fingertips.phe.org.uk/profile/guidance) for methodology.
          In particular, note that this function strictly applies the algorithm defined but some manual
-         review and potentially adjustment is advised in some cases where multiple small areas with equal rank
+         review, and potentially adjustment, is advised in some cases where multiple small areas with equal rank
          fall across a natural quantile boundary.
 }
 
@@ -51,19 +50,19 @@ df <- data.frame(region = as.character(rep(c("Region1","Region2","Region3","Regi
                    vals = as.numeric(sample(200, 1000, replace = TRUE)),
                    stringsAsFactors=FALSE)
 
-# assign small areas to deciles within regions - method 1
-phe_quantile(df, vals, smallarea, region)
+# assign small areas to deciles within regions - method 1: assign grouping set within function
+phe_quantile(df, vals, region)
 
-# assign small area to deciles within regions - method 2
+# assign small area to deciles within regions - method 2: pre-group input dataframe
 library(dplyr)
 df_grp <- df \%>\% group_by(region)
-phe_quantile(df_grp, vals, smallarea)
+phe_quantile(df_grp, vals)
 
 # assign smallareas to decile across whole data frame (ignoring region)
-phe_quantile(df, vals, smallarea)
+phe_quantile(df, vals)
 
 # assign smallareas to quintiles within regions, where high val = lowest quantile
-phe_quantile(df, vals, smallarea, region, invert=FALSE)
+phe_quantile(df, vals, region, invert=FALSE)
 
 }
 \seealso{
