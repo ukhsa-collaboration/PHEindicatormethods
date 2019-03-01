@@ -11,8 +11,8 @@ phe_mean(data, x, type = "full", confidence = 0.95)
 
 \item{x}{field name from data containing the values to calculate the means for; unquoted string; no default}
 
-\item{type}{type of output - defines whether to include metadata columns in output to reference the arguments passed;
-can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default = "full"}
+\item{type}{defines the data and metadata columns to be included in output;
+can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -35,7 +35,7 @@ df2 <- data.frame(area = rep(c("Area1", "Area2"),each=3),
                   values = c(20,30,40,200,300,400)) \%>\%
                   group_by(area)
 phe_mean(df2,values)
-phe_mean(df2,values,type="full", confidence=0.998)
+phe_mean(df2,values,type="standard", confidence=0.998)
 
 
 }

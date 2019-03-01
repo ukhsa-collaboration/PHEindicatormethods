@@ -39,6 +39,10 @@ test_that("quantiles calculate correctly",{
                rename(df4,quantile = QuantileInGrp)[14],
                check.attributes=FALSE, check.names=FALSE,info="test ungrouped df logical nohighergeog")
 
+  expect_equal(phe_quantile(df4, Value, nquantiles = 4L, type="standard")[15],
+               rename(df4,quantile = QuantileInGrp)[14],
+               check.attributes=FALSE, check.names=FALSE,info="test ungrouped df logical nohighergeog")
+
 })
 
 
@@ -59,4 +63,7 @@ test_that("quantiles - errors are generated when invalid arguments are used",{
   expect_error(phe_quantile(test_quantiles_fail, Value, AreaCode, Ref_ug,
                             invert = Polarity, inverttype = "field"),
                "invert field values must take the same logical value for each data grouping set and highergeog",info="error invert varies")
+  expect_error(phe_quantile(test_quantiles_fail, Value, AreaCode, Ref_ug,
+                            invert = Pol, inverttype = "field"),
+               "invert is not a field name from data",info="error invert not valid field name")
 })

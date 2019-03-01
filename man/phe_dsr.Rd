@@ -22,8 +22,8 @@ unquoted string referencing a numeric vector or field name from data depending o
 \item{stdpoptype}{whether the stdpop has been specified as a vector or a field name from data;
 quoted string "field" or "vector"; default = "vector"}
 
-\item{type}{type of output - defines whether to include metadata columns in output to reference the arguments passed;
-can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default = "full"}
+\item{type}{defines the data and metadata columns to be included in output;
+can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -62,7 +62,7 @@ df \%>\%
 
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(obs, pop, type = "full")
+    phe_dsr(obs, pop, type = "standard")
 
 }
 \references{

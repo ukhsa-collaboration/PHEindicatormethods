@@ -17,8 +17,8 @@ group aggregates; unquoted string; no default}
 \item{n}{field name from data containing the number of cases in the sample (the denominator for the proportion);
 unquoted string; no default}
 
-\item{type}{type of output - defines whether to include metadata columns in output to reference the arguments passed;
-can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default = "full"}
+\item{type}{defines the data and metadata columns to be included in output;
+can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}

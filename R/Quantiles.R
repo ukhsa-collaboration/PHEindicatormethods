@@ -87,7 +87,6 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
           data <- mutate(data,invert_calc = !!invert_q)
 
       } else stop("invert is not a field name from data")
-      #      data <- rename(data,invert_calc = !!invert_q)
     }
 
 
@@ -133,23 +132,13 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
                                            "lowest quantile represents lowest values"))
 
 
-    #rename quantile column in output - not implemented to ensure consistent output column names
-    #if (nquantiles %in% qnames$quantiles) {
-    #    colname <- qnames$qname[qnames$quantiles == nquantiles]
-    #    colnames(phe_quantile)[colnames(phe_quantile )=="quantile"] <- colname
-    #}
-
-
-    # if invert provided as logical then delete invert_calc column created for calculation
-#    if (inverttype == "logical") {
-        phe_quantile <- phe_quantile %>% select(-invert_calc)
- #   }
-
-
     # remove columns if not required based on value of type argument
     if (type == "standard") {
         phe_quantile <- phe_quantile %>%
-        select(-nquantiles, -highergeog, -invert)
+                            select(-nquantiles, -highergeog_column, -qinverted, -invert_calc)
+    } else {
+        phe_quantile <- phe_quantile %>%
+                            select(-invert_calc)
     }
 
 
