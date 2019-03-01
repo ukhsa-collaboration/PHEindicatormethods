@@ -24,7 +24,7 @@
 #'                   values = c(20,30,40,200,300,400)) %>%
 #'                   group_by(area)
 #' phe_mean(df2,values)
-#' phe_mean(df2,values,type="full", confidence=0.998)
+#' phe_mean(df2,values,type="standard", confidence=0.998)
 #'
 #'
 #' @import dplyr
@@ -83,7 +83,7 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
             select(-value_sum, -value_count, -stdev, -lowercl, -uppercl, -confidence, -statistic, -method)
     } else if (type == "standard") {
         phe_mean <- phe_mean %>%
-          select(-value_sum, -value_count, -stdev, -confidence, -statistic, -method)
+          select(-confidence, -statistic, -method)
     }
 
 

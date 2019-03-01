@@ -19,7 +19,7 @@ test_that("smrs and CIs calculate correctly",{
 
   expect_equal(data.frame(phe_smr(test_err2, count, pop, type="standard", x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, refvalue=100)),
-               data.frame(select(slice(test_ISR_results,27:28),1,5:7)),
+               data.frame(select(slice(test_ISR_results,27:28),1:3,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test n = 0")
 
   expect_equal(data.frame(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop, type="standard",
@@ -27,12 +27,12 @@ test_that("smrs and CIs calculate correctly",{
                                             3089,3490,3595,4745,5514,7125,5694,6210,5757),
                                   n_ref = c(50520,57173,60213,54659,44345,50128,62163,67423,
                                             62899,55463,60479,49974,44140,40888,37239,30819,18136,15325,13918))),
-               data.frame(select(slice(test_ISR_results,13:15),1,5:7)),
+               data.frame(select(slice(test_ISR_results,13:15),1:3,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test ref as specified vector")
 
   expect_equal(data.frame(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, type="standard")),
-               data.frame(select(slice(test_ISR_results,13:15),1,5:7)),
+               data.frame(select(slice(test_ISR_results,13:15),1:3,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test standard")
 
   expect_equal(data.frame(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
@@ -53,13 +53,13 @@ test_that("smrs and CIs calculate correctly",{
   expect_equal(data.frame(phe_smr(test_multiarea, count, pop, type="standard",
                                   x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop,confidence = 99.8)),
-               data.frame(select(slice(test_ISR_results,16:18),1,5:7)),
+               data.frame(select(slice(test_ISR_results,16:18),1:3,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test confidence")
 
   expect_equal(data.frame(phe_smr(test_multiarea, count, pop, type="standard",
                                   x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, refvalue=100)),
-               data.frame(select(slice(test_ISR_results,19:21),1,5:7)),
+               data.frame(select(slice(test_ISR_results,19:21),1:3,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test refvalue")
 
 })

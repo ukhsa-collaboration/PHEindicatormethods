@@ -12,8 +12,8 @@
 #'               unquoted string referencing a numeric vector or field name from data depending on value of stdpoptype; default = esp2013
 #' @param stdpoptype whether the stdpop has been specified as a vector or a field name from data;
 #'                   quoted string "field" or "vector"; default = "vector"
-#' @param type type of output - defines whether to include metadata columns in output to reference the arguments passed;
-#'             can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default = "full"
+#' @param type defines the data and metadata columns to be included in output;
+#'             can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"
 #' @param confidence the required level of confidence expressed as a number between 0.9 and 1
 #'                   or 90 and 100; numeric; default 0.95
 #' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000
@@ -42,7 +42,7 @@
 #'
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     phe_dsr(obs, pop, type = "full")
+#'     phe_dsr(obs, pop, type = "standard")
 #'
 #' @section Notes: User MUST ensure that x, n and stdpop vectors are all ordered by
 #' the same standardisation category values as records will be matched by position. \cr \cr
@@ -151,7 +151,7 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = 
         select(-total_count, -total_pop, -lowercl, -uppercl, -confidence, -statistic, -method)
     } else if (type == "standard") {
         phe_dsr <- phe_dsr %>%
-        select(-total_count, -total_pop, -confidence, -statistic, -method)
+        select(-confidence, -statistic, -method)
     }
 
     return(phe_dsr)

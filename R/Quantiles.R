@@ -18,7 +18,7 @@
 #'               depending on value of inverttype; default = TRUE (ie highest values assigned to quantile 1)
 #' @param inverttype whether the invert argument has been specified as a single logical value or a field name from data;
 #'                   quoted string "field" or "logical"; default = "logical"
-#' @param type type of output - defines whether to include metadata columns in output to reference the arguments passed; can be "standard" or "full"; quoted string; default = "full"
+#' @param type defines whether to include metadata columns in output to reference the arguments passed; can be "standard" or "full"; quoted string; default = "full"
 #'
 #' @inheritParams phe_dsr
 #'

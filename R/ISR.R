@@ -37,7 +37,7 @@
 #'
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8)
+#'     phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="standard", confidence=99.8)
 #'
 #' @section Notes: User MUST ensure that x, n, x_ref and n_ref vectors are all ordered by
 #' the same standardisation category values as records will be matched by position. \cr  \cr
@@ -148,7 +148,7 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
             select(-observed, -expected, -ref_rate, -lowercl, -uppercl, -confidence, -statistic, -method)
     } else if (type == "standard") {
         phe_isr <- phe_isr %>%
-            select(-observed, -expected, -ref_rate, -confidence, -statistic, -method)
+            select(-confidence, -statistic, -method)
     }
 
     return(phe_isr)
