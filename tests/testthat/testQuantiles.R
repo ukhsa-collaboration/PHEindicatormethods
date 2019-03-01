@@ -16,14 +16,17 @@ df4 <- test_quantiles_ug %>% filter(GroupSet == "None")
 
 #test calculations
 test_that("quantiles calculate correctly",{
-  expect_equal(phe_quantile(df1,Value, ParentCode,
-                            invert = Polarity, inverttype = "field")[15],
+  expect_equal(data.frame(phe_quantile(df1,Value, ParentCode,
+                            invert = Polarity, inverttype = "field")[15]),
                rename(df1,quantile = QuantileInGrp)[14],
                check.attributes=FALSE, check.names=FALSE,info="test grouped df field")
 
   expect_equal(phe_quantile(df2,Value, ParentCode,
-                            invert = FALSE)[15],
-               rename(df2,quantile = QuantileInGrp)[14],
+                            invert = FALSE)[15:18],
+               data.frame(tibble(quantile = df2$QuantileInGrp,
+                      nquantiles = 10L,
+                      highergeog_column = "ParentCode",
+                      qinverted = "lowest quantile represents lowest values")),
                check.attributes=FALSE, check.names=FALSE,info="test grouped df logical")
 
   expect_equal(phe_quantile(df3, Value, IndSexRef,

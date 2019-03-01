@@ -33,6 +33,8 @@ globalVariables(c('esp2013',
                   'Value',
                   'adj_value',
                   'quantile',
-                  'naflag'
+                  'naflag',
+                  'highergeog_column',
+                  'qinverted'
                   )
 )
