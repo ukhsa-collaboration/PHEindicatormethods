@@ -96,10 +96,11 @@ The package contains the following functions, datasets and vignettes - see indiv
 - phe_dsr  
 - phe_isr  
 - phe_mean  
-- phe_proportion 
-- phe_quantile
+- phe_proportion   
+- phe_quantile  
 - phe_rate  
 - phe_smr  
+- phe_quantile  
   
 
 **Datasets:**  

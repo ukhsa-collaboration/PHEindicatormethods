@@ -78,6 +78,7 @@ The package contains the following functions, datasets and vignettes - see indiv
 -   phe\_quantile
 -   phe\_rate
 -   phe\_smr
+-   phe\_quantile
 
 **Datasets:**
 
