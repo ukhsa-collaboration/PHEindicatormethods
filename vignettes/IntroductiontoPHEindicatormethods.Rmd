@@ -33,7 +33,7 @@ library(dplyr)
 
 ## Package functions
 
-This vignette covers the following functions available within the first release of the package (v1.0.0).  If further functions are added to the package in future releases these will be explained elsewhere.
+This vignette covers the following functions available within the first release of the package (v1.0.8) but has been updated to apply to these functions in their latest release versions.  If further functions are added to the package in future releases these will be explained elsewhere.
 
 | Function       | Type                      | Description                                 |
 |:---------------|:--------------------------|:--------------------------------------------|
