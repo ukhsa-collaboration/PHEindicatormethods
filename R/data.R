@@ -22,3 +22,52 @@
 #' @format A numeric vector with 19 elements
 #'
 "esp2013"
+
+
+#' SII test datasets - Life Expectancy
+#'
+#' A data table of life expectancy data by area and deprivation decile
+#'
+#' @docType data
+#'
+#' @usage data(LE_data)
+#'
+#' @examples
+#' LE_data
+#'
+#' @format A data table
+#'
+"LE_data"
+
+
+#' SII test datasets - DSR
+#'
+#' A data table of dummy Directly Standardised Rates by deprivation quintiles
+#'
+#' @docType data
+#'
+#'
+#' @usage data(DSR_data)
+#'
+#' @examples
+#' DSR_data
+#'
+#' @format A data table
+#'
+"DSR_data"
+
+
+#' SII test datasets - Prevalence
+#'
+#' A data table of example prevalence data by area and deprivation decile
+#'
+#' @docType data
+#'
+#' @usage data(prevalence_data)
+#'
+#' @examples
+#' prevalence_data
+#'
+#' @format A data table
+#'
+"prevalence_data"

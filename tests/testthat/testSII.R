@@ -76,6 +76,8 @@ test_that("SII and confidence limits calculate correctly",{
                      info="test default with CLs provided", tolerance = tol)
 
    # test function on ungrouped dataset
+  SII_test_data <- ungroup(SII_test_grouped)
+
   expect_equal(data.frame(phe_sii(SII_test_data[1:10, 3:13],
                                   Quantile, Population,
                                   value_type = 0,

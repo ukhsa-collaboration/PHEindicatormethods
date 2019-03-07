@@ -86,7 +86,12 @@
 #'        either "full" or "standard"; default "full"
 #'
 #' @import dplyr
+#' @import nlme
 #' @importFrom rlang quo_text
+#' @importFrom purrr map
+#' @importFrom tidyr nest unnest spread
+#' @importFrom broom tidy
+#' @importFrom stats rnorm qnorm lm
 #'
 #' @export
 #'
@@ -296,7 +301,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
          }
 
         # Calculate standard error (if not supplied in input data), from lower and upper CLs
-        z <- qnorm(0.975) # hard-coded at 95% confidence
+        z <- stats::qnorm(0.975) # hard-coded at 95% confidence
 
         if (rlang::quo_text(se) %in% names(pops_prep)) {
                 pops_prep <- mutate(pops_prep, se_calc = !!se)

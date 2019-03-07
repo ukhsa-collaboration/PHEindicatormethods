@@ -93,7 +93,7 @@ SimulationFunc <- function(data,
   # Take random samples from a normal distribution with mean as the indicator value
   # sd. as the associated standard error. Store results in a
   # (no. of quantiles)x(no. of repeats) dimensional matrix.
-  yvals <- matrix(rnorm(no_reps*length(pull(data, !!value)), pull(data, !!value), pull(data, !!se)), ncol = no_reps)
+  yvals <- matrix(stats::rnorm(no_reps*length(pull(data, !!value)), pull(data, !!value), pull(data, !!se)), ncol = no_reps)
 
   # Retransform y values for rates (1) and proportions (2)
   if (value_type == 1) {

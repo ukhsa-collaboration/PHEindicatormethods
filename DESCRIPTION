@@ -26,7 +26,12 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     dplyr,
-    rlang
+    rlang,
+    nlme,
+    broom,
+    tidyr,
+    purrr,
+    stats
 Suggests: 
     knitr,
     readxl,

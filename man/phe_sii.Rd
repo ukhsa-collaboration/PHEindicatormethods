@@ -7,7 +7,7 @@
 phe_sii(data, quantile, population, x = NULL, value = NULL,
   value_type = 0, lower_cl = NULL, upper_cl = NULL, se = NULL,
   multiplier = 1, repetitions = 1e+05, confidence = 0.95,
-  rii = FALSE, reliability_stat = FALSE, type = "narrow")
+  rii = FALSE, reliability_stat = FALSE, type = "full")
 }
 \arguments{
 \item{data}{data.frame containing the data to calculate slope index of inequality from, pre-grouped if
@@ -42,8 +42,9 @@ if the se field is not supplied; unquoted string; no default}
 value. If not supplied, this will be calculated from the 95% lower and upper confidence
 limits (i.e. one or the other of these fields must be supplied); unquoted string; no default}
 
-\item{multiplier}{factor to multiply outputted SII and SII confidence limits by
-(e.g. set to -1 to return the absolute value of a negative SII);  numeric; default 1;}
+\item{multiplier}{factor to multiply the SII and SII confidence limits by (e.g. set to 100 to return
+prevalences on a percentage scale between 0 and 100). If the multiplier is negative, the
+inverse of the RII is taken to account for the change in polarity; numeric; default 1;}
 
 \item{repetitions}{number of random samples to perform to return confidence interval of SII;
 numeric; default 100,000}
@@ -58,6 +59,10 @@ as well as the SII; logical; default FALSE}
 of once and return the Mean Average Difference between the first and subsequent samples (as a
 measure of the amount of variation). Warning: this will significantly increase run time of the
 function and should first be tested on a small number of repetitions; logical; default FALSE}
+
+\item{type}{"full" output includes columns in the output dataset specifying the parameters the user
+has input to the function (value_type, multiplier, CI_confidence, CI_method); character string
+either "full" or "standard"; default "full"}
 }
 \value{
 The SII with lower and upper confidence limits for each subgroup of the inputted data.frame.

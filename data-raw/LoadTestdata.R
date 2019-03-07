@@ -47,23 +47,7 @@ SII_test_data <- read_excel("tests/testthat/testdata_SII.xlsx")
 
 # Grouped SII test data
 SII_test_grouped <- SII_test_data %>%
-  group_by(Area, Grouping1, Grouping2)
-
-# SII worked examples
-
-# 1) Read in sample life expectancy data
-LE_data <- read.csv("tests/testthat/LE_testdata.csv", stringsAsFactors = TRUE)
-
-# 2) Read in sample DSR data
-DSR_data <- read.csv("tests/testthat/DSR_testdata.csv", stringsAsFactors = TRUE)
-
-# 3) Read in sample child obesity prevalence data
-prevalence_data <- read.csv("tests/testthat/NCMP_testdata.csv", stringsAsFactors = TRUE)
-
-# save to rda file
-save(LE_data, file = "data/LE_data.rda")
-save(DSR_data, file = "data/DSR_data.rda")
-save(prevalence_data, file = "data/prevalence_data.rda")
+     group_by(Area, Grouping1, Grouping2)
 
 # use this code to save loaded data to R\sysdata.rda file:
 usethis::use_data(test_BW, test_Prop,
@@ -75,4 +59,5 @@ usethis::use_data(test_BW, test_Prop,
                     internal = TRUE, overwrite = TRUE)
 
 # SAVE EXTERNALLY AVAILABLE DATA IN data\XXXXXX.rda - data available to user
-usethis::use_data(esp2013,internal=FALSE, overwrite=TRUE)
+usethis::use_data(esp2013, LE_data, DSR_data, prevalence_data,
+                  internal=FALSE, overwrite=TRUE)
