@@ -86,11 +86,10 @@
 #'        either "full" or "standard"; default "full"
 #'
 #' @import dplyr
-#' @import nlme
+#' @import broom
 #' @importFrom rlang quo_text
 #' @importFrom purrr map
 #' @importFrom tidyr nest unnest spread
-#' @importFrom broom tidy
 #' @importFrom stats rnorm qnorm lm
 #'
 #' @export
@@ -165,56 +164,65 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
 
         # check for zero or negative populations
         negative_pops <- data %>%
-                filter(!!population <= 0)
+                filter(!!population <= 0 | is.na(!!population))
 
                 if (nrow(negative_pops) > 0) {
-                        stop("some groups have a zero or negative population")
+                        stop("some groups have a zero, negative or missing population")
+        }
+
+        # check for negative/missing standard errors
+        if(rlang::quo_text(se) %in% names(data)) {
+        negative_se <- data %>%
+                filter(!!se < 0 | is.na(!!se))
+
+                if (nrow(negative_se) > 0) {
+                        stop("negative or missing standard errors in input dataset")
+                        }
+        }
+
+        # check for missing confidence limits
+        if(rlang::quo_text(lower_cl) %in% names(data) & rlang::quo_text(upper_cl) %in% names(data)) {
+          negative_cl <- data %>%
+            filter(is.na(!!lower_cl) | is.na(!!upper_cl))
+
+          if (nrow(negative_cl) > 0) {
+            stop("missing lower or upper confidence limits in input dataset")
+          }
         }
 
         # checks on PROPORTIONS
         if(value_type == 2) {
 
-                # check for proportions outside (0,1) range
-                if(rlang::quo_text(value) %in% names(data)) {
-                        invalid_prop <- data %>%
-                                filter(!!value < 0 | !!value > 1)
+            # check for proportions outside (0,1) range
+            if(rlang::quo_text(value) %in% names(data)) {
+              invalid_prop <- data %>%
+                filter(!!value < 0 | !!value > 1)
 
-                        if (nrow(invalid_prop) > 0) {
-                                stop("value proportions are not all between 0 and 1")
-                        }
-                }
+              if (nrow(invalid_prop) > 0) {
+                stop("value proportions are not all between 0 and 1")
+              }
+            }
 
-                # check for lower and upper CLs outside (0,1) range
-                if(rlang::quo_text(lower_cl) %in% names(data) & rlang::quo_text(upper_cl) %in% names(data)) {
-                        invalid_prop_cl <- data %>%
-                                filter(!!lower_cl < 0 | !!lower_cl > 1 | !!upper_cl < 0 | !!upper_cl > 1)
+            # check for lower and upper CLs outside (0,1) range
+            if(rlang::quo_text(lower_cl) %in% names(data) & rlang::quo_text(upper_cl) %in% names(data)) {
+              invalid_prop_cl <- data %>%
+                filter(!!lower_cl < 0 | !!lower_cl > 1 | !!upper_cl < 0 | !!upper_cl > 1)
 
-                        if (nrow(invalid_prop_cl) > 0) {
-                                stop("confidence limit proportions are not all between 0 and 1")
-                        }
-                }
+              if (nrow(invalid_prop_cl) > 0) {
+                stop("confidence limit proportions are not all between 0 and 1")
+              }
+            }
 
-                # check for zero or negative counts
-                if(!(rlang::quo_text(value) %in% names(data)) & rlang::quo_text(x) %in% names(data)) {
-                negative_x <- data %>%
-                        filter(!!x <= 0)
+            # check for zero or negative counts
+            if(!(rlang::quo_text(value) %in% names(data)) & rlang::quo_text(x) %in% names(data)) {
+              negative_x <- data %>%
+                filter(!!x <= 0)
 
-                        if (nrow(negative_x) > 0) {
-                                stop("some groups have a zero or negative count x")
-                                        }
-                }
+              if (nrow(negative_x) > 0) {
+                stop("some groups have a zero or negative count x")
+              }
+          }
         }
-
-        # check for negative standard errors
-        if(rlang::quo_text(se) %in% names(data)) {
-        negative_se <- data %>%
-                filter(!!se < 0)
-
-                if (nrow(negative_se) > 0) {
-                        stop("some groups have a negative standard error")
-                        }
-        }
-
 
         # Part 2 - Start calculations ---------------------------------------------
 
@@ -276,8 +284,6 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                 pops_prep <- mutate(pops_prep, value = !!value)
         } else if (value_type == 2) {
                 pops_prep <- mutate(pops_prep, value = !!x / !!population)
-        } else {
-                stop("missing value field")
         }
 
         # Transform value, lower and upper confidence limits if value is a rate or proportion
@@ -375,108 +381,108 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
 
         # Part 3 - Choose and format output fields --------------------------------
 
-           # Case 1 - user requests reliability stats, SII only
+        # Case 1 - user requests reliability stats, SII only
         if (reliability_stat == TRUE) {
 
-              if(rii == FALSE) {
+          if(rii == FALSE) {
 
-                        # apply multiplicative factor to outputs, return SII only
-                        if (multiplier < 0) {
-                                popsSII_model <- popsSII_model %>%
-                                        mutate(SII = multiplier * sii
-                                               ,SII_lowerCL = multiplier * sii_uppercl
-                                               ,SII_upperCL = multiplier * sii_lowercl
-                                               ,SII_MAD = abs(multiplier) * sii_MAD)
-                        } else {
-                                popsSII_model <- popsSII_model %>%
-                                        mutate(SII = multiplier * sii
-                                               ,SII_lowerCL = multiplier * sii_lowercl
-                                               ,SII_upperCL = multiplier * sii_uppercl
-                                               ,SII_MAD = abs(multiplier) * sii_MAD)
-                        }
-              } else {
-                      # Case 2 - user requests reliability stats, SII and RII
-                      if (multiplier < 0) {
-                              popsSII_model <- popsSII_model %>%
-                                      mutate(SII = multiplier * sii
-                                             ,SII_lowerCL = multiplier * sii_uppercl
-                                             ,SII_upperCL = multiplier * sii_lowercl
-                                             ,SII_MAD = abs(multiplier) * sii_MAD
-                                             ,RII = multiplier * rii
-                                             ,RII_lowerCL = multiplier * rii_uppercl
-                                             ,RII_upperCL = multiplier * rii_lowercl
-                                             ,RII_MAD = abs(multiplier) * rii_MAD)
-                      } else {
-                              popsSII_model <- popsSII_model %>%
-                                      mutate(SII = multiplier * sii
-                                             ,SII_lowerCL = multiplier * sii_lowercl
-                                             ,SII_upperCL = multiplier * sii_uppercl
-                                             ,SII_MAD = abs(multiplier) * sii_MAD
-                                             ,RII = multiplier * rii
-                                             ,RII_lowerCL = multiplier * rii_lowercl
-                                             ,RII_upperCL = multiplier * rii_uppercl
-                                             ,RII_MAD = abs(multiplier) * rii_MAD)
-                      }
-              }
+            # apply multiplicative factor to outputs, return SII only
+            if (multiplier < 0) {
+              popsSII_model <- popsSII_model %>%
+                mutate(SII = multiplier * sii
+                       ,SII_lowerCL = multiplier * sii_uppercl
+                       ,SII_upperCL = multiplier * sii_lowercl
+                       ,SII_MAD = abs(multiplier) * sii_MAD)
+            } else {
+              popsSII_model <- popsSII_model %>%
+                mutate(SII = multiplier * sii
+                       ,SII_lowerCL = multiplier * sii_lowercl
+                       ,SII_upperCL = multiplier * sii_uppercl
+                       ,SII_MAD = abs(multiplier) * sii_MAD)
+            }
+          } else {
+            # Case 2 - user requests reliability stats, SII and RII
+            if (multiplier < 0) {
+              popsSII_model <- popsSII_model %>%
+                mutate(SII = multiplier * sii
+                       ,SII_lowerCL = multiplier * sii_uppercl
+                       ,SII_upperCL = multiplier * sii_lowercl
+                       ,SII_MAD = abs(multiplier) * sii_MAD
+                       ,RII = 1/rii
+                       ,RII_lowerCL = 1/rii_uppercl
+                       ,RII_upperCL = 1/rii_lowercl
+                       ,RII_MAD = rii_MAD)
+            } else {
+              popsSII_model <- popsSII_model %>%
+                mutate(SII = multiplier * sii
+                       ,SII_lowerCL = multiplier * sii_lowercl
+                       ,SII_upperCL = multiplier * sii_uppercl
+                       ,SII_MAD = abs(multiplier) * sii_MAD
+                       ,RII = rii
+                       ,RII_lowerCL = rii_lowercl
+                       ,RII_upperCL = rii_uppercl
+                       ,RII_MAD = rii_MAD)
+            }
+          }
 
-                        message(paste0("For guidance on how to interpret the Mean Average Difference ",
-                                       "(MAD) figures, see the phe_sii accompanying vignette"))
+          message(paste0("For guidance on how to interpret the Mean Average Difference ",
+                         "(MAD) figures, see the phe_sii accompanying vignette"))
         } else {
-                # Case 3 - no reliability stats, SII only
-             if(rii == FALSE) {
+          # Case 3 - no reliability stats, SII only
+          if(rii == FALSE) {
 
-                # apply multiplicative factor to outputs - return SII only
-                if (multiplier < 0) {
-                        popsSII_model <- popsSII_model %>%
-                                mutate(SII = multiplier * sii
-                                       ,SII_lowerCL = multiplier * sii_uppercl
-                                       ,SII_upperCL = multiplier * sii_lowercl)
-                } else {
-                        popsSII_model <- popsSII_model %>%
-                                mutate(SII = multiplier * sii
-                                       ,SII_lowerCL = multiplier * sii_lowercl
-                                       ,SII_upperCL = multiplier * sii_uppercl)
-                }
+            # apply multiplicative factor to outputs - return SII only
+            if (multiplier < 0) {
+              popsSII_model <- popsSII_model %>%
+                mutate(SII = multiplier * sii
+                       ,SII_lowerCL = multiplier * sii_uppercl
+                       ,SII_upperCL = multiplier * sii_lowercl)
+            } else {
+              popsSII_model <- popsSII_model %>%
+                mutate(SII = multiplier * sii
+                       ,SII_lowerCL = multiplier * sii_lowercl
+                       ,SII_upperCL = multiplier * sii_uppercl)
+            }
 
-             } else {
-                     # Case 4 - no reliability stats, SII and RII
-                     if (multiplier < 0) {
-                             popsSII_model <- popsSII_model %>%
-                                     mutate(SII = multiplier * sii
-                                            ,SII_lowerCL = multiplier * sii_uppercl
-                                            ,SII_upperCL = multiplier * sii_lowercl
-                                            ,RII = multiplier * rii
-                                            ,RII_lowerCL = multiplier * rii_uppercl
-                                            ,RII_upperCL = multiplier * rii_lowercl)
-                     } else {
-                             popsSII_model <- popsSII_model %>%
-                                     mutate(SII = multiplier * sii
-                                            ,SII_lowerCL = multiplier * sii_lowercl
-                                            ,SII_upperCL = multiplier * sii_uppercl
-                                            ,RII = multiplier * rii
-                                            ,RII_lowerCL = multiplier * rii_lowercl
-                                            ,RII_upperCL = multiplier * rii_uppercl)
-                     }
-             }
-           }
+          } else {
+            # Case 4 - no reliability stats, SII and RII
+            if (multiplier < 0) {
+              popsSII_model <- popsSII_model %>%
+                mutate(SII = multiplier * sii
+                       ,SII_lowerCL = multiplier * sii_uppercl
+                       ,SII_upperCL = multiplier * sii_lowercl
+                       ,RII = 1/rii
+                       ,RII_lowerCL = 1/rii_uppercl
+                       ,RII_upperCL = 1/rii_lowercl)
+            } else {
+              popsSII_model <- popsSII_model %>%
+                mutate(SII = multiplier * sii
+                       ,SII_lowerCL = multiplier * sii_lowercl
+                       ,SII_upperCL = multiplier * sii_uppercl
+                       ,RII = rii
+                       ,RII_lowerCL = rii_lowercl
+                       ,RII_upperCL = rii_uppercl)
+            }
+          }
+        }
 
-                            # remove unnecessary fields
-    popsSII_model  <- popsSII_model %>%
-                            select(-sii_lowercl, -sii_uppercl, -sii_MAD,
-                                   -rii_lowercl, -rii_uppercl, -rii_MAD,
-                                   -sii, -rii)
+        # remove unnecessary fields
+        popsSII_model  <- popsSII_model %>%
+          select(-sii_lowercl, -sii_uppercl, -sii_MAD,
+                 -rii_lowercl, -rii_uppercl, -rii_MAD,
+                 -sii, -rii)
 
-    if(type == "full") {
+        if(type == "full") {
 
-    popsSII_model  <- popsSII_model %>%
+          popsSII_model  <- popsSII_model %>%
             # add arguments to output dataset
             mutate(indicator_type = ifelse(value_type == 0, "normal",
-                                          ifelse(value_type == 1, "rate", "proportion")),
+                                           ifelse(value_type == 1, "rate", "proportion")),
                    multiplier = multiplier,
                    CI_confidence = confidence,
                    CI_method = paste("simulation ", repetitions, " reps"))
 
-    }
+        }
 
         # return output dataset
     return(popsSII_model)

@@ -225,7 +225,7 @@ test_that("SII and confidence limits calculate correctly",{
                check.attributes=FALSE, check.names=FALSE,
                info="test proportion with count provided", tolerance = tol)
 
-  # test SII calculation with multiplier applied to outputs
+  # test SII calculation with POSITIVE multiplier and RII
   expect_equal(data.frame(phe_sii(SII_test_grouped[111:130, 3:13],
                                   Quantile, Population,
                                   value_type = 2,
@@ -238,8 +238,52 @@ test_that("SII and confidence limits calculate correctly",{
                                   type = "standard")),
                data.frame(SII_test_grouped[c(111,121), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
-               info="test proportion with multiplier", tolerance = tol)
+               info="test proportion with positive multiplier and RII", tolerance = tol)
 
+  # test SII calculation with POSITIVE multiplier without RII
+  expect_equal(data.frame(phe_sii(SII_test_grouped[111:130, 3:13],
+                                  Quantile, Population,
+                                  value_type = 2,
+                                  value = Value,
+                                  multiplier = 100, # multiplier applied
+                                  lower_cl = LowerCL,
+                                  upper_cl = UpperCL,
+                                  repetitions = no_reps,
+                                  rii = FALSE,
+                                  type = "standard")),
+               data.frame(SII_test_grouped[c(111,121), c(3:5,16:18)]),
+               check.attributes=FALSE, check.names=FALSE,
+               info="test proportion with positive multiplier without RII", tolerance = tol)
+
+  # test SII calculation with NEGATIVE multiplier and RII
+  expect_equal(data.frame(phe_sii(SII_test_grouped[131:150, 3:13],
+                                  Quantile, Population,
+                                  value_type = 2,
+                                  value = Value,
+                                  multiplier = -100, # multiplier applied
+                                  lower_cl = LowerCL,
+                                  upper_cl = UpperCL,
+                                  repetitions = no_reps,
+                                  rii = TRUE,
+                                  type = "standard")),
+               data.frame(SII_test_grouped[c(131,141), c(3:5,16:21)]),
+               check.attributes=FALSE, check.names=FALSE,
+               info="test proportion with negative multiplier and RII", tolerance = tol)
+
+  # test SII calculation with NEGATIVE multiplier without RII
+  expect_equal(data.frame(phe_sii(SII_test_grouped[131:150, 3:13],
+                                  Quantile, Population,
+                                  value_type = 2,
+                                  value = Value,
+                                  multiplier = -100, # multiplier applied
+                                  lower_cl = LowerCL,
+                                  upper_cl = UpperCL,
+                                  repetitions = no_reps,
+                                  rii = FALSE,
+                                  type = "standard")),
+               data.frame(SII_test_grouped[c(131,141), c(3:5,16:18)]),
+               check.attributes=FALSE, check.names=FALSE,
+               info="test proportion with negative multiplier without RII", tolerance = tol)
 })
 
 
@@ -371,22 +415,36 @@ test_that("errors are generated when invalid parameters are entered",{
 
 test_that("errors are generated when input dataframe contains invalid data",{
 
+        # non-numeric inputs
+  expect_error(phe_sii(SII_test_grouped[151:160, 3:13],
+                       Quantile,
+                       Grouping1,
+                       value = Value,
+                       se = StandardError),
+               "some input fields in data.frame are non-numeric")
         # negative populations in dataset
-  expect_error(phe_sii(SII_test_grouped[131:140, 3:13],
+  expect_error(phe_sii(SII_test_grouped[151:160, 3:13],
                        Quantile,
                        Population,
                        value = Value,
                        se = StandardError),
-               "some groups have a zero or negative population")
+               "some groups have a zero, negative or missing population")
         # negative SE in dataset
-  expect_error(phe_sii(SII_test_grouped[141:145, 3:13],
+  expect_error(phe_sii(SII_test_grouped[161:165, 3:13],
                              Quantile,
                              Population,
                              value = Value,
                              se = StandardError),
-               "some groups have a negative standard error")
+               "negative or missing standard errors in input dataset")
+        # missing SE in dataset
+  expect_error(phe_sii(SII_test_grouped[191:200, 3:13],
+                       Quantile,
+                       Population,
+                       value = Value,
+                       se = StandardError),
+               "negative or missing standard errors in input dataset")
         # zero count in dataset
-  expect_error(phe_sii(SII_test_grouped[146:150, 3:13],
+  expect_error(phe_sii(SII_test_grouped[166:170, 3:13],
                              Quantile,
                              Population,
                              x = Count,
@@ -402,7 +460,7 @@ test_that("errors are generated when input dataframe contains invalid data",{
                        se = StandardError),
                "value proportions are not all between 0 and 1")
         # CL proportions outside 0 to 1 range
-  expect_error(phe_sii(SII_test_grouped[151:155, 3:13],
+  expect_error(phe_sii(SII_test_grouped[171:175, 3:13],
                        Quantile,
                        Population,
                        value = Value,
@@ -410,7 +468,7 @@ test_that("errors are generated when input dataframe contains invalid data",{
                        lower_cl = LowerCL,
                        upper_cl = UpperCL),
                "confidence limit proportions are not all between 0 and 1")
-  expect_error(phe_sii(SII_test_grouped[156:160, 3:13],
+  expect_error(phe_sii(SII_test_grouped[176:180, 3:13],
                        Quantile,
                        Population,
                        value = Value,
@@ -426,7 +484,14 @@ test_that("errors are generated when input dataframe contains invalid data",{
                        lower_cl = LowerCL,
                        upper_cl = UpperCL),
                "Number of quantiles must be between 5 and 100")
-
+  # missing CL data in input dataset
+  expect_error(phe_sii(SII_test_grouped[191:200, 3:13],
+                       Quantile,
+                       Population,
+                       value = Value,
+                       lower_cl = LowerCL,
+                       upper_cl = UpperCL),
+               "missing lower or upper confidence limits in input dataset")
 })
 
 
@@ -436,7 +501,7 @@ test_that("errors are generated when input dataframe contains invalid data",{
 test_that("warnings are generated when data does not pass quality checks",{
 
         # incomplete or invalid records
-        expect_warning(phe_sii(SII_test_grouped[c(1:20, 161:170), 3:13],
+        expect_warning(phe_sii(SII_test_grouped[c(1:15, 17:20), 3:13],
                              Quantile,
                              Population,
                              value = Value,
@@ -445,17 +510,26 @@ test_that("warnings are generated when data does not pass quality checks",{
                              type = "standard"),
                      "some records have been removed due to incomplete or invalid data")
 
-        # TO ADD - reliability stat tolerance breached
-        #####
+        # large number of quantiles
+        expect_warning(phe_sii(SII_test_grouped[211:225, 3:13],
+                               Quantile,
+                               Population,
+                               value = Value,
+                               lower_cl = LowerCL,
+                               upper_cl = UpperCL,
+                               type = "standard"),
+                       "Small values can make SII unstable when using a large number of quantiles")
 })
 
 
 
 # 4) Test reliability stats  ----------------------------------------------
 
-test_that("reliaibility stats are returned when requested",{
+test_that("dimensions are correct when reliaibility stats requested",{
 
-        # check dimensions WITH reliability stats
+  # Tests WITHOUT RII
+
+        # check dimensions WITH reliability stats and POSITIVE multiplier
         expect_equal(dim(TEST <- phe_sii(SII_test_grouped[1:20, 3:13],
                                Quantile,
                                Population,
@@ -467,7 +541,7 @@ test_that("reliaibility stats are returned when requested",{
                                type = "standard")),
                        c(2,7))
 
-        # check dimensions WITHOUT reliability stats
+        # check dimensions WITHOUT reliability stats and POSITIVE multiplier
         expect_equal(dim(phe_sii(SII_test_grouped[1:20, 3:13],
                                  Quantile,
                                  Population,
@@ -479,7 +553,45 @@ test_that("reliaibility stats are returned when requested",{
                                  type = "standard")),
                      c(2,6))
 
-        # check dimensions with default type = "full"
+        # check dimensions WITH reliability stats and NEGATIVE multiplier
+        expect_equal(dim(TEST <- phe_sii(SII_test_grouped[1:20, 3:13],
+                                         Quantile,
+                                         Population,
+                                         value = Value,
+                                         lower_cl = LowerCL,
+                                         upper_cl = UpperCL,
+                                         repetitions = 100,
+                                         multiplier = -1,
+                                         reliability_stat = TRUE,
+                                         type = "standard")),
+                     c(2,7))
+
+        # check dimensions WITHOUT reliability stats and NEGATIVE multiplier
+        expect_equal(dim(phe_sii(SII_test_grouped[1:20, 3:13],
+                                 Quantile,
+                                 Population,
+                                 value = Value,
+                                 lower_cl = LowerCL,
+                                 upper_cl = UpperCL,
+                                 repetitions = 100,
+                                 multiplier = -1,
+                                 reliability_stat = FALSE,
+                                 type = "standard")),
+                     c(2,6))
+
+        # check dimensions with default type = "full" WITH reliability stats
+        expect_equal(dim(phe_sii(SII_test_grouped[1:20, 3:13],
+                                 Quantile,
+                                 Population,
+                                 value = Value,
+                                 lower_cl = LowerCL,
+                                 upper_cl = UpperCL,
+                                 repetitions = 100,
+                                 reliability_stat = TRUE,
+                                 type = "full")),
+                     c(2,11))
+
+        # check dimensions with default type = "full" WITHOUT reliability stats
         expect_equal(dim(phe_sii(SII_test_grouped[1:20, 3:13],
                                  Quantile,
                                  Population,
@@ -490,4 +602,88 @@ test_that("reliaibility stats are returned when requested",{
                                  reliability_stat = FALSE,
                                  type = "full")),
                      c(2,10))
+
+
+        # Tests WITH RII
+
+        # check dimensions WITH reliability stats and POSITIVE multiplier
+        expect_equal(dim(TEST <- phe_sii(SII_test_grouped[1:20, 3:13],
+                                         Quantile,
+                                         Population,
+                                         value = Value,
+                                         lower_cl = LowerCL,
+                                         upper_cl = UpperCL,
+                                         repetitions = 100,
+                                         rii = TRUE,
+                                         reliability_stat = TRUE,
+                                         type = "standard")),
+                     c(2,11))
+
+        # check dimensions WITHOUT reliability stats and POSITIVE multiplier
+        expect_equal(dim(phe_sii(SII_test_grouped[1:20, 3:13],
+                                 Quantile,
+                                 Population,
+                                 value = Value,
+                                 lower_cl = LowerCL,
+                                 upper_cl = UpperCL,
+                                 repetitions = 100,
+                                 rii = TRUE,
+                                 reliability_stat = FALSE,
+                                 type = "standard")),
+                     c(2,9))
+
+        # check dimensions WITH reliability stats and NEGATIVE multiplier
+        expect_equal(dim(TEST <- phe_sii(SII_test_grouped[1:20, 3:13],
+                                         Quantile,
+                                         Population,
+                                         value = Value,
+                                         lower_cl = LowerCL,
+                                         upper_cl = UpperCL,
+                                         repetitions = 100,
+                                         multiplier = -1,
+                                         rii = TRUE,
+                                         reliability_stat = TRUE,
+                                         type = "standard")),
+                     c(2,11))
+
+        # check dimensions WITHOUT reliability stats and NEGATIVE multiplier
+        expect_equal(dim(phe_sii(SII_test_grouped[1:20, 3:13],
+                                 Quantile,
+                                 Population,
+                                 value = Value,
+                                 lower_cl = LowerCL,
+                                 upper_cl = UpperCL,
+                                 repetitions = 100,
+                                 multiplier = -1,
+                                 rii = TRUE,
+                                 reliability_stat = FALSE,
+                                 type = "standard")),
+                     c(2,9))
+
+        # check dimensions with default type = "full" WITH reliability stats
+        expect_equal(dim(phe_sii(SII_test_grouped[1:20, 3:13],
+                                 Quantile,
+                                 Population,
+                                 value = Value,
+                                 lower_cl = LowerCL,
+                                 upper_cl = UpperCL,
+                                 repetitions = 100,
+                                 rii = TRUE,
+                                 reliability_stat = TRUE,
+                                 type = "full")),
+                     c(2,15))
+
+        # check dimensions with default type = "full" WITHOUT reliability stats
+        expect_equal(dim(phe_sii(SII_test_grouped[1:20, 3:13],
+                                 Quantile,
+                                 Population,
+                                 value = Value,
+                                 lower_cl = LowerCL,
+                                 upper_cl = UpperCL,
+                                 repetitions = 100,
+                                 rii = TRUE,
+                                 reliability_stat = FALSE,
+                                 type = "full")),
+                     c(2,13))
+
 })

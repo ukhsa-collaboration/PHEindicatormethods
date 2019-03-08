@@ -27,7 +27,6 @@ LazyData: true
 Imports: 
     dplyr,
     rlang,
-    nlme,
     broom,
     tidyr,
     purrr,
