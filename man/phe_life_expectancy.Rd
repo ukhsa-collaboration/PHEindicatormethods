@@ -141,12 +141,10 @@ small populations. National Statistics  Methodological Series No 33. HMSO 2003.
 life expectancy estimation. J Epidemiol Community Health 2004;58:243-249 \cr \cr
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{byars_lower}},
-  \code{\link{byars_upper}}, \code{\link{phe_dsr}},
+Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_mean}},
-  \code{\link{phe_proportion}}, \code{\link{phe_rate}},
-  \code{\link{phe_smr}}, \code{\link{wilson_lower}},
-  \code{\link{wilson_upper}}
+  \code{\link{phe_proportion}}, \code{\link{phe_quantile}},
+  \code{\link{phe_rate}}, \code{\link{phe_smr}}
 }
 \author{
 Sebastian Fox, \email{sebastian.fox@phe.gov.uk}

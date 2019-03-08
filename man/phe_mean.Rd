@@ -41,9 +41,8 @@ phe_mean(df2,values,type="standard", confidence=0.998)
 }
 \seealso{
 Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_proportion}},
-  \code{\link{phe_quantile}}, \code{\link{phe_rate}},
-  \code{\link{phe_smr}}
-
+  \code{\link{phe_isr}}, \code{\link{phe_life_expectancy}},
+  \code{\link{phe_proportion}}, \code{\link{phe_quantile}},
+  \code{\link{phe_rate}}, \code{\link{phe_smr}}
 }
 \concept{PHEindicatormethods package functions}

@@ -30,5 +30,5 @@ Calculates the upper confidence limits for observed numbers of events using Byar
  volume II: The design and analysis of cohort studies. Lyon: International
  Agency for Research on Cancer, World Health Organisation; 1987.
 
+-------------------------------------------------------------------------------------------------
 }
-\concept{PHEindicatormethods package functions}
