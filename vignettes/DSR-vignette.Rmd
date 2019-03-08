@@ -38,7 +38,8 @@ The function can be used to calculate DSRs for grouping single or multiple geogr
 | x            | unquoted string   | field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area or indicator)    | none          |
 | n            | unquoted string  | field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area or indicator)| none          |
 | stdpop       | unquoted string  | standard populations for each standardisation category (eg age band) specified as a field name from data or a vector.    | esp2013         | 
-| stdpoptype   | quoted string    | whether the stdpop argument has been specified as a vactor or a field name | "vector"      | 
+| stdpoptype   | quoted string    | whether the stdpop argument has been specified as a vector or a field name | "vector"      | 
+| type         | quoted string    | defines the data and metadata columns to include in output. Can by 'value', 'lower', 'upper', 'standard' or 'full' | "full"      | 
 | confidence   | numeric value    | the required level of confidence expressed as a number between 0.9 and 1 or 90 and 100  | 0.95          |
 | multiplier   | numeric value    | the multiplier used to express the final values (eg 100,000 = rate per 100,000 | 100,000       |
 
@@ -127,7 +128,7 @@ pull(slice(select(ungroup(summarise(df,n=n())),n),1)) == length(esp2013)
 
 **3. If you are supplying your standard population in vector format (stdpoptype="vector") then the standard population and your data (for each grouping set) must be sorted in the same standardisation category order because the function will join these by position.**  This would normally mean sorting both the standard population vector and the records for each group within your data by age band from youngest to oldest.  
 
-*The phe_dsr function does not have any built in error handling to check this requirement* as the function does not require the standardisation category labels to be provided in your data.  It is therefore the responsibility of the function user to ensure this requirement is met.  If the standardisation category labels are included with your data (as in our example) then the following code can be used to check the requirment manually: 
+*The phe_dsr function does not have any built in error handling to check this requirement* as the function does not require the standardisation category labels to be provided in your data.  It is therefore the responsibility of the function user to ensure this requirement is met.  If the standardisation category labels are included with your data (as in our example) then the following code can be used to check the requirement manually: 
 
 ``` {r check repeats of stdpop}
 # check data is ordered by required agebands from youngest to oldest
@@ -145,7 +146,7 @@ wrong <- df %>%
           arrange(desc(ageband)) %>%
           phe_dsr(dths,pop)
 
-# the following statement shows that execution of the phe_dsr function on the incorrectly sorted data frame produces different (and incorrect) results.
+# the following statement shows that execution of the phe_dsr function on the deliberately-incorrectly sorted data frame produces different (and incorrect) results.
 identical(right,wrong)
 ```
 
@@ -161,15 +162,21 @@ By default the function will apply 95% confidence, a 100,000 multiplier and will
 phe_dsr(df, dths, pop)
 ```
 
+</br>
+</br>
+
 Alternatively, we can add further arguments to specify:
 
-* the level of detail required in the output (type)
+* the level of detail required in the output (type = standard will drop metadata fields)
 * the confidence level (confidence)
 * the multiplier (multiplier)
 
 ``` {r alternative dsr}
-phe_dsr(df, dths, pop, type = "full", confidence = 99.8, multiplier = 10000)
+phe_dsr(df, dths, pop, type = "standard", confidence = 99.8, multiplier = 10000)
 ```
+
+</br>
+</br>
 
 ## Alternative Standard Populations
 
@@ -192,6 +199,9 @@ phe_dsr(df18,dths,pop,stdpop = esp1976)
 
 ```
 
+</br>
+</br>
+
 #### 2. Append the standard populations to your data frame before executing the function
 In the example below, the esp2013 standard population is appended to our data frame prior to calling the phe_dsr function.  The field name can then be specified in the function call.  If stdpop is specified as a field name we must also tell the function this by specifying stdpoptype = "field" as below:
 
@@ -203,10 +213,13 @@ phe_dsr(df_with_stdpop, dths, pop, stdpop = spop, stdpoptype = "field")
 
 ```
 
+</br>
+</br>
+
 ## And what if the data are not so tidy?
 
 #### Zero deaths for a specific age band within a small geography
-This would be a fairly common scenario - maybe you have Local Authority data and there are no deaths in some of the younger age groups for some of the smaller areas.  
+This would be a fairly common scenario - maybe you have Local Authority data and there are no deaths in some of the younger age groups for some of the smaller areas. From PHEindicatormethods version 1.1.0 onwards, the phe_dsr function can handle this scenario and will automatically assign a zero death count where a death count is missing or recorded as NA.  
 
 Let's fudge a couple of data frames to represent this.  In this example, there are no deaths in the 10-14, 15-20 and 20-14 age bands:
 
@@ -218,14 +231,14 @@ deaths2 <- data.frame(ageband = c(0,5,25,30,35,40,45,50,55,60,65,70,75,80,85,90)
                       dths    = c(1,1, 1, 1, 3, 3, 3, 3,10,10,10,10, 8, 8, 8, 8))
 ```
 
-If we simply join these data frames to produce the input data frame required for the phe_dsr function then we get NA values in the Deaths column and the function will return an error:
+If we join these data frames to produce the input data frame required for the phe_dsr function then we get NA values in the Deaths column.  From PHEindicatormethods version 1.1.0 onwards, the phe_dsr function will return the correct DSR, assuming zero deaths in the age groups with no deaths recorded.  If you are using an earlier version of PHEindicatormethods then an error will be returned.  See what you get.....
 
 ``` {r error test}
 df2 <- left_join(pops2, deaths2, by="ageband")
 phe_dsr(df2, dths, pop)
 ```
 
-The NA values must be replaced with zeros before executing the function: 
+For earlier versions of PHEindicatormethods, the NA values must be replaced with zeros before executing the function: 
 
 ``` {r prep data}
 df3 <- df2 %>%

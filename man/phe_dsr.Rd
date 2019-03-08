@@ -5,7 +5,7 @@
 \title{phe_dsr}
 \usage{
 phe_dsr(data, x, n, stdpop = esp2013, stdpoptype = "vector",
-  type = "standard", confidence = 0.95, multiplier = 1e+05)
+  type = "full", confidence = 0.95, multiplier = 1e+05)
 }
 \arguments{
 \item{data}{data.frame containing the data to be standardised, pre-grouped if multiple DSRs required; unquoted string; no default}
@@ -22,7 +22,8 @@ unquoted string referencing a numeric vector or field name from data depending o
 \item{stdpoptype}{whether the stdpop has been specified as a vector or a field name from data;
 quoted string "field" or "vector"; default = "vector"}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
+\item{type}{defines the data and metadata columns to be included in output;
+can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -61,7 +62,7 @@ df \%>\%
 
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(obs, pop, type = "full")
+    phe_dsr(obs, pop, type = "standard")
 
 }
 \references{
@@ -71,11 +72,9 @@ df \%>\%
 [2] Dobson A et al. Confidence intervals for weighted sums of Poisson parameters. Stat Med 1991;10:457-62.
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{byars_lower}},
-  \code{\link{byars_upper}}, \code{\link{phe_isr}},
-  \code{\link{phe_life_expectancy}},
+Other PHEindicatormethods package functions: \code{\link{phe_isr}},
   \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_rate}}, \code{\link{phe_smr}},
-  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
+  \code{\link{phe_quantile}}, \code{\link{phe_rate}},
+  \code{\link{phe_smr}}
 }
 \concept{PHEindicatormethods package functions}

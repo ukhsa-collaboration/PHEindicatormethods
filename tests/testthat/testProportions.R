@@ -5,15 +5,15 @@ context("test_phe_proportion")
 test_that("proportions and CIs calculate correctly",{
 
   expect_equal(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator),
-               select(slice(test_Prop,1:8),1:6),check.attributes=FALSE, check.names=FALSE, info="test default")
+               select(slice(test_Prop,1:8),1:9),check.attributes=FALSE, check.names=FALSE, info="test default")
 
   expect_equal(phe_proportion(slice(test_Prop,9:16)[1:3], Numerator, Denominator,
-                              percentage = TRUE, type="full"),
+                              multiplier = 100, type="full"),
                select(slice(test_Prop,9:16),1:9),check.attributes=FALSE, check.names=FALSE, info="test full, percentage")
 
   expect_equal(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator,
-                              percentage=FALSE, type="full"),
-               select(slice(test_Prop,1:8),1:9),check.attributes=FALSE, check.names=FALSE, info="test full")
+                              multiplier = 1, type="standard"),
+               select(slice(test_Prop,1:8),1:6),check.attributes=FALSE, check.names=FALSE, info="test standard")
 
   expect_equal(data.frame(phe_proportion(slice(test_Prop,17:24)[1:3], Numerator, Denominator,
                               type="full", confidence=99.8)),
@@ -28,6 +28,12 @@ test_that("proportions and CIs calculate correctly",{
   expect_equal(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, type="upper"),
                select(slice(test_Prop,1:8),1:3,6),check.attributes=FALSE, check.names=FALSE, info="test upper")
 
+  expect_equal(phe_proportion(slice(test_Prop,33:35)[1:3], Numerator, Denominator, type="full"),
+               select(slice(test_Prop,33:35),1:9),check.attributes=FALSE, check.names=FALSE, info="test NAs")
+
+  expect_equal(data.frame(phe_proportion(slice(test_Prop_g,1:8)[1:3], Numerator, Denominator, type="standard")),
+               arrange(data.frame(test_Prop_g_results[1:6]),Area),check.attributes=FALSE, check.names=FALSE, info="test grouped")
+
 })
 
 
@@ -38,7 +44,7 @@ test_that("proportions - errors are generated when invalid arguments are used",{
   expect_error(phe_proportion(data.frame(area=c("Area1","Area2","Area3"),
                                          obs =c(65,80,30),
                                          pop =c(100,100,100)), obs),
-               "function phe_dsr requires at least 3 arguments: data, x, n", info="error not enough arguments")
+               "function phe_proportion requires at least 3 arguments: data, x, n", info="error not enough arguments")
 
   expect_error(phe_proportion(data.frame(area=c("Area1","Area2","Area3"),
                                          obs =c(65,-80,30),
@@ -81,4 +87,3 @@ test_that("proportions - errors are generated when invalid arguments are used",{
                "type must be one of value, lower, upper, standard or full", info="error invalid type")
 
 })
-

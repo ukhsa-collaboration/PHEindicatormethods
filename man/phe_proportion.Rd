@@ -4,11 +4,12 @@
 \alias{phe_proportion}
 \title{phe_proportion}
 \usage{
-phe_proportion(data, x, n, type = "standard", confidence = 0.95,
-  percentage = FALSE)
+phe_proportion(data, x, n, type = "full", confidence = 0.95,
+  multiplier = 1)
 }
 \arguments{
-\item{data}{a data.frame containing the data to calculate proportions for; unquoted string; no default}
+\item{data}{a data.frame containing the data to calculate proportions for, pre-grouped if proportions required for
+group aggregates; unquoted string; no default}
 
 \item{x}{field name from data containing the observed numbers of cases in the sample meeting the required condition
 (the numerator for the proportion); unquoted string; no default}
@@ -16,12 +17,13 @@ phe_proportion(data, x, n, type = "standard", confidence = 0.95,
 \item{n}{field name from data containing the number of cases in the sample (the denominator for the proportion);
 unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
+\item{type}{defines the data and metadata columns to be included in output;
+can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
 
-\item{percentage}{whether the output should be returned as a percentage; logical; default FALSE}
+\item{multiplier}{the multiplier used to express the final values (eg 100 = percentage); numeric; default 1}
 }
 \value{
 When type = "full", returns the original data.frame with the following appended:
@@ -32,17 +34,27 @@ Calculates proportions with confidence limits using Wilson Score method [1,2].
 }
 \section{Notes}{
  Wilson Score method [1,2] is applied using the \code{\link{wilson_lower}}
- and \code{\link{wilson_upper}} functions.
+         and \code{\link{wilson_upper}} functions. \cr \cr
+         The percentage argument was deprecated in v1_1_0, please use multiplier argument instead
 }
 
 \examples{
-df <- data.frame(area = c("Area1","Area2","Area3"),
-                 numerator = c(65,82,100),
-                 denominator = c(100,100,100))
+
+# ungrouped data frame
+df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), each=3),
+                 numerator = c(NA,82,9,48, 6500,8200,10000,10000,8,7,750,900),
+                 denominator = rep(c(100,10000,10000,10000), each=3))
 
 phe_proportion(df, numerator, denominator)
 phe_proportion(df, numerator, denominator, confidence=99.8)
-phe_proportion(df, numerator, denominator, type="full")
+phe_proportion(df, numerator, denominator, type="standard")
+
+
+# grouped data frame
+library(dplyr)
+dfg <- df \%>\% group_by(area)
+phe_proportion(dfg, numerator, denominator, multiplier=100)
+
 
 }
 \references{
@@ -53,11 +65,9 @@ phe_proportion(df, numerator, denominator, type="full")
  2000. Pg 46 to 48.
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{byars_lower}},
-  \code{\link{byars_upper}}, \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_life_expectancy}},
-  \code{\link{phe_mean}}, \code{\link{phe_rate}},
-  \code{\link{phe_smr}}, \code{\link{wilson_lower}},
-  \code{\link{wilson_upper}}
+Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
+  \code{\link{phe_isr}}, \code{\link{phe_mean}},
+  \code{\link{phe_quantile}}, \code{\link{phe_rate}},
+  \code{\link{phe_smr}}
 }
 \concept{PHEindicatormethods package functions}
