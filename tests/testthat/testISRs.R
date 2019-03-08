@@ -3,50 +3,59 @@ context("test_phe_isr")
 #test calculations
 test_that("isrs and CIs calculate correctly",{
 
-  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop)),
-               data.frame(select(slice(test_ISR_results,1:3),1,5:7)),
+  expect_equal(data.frame(phe_isr(select(test_ISR_ownref,-refcount,-refpop), count, pop,
+                                  x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop)),
+               data.frame(slice(test_ISR_results,1:3)),
                check.attributes=FALSE, check.names=FALSE,info="test default")
 
-  expect_equal(data.frame(phe_isr(test_ISR_ownref, count, pop, refcount, refpop, refpoptype="field")),
-               data.frame(select(slice(test_ISR_results,1:3),1,5:7)),
+  expect_equal(data.frame(phe_isr(test_ISR_ownref, count, pop, refcount, refpop, refpoptype="field", type="standard")),
+               data.frame(select(slice(test_ISR_results,1:3),1:7)),
                check.attributes=FALSE, check.names=FALSE,info="test default with own ref data by col name")
 
-  expect_equal(data.frame(phe_isr(test_ISR_ownref, count, pop, test_ISR_ownref$refcount[1:19], test_ISR_ownref$refpop[1:19])),
-               data.frame(select(slice(test_ISR_results,1:3),1,5:7)),
+  expect_equal(data.frame(phe_isr(select(test_ISR_ownref,-refcount,-refpop), count, pop,
+                                  test_ISR_ownref$refcount[1:19], test_ISR_ownref$refpop[1:19], type="standard")),
+               data.frame(select(slice(test_ISR_results,1:3),1:7)),
                check.attributes=FALSE, check.names=FALSE,info="test default with own ref data as vector")
 
-  expect_equal(data.frame(phe_isr(test_err2, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop)),
-               data.frame(select(slice(test_ISR_results,25:26),1,5:7)),
+  expect_equal(data.frame(phe_isr(test_err2, count, pop, x_ref = test_ISR_refdata$refcount,
+                                  n_ref = test_ISR_refdata$refpop, type="standard")),
+               data.frame(select(slice(test_ISR_results,25:26),1:7)),
                check.attributes=FALSE, check.names=FALSE,info="test zero population")
 
-  expect_equal(data.frame(phe_isr(test_multiarea, count, pop,
-                       x_ref = c(10303,2824,3225,3615,3641,3490,3789,3213,3031,2771,3089,3490,3595,4745,5514,7125,5694,6210,5757),
+  expect_equal(data.frame(phe_isr(select(test_ISR_ownref,-refcount,-refpop), count, pop, type="standard",
+                       x_ref = c(10303,2824,NA,3615,3641,3490,3789,3213,3031,2771,3089,3490,3595,4745,5514,7125,5694,6210,5757),
                        n_ref = c(50520,57173,60213,54659,44345,50128,62163,67423,62899,55463,60479,49974,44140,40888,37239,30819,18136,15325,13918))),
-               data.frame(select(slice(test_ISR_results,1:3),1,5:7)),
+               data.frame(select(slice(test_ISR_results,1:3),1:7)),
                check.attributes=FALSE, check.names=FALSE,info="test ref as specified vector")
 
-  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop, type="full")),
-               data.frame(select(slice(test_ISR_results,1:3),1:10)),
-               check.attributes=FALSE, check.names=FALSE,info="test full")
+  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
+                                  n_ref = test_ISR_refdata$refpop, type="standard")),
+               data.frame(select(slice(test_ISR_results,1:3),1:7)),
+               check.attributes=FALSE, check.names=FALSE,info="test standard")
 
-  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop, type="value")),
+  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
+                                  n_ref = test_ISR_refdata$refpop, type="value")),
                data.frame(select(slice(test_ISR_results,1:3),1,5)),
                check.attributes=FALSE, check.names=FALSE,info="test value")
 
-  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop, type="lower")),
+  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
+                                  n_ref = test_ISR_refdata$refpop, type="lower")),
                data.frame(select(slice(test_ISR_results,1:3),1,6)),
                check.attributes=FALSE, check.names=FALSE,info="test lower")
 
-  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop,type="upper")),
+  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
+                                  n_ref = test_ISR_refdata$refpop,type="upper")),
                data.frame(select(slice(test_ISR_results,1:3),1,7)),
                check.attributes=FALSE, check.names=FALSE,info="test upper")
 
-  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop,confidence = 0.998)),
-               data.frame(select(slice(test_ISR_results,4:6),1,5:7)),
+  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, type="standard", x_ref = test_ISR_refdata$refcount,
+                                  n_ref = test_ISR_refdata$refpop,confidence = 99.8)),
+               data.frame(select(slice(test_ISR_results,4:6),1:7)),
                check.attributes=FALSE, check.names=FALSE,info="test confidence")
 
-  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop, multiplier=1000)),
-               data.frame(select(slice(test_ISR_results,7:9),1,5:7)),
+  expect_equal(data.frame(phe_isr(test_multiarea, count, pop, type="standard", x_ref = test_ISR_refdata$refcount,
+                                  n_ref = test_ISR_refdata$refpop, multiplier=1000)),
+               data.frame(select(slice(test_ISR_results,7:9),1:7)),
                check.attributes=FALSE, check.names=FALSE,info="test multiplier")
 
 })

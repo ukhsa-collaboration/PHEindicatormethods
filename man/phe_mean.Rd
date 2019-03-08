@@ -4,14 +4,15 @@
 \alias{phe_mean}
 \title{phe_mean}
 \usage{
-phe_mean(data, x, type = "standard", confidence = 0.95)
+phe_mean(data, x, type = "full", confidence = 0.95)
 }
 \arguments{
 \item{data}{a data.frame containing the data to calculate means for, pre-grouped if multiple means required; unquoted string; no default}
 
 \item{x}{field name from data containing the values to calculate the means for; unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
+\item{type}{defines the data and metadata columns to be included in output;
+can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -34,14 +35,14 @@ df2 <- data.frame(area = rep(c("Area1", "Area2"),each=3),
                   values = c(20,30,40,200,300,400)) \%>\%
                   group_by(area)
 phe_mean(df2,values)
-phe_mean(df2,values,type="full", confidence=0.998)
+phe_mean(df2,values,type="standard", confidence=0.998)
 
 
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{byars_lower}},
-  \code{\link{byars_upper}}, \code{\link{phe_dsr}},
+Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_proportion}},
-  \code{\link{phe_rate}}, \code{\link{phe_smr}},
-  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
+  \code{\link{phe_quantile}}, \code{\link{phe_rate}},
+  \code{\link{phe_smr}}
 }
+\concept{PHEindicatormethods package functions}

@@ -37,7 +37,7 @@
 #'
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8)
+#'     phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="standard", confidence=99.8)
 #'
 #' @section Notes: User MUST ensure that x, n, x_ref and n_ref vectors are all ordered by
 #' the same standardisation category values as records will be matched by position. \cr  \cr
@@ -59,89 +59,98 @@
 # -------------------------------------------------------------------------------------------------
 
 
-phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "standard", confidence = 0.95, multiplier = 100000) {
+phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
+                    type = "full", confidence = 0.95, multiplier = 100000) {
 
-  # check required arguments present
-  if (missing(data)|missing(x)|missing(n)|missing(x_ref)|missing(n_ref)) {
-    stop("function phe_isr requires at least 5 arguments: data, x, n, x_ref and n_ref")
-  }
+    # check required arguments present
+    if (missing(data)|missing(x)|missing(n)|missing(x_ref)|missing(n_ref)) {
+        stop("function phe_isr requires at least 5 arguments: data, x, n, x_ref and n_ref")
+    }
 
-  # check same number of rows per group
-  if (n_distinct(select(ungroup(count(data)),n)) != 1) {
-    stop("data must contain the same number of rows for each group")
-  }
 
-  # check ref pops are valid and append to data
-  if (!(refpoptype %in% c("vector","field"))) {
-    stop("valid values for refpoptype are vector and field")
-  } else if (refpoptype == "vector") {
-    if (pull(slice(select(ungroup(count(data)),n),1)) != length(x_ref)) {
-      stop("x_ref length must equal number of rows in each group within data")
-    } else if (pull(slice(select(ungroup(count(data)),n),1)) != length(n_ref)) {
-        stop("n_ref length must equal number of rows in each group within data")
-      }
-    data <- mutate(data,xrefpop_calc = x_ref,
+    # check same number of rows per group
+    if (n_distinct(select(ungroup(count(data)),n)) != 1) {
+        stop("data must contain the same number of rows for each group")
+    }
+
+
+    # check ref pops are valid and append to data
+    if (!(refpoptype %in% c("vector","field"))) {
+        stop("valid values for refpoptype are vector and field")
+    } else if (refpoptype == "vector") {
+        if (pull(slice(select(ungroup(count(data)),n),1)) != length(x_ref)) {
+            stop("x_ref length must equal number of rows in each group within data")
+        } else if (pull(slice(select(ungroup(count(data)),n),1)) != length(n_ref)) {
+            stop("n_ref length must equal number of rows in each group within data")
+        }
+
+        data <- mutate(data,xrefpop_calc = x_ref,
                         nrefpop_calc = n_ref)
-  } else if (refpoptype == "field") {
-    enquoxref <- enquo(x_ref)
-    enquonref <- enquo(n_ref)
-    if (deparse(substitute(x_ref)) %in% colnames(data)) {
-      if(deparse(substitute(n_ref)) %in% colnames(data)) {
-        data <- mutate(data,xrefpop_calc = !!enquoxref,
-                            nrefpop_calc = !!enquonref)
-      } else stop("n_ref is not a field name from data")
-    } else stop("x_ref is not a field name from data")
-  }
-
-  # apply quotes
-  x <- enquo(x)
-  n <- enquo(n)
-
-  # validate arguments
-  if (any(pull(data, !!x) < 0)) {
-      stop("numerators must all be greater than or equal to zero")
-  } else if (any(pull(data, !!n) < 0)) {
-      stop("denominators must all be greater than or equal to zero")
-  } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
-      stop("confidence level must be between 90 and 100 or between 0.9 and 1")
-  } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
-      stop("type must be one of value, lower, upper, standard or full")
-  }
+    } else if (refpoptype == "field") {
+        enquoxref <- enquo(x_ref)
+        enquonref <- enquo(n_ref)
+        if (deparse(substitute(x_ref)) %in% colnames(data)) {
+            if(deparse(substitute(n_ref)) %in% colnames(data)) {
+                data <- mutate(data,xrefpop_calc = !!enquoxref,
+                               nrefpop_calc = !!enquonref)
+            } else stop("n_ref is not a field name from data")
+        } else stop("x_ref is not a field name from data")
+    }
 
 
-  # scale confidence level
-  if (confidence >= 90) {
-    confidence <- confidence/100
-  }
+    # apply quotes
+    x <- enquo(x)
+    n <- enquo(n)
 
-  phe_isr <- data %>%
-    mutate(exp_x = xrefpop_calc/nrefpop_calc * (!!n)) %>%
-    summarise(observed  = sum((!!x)),
-              expected  = sum(exp_x),
-              ref_rate = sum(xrefpop_calc) / sum(nrefpop_calc) * multiplier) %>%
-    mutate(value     = observed / expected * ref_rate,
-           lowercl = if_else(observed<10, qchisq((1-confidence)/2,2*observed)/2/expected * ref_rate,
-                             byars_lower(observed,confidence)/expected * ref_rate),
-           uppercl = if_else(observed<10, qchisq(confidence+(1-confidence)/2,2*observed+2)/2/expected * ref_rate,
-                             byars_upper(observed,confidence)/expected * ref_rate),
-           confidence = paste(confidence*100,"%", sep=""),
-           statistic = paste("isr per",format(multiplier,scientific=F)),
-           method  = if_else(observed<10,"Exact","Byars"))
 
-  if (type == "lower") {
-    phe_isr <- phe_isr %>%
-      select(-observed, -expected, -ref_rate, -value, -uppercl, -confidence, -statistic, -method)
-  } else if (type == "upper") {
-    phe_isr <- phe_isr %>%
-      select(-observed, -expected, -ref_rate, -value, -lowercl, -confidence, -statistic, -method)
-  } else if (type == "value") {
-    phe_isr <- phe_isr %>%
-      select(-observed, -expected, -ref_rate, -lowercl, -uppercl, -confidence, -statistic, -method)
-  } else if (type == "standard") {
-    phe_isr <- phe_isr %>%
-      select(-observed, -expected, -ref_rate, -confidence, -statistic, -method)
-  }
+    # validate arguments
+    if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
+        stop("numerators must all be greater than or equal to zero")
+    } else if (any(pull(data, !!n) < 0, na.rm=TRUE)) {
+        stop("denominators must all be greater than or equal to zero")
+    } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
+        stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+    } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
+        stop("type must be one of value, lower, upper, standard or full")
+    }
 
-  return(phe_isr)
+
+    # scale confidence level
+    if (confidence >= 90) {
+        confidence <- confidence/100
+    }
+
+
+    # calculate the isr and populate metadata fields
+    phe_isr <- data %>%
+        mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero(!!n)) %>%
+        summarise(observed  = sum(!!x, na.rm=TRUE),
+                  expected  = sum(exp_x),
+                  ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier) %>%
+        mutate(value     = observed / expected * ref_rate,
+               lowercl = if_else(observed<10, qchisq((1-confidence)/2,2*observed)/2/expected * ref_rate,
+                                 byars_lower(observed,confidence)/expected * ref_rate),
+               uppercl = if_else(observed<10, qchisq(confidence+(1-confidence)/2,2*observed+2)/2/expected * ref_rate,
+                                 byars_upper(observed,confidence)/expected * ref_rate),
+               confidence = paste(confidence*100,"%", sep=""),
+               statistic = paste("isr per",format(multiplier,scientific=F)),
+               method  = if_else(observed<10,"Exact","Byars"))
+
+    # drop fields not required based on value of type argument
+    if (type == "lower") {
+        phe_isr <- phe_isr %>%
+            select(-observed, -expected, -ref_rate, -value, -uppercl, -confidence, -statistic, -method)
+    } else if (type == "upper") {
+        phe_isr <- phe_isr %>%
+            select(-observed, -expected, -ref_rate, -value, -lowercl, -confidence, -statistic, -method)
+    } else if (type == "value") {
+        phe_isr <- phe_isr %>%
+            select(-observed, -expected, -ref_rate, -lowercl, -uppercl, -confidence, -statistic, -method)
+    } else if (type == "standard") {
+        phe_isr <- phe_isr %>%
+            select(-confidence, -statistic, -method)
+    }
+
+    return(phe_isr)
 }
 

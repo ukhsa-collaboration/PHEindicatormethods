@@ -4,7 +4,7 @@
 \alias{phe_isr}
 \title{phe_isr}
 \usage{
-phe_isr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "standard",
+phe_isr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "full",
   confidence = 0.95, multiplier = 1e+05)
 }
 \arguments{
@@ -25,7 +25,8 @@ unquoted string referencing a numeric vector or field name from data depending o
 \item{refpoptype}{whether x_ref and n_ref have been specified as vectors or a field name from data;
 quoted string "field" or "vector"; default = "vector"}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
+\item{type}{defines the data and metadata columns to be included in output;
+can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -69,7 +70,7 @@ df \%>\%
 
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="full", confidence=99.8)
+    phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="standard", confidence=99.8)
 
 }
 \references{
@@ -80,9 +81,9 @@ df \%>\%
   Oxford: Blackwell; 2002.
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{byars_lower}},
-  \code{\link{byars_upper}}, \code{\link{phe_dsr}},
+Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
   \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_rate}}, \code{\link{phe_smr}},
-  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
+  \code{\link{phe_quantile}}, \code{\link{phe_rate}},
+  \code{\link{phe_smr}}
 }
+\concept{PHEindicatormethods package functions}

@@ -4,17 +4,19 @@
 \alias{phe_rate}
 \title{phe_rate}
 \usage{
-phe_rate(data, x, n, type = "standard", confidence = 0.95,
+phe_rate(data, x, n, type = "full", confidence = 0.95,
   multiplier = 1e+05)
 }
 \arguments{
-\item{data}{the data.frame containing the data to calculate rates for; unquoted string; no default}
+\item{data}{the data.frame containing the data to calculate rates for, pre-grouped if proportions required for
+group aggregates; unquoted string; no default}
 
 \item{x}{field name from data containing the rate numerators (eg observed number of events); unquoted string; no default}
 
 \item{n}{field name from data containing the rate denominators (eg populations); unquoted string; no default}
 
-\item{type}{type of output; can be "value", "lower", "upper", "standard" (for all 3 previous fields) or "full"; quoted string; default standard}
+\item{type}{defines the data and metadata columns to be included in output;
+can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
@@ -35,12 +37,18 @@ Calculates rates with confidence limits using Byar's [1] or exact [2] CI method.
 }
 
 \examples{
-df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), 2),
-                 year = rep(2015:2016, each = 4),
-                 obs = sample(100, 2 * 4, replace = TRUE),
-                 pop = sample(100:200, 2 * 4, replace = TRUE))
+# ungrouped data frame
+df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), each=3),
+                 obs = c(NA,82,9,48, 6500,8200,10000,10000,8,7,750,900),
+                 pop = rep(c(100,10000,10000,10000), each=3))
+
 phe_rate(df, obs, pop)
 phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
+
+# grouped data frame
+library(dplyr)
+dfg <- df \%>\% group_by(area)
+phe_rate(dfg, obs, pop)
 
 }
 \references{
@@ -51,9 +59,9 @@ phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
   Oxford: Blackwell; 2002.
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{byars_lower}},
-  \code{\link{byars_upper}}, \code{\link{phe_dsr}},
+Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_mean}},
-  \code{\link{phe_proportion}}, \code{\link{phe_smr}},
-  \code{\link{wilson_lower}}, \code{\link{wilson_upper}}
+  \code{\link{phe_proportion}}, \code{\link{phe_quantile}},
+  \code{\link{phe_smr}}
 }
+\concept{PHEindicatormethods package functions}

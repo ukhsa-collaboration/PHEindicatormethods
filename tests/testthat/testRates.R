@@ -5,16 +5,16 @@ context("test_phe_rate")
 test_that("rates and CIs calculate correctly",{
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator)),
-               data.frame(select(slice(test_Rate,9:16),1:6)),check.attributes=FALSE, check.names=FALSE, info="test default")
+               data.frame(select(slice(test_Rate,9:16),1:9)),check.attributes=FALSE, check.names=FALSE, info="test default")
 
-  expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="full")),
-               data.frame(select(slice(test_Rate,9:16),1:9)),check.attributes=FALSE, check.names=FALSE, info="test full")
+  expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="standard")),
+               data.frame(select(slice(test_Rate,9:16),1:6)),check.attributes=FALSE, check.names=FALSE, info="test standard")
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,25:32)[1:3],Numerator,Denominator, confidence=99.8)),
-               data.frame(select(slice(test_Rate,25:32),1:6)),check.attributes=FALSE, check.names=FALSE, info="test confidence")
+               data.frame(select(slice(test_Rate,25:32),1:9)),check.attributes=FALSE, check.names=FALSE, info="test confidence")
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,1:8)[1:3],Numerator,Denominator, multiplier=100)),
-               data.frame(select(slice(test_Rate,1:8),1:6)),check.attributes=FALSE, check.names=FALSE, info="test multiplier")
+               data.frame(select(slice(test_Rate,1:8),1:9)),check.attributes=FALSE, check.names=FALSE, info="test multiplier")
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="value")),
                data.frame(select(slice(test_Rate,9:16),1:4)),check.attributes=FALSE, check.names=FALSE, info="test value")
@@ -25,7 +25,12 @@ test_that("rates and CIs calculate correctly",{
   expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="upper")),
                data.frame(select(slice(test_Rate,9:16),1:3,6)),check.attributes=FALSE, check.names=FALSE, info="test upper")
 
-})
+  expect_equal(data.frame(phe_rate(slice(test_Rate,33:35)[1:3],Numerator,Denominator, type="full")),
+               data.frame(select(slice(test_Rate,33:35),1:9)),check.attributes=FALSE, check.names=FALSE, info="test NAs")
+
+  expect_equal(data.frame(phe_rate(slice(test_Rate_g,1:8)[1:3], Numerator, Denominator)),
+               data.frame(select(test_Rate_g_results,1:9)),check.attributes=FALSE, check.names=FALSE, info="test grouped")
+  })
 
 
 
@@ -35,7 +40,7 @@ test_that("rates - errors are generated when invalid arguments are used",{
   expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
                                    obs =c(65,80,30),
                                    pop =c(100,100,100)), obs),
-               "function phe_dsr requires at least 3 arguments: data, x, n", info="error invalid number of arguments")
+               "function phe_rate requires at least 3 arguments: data, x, n", info="error invalid number of arguments")
 
   expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
                                    obs =c(-65,80,30),
