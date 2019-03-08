@@ -2,6 +2,7 @@
 
 export(phe_dsr)
 export(phe_isr)
+export(phe_life_expectancy)
 export(phe_mean)
 export(phe_proportion)
 export(phe_quantile)

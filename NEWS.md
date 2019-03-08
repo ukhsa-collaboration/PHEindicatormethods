@@ -1,4 +1,4 @@
-## PHEindicatormethods v1.0.9
+## PHEindicatormethods v1.1.0
 
 The following changes may affect backwards compatibility with earlier versions of the package:  
 
@@ -9,6 +9,8 @@ The following changes may affect backwards compatibility with earlier versions o
 <br>
 
 The following changes will not affect backwards compatibility with earlier versions of the package:  
+
+* `phe_life_expectancy()` function added which allows users to calculate life expectancy at different ages based on population and death data
 
 * Added new phe_quantile function
 

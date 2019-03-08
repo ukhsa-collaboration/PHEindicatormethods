@@ -44,5 +44,6 @@ Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_proportion}},
   \code{\link{phe_quantile}}, \code{\link{phe_rate}},
   \code{\link{phe_smr}}
+
 }
 \concept{PHEindicatormethods package functions}

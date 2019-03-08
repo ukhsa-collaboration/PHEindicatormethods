@@ -4,6 +4,7 @@
 #' @docType package
 #' @name PHEindicatormethods
 NULL
+
 globalVariables(c('esp2013',
                   'exp_x',
                   'expected',
@@ -35,6 +36,14 @@ globalVariables(c('esp2013',
                   'quantile',
                   'naflag',
                   'highergeog_column',
-                  'qinverted'
-                  )
+                  'qinverted',
+                  "ei",
+                  "l_2b_removed",
+                  "Li_2b_removed",
+                  "p_2b_removed",
+                  "qi_2b_removed",
+                  "startage_2b_removed",
+                  "STi_2b_removed",
+                  "SeSE_2b_removed",
+                  "W_spi_2b_removed")
 )

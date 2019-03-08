@@ -33,5 +33,5 @@ Calculates upper confidence limits for observed numbers of events using the Wils
  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
  2000. Pg 46 to 48.
 
-------------------------------------------------------------------------------------------------
 }
+\concept{PHEindicatormethods package functions}

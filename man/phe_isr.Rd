@@ -4,8 +4,10 @@
 \alias{phe_isr}
 \title{phe_isr}
 \usage{
+
 phe_isr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "full",
   confidence = 0.95, multiplier = 1e+05)
+
 }
 \arguments{
 \item{data}{data.frame containing the data to be standardised, pre-grouped if multiple ISRs required; unquoted string; no default}
@@ -81,7 +83,9 @@ df \%>\%
   Oxford: Blackwell; 2002.
 }
 \seealso{
+
 Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
+
   \code{\link{phe_mean}}, \code{\link{phe_proportion}},
   \code{\link{phe_quantile}}, \code{\link{phe_rate}},
   \code{\link{phe_smr}}
