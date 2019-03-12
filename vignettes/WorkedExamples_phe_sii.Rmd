@@ -1,0 +1,149 @@
+---
+title: "Worked examples for phe_sii function"
+author: "Emma Clegg"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    css: style.css
+vignette: >
+  %\VignetteIndexEntry{Worked examples for phe_sii function}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r output, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Introduction
+
+This vignette provides examples of how to use the phe_sii function with different kinds of indicators.
+
+*The following packages must be installed and loaded if not already available*
+
+```{r setup, message = FALSE, warning = FALSE}
+# source functions required
+library(PHEindicatormethods)
+library(dplyr)
+```
+
+## Function and inputs
+
+phe_sii is an aggregate function, returning the slope index of inequality (SII) statistic for each grouping set in the inputted dataframe, with lower and upper confidence limits based on the specified confidence. The user can choose whether to return the Relative Index of Inequality (RII) via an optional argument in the function.
+
+Each grouping set in the input data should have a row for each quantile, labelled with the quantile number, which contains the associated population, indicator value and 95% confidence limits. The user has the option to provide the standard error instead of the 95% confidence limits, in which case this is used directly rather than being calculated by the function.
+
+The user can also specify the indicator type from "0 - default", "1 - rate" or "2 - proportion", where different transformations are applied to the input indicator value and confidence limits in the case of a rate or proportion. Examples are provided below for the three cases.
+
+
+## Example 1 - default (normal) distribution
+
+The example below calculates the SII on some life expectancy data. This is assumed to have symmetric confidence intervals around the indicator values, so default standard error calculations would be done (involving no prior transformations).
+
+The relevant fields in the input dataset are specified for the arguments `quantile`, `population` and `value`. `value_type` is kept equal to 0 (default), and the number of repetitions set to 100 for faster running of the function as a demonstration.
+
+The standard error (`se`) has been provided here in the input dataset, meaning this will be used directly and lower/upper 95% confidence limits of the indicator values are not needed.
+
+
+```{r default_example}
+
+# Pass data through SII function ---------------------------------------
+LE_data_SII <- LE_data %>%
+        # Group the input dataframe to create subgroups to calculate the SII for
+        group_by(Sex, GeoCode) %>% 
+        # Run SII function on grouped dataset
+        phe_sii(quantile = Decile,
+                population = Pop ,
+                value = LifeExp,
+                value_type = 0, # specify default indicator type
+                se = SE,
+                repetitions = 100,
+                type = "full") # use smaller no. of repetitions e.g. for testing
+
+# View first 10 rows of results
+knitr::kable(head(LE_data_SII, 10))  
+
+```
+
+Note that some areas are missing quantiles in the dataset, and these are subsequently excluded from the function output with a warning given. 
+
+
+## Example 2 - rate
+
+The example below calculates both the SII and RII on Directly Standardised Rate (DSR) data. The `value_type` argument is set to 1 to specify this indicator is a rate; this means a log transformation will be applied to the `value`, `lower_cl` and `upper_cl` fields before calculating the standard error.
+
+As the number of repetitions is not specified, the function will run on the default 100,000. To return the RII, the `rii` argument is set to TRUE.
+
+Finally, setting `reliability_stat = TRUE` will run additional sample sets of the SII/RII confidence limits and return a Mean Average Difference (MAD) value for each subgroup. See below for guidance on how to use this.
+
+```{r rate_example}
+
+# Pass data through SII function ---------------------------------------
+DSR_data_SII <- DSR_data %>%
+        # Group the input dataframe to create subgroups to calculate the SII for
+        group_by(Period) %>% 
+        # Run SII function on grouped dataset
+        phe_sii(quantile = Quintile,
+                population = total_pop ,
+                value = value,
+                value_type = 1, # specifies indicator is a rate
+                lower_cl = lowercl,
+                upper_cl = uppercl,
+                rii = TRUE, # returns RII as well as SII (default is FALSE)
+                reliability_stat = TRUE) # returns reliability stats (default is FALSE)
+
+# View results
+knitr::kable(DSR_data_SII)  
+
+```
+
+
+## Example 3 - proportion
+
+This example calculates the SII for a prevalence indicator. Proportions need to be between 0 and 1 - this formatting is done in the `mutate` command below, before passing the grouped dataset to the `phe_sii` function.
+
+The `value_type` argument is set to 2 to specify the indicator is a proportion, and a logit transformation is applied to the `value`, `lower_cl` and `upper_cl` fields.
+
+The function will again run on the default 100,000 reps, and neither the RII or MAD values will be returned.
+
+There is the option to specify a numeric `multiplier` in the arguments, which will scale the SII, SII_lowerCL, SII_upperCL (and SII_MAD) before outputting. This could be used if an absolute (i.e. positive) slope is desired for an indicator, where the "high is bad" polarity would otherwise give negative SII results.  
+
+Below, a multiplier of -100 is used, to output absolute prevalence figures that are expressed on a scale between 0 and 100.
+
+```{r proportion_example}
+
+# Pass data through SII function ---------------------------------------
+prevalence_SII <- prevalence_data %>%
+          # Group the input dataframe to create subgroups to calculate the SII for
+        group_by(Period, SchoolYear, AreaCode) %>% 
+          # Format prevalences to be between 0 and 1
+        mutate(Rate = Rate/100,
+               LCL = LCL/100,
+               UCL = UCL/100) %>% 
+           # Run SII function on grouped dataset
+        phe_sii(quantile = Decile,
+                        population = Measured,
+                        value = Rate,
+                        value_type = 2, # specifies indicator is a proportion
+                        lower_cl = LCL,
+                        upper_cl = UCL,
+                        multiplier = -100) # negative multiplier to scale SII outputs
+
+# View first 10 rows of results
+knitr::kable(head(prevalence_SII,10)) 
+
+
+```
+
+
+## Interpreting the Mean Average Difference (MAD)
+
+If `reliability_stat` is set to TRUE in the function, a MAD value is returned for each subgroup as a measure of how much the SII (or RII) confidence limits vary.
+
+Note: this option will increase the runtime of the function, as the MAD calculation involves an additional 9 sample sets of the confidence limits to be taken.
+
+A MAD of 0.005 implies that, on rerunning the phe_sii function, the confidence limits can be expected to change by approximately 0.005. The more repetitions the function is run on, the smaller this statistic should be. The tolerance will depend on the level of accuracy to which the user wishes to present the confidence limits - ideally, to display them to 1 d.p., the MAD should be smaller than 0.01. To 2 d.p., smaller than 0.001, etc.
+
+
+

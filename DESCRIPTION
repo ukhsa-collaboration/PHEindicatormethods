@@ -1,14 +1,14 @@
 Package: PHEindicatormethods
 Type: Package
-Version: 1.0.8.9000
+Version: 1.0.8.9900
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate commonly used public health statistics and 
     their confidence intervals using methods approved for use in the production  
     of Public Health England indicators such as those presented via Fingertips 
     (<http://fingertips.phe.org.uk/>). It provides functions for the generation 
     of proportions, crude rates, means, directly standardised rates, indirectly 
-    standardised rates and standardised mortality ratios. Statistical methods 
-    are referenced in the following publications. 
+    standardised rates, standardised mortality ratios, slope and relative index
+    of inequality. Statistical methods are referenced in the following publications. 
     Breslow NE, Day NE (1987) <doi:10.1002/sim.4780080614>.
     Dobson et al (1991) <doi:10.1002/sim.4780100317>. 
     Armitage P, Berry G (2002) <doi:10.1002/9780470773666>.
@@ -17,7 +17,8 @@ Description: Functions to calculate commonly used public health statistics and
 Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@phe.gov.uk", c("aut", "cre")),
              person("Fox", "Sebastian", , "sebastian.fox@phe.gov.uk", c("ctb")),
              person("Francis", "Matthew", , "matthew.francis@phe.gov.uk", c("ctb")),
-             person("Fryers", "Paul", , "paul.fryers@phe.gov.uk", c("ctb")))
+             person("Fryers", "Paul", , "paul.fryers@phe.gov.uk", c("ctb")),
+             person("Clegg", "Emma", , "emma.clegg@phe.gov.uk", c("ctb")))
 BugReports: https://github.com/PublicHealthEngland/PHEindicatormethods/issues
 Depends: R (>= 3.1.0)
 License: GPL-3
@@ -25,12 +26,16 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     dplyr,
-    rlang
+    rlang,
+    broom,
+    tidyr,
+    purrr,
+    stats
 Suggests: 
     knitr,
     readxl,
     rmarkdown,
     RODBC,
     testthat,
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 VignetteBuilder: knitr
