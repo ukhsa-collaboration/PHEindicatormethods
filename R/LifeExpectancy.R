@@ -16,9 +16,9 @@
 #'   "all", where the function returns the life expectancy values for all ages
 #'   appended onto the input table. Any other value (or vector of values) must be age bands
 #'   described by the age_contents input
-#' @param type type of output; can be "standard" or "full" (which contains
-#'   details added details on the calculation within the dataframe); quoted
-#'   string; default standard
+#' @param type type of output; can be "standard" or "full" (full contains
+#'   added details on the calculation within the dataframe); quoted
+#'   string; default full
 #' @details This function aligns with the methodology in Public Health England's
 #'   \href{https://fingertips.phe.org.uk/documents/PHE Life Expectancy Calculator.xlsm}{Life Expectancy Excel Tool}.
 #'
@@ -83,7 +83,7 @@
 #'
 #' ## OR
 #'
-#' phe_life_expectancy(df, deaths, pops, startage, le_age = c(5, 25), type = "full")
+#' phe_life_expectancy(df, deaths, pops, startage, le_age = c(5, 25), type = "standard")
 #'
 #' ## Unordered age bands example
 #' df <- data.frame(startage = c("0", "1-4", "5-9", "10 - 14", "15 - 19", "20 - 24", "25 - 29",
@@ -129,7 +129,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                                                  20L, 25L, 30L, 35L, 40L,
                                                  45L, 50L, 55L, 60L, 65L,
                                                  70L, 75L, 80L, 85L, 90L),
-                                le_age = "all", type = "standard", confidence = 0.95) {
+                                le_age = "all", type = "full", confidence = 0.95) {
 
   # check required arguments present
   if (missing(data) | missing(deaths) | missing(population) | missing(startage)) {

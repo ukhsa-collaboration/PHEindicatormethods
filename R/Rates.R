@@ -24,7 +24,8 @@
 #'                  pop = rep(c(100,10000,10000,10000), each=3))
 #'
 #' phe_rate(df, obs, pop)
-#' phe_rate(df, obs, pop, type="full", confidence=99.8, multiplier=100)
+#' phe_rate(df, obs, pop, type="standard")
+#' phe_rate(df, obs, pop, confidence=99.8, multiplier=100)
 #'
 #' # grouped data frame
 #' library(dplyr)

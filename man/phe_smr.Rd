@@ -64,13 +64,13 @@ refdf <- data.frame(refcount = sample(200, 19, replace = TRUE),
 
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_smr(obs, pop, refdf$refcount, refdf$refpop)
+    phe_smr(obs, pop, refdf$refcount, refdf$refpop, type="standard")
 
 ## OR
 
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_smr(obs, pop, refdf$refcount, refdf$refpop, type="standard", confidence=99.8, refvalue=100)
+    phe_smr(obs, pop, refdf$refcount, refdf$refpop, confidence=99.8, refvalue=100)
 
 }
 \references{

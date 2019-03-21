@@ -32,13 +32,13 @@
 #'
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     phe_smr(obs, pop, refdf$refcount, refdf$refpop)
+#'     phe_smr(obs, pop, refdf$refcount, refdf$refpop, type="standard")
 #'
 #' ## OR
 #'
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     phe_smr(obs, pop, refdf$refcount, refdf$refpop, type="standard", confidence=99.8, refvalue=100)
+#'     phe_smr(obs, pop, refdf$refcount, refdf$refpop, confidence=99.8, refvalue=100)
 #'
 #' @section Notes: User MUST ensure that x, n, x_ref and n_ref vectors are all ordered by
 #' the same standardisation category values as records will be matched by position. \cr \cr
@@ -60,7 +60,8 @@
 # -------------------------------------------------------------------------------------------------
 
 
-phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "full", confidence = 0.95, refvalue = 1) {
+phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
+                    type = "full", confidence = 0.95, refvalue = 1) {
 
     # check required arguments present
     if (missing(data)|missing(x)|missing(n)|missing(x_ref)|missing(n_ref)) {

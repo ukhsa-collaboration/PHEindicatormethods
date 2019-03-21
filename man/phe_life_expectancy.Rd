@@ -7,7 +7,7 @@
 phe_life_expectancy(data, deaths, population, startage,
   age_contents = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L,
   50L, 55L, 60L, 65L, 70L, 75L, 80L, 85L, 90L), le_age = "all",
-  type = "standard", confidence = 0.95)
+  type = "full", confidence = 0.95)
 }
 \arguments{
 \item{data}{data.frame or tbl containg the deaths and population data}
@@ -88,7 +88,7 @@ phe_life_expectancy(df, deaths, pops, startage)
 
 ## OR
 
-phe_life_expectancy(df, deaths, pops, startage, le_age = c(5, 25), type = "full")
+phe_life_expectancy(df, deaths, pops, startage, le_age = c(5, 25), type = "standard")
 
 ## Unordered age bands example
 df <- data.frame(startage = c("0", "1-4", "5-9", "10 - 14", "15 - 19", "20 - 24", "25 - 29",

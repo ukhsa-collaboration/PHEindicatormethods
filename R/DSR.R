@@ -62,7 +62,8 @@
 # -------------------------------------------------------------------------------------------------
 
 # define the DSR function using Dobson method
-phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector", type = "full", confidence = 0.95, multiplier = 100000) {
+phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
+                    type = "full", confidence = 0.95, multiplier = 100000) {
 
     # check required arguments present
     if (missing(data)|missing(x)|missing(n)) {

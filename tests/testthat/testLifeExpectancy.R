@@ -136,7 +136,7 @@ answer2 <- cbind(df1[c(3, 7),],
                             statistic = paste("life expectancy at", c(5, 25)),
                             method = rep("Chiang, using Silcocks et al for confidence limits", 2)))
 
-test1 <- phe_life_expectancy(df1, deaths, pops, startage) %>%
+test1 <- phe_life_expectancy(df1, deaths, pops, startage, type="standard") %>%
   select(value:uppercl)
 test1.1 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = 95) %>%
   select(value:uppercl)
@@ -163,7 +163,7 @@ test4 <- phe_life_expectancy(df3, deaths, pops, startage,
   select(value:uppercl)
 test5 <- phe_life_expectancy(df1, deaths, pops, startage, le_age = 5) %>%
   select(value:uppercl)
-test6 <- phe_life_expectancy(df1, deaths, pops, startage, le_age = c(5, 25), type = "full") %>%
+test6 <- phe_life_expectancy(df1, deaths, pops, startage, le_age = c(5, 25), type="full") %>%
   mutate_at(c("value", "lowercl", "uppercl"), round, digits = n)
 negative_warning <- capture_warnings(test_neg <- phe_life_expectancy(df_neg_deaths, deaths, pop, age) %>%
                                        select(value:uppercl))
@@ -188,7 +188,7 @@ multi_warnings <- capture_warnings(
 #test calculations
 test_that("LE and CIs calculate correctly",{
   expect_equal(round(test1, n), round(answer1, n),
-               info = "test default")
+               info = "test defaults but with type standard")
   expect_equal(round(test1.1, n), round(answer1, n),
                info = "test confidence = 95")
   expect_equal(round(test2, n), round(answer1, n),
