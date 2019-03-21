@@ -2,7 +2,7 @@
 #'
 #' Compute life expectancy from a given age and its standard error
 #'
-#' @param data data.frame or tbl containg the deaths and population data
+#' @param data data.frame or tbl containing the deaths and population data
 #' @param deaths field name from data containing the number of deaths within age
 #'   band; unquoted string; no default
 #' @param population field name from data containing the population within age
