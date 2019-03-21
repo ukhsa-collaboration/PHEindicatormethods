@@ -68,6 +68,7 @@ phe_proportion(dfg, numerator, denominator, multiplier=100)
 Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_life_expectancy}},
   \code{\link{phe_mean}}, \code{\link{phe_quantile}},
-  \code{\link{phe_rate}}, \code{\link{phe_smr}}
+  \code{\link{phe_rate}}, \code{\link{phe_sii}},
+  \code{\link{phe_smr}}
 }
 \concept{PHEindicatormethods package functions}
