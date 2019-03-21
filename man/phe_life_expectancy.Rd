@@ -30,9 +30,9 @@ used to reorder the data based on the startage field}
 appended onto the input table. Any other value (or vector of values) must be age bands
 described by the age_contents input}
 
-\item{type}{type of output; can be "standard" or "full" (which contains
-details added details on the calculation within the dataframe); quoted
-string; default standard}
+\item{type}{type of output; can be "standard" or "full" (full contains
+added details on the calculation within the dataframe); quoted
+string; default full}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
 or 90 and 100; numeric; default 0.95}
