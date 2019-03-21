@@ -79,14 +79,20 @@ The package contains the following functions, datasets and vignettes - see indiv
 -   phe\_rate
 -   phe\_smr
 -   phe\_quantile
+-   phe\_life\_expectancy
+-   phe\_sii
 
 **Datasets:**
 
 -   esp2013
+-   LE\_data (for use with SII vignette)
+-   DSR\_data (for use with SII vignette)
+-   prevalence\_data (for use with SII vignette)
 
 **Vignettes:**
 
 -   Vignette to introduce the package functions included in the original package release
 -   Vignette for calculating DSRs for multiple geographies and time periods
+-   Vignette showing worked examples of the phe\_sii function
 
 (type 'browseVignettes("PHEindicatormethods")' to view in HTML)
