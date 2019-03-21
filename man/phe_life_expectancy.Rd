@@ -10,7 +10,7 @@ phe_life_expectancy(data, deaths, population, startage,
   type = "full", confidence = 0.95)
 }
 \arguments{
-\item{data}{data.frame or tbl containg the deaths and population data}
+\item{data}{data.frame or tbl containing the deaths and population data}
 
 \item{deaths}{field name from data containing the number of deaths within age
 band; unquoted string; no default}
