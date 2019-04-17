@@ -1,6 +1,6 @@
 Package: PHEindicatormethods
 Type: Package
-Version: 1.1.0
+Version: 1.1.1
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate commonly used public health statistics and 
     their confidence intervals using methods approved for use in the production  
@@ -19,6 +19,7 @@ Description: Functions to calculate commonly used public health statistics and
     Newell C. (1994, ISBN: 978-0-898-62451-9).
     Eayres DP, Williams ES (2004) <doi:10.1136/jech.2003.009654>.
     Silcocks PBS et al (2001) <doi:10.1136/jech.55.1.38>.
+    Low and Low (2004) <doi:10.1093/pubmed/fdh175>.
 Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@phe.gov.uk", c("aut", "cre")),
              person("Fox", "Sebastian", , "sebastian.fox@phe.gov.uk", c("ctb")),
              person("Francis", "Matthew", , "matthew.francis@phe.gov.uk", c("ctb")),

@@ -16,13 +16,14 @@ multiple DSRs required; unquoted string; no default}
 \item{quantile}{field name within data that contains the quantile label (e.g. decile). The number
 of quantiles should be between 5 and 100; unquoted string; no default}
 
-\item{population}{field name within data that contains the quantile populations (eg, denominator).
+\item{population}{field name within data that contains the quantile populations (ie, denominator).
 Non-zero populations are required for all quantiles to calculate SII for an area;
 unquoted string; no default}
 
 \item{x}{(for indicators that are proportions) field name within data that contains
-the measurement population (e.g. numerator). This will be divided by population to calculate
-a proportion as the indicator value (if value field is not provided); unquoted string; no default}
+the members of the population with the attribute of interest (ie, numerator). This will be
+divided by population to calculate a proportion as the indicator value
+(if value field is not provided); unquoted string; no default}
 
 \item{value}{field name within data that contains the indicator value (this does not need to be supplied
 for proportions if count and population are given); unquoted string; no default}
@@ -30,16 +31,16 @@ for proportions if count and population are given); unquoted string; no default}
 \item{value_type}{indicates the indicator type (1 = rate, 2 = proportion, 0 = other);
 integer; default 0}
 
-\item{lower_cl}{field name within data that contains 95% lower confidence limit
+\item{lower_cl}{field name within data that contains 95\% lower confidence limit
 of indicator value (to calculate standard error of indicator value). This field is needed
 if the se field is not supplied; unquoted string; no default}
 
-\item{upper_cl}{field name within data that contains 95% upper confidence limit
+\item{upper_cl}{field name within data that contains 95\% upper confidence limit
 of indicator value (to calculate standard error of indicator value). This field is needed
 if the se field is not supplied; unquoted string; no default}
 
 \item{se}{field name within data that contains the standard error of the indicator
-value. If not supplied, this will be calculated from the 95% lower and upper confidence
+value. If not supplied, this will be calculated from the 95\% lower and upper confidence
 limits (i.e. one or the other of these fields must be supplied); unquoted string; no default}
 
 \item{multiplier}{factor to multiply the SII and SII confidence limits by (e.g. set to 100 to return
@@ -83,20 +84,26 @@ each subgroup is required, and quantiles ordered from least to most advantaged.
 }
 \section{Calculation}{
 
-The SII is calculated using population-weighted linear regression. To allow
+The SII is calculated using linear regression [1]. To allow
 for differences in population size between quantiles (e.g. deprivation deciles),
-each is given a rank score based on the midpoint of its range in the cumulative
-distribution of the total area population. The quantiles are first ordered
-(e.g from 1 most deprived to 10 least deprived for deprivation deciles).
-If quantile 1 then contains 12% of the population, its rank score 1 is
-\code{12/2=6}. If quantile 2 includes 10% of the population, its rank score
-is \code{12+(10/2)=17}. The indicator value for each quantile is plotted against
-this rank score and a population-weighted regression line fitted to the data
-by the least squares method. The SII is the gradient of the resulting fitted line,
-and could be positive or negative according to the indicator polarity.
+each is given a rank score (or relative rank) based on the midpoint of its range
+in the cumulative distribution of the total area population. The quantiles are
+first ordered (e.g from 1 most deprived to 10 least deprived for deprivation deciles).
+If quantile 1 then contains 12\% of the total population, its relative rank is
+  \code{0.12/2=0.6}. If quantile 2 includes 10\% of the population, its relative rank
+is  \code{0.12+(0.10/2)=0.17}. A square root transformation is applied to the regression
+to account for heteroskedasticity (the tendancy for the variances of the quantile values
+to be related to the size of the values, ie larger values will tend to have larger
+variances). A regression model is fitted to the transformed data:  \eqn{Y * \sqrt a =
+\sqrt a + b * \sqrt a}, where Y is the value of the indicator for the quantile, a is
+the proportion of the total population in the quantile and b is the relative rank.
 
-The RII is estimated as (max value of slope/min value of slope) from the regression
-above.
+The SII is the gradient of the resulting fitted line, and could be positive or negative
+according to the indicator polarity. Since the relative ranks, by definition, range from
+0 to 1, the SII is the difference between the fitted value at  \code{x=1} and  \code{x=0}.
+
+The RII is the ration of the fitted value at  \code{x=1,Y1} and the fitted value at
+  \code{x=0,Y0}.  which can be calculated as:  \code{RII = (Y0 + SII)/Y0}
 }
 
 \section{Function arguments}{
@@ -120,6 +127,10 @@ This function does not include checks for linearity or stability; it is the user
 to ensure the input data is suitable for the SII calculation.
 }
 
+\references{
+[1] Low A & Low A. Measuring the gap: quantifying and comparing local health inequalities.
+Journal of Public Health; 2004;26:388-395. \cr \cr
+}
 \seealso{
 Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_life_expectancy}},

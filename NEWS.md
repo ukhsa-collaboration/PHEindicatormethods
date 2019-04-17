@@ -1,3 +1,9 @@
+## PHEindicatormethods v1.1.1
+
+Minor changes to phe_sii function documentation  
+
+
+
 ## PHEindicatormethods v1.1.0
 
 The following changes may affect backwards compatibility with earlier versions of the package:  
@@ -6,7 +12,7 @@ The following changes may affect backwards compatibility with earlier versions o
 
 * all functions using the TYPE argument: Altered the default value for the TYPE argument from 'standard' to 'full'.  This may affect backwards compatibility with earlier versions of the package - where type has not been specified output will now contain additional metadata columns - to remove these please specify type = "standard" as a function argument.
 
-* `byars_lower(0`, `byars_upper()`, `wilson_lower()` and `wilson_upper()` functions have been moved to the package utilities and are less readily available to be used as stand-alone functions within the package.  These functions are intended to be called using other 'phe-' prefixed package functions.  
+* `byars_lower()`, `byars_upper()`, `wilson_lower()` and `wilson_upper()` functions have been moved to the package utilities and are less readily available to be used as stand-alone functions within the package.  These functions are intended to be called using other 'phe-' prefixed package functions.  
 
 <br>
 

@@ -36,9 +36,9 @@
 #'   probability of survival is, by definition, zero and has zero variance.
 #'   However, Silcocks et al argue[4] that in the case of the final age interval
 #'   the life expectancy is dependent not on the probability of survival but on
-#'   the mean length of survival \eqn{(1/M_<sub>omega</sub>)}{(1/M_\omega)}.
+#'   the mean length of survival \eqn{(1/M<sub>omega</sub>)}{(1/M\omega)}.
 #'   Therefore the variance associated with the final age interval depends on the
-#'   age-specific mortality rate \eqn{M_<sub>omega</sub>}{M_\omega}.
+#'   age-specific mortality rate \eqn{M<sub>omega</sub>}{M\omega}.
 #'
 #'   Life expectancy cannot be calculated if the person-years in any given age
 #'   interval is zero. It will also not be calculated if the total person-years
@@ -62,7 +62,7 @@
 #' in a population: statistical considerations and suitability for use by health
 #' authorities. J Epidemiol Community Health 2001;55:38-43 \cr \cr
 #' [5] Toson B, Baker A. Life expectancy at birth: methodological options for
-#' small populations. National Statistics  Methodological Series No 33. HMSO 2003.
+#' small populations. National Statistics  Methodological Series No 33. HMSO 2003. \cr \cr
 #' [6] Eayres DP, Williams ES. Evaluation of methodologies for small area
 #' life expectancy estimation. J Epidemiol Community Health 2004;58:243-249 \cr \cr
 #'
