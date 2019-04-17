@@ -1,11 +1,5 @@
 ## PHEindicatormethods v1.1.1
 
-Minor changes to phe_sii function documentation  
-
-
-
-## PHEindicatormethods v1.1.0
-
 The following changes may affect backwards compatibility with earlier versions of the package:  
 
 * phe_proportion: Replaced logical PERCENTAGE argument with a numeric MULTIPLIER argument to enable proportions to be expressed more flexibly (eg per 1000). Default is now multiplier = 1 which gives equivalent output to the previous default of percentage = FALSE.  There is loss of backwards compatibility where the percentage argument has previously been specified in the function call - please replace 'percentage=TRUE' with 'multiplier=100' and 'percentage=FALSE' with 'multiplier=1'.

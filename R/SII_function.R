@@ -31,7 +31,7 @@
 #' according to the indicator polarity. Since the relative ranks, by definition, range from
 #' 0 to 1, the SII is the difference between the fitted value at  \code{x=1} and  \code{x=0}.
 #'
-#' The RII is the ration of the fitted value at  \code{x=1,Y1} and the fitted value at
+#' The RII is the ratio of the fitted value at  \code{x=1,Y1} and the fitted value at
 #'   \code{x=0,Y0}.  which can be calculated as:  \code{RII = (Y0 + SII)/Y0}
 #'
 #' @section Function arguments:
@@ -102,6 +102,8 @@
 #' @importFrom purrr map
 #' @importFrom tidyr nest unnest spread
 #' @importFrom stats rnorm qnorm lm
+#'
+#' @author Emma Clegg, \email{emma.clegg@@phe.gov.uk}
 #'
 #' @export
 #'

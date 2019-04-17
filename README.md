@@ -7,7 +7,7 @@
 PHEindicatormethods
 ===================
 
-This is an R package to support analysts in the execution of statistical methods approved for use in the production of PHE indicators such as those presented via Fingertips. It provides functions for the generation of Proportions, Rates, DSRs, ISRs, SMRs and Means, including confidence intervals for these statistics, and a function for assigning data to quantiles.
+This is an R package to support analysts in the execution of statistical methods approved for use in the production of PHE indicators such as those presented via Fingertips. It provides functions for the generation of Proportions, Rates, DSRs, ISRs, SMRs, Means, Life Expectancy and Slope Index of Inequaltiy including confidence intervals for these statistics, and a function for assigning data to quantiles.
 
 Any feedback would be appreciated and can be provided using the Issues section of the GitHub repository <https://github.com/PublicHealthEngland/PHEindicatormethods>, or by emailing <PHDS@phe.gov.uk>
 

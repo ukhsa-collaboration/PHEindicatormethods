@@ -1,30 +1,24 @@
 
-## Resubmission
-I have amended the description text in the DESCRIPTION file to include doi 
-<doi:10.prefix.suffix> or 
-ISBN references to the statistical methods used by the package functions. 
-I also made the description text more concise.
+## First submission of updated package version 1.1.1
+This package release v1.1.1 replaces the previous release v1.0.8 currently available on CRAN
 
-I also updated one of the references cited in the function documentation for 
-the phe_rate, phe_isr and phe_smr functions.
+## Amendments in this version
+3 new functions have been added:  
 
-This package is new to CRAN.
+* phe_quantiles
+* phe_life_expectancy
+* phe_sii
 
-## Description
-This is an R package to support analysts in the execution of statistical methods approved for
-use in the production of PHE indicators such as those presented via Fingertips. It provides
-functions for the generation of Proportions, Rates, DSRs, ISRs, SMRs and Means including
-confidence intervals for these statistics.
+Also, minor amendments to existing functions.  These may result in backwards incompatibility - the circumstances when this may occur are clearly stated in the NEWS.md file and in the function documentation with solutions for how to make old code compatible with the later package version (eg logical 'percentage' argument replaced with numeric 'multiplier' argument - percentage = TRUE equivalent to multiplier = 100 etc).
 
 ## Test Environments
-* local Windows 7 install, R 3.5.1
-* local windows 10 install, R 3.5.1
-* used Travis to check on Linux (2018-7-11)
-* devtools::build_win() generated 1 note (2018-07-06)
+* local windows 10 install, R 3.5.1, 2019-04-17 - OK
+* used Travis to check on Linux (2019-04-17) - passed
+* devtools::check_win gave 1 NOTE when run on development R 3.6.0 beta, 
+release R 3.5.3 and oldrelease R 3.4.4 on 2019-04-17.  The note related to either possible misspellings or possible invalid urls containing spaces but both are OK.
 
 ## R CMD check results
-There were no ERRORs or WARNINGs.
-R CMD check generated one note (because this is a new package).
+There were no ERRORs, WARNINGS or NOTES.
 
 ## Downstream dependencies
-This is a new package so there are no downstream dependencies
+There are no known downstream dependencies
