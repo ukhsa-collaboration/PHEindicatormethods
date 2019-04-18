@@ -20,7 +20,7 @@
 #'   added details on the calculation within the dataframe); quoted
 #'   string; default full
 #' @details This function aligns with the methodology in Public Health England's
-#'   \href{https://fingertips.phe.org.uk/documents/PHE Life Expectancy Calculator.xlsm}{Life Expectancy Excel Tool}.
+#'   \href{https://fingertips.phe.org.uk/documents/PHE\%20Life\%20Expectancy\%20Calculator.xlsm}{Life Expectancy Excel Tool}.
 #'
 #'   The function is for an abridged life table using 5 year age intervals with
 #'   a final age interval of 90+. The table has been completed using the methods
@@ -124,6 +124,7 @@
 #' @export
 #'
 #' @family PHEindicatormethods package functions
+
 phe_life_expectancy <- function(data, deaths, population, startage,
                                 age_contents = c(0L, 1L, 5L, 10L, 15L,
                                                  20L, 25L, 30L, 35L, 40L,

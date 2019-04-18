@@ -42,7 +42,7 @@ Compute life expectancy from a given age and its standard error
 }
 \details{
 This function aligns with the methodology in Public Health England's
-  \href{https://fingertips.phe.org.uk/documents/PHE Life Expectancy Calculator.xlsm}{Life Expectancy Excel Tool}.
+  \href{https://fingertips.phe.org.uk/documents/PHE\%20Life\%20Expectancy\%20Calculator.xlsm}{Life Expectancy Excel Tool}.
 
   The function is for an abridged life table using 5 year age intervals with
   a final age interval of 90+. The table has been completed using the methods
