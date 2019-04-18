@@ -1,8 +1,11 @@
 
-## First submission of updated package version 1.1.1
-This package release v1.1.1 replaces the previous release v1.0.8 currently available on CRAN
+## Resubmission of updated package version 1.1.1
+In this resubmission I have replaced spaces with %20s in a URL referenced in phe_life_expectancy.Rd 
 
-## Amendments in this version
+
+This package release v1.1.1 will replace the previous release v1.0.8 currently available on CRAN
+
+## Amendments in v1.1.1
 3 new functions have been added:  
 
 * phe_quantiles
