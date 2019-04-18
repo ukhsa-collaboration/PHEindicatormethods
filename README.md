@@ -24,7 +24,9 @@ Install the latest release version of PHEindicatormethods directly from CRAN wit
 install.packages("PHEindicatormethods")
 ```
 
-#### Install a development version from GitHub using devtools
+<br/> <br/>
+
+#### Install a development version from GitHub using remotes package
 
 You can install a development version of PHEindicatormethods from GitHub with:
 
@@ -35,17 +37,6 @@ remotes::install_github("PublicHealthEngland/PHEindicatormethods",
                          build_vignettes = TRUE,
                          dependencies = TRUE,
                          build_opts = c("--no-resave-data"))
-```
-
-#### Install a development version from zip
-
-Download the PHEindicatormethods repository from GitHub <https://github.com/PublicHealthEngland/PHEindicatormethods> and either build from source or do:
-
-``` r
-if (!require(devtools)) install.packages("devtools")
-
-source <- devtools:::source_pkg("C:/path/to/PHEindicatormethods-master")
-devtools::install(source)
 ```
 
 <br/> <br/>
