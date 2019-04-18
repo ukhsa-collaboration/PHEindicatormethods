@@ -29,11 +29,12 @@ install.packages("PHEindicatormethods")
 You can install a development version of PHEindicatormethods from GitHub with:
 
 ``` r
-if (!require(devtools)) install.packages("devtools")
+if (!require(remotes)) install.packages("remotes")
 
-devtools::install_github("PublicHealthEngland/PHEindicatormethods",
+remotes::install_github("PublicHealthEngland/PHEindicatormethods",
                          build_vignettes = TRUE,
-                         dependencies = "suggests")
+                         dependencies = TRUE,
+                         build_opts = c("--no-resave-data"))
 ```
 
 #### Install a development version from zip
