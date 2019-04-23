@@ -1,3 +1,8 @@
+## PHEindicatormethods v1.1.2
+
+Minor amendments to package testing scripts.  Updates will not affect end users.  
+
+
 ## PHEindicatormethods v1.1.1
 
 The following changes may affect backwards compatibility with earlier versions of the package:  

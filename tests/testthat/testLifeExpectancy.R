@@ -251,17 +251,17 @@ test_that("LE - errors are generated when invalid arguments are used",{
   expect_error(phe_life_expectancy(df3, deaths, pops, startage),
                "the contents in the startage field do not match the contents of the age_contents vector")
   expect_error(phe_life_expectancy(df3, deaths, pops, startage,
-                                   age_contents = c("0", "1-4", "5-9",
-                                                    "20 – 24", "25 – 29",
-                                                    "10 – 14", "15 – 19",
-                                                    "30 – 34", "35 – 39",
-                                                    "40 – 44", "45 – 49",
-                                                    "50 – 54", "55 – 59",
-                                                    "60 – 64", "65 – 69",
-                                                    "70 – 74", "75 – 79",
-                                                    "80 – 84", "85 – 89",
-                                                    "90 +")),
-               "age_contents doesn't appear to be in ascending order; the following age bands appear out of position: 20 – 24, 25 – 29, 10 – 14, 15 – 19")
+                                   age_contents = c("0", "1 4", "5 9",
+                                                    "20 24", "25 29",
+                                                    "10 14", "15 19",
+                                                    "30 34", "35 39",
+                                                    "40 44", "45 49",
+                                                    "50 54", "55 59",
+                                                    "60 64", "65 69",
+                                                    "70 74", "75 79",
+                                                    "80 84", "85 89",
+                                                    "90+")),
+               "age_contents doesn't appear to be in ascending order; the following age bands appear out of position: 20 24, 25 29, 10 14, 15 19")
   expect_error(phe_life_expectancy(),
                "function life_expectancy requires at least 4 arguments: data, deaths, population, startage")
   expect_error(phe_life_expectancy(df1, deaths, pop, age,

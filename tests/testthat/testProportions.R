@@ -28,8 +28,8 @@ test_that("proportions and CIs calculate correctly",{
   expect_equal(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, type="upper"),
                select(slice(test_Prop,1:8),1:3,6),check.attributes=FALSE, check.names=FALSE, info="test upper")
 
-  expect_equal(phe_proportion(slice(test_Prop,33:35)[1:3], Numerator, Denominator, type="full"),
-               select(slice(test_Prop,33:35),1:9),check.attributes=FALSE, check.names=FALSE, info="test NAs")
+  expect_equal(phe_proportion(filter(test_Prop,Area %in% c("Area9","Area10","Area11"))[1:3], Numerator, Denominator, type="full"),
+               select(filter(test_Prop,Area %in% c("Area9","Area10","Area11")),1:9),check.attributes=FALSE, check.names=FALSE, info="test NAs")
 
   expect_equal(data.frame(phe_proportion(slice(test_Prop_g,1:8)[1:3], Numerator, Denominator, type="standard")),
                arrange(data.frame(test_Prop_g_results[1:6]),Area),check.attributes=FALSE, check.names=FALSE, info="test grouped")

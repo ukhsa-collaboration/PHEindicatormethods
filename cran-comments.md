@@ -1,18 +1,14 @@
 
-## Resubmission of updated package version 1.1.1
-In this resubmission I have replaced spaces with %20s in a URL referenced in phe_life_expectancy.Rd 
+## Resubmission of updated package version 1.1.2
+Following recent release of package v1.1.1 to CRAN on 18/04/2019, I then received notification that 
+some tests were failing with nonsensical error messages on r-devel-linux-x86_64-fedora-clang and
+r-devel-linux-x86_64-debian-clang and r-oldrel-windows-ix86+x86_64. See <https://cran.r-project.org/web/checks/check_results_PHEindicatormethods.html>
 
+In this resubmission I have re-coded the affected tests in testProportions.R and testLifeExpectancy.R to resolve these issues although I have been unable to retest on the affected operating system environemnts.
 
-This package release v1.1.1 will replace the previous release v1.0.8 currently available on CRAN
+This package release v1.1.2 will replace the previous release v1.1.1 currently available on CRAN
 
-## Amendments in v1.1.1
-3 new functions have been added:  
-
-* phe_quantiles
-* phe_life_expectancy
-* phe_sii
-
-Also, minor amendments to existing functions.  These may result in backwards incompatibility - the circumstances when this may occur are clearly stated in the NEWS.md file and in the function documentation with solutions for how to make old code compatible with the later package version (eg logical 'percentage' argument replaced with numeric 'multiplier' argument - percentage = TRUE equivalent to multiplier = 100 etc).
+No changes have been made to the function code or documentation but I have incremented the version number and news file.
 
 ## Test Environments
 * local windows 10 install: R 3.5.1 and R 3.5.3 - Both OK
