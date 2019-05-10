@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' phe_quantile
+#' Assign Quantiles using phe_quantile
 #'
 #' Assigns small areas to quantiles based on numeric data rankings.
 #'
@@ -18,7 +18,8 @@
 #'               depending on value of inverttype; default = TRUE (ie highest values assigned to quantile 1)
 #' @param inverttype whether the invert argument has been specified as a single logical value or a field name from data;
 #'                   quoted string "field" or "logical"; default = "logical"
-#' @param type defines whether to include metadata columns in output to reference the arguments passed; can be "standard" or "full"; quoted string; default = "full"
+#' @param type defines whether to include metadata columns in output to reference the arguments passed;
+#'             can be "standard" or "full"; quoted string; default = "full"
 #'
 #' @inheritParams phe_dsr
 #'
@@ -27,7 +28,7 @@
 #'
 #' @importFrom rlang sym quo_name
 #'
-#' @section Notes: See [PHE Technical Guide](https://fingertips.phe.org.uk/profile/guidance) for methodology.
+#' @section Notes: See [PHE Technical Guide - Assigning Deprivation Quintiles](https://fingertips.phe.org.uk/profile/guidance) for methodology.
 #'          In particular, note that this function strictly applies the algorithm defined but some manual
 #'          review, and potentially adjustment, is advised in some cases where multiple small areas with equal rank
 #'          fall across a natural quantile boundary.

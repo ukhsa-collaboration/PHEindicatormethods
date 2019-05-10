@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' phe_rate
+#' Calculate Rates using phe_rate
 #'
 #' Calculates rates with confidence limits using Byar's [1] or exact [2] CI method.
 #'

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' phe_proportion
+#' Calculate Proportions using phe_proportion
 #'
 #' Calculates proportions with confidence limits using Wilson Score method [1,2].
 #'

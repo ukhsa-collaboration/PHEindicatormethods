@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' phe_mean
+#' Calculate Means using phe_mean
 #'
 #' Calculates means with confidence limits using Student's t-distribution method.
 #'

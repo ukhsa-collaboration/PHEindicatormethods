@@ -1,6 +1,6 @@
-#' phe_life_expectancy
+#' Calculate Life Expectancy using phe_life_expectancy
 #'
-#' Compute life expectancy from a given age and its standard error
+#' Compute life expectancy for a given age, and its standard error
 #'
 #' @param data data.frame or tbl containing the deaths and population data
 #' @param deaths field name from data containing the number of deaths within age
@@ -33,7 +33,7 @@
 #'   associated with the final age interval. In the Chiang method the variance of
 #'   the life expectancy is the weighted sum of the variance of the probability
 #'   of survival across all the age intervals.  For the final age interval the
-#'   probability of survival is, by definition, zero and has zero variance.
+#'   probability of survival is, Chiang argues, zero and has zero variance.
 #'   However, Silcocks et al argue[4] that in the case of the final age interval
 #'   the life expectancy is dependent not on the probability of survival but on
 #'   the mean length of survival \eqn{(1/M<sub>omega</sub>)}{(1/M\omega)}.

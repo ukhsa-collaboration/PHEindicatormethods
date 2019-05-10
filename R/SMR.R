@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' phe_smr
+#' Calculate Standardised Mortality Ratios using phe_smr
 #'
 #' Calculates standard mortality ratios (or indirectly standardised ratios) with confidence limits using Byar's [1] or exact [2] CI method.
 #'
