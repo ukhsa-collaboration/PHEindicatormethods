@@ -4,34 +4,34 @@ context("test_phe_proportion")
 # test calculations
 test_that("proportions and CIs calculate correctly",{
 
-  expect_equal(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator),
-               select(slice(test_Prop,1:8),1:9),check.attributes=FALSE, check.names=FALSE, info="test default")
+  expect_equal(data.frame(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator)),
+                          data.frame(select(slice(test_Prop,1:8),1:9)),check.attributes=FALSE, check.names=FALSE, info="test default")
 
-  expect_equal(phe_proportion(slice(test_Prop,9:16)[1:3], Numerator, Denominator,
-                              multiplier = 100, type="full"),
-               select(slice(test_Prop,9:16),1:9),check.attributes=FALSE, check.names=FALSE, info="test full, percentage")
+  expect_equal(data.frame(phe_proportion(slice(test_Prop,9:16)[1:3], Numerator, Denominator,
+                              multiplier = 100, type="full")),
+                          data.frame(select(slice(test_Prop,9:16),1:9)),check.attributes=FALSE, check.names=FALSE, info="test full, percentage")
 
-  expect_equal(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator,
-                              multiplier = 1, type="standard"),
-               select(slice(test_Prop,1:8),1:6),check.attributes=FALSE, check.names=FALSE, info="test standard")
+  expect_equal(data.frame(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator,
+                              multiplier = 1, type="standard")),
+                          data.frame(select(slice(test_Prop,1:8),1:6)),check.attributes=FALSE, check.names=FALSE, info="test standard")
 
   expect_equal(data.frame(phe_proportion(slice(test_Prop,17:24)[1:3], Numerator, Denominator,
                               type="full", confidence=99.8)),
                data.frame(select(slice(test_Prop,17:24),1:9)),check.attributes=FALSE, check.names=FALSE, info="test confidence")
 
-  expect_equal(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, type="value"),
-               select(slice(test_Prop,1:8),1:4),check.attributes=FALSE, check.names=FALSE, info="test value")
+  expect_equal(data.frame(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, type="value")),
+                          data.frame(select(slice(test_Prop,1:8),1:4)),check.attributes=FALSE, check.names=FALSE, info="test value")
 
-  expect_equal(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, type="lower"),
-               select(slice(test_Prop,1:8),1:3,5),check.attributes=FALSE, check.names=FALSE, info="test lower")
+  expect_equal(data.frame(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, type="lower")),
+                          data.frame(select(slice(test_Prop,1:8),1:3,5)),check.attributes=FALSE, check.names=FALSE, info="test lower")
 
-  expect_equal(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, type="upper"),
-               select(slice(test_Prop,1:8),1:3,6),check.attributes=FALSE, check.names=FALSE, info="test upper")
+  expect_equal(data.frame(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, type="upper")),
+               data.frame(select(slice(test_Prop,1:8),1:3,6)),check.attributes=FALSE, check.names=FALSE, info="test upper")
 
-  expect_equal(phe_proportion(filter(test_Prop,Area %in% c("Area9","Area10","Area11"))[1:3], Numerator, Denominator, type="full"),
-               select(filter(test_Prop,Area %in% c("Area9","Area10","Area11")),1:9),check.attributes=FALSE, check.names=FALSE, info="test NAs")
+  expect_equal(arrange(data.frame(phe_proportion(filter(test_Prop,Area %in% c("Area09","Area10","Area11"))[1:3], Numerator, Denominator, type="full")), Area),
+               arrange(data.frame(select(filter(test_Prop,Area %in% c("Area09","Area10","Area11")),1:9)), Area),check.attributes=FALSE, check.names=FALSE, info="test NAs")
 
-  expect_equal(data.frame(phe_proportion(slice(test_Prop_g,1:8)[1:3], Numerator, Denominator, type="standard")),
+  expect_equal(arrange(data.frame(phe_proportion(slice(test_Prop_g,1:8)[1:3], Numerator, Denominator, type="standard")), Area),
                arrange(data.frame(test_Prop_g_results[1:6]),Area),check.attributes=FALSE, check.names=FALSE, info="test grouped")
 
 })
