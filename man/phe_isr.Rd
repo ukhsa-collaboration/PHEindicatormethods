@@ -2,7 +2,7 @@
 % Please edit documentation in R/ISR.R
 \name{phe_isr}
 \alias{phe_isr}
-\title{phe_isr}
+\title{Calculate Indirectly Standardised Rates using phe_isr}
 \usage{
 phe_isr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "full",
   confidence = 0.95, multiplier = 1e+05)

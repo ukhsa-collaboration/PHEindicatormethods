@@ -2,7 +2,7 @@
 % Please edit documentation in R/Quantiles.R
 \name{phe_quantile}
 \alias{phe_quantile}
-\title{phe_quantile}
+\title{Assign Quantiles using phe_quantile}
 \usage{
 phe_quantile(data, values, highergeog = NULL, nquantiles = 10L,
   invert = TRUE, inverttype = "logical", type = "full")
@@ -27,7 +27,8 @@ depending on value of inverttype; default = TRUE (ie highest values assigned to 
 \item{inverttype}{whether the invert argument has been specified as a single logical value or a field name from data;
 quoted string "field" or "logical"; default = "logical"}
 
-\item{type}{defines whether to include metadata columns in output to reference the arguments passed; can be "standard" or "full"; quoted string; default = "full"}
+\item{type}{defines whether to include metadata columns in output to reference the arguments passed;
+can be "standard" or "full"; quoted string; default = "full"}
 }
 \value{
 When type = "full", returns the original data.frame with quantile (quantile value), nquantiles (number of quantiles requested)
@@ -37,7 +38,7 @@ When type = "full", returns the original data.frame with quantile (quantile valu
 Assigns small areas to quantiles based on numeric data rankings.
 }
 \section{Notes}{
- See [PHE Technical Guide](https://fingertips.phe.org.uk/profile/guidance) for methodology.
+ See [PHE Technical Guide - Assigning Deprivation Quintiles](https://fingertips.phe.org.uk/profile/guidance) for methodology.
          In particular, note that this function strictly applies the algorithm defined but some manual
          review, and potentially adjustment, is advised in some cases where multiple small areas with equal rank
          fall across a natural quantile boundary.

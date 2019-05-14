@@ -2,7 +2,7 @@
 % Please edit documentation in R/Proportions.R
 \name{phe_proportion}
 \alias{phe_proportion}
-\title{phe_proportion}
+\title{Calculate Proportions using phe_proportion}
 \usage{
 phe_proportion(data, x, n, type = "full", confidence = 0.95,
   multiplier = 1)

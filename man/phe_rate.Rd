@@ -2,7 +2,7 @@
 % Please edit documentation in R/Rates.R
 \name{phe_rate}
 \alias{phe_rate}
-\title{phe_rate}
+\title{Calculate Rates using phe_rate}
 \usage{
 phe_rate(data, x, n, type = "full", confidence = 0.95,
   multiplier = 1e+05)

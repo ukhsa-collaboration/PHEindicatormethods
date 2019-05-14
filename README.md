@@ -18,6 +18,8 @@ Installation
 
 #### Install from CRAN
 
+***14/05/2019: Please note that this package is temporarily unavailable on CRAN due to issues on non-windows platforms using clang as compiler. Whilst these are addressed please install from GitHub***
+
 Install the latest release version of PHEindicatormethods directly from CRAN with:
 
 ``` r

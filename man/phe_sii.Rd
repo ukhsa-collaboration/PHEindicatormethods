@@ -2,7 +2,7 @@
 % Please edit documentation in R/SII_function.R
 \name{phe_sii}
 \alias{phe_sii}
-\title{Calculate Slope Index of Inequality}
+\title{Calculate Slope Index of Inequality using phe_sii}
 \usage{
 phe_sii(data, quantile, population, x = NULL, value = NULL,
   value_type = 0, lower_cl = NULL, upper_cl = NULL, se = NULL,
