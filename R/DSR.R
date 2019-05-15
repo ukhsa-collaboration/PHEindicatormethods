@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' phe_dsr
+#' Calculate Directly Standardised Rates using phe_dsr
 #'
 #' Calculates directly standardised rates with confidence limits using Byar's method [1] with Dobson method adjustment [2].
 #'

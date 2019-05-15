@@ -1,6 +1,12 @@
+## PHEindicatormethods v1.1.3
+
+Minor amendments to package testing scripts to work on platforms using clang as compiler.  
+Updates will not affect end users using other platforms.  
+
 ## PHEindicatormethods v1.1.2
 
-Minor amendments to package testing scripts.  Updates will not affect end users.  
+Minor amendments to package testing scripts to work on platforms using clang as compiler.
+Updates will not affect end users using other platforms.  
 
 
 ## PHEindicatormethods v1.1.1

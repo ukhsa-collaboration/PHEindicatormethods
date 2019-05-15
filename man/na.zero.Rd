@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{na.zero}
 \alias{na.zero}
-\title{na.zero}
+\title{Convert NAs to zeros using na.zero}
 \usage{
 na.zero(y)
 }

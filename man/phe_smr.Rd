@@ -2,7 +2,7 @@
 % Please edit documentation in R/SMR.R
 \name{phe_smr}
 \alias{phe_smr}
-\title{phe_smr}
+\title{Calculate Standardised Mortality Ratios using phe_smr}
 \usage{
 phe_smr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "full",
   confidence = 0.95, refvalue = 1)

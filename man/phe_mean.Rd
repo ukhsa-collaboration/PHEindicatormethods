@@ -2,7 +2,7 @@
 % Please edit documentation in R/Means.R
 \name{phe_mean}
 \alias{phe_mean}
-\title{phe_mean}
+\title{Calculate Means using phe_mean}
 \usage{
 phe_mean(data, x, type = "full", confidence = 0.95)
 }

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' phe_isr
+#' Calculate Indirectly Standardised Rates using phe_isr
 #'
 #' Calculates indirectly standardised rates with confidence limits using Byar's [1] or exact [2] CI method.
 #'

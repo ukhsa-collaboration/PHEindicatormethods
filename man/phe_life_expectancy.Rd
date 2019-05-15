@@ -2,7 +2,7 @@
 % Please edit documentation in R/LifeExpectancy.R
 \name{phe_life_expectancy}
 \alias{phe_life_expectancy}
-\title{phe_life_expectancy}
+\title{Calculate Life Expectancy using phe_life_expectancy}
 \usage{
 phe_life_expectancy(data, deaths, population, startage,
   age_contents = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L,
@@ -38,7 +38,7 @@ string; default full}
 or 90 and 100; numeric; default 0.95}
 }
 \description{
-Compute life expectancy from a given age and its standard error
+Compute life expectancy for a given age, and its standard error
 }
 \details{
 This function aligns with the methodology in Public Health England's
@@ -55,7 +55,7 @@ This function aligns with the methodology in Public Health England's
   associated with the final age interval. In the Chiang method the variance of
   the life expectancy is the weighted sum of the variance of the probability
   of survival across all the age intervals.  For the final age interval the
-  probability of survival is, by definition, zero and has zero variance.
+  probability of survival is, Chiang argues, zero and has zero variance.
   However, Silcocks et al argue[4] that in the case of the final age interval
   the life expectancy is dependent not on the probability of survival but on
   the mean length of survival \eqn{(1/M<sub>omega</sub>)}{(1/M\omega)}.

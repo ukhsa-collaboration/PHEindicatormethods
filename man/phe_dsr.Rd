@@ -2,7 +2,7 @@
 % Please edit documentation in R/DSR.R
 \name{phe_dsr}
 \alias{phe_dsr}
-\title{phe_dsr}
+\title{Calculate Directly Standardised Rates using phe_dsr}
 \usage{
 phe_dsr(data, x, n, stdpop = esp2013, stdpoptype = "vector",
   type = "full", confidence = 0.95, multiplier = 1e+05)

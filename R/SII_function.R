@@ -1,4 +1,4 @@
-#' Calculate Slope Index of Inequality
+#' Calculate Slope Index of Inequality using phe_sii
 #'
 #' \code{phe_sii} returns the slope index of inequality (SII) statistic for each subgroup
 #' of the inputted dataframe, with lower and upper confidence limits based on the specified
