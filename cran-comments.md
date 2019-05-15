@@ -10,11 +10,14 @@ In this resubmission I have re-coded the affected test in testProportions.R to r
 
 There are minor changes to the function documentation.
 
-## Test Environments
-* local windows 10 install: R 3.5.3 - OK  
+## Test Environments  
+* local windows 10 installs: R 3.5.3 and R3.6.0 - both OK 
+
 * Travis check on Linux (2019-05-14) - passed  
-* devtools::check_win gave 1 NOTE (devel R 3.6.0 beta, release R 3.5.3 and oldrelease R 3.4.4).  The note related to either possible misspellings or possible invalid urls containing spaces but both are OK.  
-* rhub check has been run on the following platforms: Debian Linux, R-devel, clang, ISO-8859-15 locale; Fedora Linux, R-devel, clang, gfortran; Ubuntu Linux 16.04 LTS, R-release, GCC; Windows Server 2008 R2 SP1, R-devel, 32/64 bit.  These build checks produced a couple of NOTES about possible invalid spellings, possible invalid URLS and possible invalid DOIs which are all valid and not critical to the functioning of the package.  The non-sensical error message mentioned earlier was not reported.
+
+* devtools::check_win gave 1 NOTE on all versions (R version 3.5.3 (2019-03-11), R version 3.6.0 (2019-04-26) and R Under development (unstable) (2019-05-14 r76503)).  The note related to either possible misspellings or possible invalid urls containing spaces but both are OK. 
+
+* devtools::check_rhub has been run on the following platforms: Debian Linux, R-devel, clang, ISO-8859-15 locale; Fedora Linux, R-devel, clang, gfortran; Ubuntu Linux 16.04 LTS, R-release, GCC; Windows Server 2008 R2 SP1, R-devel, 32/64 bit; Windows Server 2008 R2 SP1, R-release, 32/64 bit.  These build checks produced a couple of NOTES about possible invalid spellings, possible invalid URLS and possible invalid DOIs which are all valid and not critical to the functioning of the package.  The non-sensical error message mentioned earlier (and the cause for failing CRAN checks previously) was not reported.
 
 ## R CMD check results
 There were no ERRORs, WARNINGS or NOTES.
