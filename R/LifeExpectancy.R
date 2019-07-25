@@ -137,9 +137,6 @@ phe_life_expectancy <- function(data, deaths, population, startage,
     stop("function life_expectancy requires at least 4 arguments: data, deaths, population, startage")
   }
 
-  # check for 20 age bands
-  #if (length(age_contents) != 20) stop("this function requires 20 age bands to work (0, 1-4, 5-9, 10-14, ..., 85-89, 90+)")
-
   # check that min age  is 0
   stripped_age_contents <- as.integer(sub("\\D*(\\d+).*", "\\1", age_contents))
   if (stripped_age_contents[1] != 0) stop("first age band in age_contents must be 0")
