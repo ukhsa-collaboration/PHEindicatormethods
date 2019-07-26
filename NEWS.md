@@ -1,6 +1,7 @@
-## PHEindicatormethods v1.1.3.9000
-
-
+## PHEindicatormethods v1.1.4
+No significant changes.
+Removed confusing line of commented out code from phe_life_expectancy calculation
+Amended vignette title
 
 ## PHEindicatormethods v1.1.3
 
