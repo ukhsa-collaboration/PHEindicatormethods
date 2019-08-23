@@ -92,6 +92,9 @@
 #'        has input to the function (value_type, multiplier, CI_confidence, CI_method); character string
 #'        either "full" or "standard"; default "full"
 #'
+#' @section Notes: this function is using legacy nest and unnest functions from tidyr version 1.0.0.
+#'          This is a temporary solution until the functions are rewritten to work with this tidyr release.
+#'
 #' @references
 #' [1] Low A & Low A. Measuring the gap: quantifying and comparing local health inequalities.
 #' Journal of Public Health; 2004;26:388-395. \cr \cr
@@ -100,7 +103,7 @@
 #' @import broom
 #' @importFrom rlang quo_text
 #' @importFrom purrr map
-#' @importFrom tidyr nest unnest spread
+#' @importFrom tidyr nest_legacy unnest_legacy spread
 #' @importFrom stats rnorm qnorm lm
 #'
 #' @author Emma Clegg, \email{emma.clegg@@phe.gov.uk}
@@ -348,7 +351,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # Repeat this 10 times to get a "variability" measure if requested
         sim_CI <- pops_prep_ab %>%
                         group_by(!!! syms(grouping_variables)) %>%
-                        tidyr::nest() %>%
+                        tidyr::nest_legacy() %>%
                         mutate(CI_params = purrr::map(data, ~ SimulationFunc(data = ., value, value_type, se_calc, repetitions, confidence, sqrt_a, b_sqrt_a, rii, reliability_stat)))
 
         # Extract confidence limits and reliability measures in a data frame for joining
@@ -364,11 +367,11 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # Perform regression to calculate SII and extract model parameters
         popsSII_model <- pops_prep_ab %>%
                 group_by(!!! syms(grouping_variables)) %>%
-                tidyr::nest() %>%  # create nested table
+                tidyr::nest_legacy() %>%  # create nested table
                    # perform linear model
                 mutate(model = purrr::map(data, ~ stats::lm(yvals ~ sqrt_a + b_sqrt_a - 1, data = .))) %>%
                    # extract model coefficients
-                tidyr::unnest(model %>% purrr::map(broom::tidy)) %>%
+                tidyr::unnest_legacy(model %>% purrr::map(broom::tidy)) %>%
                    # remove unecessary fields
                 select(-std.error, -statistic, -p.value) %>%
                    # create columns for each parameter
