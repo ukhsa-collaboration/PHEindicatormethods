@@ -1,6 +1,5 @@
 ## PHEindicatormethods v1.1.5
-phe_sii function updated to use legacy nest and unnest fucntions from tidyr version 1.0
-(temporary fix until function rewritten to work with new nest/unnest dependencies)
+phe_sii function updated to use nest and unnest functions from tidyr version 1.0
 
 ## PHEindicatormethods v1.1.4
 No significant changes.

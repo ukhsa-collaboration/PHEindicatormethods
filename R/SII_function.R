@@ -92,8 +92,7 @@
 #'        has input to the function (value_type, multiplier, CI_confidence, CI_method); character string
 #'        either "full" or "standard"; default "full"
 #'
-#' @section Notes: this function is using legacy nest and unnest functions from tidyr version 1.0.0.
-#'          This is a temporary solution until the functions are rewritten to work with this tidyr release.
+#' @section Notes: this function is using nest and unnest functions from tidyr version 1.0.0.
 #'
 #' @references
 #' [1] Low A & Low A. Measuring the gap: quantifying and comparing local health inequalities.
@@ -103,7 +102,7 @@
 #' @import broom
 #' @importFrom rlang quo_text
 #' @importFrom purrr map
-#' @importFrom tidyr nest_legacy unnest_legacy spread
+#' @importFrom tidyr nest unnest spread
 #' @importFrom stats rnorm qnorm lm
 #'
 #' @author Emma Clegg, \email{emma.clegg@@phe.gov.uk}
@@ -351,7 +350,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # Repeat this 10 times to get a "variability" measure if requested
         sim_CI <- pops_prep_ab %>%
                         group_by(!!! syms(grouping_variables)) %>%
-                        tidyr::nest_legacy() %>%
+                        tidyr::nest() %>%
                         mutate(CI_params = purrr::map(data, ~ SimulationFunc(data = ., value, value_type, se_calc, repetitions, confidence, sqrt_a, b_sqrt_a, rii, reliability_stat)))
 
         # Extract confidence limits and reliability measures in a data frame for joining
@@ -367,138 +366,139 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # Perform regression to calculate SII and extract model parameters
         popsSII_model <- pops_prep_ab %>%
                 group_by(!!! syms(grouping_variables)) %>%
-                tidyr::nest_legacy() %>%  # create nested table
-                   # perform linear model
-                mutate(model = purrr::map(data, ~ stats::lm(yvals ~ sqrt_a + b_sqrt_a - 1, data = .))) %>%
+                tidyr::nest() %>%   # create nested table
+                     # perform linear model
+                mutate(model = purrr::map(data, function(df) stats::lm(yvals ~ sqrt_a + b_sqrt_a - 1, data = df))) %>%
                    # extract model coefficients
-                tidyr::unnest_legacy(model %>% purrr::map(broom::tidy)) %>%
-                   # remove unecessary fields
-                select(-std.error, -statistic, -p.value) %>%
-                   # create columns for each parameter
-                tidyr::spread(key = term, value = estimate) %>%
-                   # Extract SII and RII values
-                mutate(sii = b_sqrt_a,
-                       rii = (sqrt_a + b_sqrt_a)/sqrt_a) %>%
-                  # remove unnecesary fields
-                select(grouping_variables, sii, rii)
+                mutate(model = purrr::map(model, broom::tidy)) %>%
+                tidyr::unnest(model) %>%
+                 # remove unecessary fields
+               select(-std.error, -statistic, -p.value) %>%
+                  # create columns for each parameter
+               tidyr::spread(key = term, value = estimate) %>%
+                  # Extract SII and RII values
+               mutate(sii = b_sqrt_a,
+                      rii = (sqrt_a + b_sqrt_a)/sqrt_a) %>%
+                 # remove unnecesary fields
+               select(grouping_variables, sii, rii)
 
 
-                # join on dataset with confidence limits and reliability stats
-        if (length(grouping_variables) > 0) {
-                  # (grouped dataset)
-                popsSII_model <- popsSII_model %>%
-                        left_join(sim_CI, by = grouping_variables)
-        } else {
-                # ungrouped dataset
-                popsSII_model <- popsSII_model %>%
-                        cbind(sim_CI)
-        }
+               # join on dataset with confidence limits and reliability stats
+       if (length(grouping_variables) > 0) {
+                 # (grouped dataset)
+               popsSII_model <- popsSII_model %>%
+                       left_join(sim_CI, by = grouping_variables)
+       } else {
+               # ungrouped dataset
+               popsSII_model <- popsSII_model %>%
+                       cbind(sim_CI)
+       }
 
 
-        # Part 3 - Choose and format output fields --------------------------------
+       # Part 3 - Choose and format output fields --------------------------------
 
-        # Case 1 - user requests reliability stats, SII only
-        if (reliability_stat == TRUE) {
+       # Case 1 - user requests reliability stats, SII only
+       if (reliability_stat == TRUE) {
 
-          if(rii == FALSE) {
+         if(rii == FALSE) {
 
-            # apply multiplicative factor to outputs, return SII only
-            if (multiplier < 0) {
-              popsSII_model <- popsSII_model %>%
-                mutate(SII = multiplier * sii
-                       ,SII_lowerCL = multiplier * sii_uppercl
-                       ,SII_upperCL = multiplier * sii_lowercl
-                       ,SII_MAD = abs(multiplier) * sii_MAD)
-            } else {
-              popsSII_model <- popsSII_model %>%
-                mutate(SII = multiplier * sii
-                       ,SII_lowerCL = multiplier * sii_lowercl
-                       ,SII_upperCL = multiplier * sii_uppercl
-                       ,SII_MAD = abs(multiplier) * sii_MAD)
-            }
-          } else {
-            # Case 2 - user requests reliability stats, SII and RII
-            if (multiplier < 0) {
-              popsSII_model <- popsSII_model %>%
-                mutate(SII = multiplier * sii
-                       ,SII_lowerCL = multiplier * sii_uppercl
-                       ,SII_upperCL = multiplier * sii_lowercl
-                       ,SII_MAD = abs(multiplier) * sii_MAD
-                       ,RII = 1/rii
-                       ,RII_lowerCL = 1/rii_uppercl
-                       ,RII_upperCL = 1/rii_lowercl
-                       ,RII_MAD = rii_MAD)
-            } else {
-              popsSII_model <- popsSII_model %>%
-                mutate(SII = multiplier * sii
-                       ,SII_lowerCL = multiplier * sii_lowercl
-                       ,SII_upperCL = multiplier * sii_uppercl
-                       ,SII_MAD = abs(multiplier) * sii_MAD
-                       ,RII = rii
-                       ,RII_lowerCL = rii_lowercl
-                       ,RII_upperCL = rii_uppercl
-                       ,RII_MAD = rii_MAD)
-            }
-          }
+           # apply multiplicative factor to outputs, return SII only
+           if (multiplier < 0) {
+             popsSII_model <- popsSII_model %>%
+               mutate(SII = multiplier * sii
+                      ,SII_lowerCL = multiplier * sii_uppercl
+                      ,SII_upperCL = multiplier * sii_lowercl
+                      ,SII_MAD = abs(multiplier) * sii_MAD)
+           } else {
+             popsSII_model <- popsSII_model %>%
+               mutate(SII = multiplier * sii
+                      ,SII_lowerCL = multiplier * sii_lowercl
+                      ,SII_upperCL = multiplier * sii_uppercl
+                      ,SII_MAD = abs(multiplier) * sii_MAD)
+           }
+         } else {
+           # Case 2 - user requests reliability stats, SII and RII
+           if (multiplier < 0) {
+             popsSII_model <- popsSII_model %>%
+               mutate(SII = multiplier * sii
+                      ,SII_lowerCL = multiplier * sii_uppercl
+                      ,SII_upperCL = multiplier * sii_lowercl
+                      ,SII_MAD = abs(multiplier) * sii_MAD
+                      ,RII = 1/rii
+                      ,RII_lowerCL = 1/rii_uppercl
+                      ,RII_upperCL = 1/rii_lowercl
+                      ,RII_MAD = rii_MAD)
+           } else {
+             popsSII_model <- popsSII_model %>%
+               mutate(SII = multiplier * sii
+                      ,SII_lowerCL = multiplier * sii_lowercl
+                      ,SII_upperCL = multiplier * sii_uppercl
+                      ,SII_MAD = abs(multiplier) * sii_MAD
+                      ,RII = rii
+                      ,RII_lowerCL = rii_lowercl
+                      ,RII_upperCL = rii_uppercl
+                      ,RII_MAD = rii_MAD)
+           }
+         }
 
-          message(paste0("For guidance on how to interpret the Mean Average Difference ",
-                         "(MAD) figures, see the phe_sii accompanying vignette"))
-        } else {
-          # Case 3 - no reliability stats, SII only
-          if(rii == FALSE) {
+         message(paste0("For guidance on how to interpret the Mean Average Difference ",
+                        "(MAD) figures, see the phe_sii accompanying vignette"))
+       } else {
+         # Case 3 - no reliability stats, SII only
+         if(rii == FALSE) {
 
-            # apply multiplicative factor to outputs - return SII only
-            if (multiplier < 0) {
-              popsSII_model <- popsSII_model %>%
-                mutate(SII = multiplier * sii
-                       ,SII_lowerCL = multiplier * sii_uppercl
-                       ,SII_upperCL = multiplier * sii_lowercl)
-            } else {
-              popsSII_model <- popsSII_model %>%
-                mutate(SII = multiplier * sii
-                       ,SII_lowerCL = multiplier * sii_lowercl
-                       ,SII_upperCL = multiplier * sii_uppercl)
-            }
+           # apply multiplicative factor to outputs - return SII only
+           if (multiplier < 0) {
+             popsSII_model <- popsSII_model %>%
+               mutate(SII = multiplier * sii
+                      ,SII_lowerCL = multiplier * sii_uppercl
+                      ,SII_upperCL = multiplier * sii_lowercl)
+           } else {
+             popsSII_model <- popsSII_model %>%
+               mutate(SII = multiplier * sii
+                      ,SII_lowerCL = multiplier * sii_lowercl
+                      ,SII_upperCL = multiplier * sii_uppercl)
+           }
 
-          } else {
-            # Case 4 - no reliability stats, SII and RII
-            if (multiplier < 0) {
-              popsSII_model <- popsSII_model %>%
-                mutate(SII = multiplier * sii
-                       ,SII_lowerCL = multiplier * sii_uppercl
-                       ,SII_upperCL = multiplier * sii_lowercl
-                       ,RII = 1/rii
-                       ,RII_lowerCL = 1/rii_uppercl
-                       ,RII_upperCL = 1/rii_lowercl)
-            } else {
-              popsSII_model <- popsSII_model %>%
-                mutate(SII = multiplier * sii
-                       ,SII_lowerCL = multiplier * sii_lowercl
-                       ,SII_upperCL = multiplier * sii_uppercl
-                       ,RII = rii
-                       ,RII_lowerCL = rii_lowercl
-                       ,RII_upperCL = rii_uppercl)
-            }
-          }
-        }
+         } else {
+           # Case 4 - no reliability stats, SII and RII
+           if (multiplier < 0) {
+             popsSII_model <- popsSII_model %>%
+               mutate(SII = multiplier * sii
+                      ,SII_lowerCL = multiplier * sii_uppercl
+                      ,SII_upperCL = multiplier * sii_lowercl
+                      ,RII = 1/rii
+                      ,RII_lowerCL = 1/rii_uppercl
+                      ,RII_upperCL = 1/rii_lowercl)
+           } else {
+             popsSII_model <- popsSII_model %>%
+               mutate(SII = multiplier * sii
+                      ,SII_lowerCL = multiplier * sii_lowercl
+                      ,SII_upperCL = multiplier * sii_uppercl
+                      ,RII = rii
+                      ,RII_lowerCL = rii_lowercl
+                      ,RII_upperCL = rii_uppercl)
+           }
+         }
+       }
 
-        # remove unnecessary fields
-        popsSII_model  <- popsSII_model %>%
-          select(-sii_lowercl, -sii_uppercl, -sii_MAD,
-                 -rii_lowercl, -rii_uppercl, -rii_MAD,
-                 -sii, -rii)
+       # remove unnecessary fields
+       popsSII_model  <- popsSII_model %>%
+         select(-sii_lowercl, -sii_uppercl, -sii_MAD,
+                -rii_lowercl, -rii_uppercl, -rii_MAD,
+                -sii, -rii)
 
-        if(type == "full") {
+       if(type == "full") {
 
-          popsSII_model  <- popsSII_model %>%
-            # add arguments to output dataset
-            mutate(indicator_type = ifelse(value_type == 0, "normal",
-                                           ifelse(value_type == 1, "rate", "proportion")),
-                   multiplier = multiplier,
-                   CI_confidence = confidence,
-                   CI_method = paste("simulation ", repetitions, " reps"))
+         popsSII_model  <- popsSII_model %>%
+           # add arguments to output dataset
+           mutate(indicator_type = ifelse(value_type == 0, "normal",
+                                          ifelse(value_type == 1, "rate", "proportion")),
+                  multiplier = multiplier,
+                  CI_confidence = confidence,
+                  CI_method = paste("simulation ", repetitions, " reps"))
 
-        }
+       }
 
         # return output dataset
     return(popsSII_model)
