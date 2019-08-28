@@ -128,8 +128,7 @@ to ensure the input data is suitable for the SII calculation.
 }
 
 \section{Notes}{
- this function is using legacy nest and unnest functions from tidyr version 1.0.0.
-         This is a temporary solution until the functions are rewritten to work with this tidyr release.
+ this function is using nest and unnest functions from tidyr version 1.0.0.
 }
 
 \references{
