@@ -34,7 +34,7 @@ Imports:
     dplyr,
     rlang,
     broom,
-    tidyr (>= 1.0),
+    tidyr,
     purrr,
     stats
 Suggests: 
