@@ -127,6 +127,10 @@ This function does not include checks for linearity or stability; it is the user
 to ensure the input data is suitable for the SII calculation.
 }
 
+\section{Notes}{
+ this function is using nest and unnest functions from tidyr version 1.0.0.
+}
+
 \references{
 [1] Low A & Low A. Measuring the gap: quantifying and comparing local health inequalities.
 Journal of Public Health; 2004;26:388-395. \cr \cr
