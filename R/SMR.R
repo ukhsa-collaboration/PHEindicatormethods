@@ -76,37 +76,32 @@ phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
     # check ref pops are valid and append to data
     if (!(refpoptype %in% c("vector","field"))) {
         stop("valid values for refpoptype are vector and field")
+
     } else if (refpoptype == "vector") {
       if (pull(slice(select(ungroup(count(data)),n),1)) != length(x_ref)) {
           stop("x_ref length must equal number of rows in each group within data")
       } else if (pull(slice(select(ungroup(count(data)),n),1)) != length(n_ref)) {
           stop("n_ref length must equal number of rows in each group within data")
       }
-
       data <- mutate(data,xrefpop_calc = x_ref,
-                     nrefpop_calc = n_ref)
+                          nrefpop_calc = n_ref)
 
     } else if (refpoptype == "field") {
-        enquoxref <- enquo(x_ref)
-        enquonref <- enquo(n_ref)
         if (deparse(substitute(x_ref)) %in% colnames(data)) {
             if(deparse(substitute(n_ref)) %in% colnames(data)) {
-                data <- mutate(data,xrefpop_calc = !!enquoxref,
-                               nrefpop_calc = !!enquonref)
+                data <- mutate(data,xrefpop_calc = {{ x_ref }},
+                                    nrefpop_calc = {{ n_ref }})
             } else stop("n_ref is not a field name from data")
         } else stop("x_ref is not a field name from data")
     }
 
-    # apply quotes
-    x <- enquo(x)
-    n <- enquo(n)
 
     # validate arguments
-    if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
+    if (any(pull(data, {{ x }}) < 0, na.rm = TRUE)) {
         stop("numerators must all be greater than or equal to zero")
-    } else if (any(pull(data, !!n) < 0, na.rm=TRUE)) {
+    } else if (any(pull(data, {{ n }}) < 0, na.rm = TRUE)) {
         stop("denominators must all be greater than or equal to zero")
-    } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
+    } else if ((confidence < 0.9) | (confidence > 1 & confidence < 90) | (confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
         stop("type must be one of value, lower, upper, standard or full")
@@ -120,17 +115,17 @@ phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
 
     # calculate smr and cis and populate metadata fields
     phe_smr <- data %>%
-        mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero(!!n)) %>%
-        summarise(observed  = sum(!!x, na.rm=TRUE),
+        mutate(exp_x = na.zero(xrefpop_calc) / nrefpop_calc * na.zero({{ n }})) %>%
+        summarise(observed  = sum({{ x }}, na.rm = TRUE),
                   expected  = sum(exp_x)) %>%
         mutate(value     = observed / expected * refvalue,
-               lowercl = if_else(observed<10, qchisq((1-confidence)/2,2*observed)/2/expected * refvalue,
+               lowercl = if_else(observed < 10, qchisq((1-confidence)/2,2*observed)/2/expected * refvalue,
                          byars_lower(observed,confidence)/expected * refvalue),
-               uppercl = if_else(observed<10, qchisq(confidence+(1-confidence)/2,2*observed+2)/2/expected * refvalue,
+               uppercl = if_else(observed < 10, qchisq(confidence+(1-confidence)/2,2*observed+2)/2/expected * refvalue,
                          byars_upper(observed,confidence)/expected * refvalue),
-               confidence = paste(confidence*100,"%", sep=""),
-               statistic = paste("smr x ",format(refvalue,scientific=F), sep=""),
-               method  = if_else(observed<10,"Exact","Byars"))
+               confidence = paste(confidence * 100, "%", sep=""),
+               statistic = paste("smr x ",format(refvalue, scientific=F), sep=""),
+               method  = if_else(observed < 10, "Exact", "Byars"))
 
     # drop fields not required based on type argument
     if (type == "lower") {

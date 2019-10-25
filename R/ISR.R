@@ -77,36 +77,30 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
     # check ref pops are valid and append to data
     if (!(refpoptype %in% c("vector","field"))) {
         stop("valid values for refpoptype are vector and field")
+
     } else if (refpoptype == "vector") {
         if (pull(slice(select(ungroup(count(data)),n),1)) != length(x_ref)) {
             stop("x_ref length must equal number of rows in each group within data")
         } else if (pull(slice(select(ungroup(count(data)),n),1)) != length(n_ref)) {
             stop("n_ref length must equal number of rows in each group within data")
         }
-
         data <- mutate(data,xrefpop_calc = x_ref,
-                        nrefpop_calc = n_ref)
+                            nrefpop_calc = n_ref)
+
     } else if (refpoptype == "field") {
-        enquoxref <- enquo(x_ref)
-        enquonref <- enquo(n_ref)
-        if (deparse(substitute(x_ref)) %in% colnames(data)) {
+         if (deparse(substitute(x_ref)) %in% colnames(data)) {
             if(deparse(substitute(n_ref)) %in% colnames(data)) {
-                data <- mutate(data,xrefpop_calc = !!enquoxref,
-                               nrefpop_calc = !!enquonref)
+                data <- mutate(data,xrefpop_calc = {{ x_ref }},
+                                    nrefpop_calc = {{ n_ref }})
             } else stop("n_ref is not a field name from data")
         } else stop("x_ref is not a field name from data")
     }
 
 
-    # apply quotes
-    x <- enquo(x)
-    n <- enquo(n)
-
-
     # validate arguments
-    if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
+    if (any(pull(data, {{ x }}) < 0, na.rm=TRUE)) {
         stop("numerators must all be greater than or equal to zero")
-    } else if (any(pull(data, !!n) < 0, na.rm=TRUE)) {
+    } else if (any(pull(data, {{ n }}) < 0, na.rm=TRUE)) {
         stop("denominators must all be greater than or equal to zero")
     } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
@@ -123,8 +117,8 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
 
     # calculate the isr and populate metadata fields
     phe_isr <- data %>%
-        mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero(!!n)) %>%
-        summarise(observed  = sum(!!x, na.rm=TRUE),
+        mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
+        summarise(observed  = sum({{ x }}, na.rm=TRUE),
                   expected  = sum(exp_x),
                   ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier) %>%
         mutate(value     = observed / expected * ref_rate,

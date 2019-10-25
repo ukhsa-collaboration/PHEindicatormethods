@@ -76,28 +76,22 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
     # check invert is valid and append to data
     if (!(inverttype %in% c("logical","field"))) {
       stop("valid values for inverttype are logical and field")
+
     } else if (inverttype == "logical") {
       if (!(invert %in% c(TRUE,FALSE))) {
         stop("invert expressed as a logical must equal TRUE or FALSE")
       }
       data <- mutate(data,invert_calc = invert)
+
     } else if (inverttype == "field") {
-      invert_q <- enquo(invert)
       if (deparse(substitute(invert)) %in% colnames(data)) {
-
-          data <- mutate(data,invert_calc = !!invert_q)
-
+          data <- mutate(data,invert_calc = {{ invert }})
       } else stop("invert is not a field name from data")
     }
 
 
-    # apply quotes to field names
-    values_q     <- enquo(values)
-    highergeog_q <- enquo(highergeog)
-
-
     # error handling for valid data types and values
-    if (!(is.numeric(pull(data, !!values_q)))) {
+    if (!(is.numeric(pull(data, {{ values }})))) {
         stop("values argument must be a numeric field from data")
 
 
@@ -111,24 +105,24 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
     if(!missing(highergeog)) {
         if (is.null(groups(data))) {
             data <- data %>%
-                    group_by(!!highergeog_q)
+                    group_by({{ highergeog }})
         } else {
-          data <- data %>%
-                  group_by(!!highergeog_q, add=TRUE)
+            data <- data %>%
+                    group_by({{ highergeog }}, add=TRUE)
         }
     }
 
 
     # assign quantiles
     phe_quantile <- data %>%
-        add_count(naflag = is.na(!!values_q)) %>%
-        mutate(adj_value = if_else(invert_calc == TRUE, max(!!values_q, na.rm=TRUE)-!!values_q,!!values_q),
+        add_count(naflag = is.na({{ values }})) %>%
+        mutate(adj_value = if_else(invert_calc == TRUE, max({{ values }}, na.rm=TRUE)-{{ values }},{{ values }}),
                rank      = rank(adj_value, ties.method="min", na.last = "keep"),
                quantile  = floor((nquantiles+1)-ceiling(((n+1)-rank)/(n/nquantiles))),
                quantile  = if_else(quantile == 0,1,quantile)) %>%
         select(-naflag,-n,-adj_value, -rank) %>%
         mutate(nquantiles        = nquantiles,
-               highergeog_column = rlang::quo_name(highergeog_q),
+               highergeog_column = quo_name(enquo(highergeog)),
                qinverted         = if_else(invert_calc == TRUE,"lowest quantile represents highest values",
                                            "lowest quantile represents lowest values"))
 

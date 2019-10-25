@@ -42,8 +42,6 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
         stop("function phe_mean requires at least 2 arguments: data, x")
     }
 
-    # apply quotes
-    x <- enquo(x)
 
     # validate arguments - copied from proportion need editing
     if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
@@ -61,9 +59,9 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
 
     # calculate proportion and CIs
     phe_mean <- data %>%
-        summarise(value_sum   = sum(!!x),
-                  value_count = length(!!x),
-                  stdev   = sd(!!x)) %>%
+        summarise(value_sum   = sum({{ x }}),
+                  value_count = length({{ x }}),
+                  stdev   = sd({{ x }})) %>%
         mutate(value = value_sum / value_count,
                lowercl = value - abs(qt(p, value_count - 1)) * stdev / sqrt(value_count),
                uppercl = value + abs(qt(p, value_count - 1)) * stdev / sqrt(value_count),

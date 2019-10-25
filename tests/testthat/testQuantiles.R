@@ -21,8 +21,8 @@ test_that("quantiles calculate correctly",{
                rename(df1,quantile = QuantileInGrp)[14],
                check.attributes=FALSE, check.names=FALSE,info="test grouped df field")
 
-  expect_equal(phe_quantile(df2,Value, ParentCode,
-                            invert = FALSE)[15:18],
+  expect_equal(data.frame(phe_quantile(df2,Value, ParentCode,
+                            invert = FALSE))[15:18],
                data.frame(tibble(quantile = df2$QuantileInGrp,
                       nquantiles = 10L,
                       highergeog_column = "ParentCode",

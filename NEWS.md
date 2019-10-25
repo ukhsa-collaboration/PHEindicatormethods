@@ -1,3 +1,9 @@
+## PHEindicatormethods v1.1.6 WIP
+Amended functions to use new embrace interpolation features of rlang 0.4.0: dsr, isr, smr, rate, proportion, mean, quantile
+still to do: life expectancy, sii, sii supporting functions in utils.R
+still to do: check higher geog functionality (naming of highergeog-column values)
+still to do: check isr and smr functions work when std pop added as field and vector.
+
 ## PHEindicatormethods v1.1.5
 phe_sii function updated to be compatible with nest and unnest functions from tidyr version 1.0
 

@@ -78,33 +78,24 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
     # check stdpop is valid and append to data
     if (!(stdpoptype %in% c("vector","field"))) {
         stop("valid values for stdpoptype are vector and field")
+
     } else if (stdpoptype == "vector") {
         if (pull(slice(select(ungroup(count(data)),n),1)) != length(stdpop)) {
             stop("stdpop length must equal number of rows in each group within data")
-    }
-
+        }
     data <- mutate(data,stdpop_calc = stdpop)
 
     } else if (stdpoptype == "field") {
-
-        enquostdpop <- enquo(stdpop)
         if (deparse(substitute(stdpop)) %in% colnames(data)) {
-
-            data <- mutate(data,stdpop_calc = !!enquostdpop)
-
+            data <- mutate(data,stdpop_calc = {{ stdpop }} )
         } else stop("stdpop is not a field name from data")
     }
 
 
-    # apply quotes
-    x <- enquo(x)
-    n <- enquo(n)
-
-
     # validate arguments
-    if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
+    if (any(pull(data, {{ x }}) < 0, na.rm=TRUE)) {
         stop("numerators must all be greater than or equal to zero")
-    } else if (any(pull(data, !!n) <= 0)) {
+    } else if (any(pull(data, {{ n }}) <= 0)) {
         stop("denominators must all be greater than zero")
     } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
@@ -121,24 +112,26 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
 
     # calculate DSR and CIs
     phe_dsr <- data %>%
-        mutate(wt_rate = na.zero(!!x) * stdpop_calc / (!!n),
-               sq_rate = na.zero(!!x) * (stdpop_calc/(!!n))^2, na.rm=TRUE) %>%
-        summarise(total_count = sum(!!x,na.rm=TRUE),
-                  total_pop = sum(!!n),
+        mutate(wt_rate = na.zero({{ x }}) *  stdpop_calc / ({{ n }}),
+               sq_rate = na.zero({{ x }}) * (stdpop_calc / ({{ n }}))^2, na.rm=TRUE) %>%
+        summarise(total_count = sum({{ x }},na.rm=TRUE),
+                  total_pop = sum({{ n }}),
                   value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
                   vardsr = 1/sum(stdpop_calc)^2 * sum(sq_rate),
-                  lowercl = value + sqrt((vardsr/sum(!!x,na.rm=TRUE)))*(byars_lower(sum(!!x,na.rm=TRUE),confidence)-sum(!!x,na.rm=TRUE)) * multiplier,
-                  uppercl = value + sqrt((vardsr/sum(!!x,na.rm=TRUE)))*(byars_upper(sum(!!x,na.rm=TRUE),confidence)-sum(!!x,na.rm=TRUE)) * multiplier) %>%
+                  lowercl = value + sqrt((vardsr/sum({{ x }},na.rm=TRUE)))*(byars_lower(sum({{ x }},na.rm=TRUE),
+                                    confidence)-sum({{ x }},na.rm=TRUE)) * multiplier,
+                  uppercl = value + sqrt((vardsr/sum({{ x }},na.rm=TRUE)))*(byars_upper(sum({{ x }},na.rm=TRUE),
+                                    confidence)-sum({{ x }},na.rm=TRUE)) * multiplier) %>%
         select(-vardsr) %>%
         mutate(confidence = paste(confidence*100,"%",sep=""),
                statistic = paste("dsr per",format(multiplier,scientific=F)),
                method = "Dobson")
 
 
-    phe_dsr$value[phe_dsr$total_count < 10]    <- NA
-    phe_dsr$uppercl[phe_dsr$total_count < 10]  <- NA
-    phe_dsr$lowercl[phe_dsr$total_count < 10]  <- NA
-    phe_dsr$statistic[phe_dsr$total_count <10] <- "dsr NA for total count < 10"
+    phe_dsr$value[phe_dsr$total_count     < 10] <- NA
+    phe_dsr$uppercl[phe_dsr$total_count   < 10] <- NA
+    phe_dsr$lowercl[phe_dsr$total_count   < 10] <- NA
+    phe_dsr$statistic[phe_dsr$total_count < 10] <- "dsr NA for total count < 10"
 
 
     if (type == "lower") {

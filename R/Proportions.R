@@ -63,17 +63,12 @@ phe_proportion <- function(data, x, n, type="full", confidence=0.95, multiplier=
     }
 
 
-    # apply quotes
-    x <- enquo(x)
-    n <- enquo(n)
-
-
     # validate arguments
-    if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
+    if (any(pull(data, {{ x }}) < 0, na.rm=TRUE)) {
         stop("numerators must be greater than or equal to zero")
-    } else if (any(pull(data, !!n) <= 0, na.rm=TRUE)) {
+    } else if (any(pull(data, {{ n }}) <= 0, na.rm=TRUE)) {
         stop("denominators must be greater than zero")
-    } else if (any(pull(data, !!x) > pull(data, !!n), na.rm=TRUE)) {
+    } else if (any(pull(data, {{ x }}) > pull(data, {{ n }}), na.rm=TRUE)) {
         stop("numerators must be less than or equal to denominator for a proportion statistic")
     } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
@@ -91,16 +86,16 @@ phe_proportion <- function(data, x, n, type="full", confidence=0.95, multiplier=
     # if data is grouped then summarise
     if(!is.null(groups(data))) {
         data <- data %>%
-        summarise(!!quo_name(x) := sum(!!x),
-                  !!quo_name(n) := sum(!!n))
+        summarise({{ x }} := sum({{ x }}),
+                  {{ n }} := sum({{ n }}))
     }
 
 
     # calculate proportion and CIs
     phe_proportion <- data %>%
-        mutate(value = (!!x)/(!!n) * multiplier,
-               lowercl = wilson_lower((!!x),(!!n),confidence) * multiplier,
-               uppercl = wilson_upper((!!x),(!!n),confidence) * multiplier,
+        mutate(value = ({{ x }})/({{ n }}) * multiplier,
+               lowercl = wilson_lower(({{ x }}),({{ n }}),confidence) * multiplier,
+               uppercl = wilson_upper(({{ x }}),({{ n }}),confidence) * multiplier,
                confidence = paste(confidence*100,"%",sep=""),
                statistic = if_else(multiplier == 100,"percentage",paste0("proportion of ",multiplier)),
                method = "Wilson")
