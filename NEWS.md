@@ -1,3 +1,7 @@
+## PHEindicatormethods v1.1.5.9001
+Include summative numerator and denominator counts in life expectancy
+calculation.
+
 ## PHEindicatormethods v1.1.5
 phe_sii function updated to be compatible with nest and unnest functions from tidyr version 1.0
 

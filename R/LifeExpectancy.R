@@ -334,6 +334,14 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   z <- qnorm(confidence + (1 - confidence)/2)
   data$group_id_2b_removed <- data %>%
     group_indices()
+
+  # add summative counts
+  data <- data %>%
+    arrange(desc(startage_2b_removed), .by_group = TRUE) %>%
+    mutate_at(vars(!!population, !!deaths), c(cmltv = cumsum)) %>%
+    arrange(startage_2b_removed, .by_group = TRUE)
+
+
   data <- data %>%
     mutate(id_2b_removed = row_number(),
            ni_2b_removed = as.numeric(lead(startage_2b_removed) - startage_2b_removed),
@@ -410,6 +418,11 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                          statistic = paste("life expectancy at", !!startage),
                          method = "Chiang, using Silcocks et al for confidence limits")
   }
-  return(data)
+  return(
+    data %>%
+      # select(-ends_with("_cmltv"))
+      select_at(vars(-!!deaths, -!!population)) %>%
+      rename_at(vars(ends_with("_cmltv")), function(x){sub("_cmltv", "", x)})
+  )
 
 }

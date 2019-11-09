@@ -203,6 +203,9 @@ test_that("LE and CIs calculate correctly",{
   expect_equal(test6, answer2,
                check.attributes = FALSE, #because the row names are different and we are only interested in values
                info = "type = 'full' with two filters")
+  expect_equal(select(test6, -pops, -deaths), select(answer2, -pops, -deaths), # pops and deaths are mutated
+               check.attributes = FALSE, #because the row names are different and we are only interested in values
+               info = "type = 'full' with two filters")
   expect_equal(sum(!is.na(test_neg)), 0,
                info = "negative deaths produces only NAs")
   expect_equal(sum(!is.na(test_zero_pop)), 0,
