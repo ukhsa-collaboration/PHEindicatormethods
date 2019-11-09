@@ -336,11 +336,17 @@ phe_life_expectancy <- function(data, deaths, population, startage,
     group_indices()
 
   # add summative counts
+  #
+  # add fields {{deaths}}_cmltv, {{population}}_cmltv to hold for each ageband a
+  # cumulative total count for that and successive agebands
+  #
+  # ... implemented below as reverse sort on ageband, cumulative sum, then sort
+  # again on ageband to get back to revert the sort
+  #
   data <- data %>%
     arrange(desc(startage_2b_removed), .by_group = TRUE) %>%
     mutate_at(vars(!!population, !!deaths), c(cmltv = cumsum)) %>%
     arrange(startage_2b_removed, .by_group = TRUE)
-
 
   data <- data %>%
     mutate(id_2b_removed = row_number(),
@@ -418,11 +424,17 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                          statistic = paste("life expectancy at", !!startage),
                          method = "Chiang, using Silcocks et al for confidence limits")
   }
-  return(
-    data %>%
-      # select(-ends_with("_cmltv"))
-      select_at(vars(-!!deaths, -!!population)) %>%
-      rename_at(vars(ends_with("_cmltv")), function(x){sub("_cmltv", "", x)})
-  )
 
+  # add summative counts
+  #
+  # set {{deaths}} and {{population}} fields with their respective
+  # {{}}_cmltv values
+  #
+  # ... implemented below as drop and rename
+  #
+  data <- data %>%
+    select_at(vars(-!!deaths, -!!population)) %>%
+    rename_at(vars(ends_with("_cmltv")), function(x){sub("_cmltv", "", x)})
+
+  return(data)
 }
