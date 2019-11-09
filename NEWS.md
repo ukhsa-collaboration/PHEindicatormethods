@@ -1,4 +1,5 @@
-## PHEindicatormethods v1.1.5.9001
+## PHEindicatormethods v1.1.5.9901
+
 Include summative numerator and denominator counts in life expectancy
 calculation.
 
