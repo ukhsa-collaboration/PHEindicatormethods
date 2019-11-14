@@ -1,3 +1,7 @@
+## PHEindicatormethods v1.1.5.9000
+Some warnings that occurred with `phe_life_expectancy()` have been fixed
+
+
 ## PHEindicatormethods v1.1.5
 phe_sii function updated to be compatible with nest and unnest functions from tidyr version 1.0
 
