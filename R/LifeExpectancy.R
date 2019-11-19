@@ -68,6 +68,7 @@
 #'
 #' @inheritParams phe_dsr
 #' @import dplyr
+#' @importFrom purrr map_chr
 #' @examples
 #' library(dplyr)
 #'
@@ -173,13 +174,29 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           data <- data %>%
                   arrange(startage_2b_removed,
                           .by_group = TRUE)
+
+          # preparation for later checks to prevent warnings around factors
+          groupings <- group_vars(data)
+
+          factor_vars <- lapply(data, is.factor) %>%
+            purrr::map_chr(c)
+
+          grouping_factors <- intersect(groupings, names(factor_vars[factor_vars == "TRUE"]))
+
   } else {
           data <- data %>%
                   arrange(startage_2b_removed)
   }
 
   # check for negative deaths
-  negative_deaths <- data %>%
+  negative_deaths <- data
+  if (length(group_vars(data)) > 0) {
+    negative_deaths <- negative_deaths %>%
+      ungroup() %>%
+      mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
+      group_by_at(group_vars(data))
+  }
+  negative_deaths <- negative_deaths %>%
           filter(!!deaths < 0) %>%
           count() %>%
           filter(n != 0) %>%
@@ -207,7 +224,14 @@ phe_life_expectancy <- function(data, deaths, population, startage,
 
   }
   # check for less than or equal to zero pops
-  negative_pops <- data %>%
+  negative_pops <- data
+  if (length(group_vars(data)) > 0) {
+    negative_pops <- negative_pops %>%
+      ungroup() %>%
+      mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
+      group_by_at(group_vars(data))
+  }
+  negative_pops <- negative_pops %>%
           filter(!!population <= 0) %>%
           count() %>%
           filter(n != 0) %>%
@@ -237,8 +261,14 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   # check for all rows per group
   number_age_bands <- 20 #length(age_contents)
   incomplete_areas <- data %>%
-    count() %>%
-    ungroup() %>%
+    count()
+  if (length(group_vars(data)) > 0) {
+    incomplete_areas <- incomplete_areas %>%
+      ungroup() %>%
+      mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
+      group_by_at(group_vars(data))
+  }
+  incomplete_areas <- incomplete_areas %>%
     filter(n != number_age_bands) %>%
     select(-n)
   if (nrow(incomplete_areas) > 0) {
@@ -266,7 +296,14 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   }
 
   # check for deaths > pops
-  deaths_more_than_pops <- data %>%
+  deaths_more_than_pops <- data
+  if (length(group_vars(data)) > 0) {
+    deaths_more_than_pops <- deaths_more_than_pops %>%
+      ungroup() %>%
+      mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
+      group_by_at(group_vars(data))
+  }
+  deaths_more_than_pops <- deaths_more_than_pops %>%
           filter(!!deaths > !!population) %>%
           count() %>%
           filter(n != 0) %>%
@@ -296,7 +333,12 @@ phe_life_expectancy <- function(data, deaths, population, startage,
 
   # check for pops <= 5000
   total_pops <- data %>%
-          summarise(total_pop = sum(!!population)) %>%
+          summarise(total_pop = sum(!!population))
+  if (length(group_vars(data)) > 0) {
+    total_pops <- total_pops %>%
+      mutate_at(vars(grouping_factors), as.character) #stops warning in cases where filters result in 0 records
+  }
+  total_pops <- total_pops %>%
           filter(total_pop <= 5000) %>%
           select(-total_pop)
   if (nrow(total_pops) > 0) {
@@ -326,6 +368,11 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                                deaths_more_than_pops,
                                total_pops) %>%
           unique()
+  if (nrow(suppressed_data) > 0) {
+    suppressed_data <- suppressed_data %>%
+      mutate_at(vars(grouping_factors), as.factor)
+
+  }
 
   # scale confidence level
   if (confidence >= 90) {
