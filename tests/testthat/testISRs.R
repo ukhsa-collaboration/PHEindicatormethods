@@ -58,6 +58,22 @@ test_that("isrs and CIs calculate correctly",{
                data.frame(select(slice(test_ISR_results,7:9),1:7)),
                check.attributes=FALSE, check.names=FALSE,info="test multiplier")
 
+  expect_equal(data.frame(select(phe_isr(select(test_ISR_ownref,-refcount,-refpop), count, pop, confidence = c(0.95,0.998),
+                                  x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),1:6)),
+               data.frame(select(slice(test_ISR_results,1:3),1:6)),
+               check.attributes=FALSE, check.names=FALSE,info="test two CIS 95%")
+
+  expect_equal(data.frame(select(phe_isr(test_multiarea, count, pop, type="standard", x_ref = test_ISR_refdata$refcount,
+                                  n_ref = test_ISR_refdata$refpop,confidence = c(0.95, 0.998)),1:5,8,9)),
+               data.frame(select(slice(test_ISR_results,4:6),1:7)),
+               check.attributes=FALSE, check.names=FALSE,info="test two CIs 99.8")
+
+  expect_equal(data.frame(select(phe_isr(select(test_ISR_ownref,-refcount,-refpop), count, pop, confidence = c(0.95,0.998),
+                                         x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),10)),
+               data.frame(confidence = rep("95%, 99.8%",3), stringsAsFactors=FALSE),
+               check.attributes=FALSE, check.names=FALSE,info="test two CIS metadata")
+
+
 })
 
 
@@ -111,6 +127,16 @@ test_that("isrs - errors are generated when invalid arguments are used",{
 
   expect_error(phe_isr(test_ISR_ownref, count, pop, refcount, ref_pop, refpoptype = "field"),
                "n_ref is not a field name from data",info="error n_ref not a field name")
+
+  expect_error(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
+                       n_ref = test_ISR_refdata$refpop, confidence = c(0.95, 0.998, 0.98)),
+               "a maximum of two confidence levels can be provided",info="error max two CIs")
+
+  expect_error(phe_isr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
+                       n_ref = test_ISR_refdata$refpop, confidence = c(0.95, 0.98)),
+               "two confidence levels can only be produced if they are specified as 0.95 and 0.998",
+               info="error invalid number of arguments")
+
 })
 
 

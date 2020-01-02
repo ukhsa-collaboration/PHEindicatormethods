@@ -44,6 +44,18 @@ test_that("dsrs and CIs calculate correctly",{
                data.frame(select(slice(test_DSR_results,1:3),1:6)),
                check.attributes=FALSE, check.names=FALSE,info="test multiplier")
 
+  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, confidence = c(0.95, 0.998)),1:6)),
+               data.frame(select(slice(test_DSR_results,9:11),1:6)),
+               check.attributes=FALSE, check.names=FALSE,info="test 2 CIs 95%")
+
+  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, confidence = c(0.95, 0.998)),1:4,7,8)),
+               data.frame(select(slice(test_DSR_results,13:15),1:6)),
+               check.attributes=FALSE, check.names=FALSE,info="test 2 CIs 99.8%")
+
+  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, confidence = c(0.95, 0.998)),9)),
+               data.frame(confidence = c("95%, 99.8%","95%, 99.8%","95%, 99.8%"), stringsAsFactors=FALSE),
+               check.attributes=FALSE, check.names=FALSE,info="test 2 CIs metadata")
+
 })
 
 
@@ -88,6 +100,13 @@ test_that("dsrs - errors are generated when invalid arguments are used",{
 
   expect_error(phe_dsr(test_DSR_1976, count, pop, stdpoptype = "field", stdpop = esp),
                "stdpop is not a field name from data",info="error stdpop field doesn't exist")
+
+  expect_error(phe_dsr(test_multiarea, count, pop, confidence = c(90.95, 0.998, 1.00)),
+               "a maximum of two confidence levels can be provided",info="error more than 2 CIs requested")
+
+  expect_error(phe_dsr(test_multiarea, count, pop, confidence = c(0.95, 1.00)),
+               "two confidence levels can only be produced if they are specified as 0.95 and 0.998",
+               info="error 2 CIs aren't 0.95 and 0.998")
 })
 
 

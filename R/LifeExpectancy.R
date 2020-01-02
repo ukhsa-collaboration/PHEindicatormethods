@@ -19,6 +19,8 @@
 #' @param type type of output; can be "standard" or "full" (full contains
 #'   added details on the calculation within the dataframe); quoted
 #'   string; default full
+#'   @param confidence the required level of confidence expressed as a number between 0.9 and 1
+#'                   or 90 and 100; numeric; default 0.95
 #' @details This function aligns with the methodology in Public Health England's
 #'   \href{https://fingertips.phe.org.uk/documents/PHE\%20Life\%20Expectancy\%20Calculator.xlsm}{Life Expectancy Excel Tool}.
 #'

@@ -34,6 +34,15 @@ test_that("proportions and CIs calculate correctly",{
   expect_equal(arrange(data.frame(phe_proportion(slice(test_Prop_g,1:8)[1:3], Numerator, Denominator, type="standard")), Area),
                arrange(data.frame(test_Prop_g_results[1:6]),Area),check.attributes=FALSE, check.names=FALSE, info="test grouped")
 
+  expect_equal(data.frame(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, confidence = c(0.95, 0.998)))[1:6],
+               data.frame(select(slice(test_Prop,1:8),1:9))[1:6],check.attributes=FALSE, check.names=FALSE, info="test two CIs 95%")
+
+  expect_equal(data.frame(select(phe_proportion(slice(test_Prop,17:24)[1:3], Numerator, Denominator, confidence = c(0.95, 0.998)),1:4,7,8)),
+               data.frame(select(slice(test_Prop,17:24),1:9))[1:6],check.attributes=FALSE, check.names=FALSE, info="test two CIs 99.8%")
+
+  expect_equal(data.frame(select(phe_proportion(slice(test_Prop,17:24)[1:3], Numerator, Denominator, confidence = c(0.95, 0.998)),9)),
+               data.frame(confidence = rep("95%, 99.8%",8), stringsAsFactors = FALSE),check.attributes=FALSE, check.names=FALSE, info="test two CIs, metadata")
+
 })
 
 
@@ -85,5 +94,12 @@ test_that("proportions - errors are generated when invalid arguments are used",{
                                          obs =c(65,80,30),
                                          pop =c(100,100,100)), obs, pop, type="combined"),
                "type must be one of value, lower, upper, standard or full", info="error invalid type")
+
+  expect_error(data.frame(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, confidence = c(0.95, 0.998, 0.8))),
+               "a maximum of two confidence levels can be provided", info="length confidence > 2")
+
+  expect_error(data.frame(phe_proportion(slice(test_Prop,1:8)[1:3], Numerator, Denominator, confidence = c(0.95, 0.98))),
+               "two confidence levels can only be produced if they are specified as 0.95 and 0.998",
+               info="two CIs specified are not 0.95 and 0.998")
 
 })

@@ -10,7 +10,8 @@ byars_upper(x, confidence = 0.95)
 \item{x}{the observed numbers of events; numeric vector; no default}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or 90 and 100; numeric; default 0.95}
+or a number between 90 and 100 or can be a vector of 0.95 and 0.998 to output both 95% and 99.8% CIs;
+numeric; default 0.95}
 }
 \value{
 Returns upper confidence limits for observed numbers of events using Byar's method [1]

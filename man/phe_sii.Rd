@@ -139,6 +139,7 @@ Journal of Public Health; 2004;26:388-395. \cr \cr
 Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_life_expectancy}},
   \code{\link{phe_mean}}, \code{\link{phe_proportion}},
+  \code{\link{phe_quantile_old}},
   \code{\link{phe_quantile}}, \code{\link{phe_rate}},
   \code{\link{phe_smr}}
 }
