@@ -64,7 +64,6 @@ phe_rate(dfg, obs, pop)
 Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
   \code{\link{phe_isr}}, \code{\link{phe_life_expectancy}},
   \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_quantile_old}},
   \code{\link{phe_quantile}}, \code{\link{phe_sii}},
   \code{\link{phe_smr}}
 }
