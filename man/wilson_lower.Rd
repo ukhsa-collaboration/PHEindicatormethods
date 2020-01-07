@@ -22,6 +22,8 @@ Returns lower confidence limits for observed numbers of events using the Wilson 
 Calculates lower confidence limits for observed numbers of events using the Wilson Score method [1,2].
 }
 \section{Notes}{
+ This is an internal package function that is appropriately called by exported
+ 'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
  \code{wilson_lower} and \code{\link{wilson_upper}} together return symmetric confidence
  intervals, therefore for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the lower limit returned
  will be above the true underlying value, is \eqn{\alpha}/2.#'

@@ -20,6 +20,8 @@ Returns upper confidence limits for observed numbers of events using Byar's meth
 Calculates the upper confidence limits for observed numbers of events using Byar's method [1].
 }
 \section{Notes}{
+ This is an internal package function that is appropriately called by exported
+ 'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
  \code{\link{byars_lower}} and \code{byars_upper} together return symmetric confidence
  intervals around counts, therefore
  for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the upper limit returned

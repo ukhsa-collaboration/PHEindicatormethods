@@ -20,6 +20,8 @@ Returns lower confidence limits for observed numbers of events using Byar's meth
 Calculates the lower confidence limits for observed numbers of events using Byar's method [1].
 }
 \section{Notes}{
+ This is an internal package function that is appropriately called by exported
+ 'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
  \code{byars_lower} and \code{\link{byars_upper}} together return symmetric confidence
  intervals around counts, therefore
  for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the lower limit returned
