@@ -1,4 +1,4 @@
-## PHEindicatormethods v1.2.0 WIP
+## PHEindicatormethods v1.2.0
 The following changes may affect backwards compatibility with earlier versions of the package:  
 
 * phe_quantile - highergeog argument deprecated.  Argument wasn't providing any additional functionality and its use was affecting grouping sets on output data frame.  Input dataframe must now be pre-grouped to reproduce the results previously obtained using the highergeog argument.  Also documentation references to geographies removed as function is applicable to other subgroups.
@@ -11,8 +11,7 @@ The following changes will not affect backwards compatibility with earlier versi
 
 * Added ability to output both 95% and 99.8% confidence intervals in a single execution to dsr, isr, smr, rate, proportion, mean functions    
 
-
-To Do: remove phe_quantriles_old if all agee to get rid of highergeog argument
+* Some warnings that occurred with `phe_life_expectancy()` have been fixed
 
 ## PHEindicatormethods v1.1.5
 phe_sii function updated to be compatible with nest and unnest functions from tidyr version 1.0
