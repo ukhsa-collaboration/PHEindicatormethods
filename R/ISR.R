@@ -153,7 +153,7 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
                 select(-observed, -expected, -ref_rate, -value, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
         } else if (type == "upper") {
             phe_isr <- phe_isr %>%
-                select(-observed, -expected, -ref_rate, -value, -lower99_8cl, -lower99_8cl, -confidence, -statistic, -method)
+                select(-observed, -expected, -ref_rate, -value, -lower95_0cl, -lower99_8cl, -confidence, -statistic, -method)
         } else if (type == "value") {
             phe_isr <- phe_isr %>%
                 select(-observed, -expected, -ref_rate, -lower95_0cl, -lower99_8cl, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)

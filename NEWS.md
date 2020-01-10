@@ -9,7 +9,9 @@ The following changes will not affect backwards compatibility with earlier versi
 
 * Amended functions to use new embrace interpolation features of rlang 0.4.0: dsr, isr, smr, rate, proportion, mean, quantile.  Package dependencies now require Rlang version 0.4.0 or higher   
 
-* Added ability to output both 95% and 99.8% confidence intervals in a single execution to dsr, isr, smr, rate, proportion, mean functions    
+* Added ability to output both 95% and 99.8% confidence intervals in a single execution to dsr, isr, smr, rate, proportion, mean functions
+
+* Amended phe_dsr to also output the standardised population used in the calculation when type="full"
 
 * Some warnings that occurred with `phe_life_expectancy()` have been fixed
 

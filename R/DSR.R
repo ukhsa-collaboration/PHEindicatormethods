@@ -165,7 +165,7 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
         } else if (type == "upper") {
             phe_dsr <- phe_dsr %>%
                 select(-total_count, -total_pop, -standardised_pop,
-                       -value, -lower95_0cl, -upper99_8cl, -confidence, -statistic, -method)
+                       -value, -lower95_0cl, -lower99_8cl, -confidence, -statistic, -method)
         } else if (type == "value") {
             phe_dsr <- phe_dsr %>%
                 select(-total_count, -total_pop, -standardised_pop,

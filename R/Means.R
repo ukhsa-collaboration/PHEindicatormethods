@@ -84,13 +84,13 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
         # drop fields not required based on type argument
         if (type == "lower") {
             phe_mean <- phe_mean %>%
-                select(-value_sum, -value_count, -stdev, -value, -upper95_0cl, upper99_8cl, -confidence, -statistic, -method)
+                select(-value_sum, -value_count, -stdev, -value, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
         } else if (type == "upper") {
             phe_mean <- phe_mean %>%
                 select(-value_sum, -value_count, -stdev, -value, -lower95_0cl, -lower99_8cl, -confidence, -statistic, -method)
         } else if (type == "value") {
             phe_mean <- phe_mean %>%
-                select(-value_sum, -value_count, -stdev, -lower95_0cl, lower99_8cl, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
+                select(-value_sum, -value_count, -stdev, -lower95_0cl, -lower99_8cl, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
         } else if (type == "standard") {
             phe_mean <- phe_mean %>%
                 select(-confidence, -statistic, -method)
