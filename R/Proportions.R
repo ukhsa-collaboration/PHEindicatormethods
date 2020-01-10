@@ -18,6 +18,7 @@
 #'
 #' @import dplyr
 #' @importFrom rlang sym quo_name :=
+#' @export
 #'
 #' @section Notes: Wilson Score method [1,2] is applied using the \code{\link{wilson_lower}}
 #'          and \code{\link{wilson_upper}} functions. \cr \cr
@@ -33,15 +34,13 @@
 #' phe_proportion(df, numerator, denominator)
 #' phe_proportion(df, numerator, denominator, confidence=99.8)
 #' phe_proportion(df, numerator, denominator, type="standard")
-#'
+#' phe_proportion(df, numerator, denominator, confidence = c(0.95, 0.998))
 #'
 #' # grouped data frame
 #' library(dplyr)
 #' dfg <- df %>% group_by(area)
 #' phe_proportion(dfg, numerator, denominator, multiplier=100)
 #'
-#'
-#' @export
 #'
 #' @references
 #' [1] Wilson EB. Probable inference, the law of succession, and statistical
@@ -63,64 +62,103 @@ phe_proportion <- function(data, x, n, type="full", confidence=0.95, multiplier=
     }
 
 
-    # apply quotes
-    x <- enquo(x)
-    n <- enquo(n)
-
-
     # validate arguments
-    if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
+    if (any(pull(data, {{ x }}) < 0, na.rm=TRUE)) {
         stop("numerators must be greater than or equal to zero")
-    } else if (any(pull(data, !!n) <= 0, na.rm=TRUE)) {
+    } else if (any(pull(data, {{ n }}) <= 0, na.rm=TRUE)) {
         stop("denominators must be greater than zero")
-    } else if (any(pull(data, !!x) > pull(data, !!n), na.rm=TRUE)) {
+    } else if (any(pull(data, {{ x }}) > pull(data, {{ n }}), na.rm=TRUE)) {
         stop("numerators must be less than or equal to denominator for a proportion statistic")
-    } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
-        stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
         stop("type must be one of value, lower, upper, standard or full")
-    }
-
-
-    # scale confidence level
-    if (confidence >= 90) {
-        confidence <- confidence/100
+    } else if (length(confidence) >2) {
+        stop("a maximum of two confidence levels can be provided")
+    } else if (length(confidence) == 2) {
+        if (!(confidence[1] == 0.95 & confidence[2] == 0.998)) {
+            stop("two confidence levels can only be produced if they are specified as 0.95 and 0.998")
+        }
+    } else if ((confidence < 0.9)|(confidence > 1 & confidence < 90)|(confidence > 100)) {
+        stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     }
 
 
     # if data is grouped then summarise
     if(!is.null(groups(data))) {
         data <- data %>%
-        summarise(!!quo_name(x) := sum(!!x),
-                  !!quo_name(n) := sum(!!n))
+        summarise({{ x }} := sum({{ x }}),
+                  {{ n }} := sum({{ n }}))
     }
 
 
-    # calculate proportion and CIs
-    phe_proportion <- data %>%
-        mutate(value = (!!x)/(!!n) * multiplier,
-               lowercl = wilson_lower((!!x),(!!n),confidence) * multiplier,
-               uppercl = wilson_upper((!!x),(!!n),confidence) * multiplier,
-               confidence = paste(confidence*100,"%",sep=""),
-               statistic = if_else(multiplier == 100,"percentage",paste0("proportion of ",multiplier)),
-               method = "Wilson")
+    # if two confidence levels are specified
+    if (length(confidence) == 2) {
+        # if two confidence levels requested
+        conf1 <- confidence[1]
+        conf2 <- confidence[2]
+
+        # calculate proportion and CIs
+        phe_proportion <- data %>%
+            mutate(value = ({{ x }})/({{ n }}) * multiplier,
+                   lower95_0cl = wilson_lower(({{ x }}),({{ n }}),conf1) * multiplier,
+                   upper95_0cl = wilson_upper(({{ x }}),({{ n }}),conf1) * multiplier,
+                   lower99_8cl = wilson_lower(({{ x }}),({{ n }}),conf2) * multiplier,
+                   upper99_8cl = wilson_upper(({{ x }}),({{ n }}),conf2) * multiplier,
+                   confidence = paste(conf1*100,"%, ", conf2*100,"%",sep=""),
+                   statistic = if_else(multiplier == 100,"percentage",paste0("proportion of ",multiplier)),
+                   method = "Wilson")
 
 
-    # generate output in required format
-    if (type == "lower") {
-        phe_proportion <- phe_proportion %>%
-            select(-value, -uppercl, -confidence, -statistic, -method)
-    } else if (type == "upper") {
-        phe_proportion <- phe_proportion %>%
-            select(-value, -lowercl, -confidence, -statistic, -method)
-    } else if (type == "value") {
-        phe_proportion<- phe_proportion %>%
-            select(-lowercl, -uppercl, -confidence, -statistic, -method)
-    } else if (type == "standard") {
-        phe_proportion <- phe_proportion %>%
-            select( -confidence, -statistic, -method)
+        # generate output in required format
+        if (type == "lower") {
+            phe_proportion <- phe_proportion %>%
+                select(-value, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
+        } else if (type == "upper") {
+            phe_proportion <- phe_proportion %>%
+                select(-value, -lower95_0cl, -lower99_8cl, -confidence, -statistic, -method)
+        } else if (type == "value") {
+            phe_proportion<- phe_proportion %>%
+                select(-lower95_0cl, -upper95_0cl, -lower99_8cl, -upper99_8cl, -confidence, -statistic, -method)
+        } else if (type == "standard") {
+            phe_proportion <- phe_proportion %>%
+                select( -confidence, -statistic, -method)
+        }
+
+
+    } else {
+
+
+        # scale confidence level
+        if (confidence[1] >= 90) {
+            confidence <- confidence/100
+        }
+
+
+        # calculate proportion and single CI
+        phe_proportion <- data %>%
+            mutate(value = ({{ x }})/({{ n }}) * multiplier,
+                   lowercl = wilson_lower(({{ x }}),({{ n }}),confidence) * multiplier,
+                   uppercl = wilson_upper(({{ x }}),({{ n }}),confidence) * multiplier,
+                   confidence = paste(confidence*100,"%",sep=""),
+                   statistic = if_else(multiplier == 100,"percentage",paste0("proportion of ",multiplier)),
+                   method = "Wilson")
+
+
+        # generate output in required format
+        if (type == "lower") {
+            phe_proportion <- phe_proportion %>%
+                select(-value, -uppercl, -confidence, -statistic, -method)
+        } else if (type == "upper") {
+            phe_proportion <- phe_proportion %>%
+                select(-value, -lowercl, -confidence, -statistic, -method)
+        } else if (type == "value") {
+            phe_proportion<- phe_proportion %>%
+                select(-lowercl, -uppercl, -confidence, -statistic, -method)
+        } else if (type == "standard") {
+            phe_proportion <- phe_proportion %>%
+                select( -confidence, -statistic, -method)
+        }
+
     }
-
 
     return(phe_proportion)
 }

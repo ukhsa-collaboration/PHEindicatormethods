@@ -10,12 +10,12 @@
 #'
 #' @inheritParams phe_dsr
 #'
+#' @import dplyr
+#' @importFrom rlang sym quo_name :=
+#' @export
+#'
 #' @return When type = "full", returns the original data.frame with the following appended:
 #'         rate, lower confidence limit, upper confidence limit, confidence level, statistic and method
-#'
-#' @importFrom rlang sym quo_name :=
-#'
-#' @import dplyr
 #'
 #' @examples
 #' # ungrouped data frame
@@ -43,8 +43,6 @@
 #' [2] Armitage P, Berry G. Statistical methods in medical research (4th edn).
 #'   Oxford: Blackwell; 2002.
 #'
-#' @export
-#'
 #' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
@@ -58,64 +56,106 @@ phe_rate <- function(data,x, n, type = "full", confidence = 0.95, multiplier = 1
     }
 
 
-    # apply quotes
-    x <- enquo(x)
-    n <- enquo(n)
-
-
     # validate arguments
-    if (any(pull(data, !!x) < 0, na.rm=TRUE)) {
+    if (any(pull(data, {{ x }}) < 0, na.rm = TRUE)) {
         stop("numerators must be greater than or equal to zero")
-    } else if (any(pull(data, !!n) <= 0, na.rm=TRUE)) {
+    } else if (any(pull(data, {{ n }}) <= 0, na.rm = TRUE)) {
         stop("denominators must be greater than zero")
-    } else if ((confidence<0.9)|(confidence >1 & confidence <90)|(confidence > 100)) {
-        stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
         stop("type must be one of value, lower, upper, standard or full")
-    }
-
-
-    # scale confidence level
-    if (confidence >= 90) {
-        confidence <- confidence/100
+    } else if (length(confidence) >2) {
+        stop("a maximum of two confidence levels can be provided")
+    } else if (length(confidence) == 2) {
+        if (!(confidence[1] == 0.95 & confidence[2] == 0.998)) {
+            stop("two confidence levels can only be produced if they are specified as 0.95 and 0.998")
+        }
+    } else if ((confidence < 0.9)|(confidence > 1 & confidence < 90)|(confidence > 100)) {
+        stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     }
 
 
     # if data is grouped then summarise
     if(!is.null(groups(data))) {
         data <- data %>%
-            summarise(!!quo_name(x) := sum(!!x),
-                      !!quo_name(n) := sum(!!n))
+                summarise({{ x }} := sum({{ x }}),
+                          {{ n }} := sum({{ n }}))
     }
 
 
     #calculate rate and CIs
-    phe_rate <- data %>%
-        mutate(value = (!!x)/(!!n)*multiplier,
-        lowercl = if_else((!!x) < 10, qchisq((1-confidence)/2,2*(!!x))/2/(!!n)*multiplier,
-                  byars_lower((!!x),confidence)/(!!n)*multiplier),
-        uppercl = if_else((!!x) < 10, qchisq(confidence+(1-confidence)/2,2*(!!x)+2)/2/(!!n)*multiplier,
-                  byars_upper((!!x),confidence)/(!!n)*multiplier),
-        confidence = paste(confidence*100,"%",sep=""),
-        statistic = paste("rate per",as.character(format(multiplier, scientific=F))),
-        method  = if_else((!!x) < 10, "Exact","Byars"))
+    if (length(confidence) == 2) {
+
+        # if two confidence levels requested
+        conf1 <- confidence[1]
+        conf2 <- confidence[2]
+
+        # calculate rate and CIs
+        phe_rate <- data %>%
+            mutate(value = ({{ x }})/({{ n }})*multiplier,
+                   lower95_0cl = if_else(({{ x }}) < 10, qchisq((1-conf1)/2,2*({{ x }}))/2/({{ n }})*multiplier,
+                                         byars_lower(({{ x }}),conf1)/({{ n }})*multiplier),
+                   upper95_0cl = if_else(({{ x }}) < 10, qchisq(conf1+(1-conf1)/2,2*({{ x }})+2)/2/({{ n }})*multiplier,
+                                         byars_upper(({{ x }}),conf1)/({{ n }})*multiplier),
+                   lower99_8cl = if_else(({{ x }}) < 10, qchisq((1-conf2)/2,2*({{ x }}))/2/({{ n }})*multiplier,
+                                         byars_lower(({{ x }}),conf2)/({{ n }})*multiplier),
+                   upper99_8cl = if_else(({{ x }}) < 10, qchisq(conf2+(1-conf2)/2,2*({{ x }})+2)/2/({{ n }})*multiplier,
+                                         byars_upper(({{ x }}),conf2)/({{ n }})*multiplier),
+                   confidence = paste(conf1*100,"%, ",conf2*100,"%",sep=""),
+                   statistic  = paste("rate per",as.character(format(multiplier, scientific=F))),
+                   method     = if_else(({{ x }}) < 10, "Exact","Byars"))
 
 
-    # generate output in required format
-    if (type == "lower") {
-        phe_rate <- phe_rate %>%
-            select(-value, -uppercl, -confidence, -statistic, -method)
-    } else if (type == "upper") {
-        phe_rate <- phe_rate %>%
-            select(-value, -lowercl, -confidence, -statistic, -method)
-    } else if (type == "value") {
-        phe_rate<- phe_rate %>%
-            select(-lowercl, -uppercl, -confidence, -statistic, -method)
-    } else if (type == "standard") {
-        phe_rate <- phe_rate %>%
-            select( -confidence, -statistic, -method)
+        # generate output in required format
+        if (type == "lower") {
+            phe_rate <- phe_rate %>%
+                select(-value, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
+        } else if (type == "upper") {
+            phe_rate <- phe_rate %>%
+                select(-value, -lower95_0cl, -lower99_8cl, -confidence, -statistic, -method)
+        } else if (type == "value") {
+            phe_rate<- phe_rate %>%
+                select(-lower95_0cl, -upper95_0cl, -lower99_8cl, -upper99_8cl, -confidence, -statistic, -method)
+        } else if (type == "standard") {
+            phe_rate <- phe_rate %>%
+                select( -confidence, -statistic, -method)
+        }
+
+    } else {
+
+        # scale confidence level
+        if (confidence[1] >= 90) {
+            confidence <- confidence/100
+        }
+
+
+        # calculate rate and a single CI
+        phe_rate <- data %>%
+            mutate(value = ({{ x }})/({{ n }})*multiplier,
+                   lowercl    = if_else(({{ x }}) < 10, qchisq((1-confidence)/2,2*({{ x }}))/2/({{ n }})*multiplier,
+                                        byars_lower(({{ x }}),confidence)/({{ n }})*multiplier),
+                   uppercl    = if_else(({{ x }}) < 10, qchisq(confidence+(1-confidence)/2,2*({{ x }})+2)/2/({{ n }})*multiplier,
+                                        byars_upper(({{ x }}),confidence)/({{ n }})*multiplier),
+                   confidence = paste(confidence*100,"%",sep=""),
+                   statistic  = paste("rate per",as.character(format(multiplier, scientific=F))),
+                   method     = if_else(({{ x }}) < 10, "Exact","Byars"))
+
+
+        # generate output in required format
+        if (type == "lower") {
+            phe_rate <- phe_rate %>%
+                select(-value, -uppercl, -confidence, -statistic, -method)
+        } else if (type == "upper") {
+            phe_rate <- phe_rate %>%
+                select(-value, -lowercl, -confidence, -statistic, -method)
+        } else if (type == "value") {
+            phe_rate<- phe_rate %>%
+                select(-lowercl, -uppercl, -confidence, -statistic, -method)
+        } else if (type == "standard") {
+            phe_rate <- phe_rate %>%
+                select( -confidence, -statistic, -method)
+        }
+
     }
-
 
     return(phe_rate)
 }

@@ -3,23 +3,29 @@ context("test_phe_smr")
 #test calculations
 test_that("smrs and CIs calculate correctly",{
 
-  expect_equal(data.frame(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop,
-                                  x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop)),
-               data.frame(select(slice(test_ISR_results,13:15),1:3,5:10)),
+  expect_equal(data.frame(select(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop,
+                                  x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),1:6,8:9)),
+               data.frame(select(slice(test_ISR_results,7:9),1:3,5:7,10:11)),
                check.attributes=FALSE, check.names=FALSE,info="test default")
 
-  expect_equal(data.frame(phe_smr(test_ISR_ownref, count, pop, refcount, refpop, refpoptype="field")),
-               data.frame(select(slice(test_ISR_results,13:15),1:3,5:10)),
+  expect_equal(data.frame(select(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop,
+                                         confidence = c(0.95,0.998), x_ref = test_ISR_refdata$refcount,
+                                         n_ref = test_ISR_refdata$refpop),1:8,10:11)),
+               data.frame(select(slice(test_ISR_results,7:9),1:3,5:11)),
+               check.attributes=FALSE, check.names=FALSE,info="test full output 2 CIs")
+
+  expect_equal(data.frame(select(phe_smr(test_ISR_ownref, count, pop, refcount, refpop, refpoptype="field"), 1:6,8:9)),
+               data.frame(select(slice(test_ISR_results,7:9),1:3,5:7,10:11)),
                check.attributes=FALSE, check.names=FALSE,info="test default with own ref data by col name")
 
-  expect_equal(data.frame(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop,
-                                  test_ISR_ownref$refcount[1:19], test_ISR_ownref$refpop[1:19])),
-               data.frame(select(slice(test_ISR_results,13:15),1:3,5:10)),
+  expect_equal(data.frame(select(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop,
+                                  test_ISR_ownref$refcount[1:19], test_ISR_ownref$refpop[1:19]),1:6,8:9)),
+               data.frame(select(slice(test_ISR_results,7:9),1:3,5:7,10:11)),
                check.attributes=FALSE, check.names=FALSE,info="test default with own ref data as vector")
 
   expect_equal(data.frame(phe_smr(test_err2, count, pop, type="standard", x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, refvalue=100)),
-               data.frame(select(slice(test_ISR_results,27:28),1:3,5:7)),
+               data.frame(select(slice(test_ISR_results,15:16),1:3,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test n = 0")
 
   expect_equal(data.frame(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop, type="standard",
@@ -27,40 +33,79 @@ test_that("smrs and CIs calculate correctly",{
                                             3089,3490,3595,4745,5514,7125,5694,6210,5757),
                                   n_ref = c(50520,57173,60213,54659,44345,50128,62163,67423,
                                             62899,55463,60479,49974,44140,40888,37239,30819,18136,15325,13918))),
-               data.frame(select(slice(test_ISR_results,13:15),1:3,5:7)),
+               data.frame(select(slice(test_ISR_results,7:9),1:3,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test ref as specified vector")
 
   expect_equal(data.frame(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, type="standard")),
-               data.frame(select(slice(test_ISR_results,13:15),1:3,5:7)),
+               data.frame(select(slice(test_ISR_results,7:9),1:3,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test standard")
 
   expect_equal(data.frame(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
+                                  n_ref = test_ISR_refdata$refpop,
+                                  confidence = c(0.95, 0.998), type="standard")),
+               data.frame(select(slice(test_ISR_results,7:9),1:3,5:9)),
+               check.attributes=FALSE, check.names=FALSE,info="test standard 2 CIs")
+
+  expect_equal(data.frame(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, type="value")),
-               data.frame(select(slice(test_ISR_results,13:15),1,5)),
+               data.frame(select(slice(test_ISR_results,7:9),1,5)),
                check.attributes=FALSE, check.names=FALSE,info="test value")
 
   expect_equal(data.frame(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
+                                  n_ref = test_ISR_refdata$refpop,
+                                  confidence = c(0.95, 0.998), type="value")),
+               data.frame(select(slice(test_ISR_results,7:9),1,5)),
+               check.attributes=FALSE, check.names=FALSE,info="test value 2 CIs")
+
+  expect_equal(data.frame(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, type="lower")),
-               data.frame(select(slice(test_ISR_results,13:15),1,6)),
+               data.frame(select(slice(test_ISR_results,7:9),1,6)),
                check.attributes=FALSE, check.names=FALSE,info="test lower")
 
   expect_equal(data.frame(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
+                                  n_ref = test_ISR_refdata$refpop,
+                                  confidence = c(0.95, 0.998), type="lower")),
+               data.frame(select(slice(test_ISR_results,7:9),1,6,8)),
+               check.attributes=FALSE, check.names=FALSE,info="test lower 2 CIs")
+
+  expect_equal(data.frame(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop,type="upper")),
-               data.frame(select(slice(test_ISR_results,13:15),1,7)),
+               data.frame(select(slice(test_ISR_results,7:9),1,7)),
                check.attributes=FALSE, check.names=FALSE,info="test upper")
+
+  expect_equal(data.frame(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
+                                  n_ref = test_ISR_refdata$refpop,
+                                  confidence = c(0.95, 0.998),type="upper")),
+               data.frame(select(slice(test_ISR_results,7:9),1,7,9)),
+               check.attributes=FALSE, check.names=FALSE,info="test upper 2 CIs")
 
   expect_equal(data.frame(phe_smr(test_multiarea, count, pop, type="standard",
                                   x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop,confidence = 99.8)),
-               data.frame(select(slice(test_ISR_results,16:18),1:3,5:7)),
+               data.frame(select(slice(test_ISR_results,7:9),1:3,5,8:9)),
                check.attributes=FALSE, check.names=FALSE,info="test confidence")
 
   expect_equal(data.frame(phe_smr(test_multiarea, count, pop, type="standard",
                                   x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, refvalue=100)),
-               data.frame(select(slice(test_ISR_results,19:21),1:3,5:7)),
+               data.frame(select(slice(test_ISR_results,10:12),1:3,5:7)),
                check.attributes=FALSE, check.names=FALSE,info="test refvalue")
+
+  expect_equal(data.frame(select(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop, confidence = c(0.95,0.998),
+                                         x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),1:6)),
+               data.frame(select(slice(test_ISR_results,7:9),1:3,5:7)),
+               check.attributes=FALSE, check.names=FALSE,info="test two CIS 95%")
+
+  expect_equal(data.frame(select(phe_smr(test_multiarea, count, pop, type="standard", x_ref = test_ISR_refdata$refcount,
+                                         n_ref = test_ISR_refdata$refpop,confidence = c(0.95, 0.998)),1:4,7,8)),
+               data.frame(select(slice(test_ISR_results,7:9),1:3,5,8:9)),
+               check.attributes=FALSE, check.names=FALSE,info="test two CIs 99.8")
+
+  expect_equal(data.frame(select(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop, confidence = c(0.95,0.998),
+                                         x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),9)),
+               data.frame(confidence = rep("95%, 99.8%",3), stringsAsFactors=FALSE),
+               check.attributes=FALSE, check.names=FALSE,info="test two CIS metadata")
 
 })
 
@@ -115,6 +160,15 @@ test_that("smrs - errors are generated when invalid arguments are used",{
 
   expect_error(phe_smr(test_ISR_ownref, count, pop, refcount, ref_pop, refpoptype = "field"),
                "n_ref is not a field name from data",info="error n_ref not a field name")
+
+  expect_error(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
+                       n_ref = test_ISR_refdata$refpop, confidence = c(0.95, 0.998, 0.98)),
+               "a maximum of two confidence levels can be provided",info="error max two CIs")
+
+  expect_error(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
+                       n_ref = test_ISR_refdata$refpop, confidence = c(0.95, 0.98)),
+               "two confidence levels can only be produced if they are specified as 0.95 and 0.998",
+               info="error invalid number of arguments")
 })
 
 

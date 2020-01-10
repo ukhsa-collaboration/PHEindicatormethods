@@ -24,7 +24,9 @@ na.zero <- function (y) {
 #'
 #' @return Returns lower confidence limits for observed numbers of events using Byar's method [1]
 #'
-#' @section Notes: \code{byars_lower} and \code{\link{byars_upper}} together return symmetric confidence
+#' @section Notes: This is an internal package function that is appropriately called by exported
+#'  'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
+#'  \code{byars_lower} and \code{\link{byars_upper}} together return symmetric confidence
 #'  intervals around counts, therefore
 #'  for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the lower limit returned
 #'  will be above the true underlying value, is \eqn{\alpha}/2.
@@ -78,7 +80,9 @@ byars_lower <- function(x, confidence = 0.95) {
 #'
 #' @return Returns upper confidence limits for observed numbers of events using Byar's method [1]
 #'
-#' @section Notes: \code{\link{byars_lower}} and \code{byars_upper} together return symmetric confidence
+#' @section Notes: This is an internal package function that is appropriately called by exported
+#'  'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
+#'  \code{\link{byars_lower}} and \code{byars_upper} together return symmetric confidence
 #'  intervals around counts, therefore
 #'  for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the upper limit returned
 #'  will be below the true underlying value, is \eqn{\alpha}/2.
@@ -125,7 +129,9 @@ byars_upper <- function(x, confidence = 0.95) {
 #'
 #' @return Returns lower confidence limits for observed numbers of events using the Wilson Score method [1,2]
 #'
-#' @section Notes: \code{wilson_lower} and \code{\link{wilson_upper}} together return symmetric confidence
+#' @section Notes: This is an internal package function that is appropriately called by exported
+#'  'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
+#'  \code{wilson_lower} and \code{\link{wilson_upper}} together return symmetric confidence
 #'  intervals, therefore for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the lower limit returned
 #'  will be above the true underlying value, is \eqn{\alpha}/2.#'
 #'
@@ -183,7 +189,9 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 #'
 #' @return Returns upper confidence limits for observed numbers of events using the Wilson Score method [1,2]
 #'
-#' @section Notes: \code{\link{wilson_lower}} and \code{wilson_upper} together return symmetric confidence
+#' @section Notes: This is an internal package function that is appropriately called by exported
+#'  'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
+#'  \code{\link{wilson_lower}} and \code{wilson_upper} together return symmetric confidence
 #'  intervals, therefore for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the upper limit returned
 #'  will be below the true underlying value, is \eqn{\alpha}/2.#'
 #'
