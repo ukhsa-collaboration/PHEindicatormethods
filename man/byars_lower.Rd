@@ -10,7 +10,8 @@ byars_lower(x, confidence = 0.95)
 \item{x}{the observed numbers of events; numeric vector; no default}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or 90 and 100; numeric; default 0.95}
+or a number between 90 and 100 or can be a vector of 0.95 and 0.998 to output both 95% and 99.8% CIs;
+numeric; default 0.95}
 }
 \value{
 Returns lower confidence limits for observed numbers of events using Byar's method [1]
@@ -19,6 +20,8 @@ Returns lower confidence limits for observed numbers of events using Byar's meth
 Calculates the lower confidence limits for observed numbers of events using Byar's method [1].
 }
 \section{Notes}{
+ This is an internal package function that is appropriately called by exported
+ 'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
  \code{byars_lower} and \code{\link{byars_upper}} together return symmetric confidence
  intervals around counts, therefore
  for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the lower limit returned

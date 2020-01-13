@@ -12,7 +12,8 @@ wilson_lower(x, n, confidence = 0.95)
 \item{n}{the numbers of cases in the samples; numeric vector; no default}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or 90 and 100; numeric; default 0.95}
+or a number between 90 and 100 or can be a vector of 0.95 and 0.998 to output both 95% and 99.8% CIs;
+numeric; default 0.95}
 }
 \value{
 Returns lower confidence limits for observed numbers of events using the Wilson Score method [1,2]
@@ -21,6 +22,8 @@ Returns lower confidence limits for observed numbers of events using the Wilson 
 Calculates lower confidence limits for observed numbers of events using the Wilson Score method [1,2].
 }
 \section{Notes}{
+ This is an internal package function that is appropriately called by exported
+ 'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
  \code{wilson_lower} and \code{\link{wilson_upper}} together return symmetric confidence
  intervals, therefore for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the lower limit returned
  will be above the true underlying value, is \eqn{\alpha}/2.#'
