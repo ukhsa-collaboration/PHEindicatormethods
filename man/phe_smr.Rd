@@ -4,8 +4,17 @@
 \alias{phe_smr}
 \title{Calculate Standardised Mortality Ratios using phe_smr}
 \usage{
-phe_smr(data, x, n, x_ref, n_ref, refpoptype = "vector", type = "full",
-  confidence = 0.95, refvalue = 1)
+phe_smr(
+  data,
+  x,
+  n,
+  x_ref,
+  n_ref,
+  refpoptype = "vector",
+  type = "full",
+  confidence = 0.95,
+  refvalue = 1
+)
 }
 \arguments{
 \item{data}{data.frame containing the data to be standardised, pre-grouped if multiple SMRs required; unquoted string; no default}
@@ -82,10 +91,14 @@ df \%>\%
   Oxford: Blackwell; 2002.
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_life_expectancy}},
-  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_quantile}}, \code{\link{phe_rate}},
-  \code{\link{phe_sii}}
+Other PHEindicatormethods package functions: 
+\code{\link{phe_dsr}()},
+\code{\link{phe_isr}()},
+\code{\link{phe_life_expectancy}()},
+\code{\link{phe_mean}()},
+\code{\link{phe_proportion}()},
+\code{\link{phe_quantile}()},
+\code{\link{phe_rate}()},
+\code{\link{phe_sii}()}
 }
 \concept{PHEindicatormethods package functions}

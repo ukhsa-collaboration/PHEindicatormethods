@@ -4,10 +4,23 @@
 \alias{phe_sii}
 \title{Calculate Slope Index of Inequality using phe_sii}
 \usage{
-phe_sii(data, quantile, population, x = NULL, value = NULL,
-  value_type = 0, lower_cl = NULL, upper_cl = NULL, se = NULL,
-  multiplier = 1, repetitions = 1e+05, confidence = 0.95,
-  rii = FALSE, reliability_stat = FALSE, type = "full")
+phe_sii(
+  data,
+  quantile,
+  population,
+  x = NULL,
+  value = NULL,
+  value_type = 0,
+  lower_cl = NULL,
+  upper_cl = NULL,
+  se = NULL,
+  multiplier = 1,
+  repetitions = 1e+05,
+  confidence = 0.95,
+  rii = FALSE,
+  reliability_stat = FALSE,
+  type = "full"
+)
 }
 \arguments{
 \item{data}{data.frame containing the data to calculate slope index of inequality from, pre-grouped if
@@ -136,11 +149,15 @@ to ensure the input data is suitable for the SII calculation.
 Journal of Public Health; 2004;26:388-395. \cr \cr
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_life_expectancy}},
-  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_quantile}}, \code{\link{phe_rate}},
-  \code{\link{phe_smr}}
+Other PHEindicatormethods package functions: 
+\code{\link{phe_dsr}()},
+\code{\link{phe_isr}()},
+\code{\link{phe_life_expectancy}()},
+\code{\link{phe_mean}()},
+\code{\link{phe_proportion}()},
+\code{\link{phe_quantile}()},
+\code{\link{phe_rate}()},
+\code{\link{phe_smr}()}
 }
 \author{
 Emma Clegg, \email{emma.clegg@phe.gov.uk}

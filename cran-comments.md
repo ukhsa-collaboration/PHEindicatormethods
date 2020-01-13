@@ -1,6 +1,9 @@
 
-## Submission of updated package version 1.1.5
-This package release includes edits to phe_sii.R to resolve issues with upstream dependencies on tidyr version 1.0.0 nest and unnest functions due for release 9th Septmber 2019. This version 1.1.5 also still works with current tidyr version 0.8.3
+## Submission of updated package version 1.2.0
+This package contains a bug fix for the phe_quantile function that results in backwards-incompatibility due to an argument being deprecated (will show as error if used for time being).  Also minor edits to utilise the rlang {{}} embrace notation, remove phe_sii warnings on tests and minor enhancements to functionality.
+
+
+
 
 ## R CMD check results
 There were no ERRORs, WARNINGS or NOTES on local Windows 10 install using R 3.6.1 and RStudio 1.2.1335.

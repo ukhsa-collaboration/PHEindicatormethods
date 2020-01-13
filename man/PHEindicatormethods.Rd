@@ -3,7 +3,6 @@
 \docType{package}
 \name{PHEindicatormethods}
 \alias{PHEindicatormethods}
-\alias{PHEindicatormethods-package}
 \title{PHEindicatormethods: A package for performing standard statistics for public
 health indicators}
 \description{

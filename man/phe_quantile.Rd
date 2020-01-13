@@ -4,8 +4,15 @@
 \alias{phe_quantile}
 \title{Assign Quantiles using phe_quantile}
 \usage{
-phe_quantile(data, values, highergeog = NULL, nquantiles = 10L,
-  invert = TRUE, inverttype = "logical", type = "full")
+phe_quantile(
+  data,
+  values,
+  highergeog = NULL,
+  nquantiles = 10L,
+  invert = TRUE,
+  inverttype = "logical",
+  type = "full"
+)
 }
 \arguments{
 \item{data}{a data frame containing the quantitative data to be assigned to quantiles.
@@ -64,10 +71,14 @@ phe_quantile(df, vals, nquantiles = 5L, invert=FALSE)
 
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_life_expectancy}},
-  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_rate}}, \code{\link{phe_sii}},
-  \code{\link{phe_smr}}
+Other PHEindicatormethods package functions: 
+\code{\link{phe_dsr}()},
+\code{\link{phe_isr}()},
+\code{\link{phe_life_expectancy}()},
+\code{\link{phe_mean}()},
+\code{\link{phe_proportion}()},
+\code{\link{phe_rate}()},
+\code{\link{phe_sii}()},
+\code{\link{phe_smr}()}
 }
 \concept{PHEindicatormethods package functions}
