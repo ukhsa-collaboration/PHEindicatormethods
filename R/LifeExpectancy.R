@@ -215,9 +215,10 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                           anti_join(negative_deaths, by = group_vars(data))
           } else {
                   data <- data %>%
-                  mutate(value = NA,
-                         lowercl = NA,
-                         uppercl = NA)
+                    mutate(value = NA,
+                           lowercl = NA,
+                           uppercl = NA) %>%
+                    select(-startage_2b_removed)
                   return(data)
           }
 
@@ -249,7 +250,8 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                   data <- data %>%
                     mutate(value = NA,
                            lowercl = NA,
-                           uppercl = NA)
+                           uppercl = NA) %>%
+                    select(-startage_2b_removed)
                   return(data)
           }
 
@@ -284,7 +286,8 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                   data <- data %>%
                     mutate(value = NA,
                            lowercl = NA,
-                           uppercl = NA)
+                           uppercl = NA) %>%
+                    select(-startage_2b_removed)
                   return(data)
           }
 
@@ -316,7 +319,8 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                   data <- data %>%
                     mutate(value = NA,
                            lowercl = NA,
-                           uppercl = NA)
+                           uppercl = NA) %>%
+                    select(-startage_2b_removed)
                   return(data)
           }
 
@@ -347,7 +351,8 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                   data <- data %>%
                           mutate(value = NA,
                                  lowercl = NA,
-                                 uppercl = NA)
+                                 uppercl = NA) %>%
+                    select(-startage_2b_removed)
                   return(data)
           }
 
@@ -433,13 +438,14 @@ phe_life_expectancy <- function(data, deaths, population, startage,
 
   data <- data %>%
     bind_cols(cls) %>%
-    select(-ends_with("_2b_removed")) %>%
     rename(value = ei)
 
   data$value[data$value == Inf] <- NA
 
   if (nrow(suppressed_data) > 0) data <- bind_rows(data, suppressed_data)
 
+  data <- data %>%
+    select(-ends_with("_2b_removed"))
   if (length(le_age) == 1) {
           if (le_age != "all") {
                   if (sum(age_contents %in% le_age) == 0) {
