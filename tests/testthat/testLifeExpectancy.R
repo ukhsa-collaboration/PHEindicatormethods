@@ -132,7 +132,7 @@ answer1 <- round(data.frame(value = c(80.16960813, 79.36245674, 75.44193645, 70.
 answer2 <- cbind(df1[c(3, 7),],
                  round(answer1[c(3, 7),], n),
                  data.frame(stringsAsFactors = FALSE,
-                            confidence  = rep(0.95, 2),
+                            confidence  = rep("95%", 2),
                             statistic = paste("life expectancy at", c(5, 25)),
                             method = rep("Chiang, using Silcocks et al for confidence limits", 2)))
 
@@ -165,6 +165,10 @@ test5 <- phe_life_expectancy(df1, deaths, pops, startage, le_age = 5) %>%
   select(value:uppercl)
 test6 <- phe_life_expectancy(df1, deaths, pops, startage, le_age = c(5, 25), type="full") %>%
   mutate_at(c("value", "lowercl", "uppercl"), round, digits = n)
+
+test7 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = 99.8)
+test8 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = c(95, 99.8))
+
 negative_warning <- capture_warnings(test_neg <- phe_life_expectancy(df_neg_deaths, deaths, pop, age) %>%
                                        select(value:uppercl))
 zero_warning <- capture_warnings(test_zero_pop <- phe_life_expectancy(df_zero_pop, deaths, pop, age) %>%
@@ -213,6 +217,8 @@ test_that("LE and CIs calculate correctly",{
                info = "missing age band produces only NAs")
   expect_equal(nrow(test_grouped_with_warnings), nrow(df_grouped_with_warnings),
                info = "correct number of rows for grouped calcs")
+  expect_equivalent(test7[, c("lowercl", "uppercl")],
+                    test8[, c("lower99_8cl", "upper99_8cl")])
 
 })
 
@@ -269,6 +275,6 @@ test_that("LE - errors are generated when invalid arguments are used",{
                "first age band in age_contents must be 0")
   expect_error(phe_life_expectancy(df1, deaths, pop, age,
                                    confidence = 0.8),
-               "confidence level must be between 90 and 100 or between 0.9 and 1")
+               "all confidence levels must be between 90 and 100 or between 0.9 and 1")
 
 })

@@ -39,12 +39,10 @@ described by the age_contents input}
 
 \item{type}{type of output; can be "standard" or "full" (full contains
 added details on the calculation within the dataframe); quoted
-string; default full
-@param confidence the required level of confidence expressed as a number between 0.9 and 1
-                or 90 and 100; numeric; default 0.95}
+string; default full}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or a number between 90 and 100 or can be a vector of 0.95 and 0.998 to output both 95% and 99.8% CIs;
+or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
 numeric; default 0.95}
 }
 \description{

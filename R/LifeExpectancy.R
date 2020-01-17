@@ -19,8 +19,7 @@
 #' @param type type of output; can be "standard" or "full" (full contains
 #'   added details on the calculation within the dataframe); quoted
 #'   string; default full
-#'   @param confidence the required level of confidence expressed as a number between 0.9 and 1
-#'                   or 90 and 100; numeric; default 0.95
+#' @inheritParams phe_dsr
 #' @details This function aligns with the methodology in Public Health England's
 #'   \href{https://fingertips.phe.org.uk/documents/PHE\%20Life\%20Expectancy\%20Calculator.xlsm}{Life Expectancy Excel Tool}.
 #'
@@ -83,6 +82,9 @@
 #'                  deaths = c(17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L,
 #'                             263L, 304L, 536L, 872L, 1390L, 1605L, 1936L, 1937L))
 #' phe_life_expectancy(df, deaths, pops, startage)
+#'
+#' ## or with multiple confidence limits
+#' phe_life_expectancy(df, deaths, pops, startage, confidence = c(95, 99.8))
 #'
 #' ## OR
 #'
@@ -155,8 +157,8 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   startage <- enquo(startage)
 
   # check on confidence limit requirements
-  if ((confidence < 0.9) | (confidence > 1 & confidence < 90) | (confidence > 100)) {
-    stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+  if (any(confidence < 0.9) | (any(confidence > 1) & any(confidence < 90)) | any(confidence > 100)) {
+    stop("all confidence levels must be between 90 and 100 or between 0.9 and 1")
   }
 
   # compare startage field with age_contents
@@ -207,18 +209,18 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           warning("some age bands have negative deaths; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
                   negative_deaths <- negative_deaths %>%
-                          left_join(data, by = group_vars(data)) %>%
-                          mutate(value = NA,
-                                 lowercl = NA,
-                                 uppercl = NA)
+                          left_join(data, by = group_vars(data)) #%>%
+                  # mutate(value = NA,
+                  #        lowercl = NA,
+                  #        uppercl = NA)
                   # remove areas with deaths < 0 in any age band
                   data <- data %>%
                           anti_join(negative_deaths, by = group_vars(data))
           } else {
                   data <- data %>%
-                          mutate(value = NA,
-                                 lowercl = NA,
-                                 uppercl = NA)
+                  mutate(value = NA,
+                         lowercl = NA,
+                         uppercl = NA)
                   return(data)
           }
 
@@ -242,18 +244,18 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           warning("some age bands have a zero or less population; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
                   negative_pops <- negative_pops %>%
-                          left_join(data, by = group_vars(data)) %>%
-                          mutate(value = NA,
-                                 lowercl = NA,
-                                 uppercl = NA)
+                          left_join(data, by = group_vars(data)) #%>%
+                  # mutate(value = NA,
+                  #        lowercl = NA,
+                  #        uppercl = NA)
                   # remove areas with pops <= 0 in any age band
                   data <- data %>%
                           anti_join(negative_pops, by = group_vars(data))
           } else {
                   data <- data %>%
-                          mutate(value = NA,
-                                 lowercl = NA,
-                                 uppercl = NA)
+                    mutate(value = NA,
+                           lowercl = NA,
+                           uppercl = NA)
                   return(data)
           }
 
@@ -279,19 +281,19 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           # Insert NAs into output fields to be row bound to the final output at end
           if (length(group_vars(data)) > 0) {
                   incomplete_areas <- incomplete_areas %>%
-                          left_join(data, by = group_vars(data)) %>%
-                          mutate(value = NA,
-                                 lowercl = NA,
-                                 uppercl = NA)
+                          left_join(data, by = group_vars(data)) #%>%
+                  # mutate(value = NA,
+                  #        lowercl = NA,
+                  #        uppercl = NA)
 
                   # remove areas with incomplete number of age bands
                   data <- data %>%
                           anti_join(incomplete_areas, by = group_vars(data))
           } else {
                   data <- data %>%
-                          mutate(value = NA,
-                                 lowercl = NA,
-                                 uppercl = NA)
+                    mutate(value = NA,
+                           lowercl = NA,
+                           uppercl = NA)
                   return(data)
           }
 
@@ -314,18 +316,18 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           warning("some age bands have more deaths than population; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
                   deaths_more_than_pops <- deaths_more_than_pops %>%
-                          left_join(data, by = group_vars(data)) %>%
-                          mutate(value = NA,
-                                 lowercl = NA,
-                                 uppercl = NA)
+                          left_join(data, by = group_vars(data))#%>%
+                  # mutate(value = NA,
+                  #        lowercl = NA,
+                  #        uppercl = NA)
                   # remove areas with deaths > pops in any age band
                   data <- data %>%
                           anti_join(deaths_more_than_pops, by = group_vars(data))
           } else {
                   data <- data %>%
-                          mutate(value = NA,
-                                 lowercl = NA,
-                                 uppercl = NA)
+                    mutate(value = NA,
+                           lowercl = NA,
+                           uppercl = NA)
                   return(data)
           }
 
@@ -347,10 +349,10 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           warning("some groups have a total population of less than 5,000; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
                   total_pops <- total_pops %>%
-                          left_join(data, by = group_vars(data)) %>%
-                          mutate(value = NA,
-                                 lowercl = NA,
-                                 uppercl = NA)
+                          left_join(data, by = group_vars(data))#%>%
+                  # mutate(value = NA,
+                  #        lowercl = NA,
+                  #        uppercl = NA)
 
                   # remove areas with pops <= 5000
                   data <- data %>%
@@ -377,9 +379,8 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   }
 
   # scale confidence level
-  if (confidence >= 90) {
-    confidence <- confidence/100
-  }
+  confidence[confidence >= 90] <- confidence[confidence >= 90] / 100
+
   z <- qnorm(confidence + (1 - confidence)/2)
   data$group_id_2b_removed <- data %>%
     group_indices()
@@ -423,15 +424,33 @@ phe_life_expectancy <- function(data, deaths, population, startage,
              id_2b_removed < number_age_bands ~ spi_2b_removed * (l_2b_removed ^ 2) * (((1 - ai_2b_removed) * ni_2b_removed + lead(ei)) ^ 2),
              TRUE ~ ((l_2b_removed / 2) ^ 2) * spi_2b_removed),
            STi_2b_removed = rev(cumsum(rev(W_spi_2b_removed))),
-           SeSE_2b_removed = sqrt(STi_2b_removed / (l_2b_removed ^ 2)),
-                lowercl = ei - z * SeSE_2b_removed,
-                uppercl = ei + z * SeSE_2b_removed) %>%
+           SeSE_2b_removed = sqrt(STi_2b_removed / (l_2b_removed ^ 2)))
+
+  lower_cls <- z %>%
+    lapply(function(z, x, y) x - z * y, x = data$ei, y = data$SeSE_2b_removed)
+  upper_cls <- z %>%
+    lapply(function(z, x, y) x + z * y, x = data$ei, y = data$SeSE_2b_removed)
+
+  if (length(lower_cls) > 1) {
+    names(lower_cls) <- paste0("lower",
+                               gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)),
+                               "cl")
+    names(upper_cls) <- paste0("upper",
+                               gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)),
+                               "cl")
+  } else {
+    names(lower_cls) <- "lowercl"
+    names(upper_cls) <- "uppercl"
+  }
+
+  cls <- bind_cols(lower_cls, upper_cls)
+
+  data <- data %>%
+    bind_cols(cls) %>%
     select(-ends_with("_2b_removed")) %>%
     rename(value = ei)
 
   data$value[data$value == Inf] <- NA
-  data$lowercl[is.nan(data$lowercl)] <- NA
-  data$uppercl[is.nan(data$uppercl)] <- NA
 
   if (nrow(suppressed_data) > 0) data <- bind_rows(data, suppressed_data)
 
@@ -455,7 +474,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
 
   if (type == "full") {
           data <- data %>%
-                  mutate(confidence = confidence,
+                  mutate(confidence = paste0(confidence * 100, "%", collapse = ", "),
                          statistic = paste("life expectancy at", !!startage),
                          method = "Chiang, using Silcocks et al for confidence limits")
   }
