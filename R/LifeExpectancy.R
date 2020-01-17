@@ -209,10 +209,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           warning("some age bands have negative deaths; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
                   negative_deaths <- negative_deaths %>%
-                          left_join(data, by = group_vars(data)) #%>%
-                  # mutate(value = NA,
-                  #        lowercl = NA,
-                  #        uppercl = NA)
+                          left_join(data, by = group_vars(data))
                   # remove areas with deaths < 0 in any age band
                   data <- data %>%
                           anti_join(negative_deaths, by = group_vars(data))
@@ -244,10 +241,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           warning("some age bands have a zero or less population; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
                   negative_pops <- negative_pops %>%
-                          left_join(data, by = group_vars(data)) #%>%
-                  # mutate(value = NA,
-                  #        lowercl = NA,
-                  #        uppercl = NA)
+                          left_join(data, by = group_vars(data))
                   # remove areas with pops <= 0 in any age band
                   data <- data %>%
                           anti_join(negative_pops, by = group_vars(data))
@@ -281,10 +275,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           # Insert NAs into output fields to be row bound to the final output at end
           if (length(group_vars(data)) > 0) {
                   incomplete_areas <- incomplete_areas %>%
-                          left_join(data, by = group_vars(data)) #%>%
-                  # mutate(value = NA,
-                  #        lowercl = NA,
-                  #        uppercl = NA)
+                          left_join(data, by = group_vars(data))
 
                   # remove areas with incomplete number of age bands
                   data <- data %>%
@@ -316,10 +307,8 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           warning("some age bands have more deaths than population; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
                   deaths_more_than_pops <- deaths_more_than_pops %>%
-                          left_join(data, by = group_vars(data))#%>%
-                  # mutate(value = NA,
-                  #        lowercl = NA,
-                  #        uppercl = NA)
+                          left_join(data, by = group_vars(data))
+
                   # remove areas with deaths > pops in any age band
                   data <- data %>%
                           anti_join(deaths_more_than_pops, by = group_vars(data))
@@ -349,10 +338,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           warning("some groups have a total population of less than 5,000; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
                   total_pops <- total_pops %>%
-                          left_join(data, by = group_vars(data))#%>%
-                  # mutate(value = NA,
-                  #        lowercl = NA,
-                  #        uppercl = NA)
+                          left_join(data, by = group_vars(data))
 
                   # remove areas with pops <= 5000
                   data <- data %>%
