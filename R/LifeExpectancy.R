@@ -151,11 +151,6 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                                                                                  paste(age_contents[stripped_age_contents != sort(stripped_age_contents)],
                                                                                        collapse = ", ")))
 
-  # apply quotes
-  deaths <- enquo(deaths)
-  population <- enquo(population)
-  startage <- enquo(startage)
-
   # check on confidence limit requirements
   if (any(confidence < 0.9) | (any(confidence > 1) & any(confidence < 90)) | any(confidence > 100)) {
     stop("all confidence levels must be between 90 and 100 or between 0.9 and 1")
@@ -163,7 +158,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
 
   # compare startage field with age_contents
   age_bands <- data %>%
-          pull(!!startage) %>%
+          pull({{ startage }}) %>%
           unique() %>%
           sort()
 
@@ -171,7 +166,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
 
   #calculate start age for each age band
   data <- data %>%
-          mutate(startage_2b_removed = as.integer(sub("\\D*(\\d+).*", "\\1", !!startage)))
+          mutate(startage_2b_removed = as.integer(sub("\\D*(\\d+).*", "\\1", {{ startage }})))
 
   # order the data by (group variables) and start age
   if (length(group_vars(data)) > 0) {
@@ -201,7 +196,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
       group_by_at(group_vars(data))
   }
   negative_deaths <- negative_deaths %>%
-          filter(!!deaths < 0) %>%
+          filter({{ deaths }} < 0) %>%
           count() %>%
           filter(n != 0) %>%
           select(-n)
@@ -234,7 +229,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
       group_by_at(group_vars(data))
   }
   negative_pops <- negative_pops %>%
-          filter(!!population <= 0) %>%
+          filter({{ population }} <= 0) %>%
           count() %>%
           filter(n != 0) %>%
           select(-n)
@@ -302,7 +297,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
       group_by_at(group_vars(data))
   }
   deaths_more_than_pops <- deaths_more_than_pops %>%
-          filter(!!deaths > !!population) %>%
+          filter({{ deaths }} >  {{ population }}) %>%
           count() %>%
           filter(n != 0) %>%
           select(-n)
@@ -330,7 +325,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
 
   # check for pops <= 5000
   total_pops <- data %>%
-          summarise(total_pop = sum(!!population))
+          summarise(total_pop = sum({{ population }}))
   if (length(group_vars(data)) > 0) {
     total_pops <- total_pops %>%
       mutate_at(vars(grouping_factors), as.character) #stops warning in cases where filters result in 0 records
@@ -381,7 +376,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
            ai_2b_removed = case_when(
                    startage_2b_removed == 0 ~ 0.1,
                    TRUE ~ 0.5),
-           M_2b_removed = !!deaths / !!population,
+           M_2b_removed = {{ deaths }} / {{ population }},
            ni_2b_removed = case_when(
              is.na(ni_2b_removed) ~ 2 / M_2b_removed,
              TRUE ~ ni_2b_removed),
@@ -407,9 +402,9 @@ phe_life_expectancy <- function(data, deaths, population, startage,
              TRUE ~ Ti_2b_removed / l_2b_removed),
            spi_2b_removed = case_when(
              di_2b_removed == 0 ~ 0,
-             TRUE ~ (qi_2b_removed ^ 2) * (1 - qi_2b_removed) / !!deaths),
+             TRUE ~ (qi_2b_removed ^ 2) * (1 - qi_2b_removed) / {{ deaths }}),
            spi_2b_removed = case_when(
-             id_2b_removed == number_age_bands ~ 4 / (!!deaths * (M_2b_removed ^ 2)),
+             id_2b_removed == number_age_bands ~ 4 / ({{ deaths }} * (M_2b_removed ^ 2)),
              TRUE ~ spi_2b_removed),
            W_spi_2b_removed = case_when(
              id_2b_removed < number_age_bands ~ spi_2b_removed * (l_2b_removed ^ 2) * (((1 - ai_2b_removed) * ni_2b_removed + lead(ei)) ^ 2),
@@ -452,7 +447,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                           warning("le_age not in the vector described by age_contents; all life expectancies will be returned")
                   } else {
                           data <- data %>%
-                                  filter(!!startage %in% le_age)
+                                  filter({{ startage }} %in% le_age)
                   }
           }
   } else {
@@ -460,14 +455,14 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                   warning("le_age not in the vector described by age_contents; all life expectancies will be returned")
           } else {
                   data <- data %>%
-                          filter(!!startage %in% le_age)
+                          filter({{ startage }} %in% le_age)
           }
   }
 
   if (type == "full") {
           data <- data %>%
                   mutate(confidence = paste0(confidence * 100, "%", collapse = ", "),
-                         statistic = paste("life expectancy at", !!startage),
+                         statistic = paste("life expectancy at", {{ startage }}),
                          method = "Chiang, using Silcocks et al for confidence limits")
   }
   return(data)
