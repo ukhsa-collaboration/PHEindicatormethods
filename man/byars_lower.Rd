@@ -10,7 +10,7 @@ byars_lower(x, confidence = 0.95)
 \item{x}{the observed numbers of events; numeric vector; no default}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or a number between 90 and 100 or can be a vector of 0.95 and 0.998 to output both 95% and 99.8% CIs;
+or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
 numeric; default 0.95}
 }
 \value{
