@@ -3,76 +3,76 @@ context("test_phe_dsr")
 #test calculations
 test_that("dsrs and CIs calculate correctly",{
 
-  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop),1:7)),
-               data.frame(test_DSR_results[5:7,1:7]),
+  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop),1:6)),
+               data.frame(test_DSR_results[5:7,1:6]),
                check.attributes=FALSE, check.names=FALSE,info="test default")
 
-  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, confidence = c(0.95,0.998)),1:9,11:12)),
+  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, confidence = c(0.95,0.998)),1:8,10:11)),
                data.frame(test_DSR_results[5:7,]),
                check.attributes=FALSE, check.names=FALSE,info="test full output with 2 CIs")
 
   expect_equal(data.frame(phe_dsr(test_DSR_1976, count, pop, stdpop = test_DSR_1976$esp1976, type="standard")),
-               select(slice(test_DSR_results,8),2:3,5:7),
+               select(slice(test_DSR_results,8),2:6),
                check.attributes=FALSE, check.names=FALSE,info="test with user specified vector")
 
   expect_equal(data.frame(phe_dsr(test_DSR_1976, count, pop, stdpop = esp1976, stdpoptype="field", type="standard")),
-               data.frame(select(slice(test_DSR_results,8),2:3,5:7)),
+               data.frame(select(slice(test_DSR_results,8),2:6)),
                check.attributes=FALSE, check.names=FALSE,info="test with user specified stdpop by col name")
 
   expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, type="standard",
                stdpop = c(5000, 5500, 5500, 5500, 6000, 6000, 6500, 7000, 7000, 7000, 7000, 6500, 6000, 5500, 5000, 4000, 2500, 1500, 1000))),
-               data.frame(select(slice(test_DSR_results,5:7),1:3,5:7)),
+               data.frame(select(slice(test_DSR_results,5:7),1:6)),
                check.attributes=FALSE, check.names=FALSE,info="test stdpop as specified vector")
 
   expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, stdpop = esp2013, type="standard")),
-               data.frame(select(slice(test_DSR_results,5:7),1:3,5:7)),
+               data.frame(select(slice(test_DSR_results,5:7),1:6)),
                check.attributes=FALSE, check.names=FALSE,info="test standard")
 
   expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, confidence = c(0.95,0.998), type="standard")),
-               data.frame(select(slice(test_DSR_results,5:7),1:3,5:9)),
+               data.frame(select(slice(test_DSR_results,5:7),1:8)),
                check.attributes=FALSE, check.names=FALSE,info="test standard 2CIs")
 
   expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, type="value")),
-               data.frame(select(slice(test_DSR_results,5:7),1,5)),
+               data.frame(select(slice(test_DSR_results,5:7),1,4)),
                check.attributes=FALSE, check.names=FALSE,info="test value")
 
   expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, confidence = c(0.95,0.998), type="value")),
-               data.frame(select(slice(test_DSR_results,5:7),1,5)),
+               data.frame(select(slice(test_DSR_results,5:7),1,4)),
                check.attributes=FALSE, check.names=FALSE,info="test value 2CIs")
 
   expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, type="lower")),
-               data.frame(select(slice(test_DSR_results,5:7),1,6)),
+               data.frame(select(slice(test_DSR_results,5:7),1,5)),
                check.attributes=FALSE, check.names=FALSE,info="test lower")
 
   expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, confidence = c(0.95,0.998), type="lower")),
-               data.frame(select(slice(test_DSR_results,5:7),1,6,8)),
+               data.frame(select(slice(test_DSR_results,5:7),1,5,7)),
                check.attributes=FALSE, check.names=FALSE,info="test lower 2 CIs")
 
   expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, type="upper")),
-               data.frame(select(slice(test_DSR_results,5:7),1,7)),
+               data.frame(select(slice(test_DSR_results,5:7),1,6)),
                check.attributes=FALSE, check.names=FALSE,info="test upper")
 
   expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, confidence = c(0.95,0.998), type="upper")),
-               data.frame(select(slice(test_DSR_results,5:7),1,7,9)),
+               data.frame(select(slice(test_DSR_results,5:7),1,6,8)),
                check.attributes=FALSE, check.names=FALSE,info="test upper 2 CIs")
 
-  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, stdpop = esp2013, confidence = 99.8),1:7,9:10)),
-               data.frame(select(slice(test_DSR_results,5:7),1:5,8:11)),
+  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, stdpop = esp2013, confidence = 99.8),1:6,8:9)),
+               data.frame(select(slice(test_DSR_results,5:7),1:4,7:10)),
                check.attributes=FALSE, check.names=FALSE,info="test confidence")
 
   expect_equal(data.frame(phe_dsr(test_multiarea, count, pop, stdpop = esp2013, multiplier=10000, type="standard")),
-               data.frame(select(slice(test_DSR_results,1:3),1:3,5:7)),
+               data.frame(select(slice(test_DSR_results,1:3),1:6)),
                check.attributes=FALSE, check.names=FALSE,info="test multiplier")
 
-  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, confidence = c(0.95, 0.998)),10)),
+  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, confidence = c(0.95, 0.998)),9)),
                data.frame(confidence = c("95%, 99.8%","95%, 99.8%","95%, 99.8%"), stringsAsFactors=FALSE),
                check.attributes=FALSE, check.names=FALSE,info="test 2 CIs metadata")
 
-  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop),8)),
+  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop),7)),
                data.frame(confidence = c("95%", "95%", "95%"), stringsAsFactors=FALSE),
                check.attributes=FALSE, check.names=FALSE,info="test 95% CI metadata")
 
-  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, confidence = 0.998),8)),
+  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, confidence = 0.998),7)),
                data.frame(confidence = c("99.8%", "99.8%", "99.8%"), stringsAsFactors=FALSE),
                check.attributes=FALSE, check.names=FALSE,info="test 99.8% CI metadata")
 

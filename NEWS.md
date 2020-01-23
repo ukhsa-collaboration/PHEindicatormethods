@@ -1,3 +1,6 @@
+## PHEindicatormethods v1.2.1  
+* phe_dsr: The standardised_pop output variable added in v1.2.0 has been removed as this was not providing a meaningful value.
+
 ## PHEindicatormethods v1.2.0
 The following changes may affect backwards compatibility with earlier versions of the package:  
 
