@@ -1,3 +1,8 @@
+## PHEindicatormethods v1.2.0.9001
+
+* `phe_life_expectancy()` function previously calculated confidence levels inaccurately where the ratio of deaths to population was very high in age bands other than the final one. This has now been corrected to agree with the published methodology
+* `phe_life_expectancy()` now accepts a numeric vector as an input to the `confidence` argument so users can calculate multiple confidence limits in one command
+
 ## PHEindicatormethods v1.2.0
 The following changes may affect backwards compatibility with earlier versions of the package:  
 
