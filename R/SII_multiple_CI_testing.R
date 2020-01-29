@@ -114,7 +114,7 @@
 #'
 #' @family PHEindicatormethods package functions
 
-phe_sii <- function(data, quantile, population,  # compulsory fields
+phe_sii_test <- function(data, quantile, population,  # compulsory fields
                     x = NULL,                    # optional fields
                     value = NULL,
                     value_type = 0,
@@ -149,14 +149,10 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         if (repetitions <= 0) {
           stop("number of repetitions must be greater than 0. Default is 100,000")
         }
-        if (length(confidence) == 2) {
-            if (!(confidence[1] == 0.95 & confidence[2] == 0.998)) {
-          stop("two confidence levels can only be produced if they are specified as 0.95 and 0.998")
-            }
-            }
-        if ((confidence < 0.5) | (confidence > 0.9999 & confidence <
-                                  50) | (confidence > 99.99)) {
-          stop("confidence level for SII must be between 50 and 99.99, or between 0.5 and 0.9999")
+
+        # check on confidence limit requirements
+        if (any(confidence < 0.9) | (any(confidence > 1) & any(confidence < 90)) | any(confidence > 100)) {
+            stop("all confidence levels must be between 90 and 100 or between 0.9 and 1")
         }
 
         # Use NSE on inputs - apply quotes
@@ -168,18 +164,8 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         if(!missing(lower_cl)) {lower_cl = enquo(lower_cl)}
         if(!missing(upper_cl)) {upper_cl = enquo(upper_cl)}
 
-        # convert confidence to decimal value
-        if (confidence >= 90) {
-                confidence <- confidence / 100
-        }
-
-        # extract confidence when two provided
-        # if (length(confidence) == 2) {
-        #     conf1 <- confidence[1]
-        #     conf2 <- confidence[2]
-        # } else {
-        #     conf1 <- confidence
-        # }
+        # scale confidence level
+        confidence[confidence >= 90] <- confidence[confidence >= 90] / 100
 
         # check for non numeric inputs
         if(!(class(pull(data, !!population)) %in% c("numeric", "integer")
@@ -372,25 +358,21 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
 
             sim_CI <- pops_prep_ab %>%
                 group_by(!!! syms(grouping_variables)) %>%
-                tidyr::nest()
-             #   mutate(CI_params = purrr::map(data, ~ SimulationFunc(data = ., value, value_type, se_calc, repetitions, confidence, sqrt_a, b_sqrt_a, rii, reliability_stat)))
-
-            my_fun <- function(data, confidence) {
-
-                map(data, ~ SimulationFunc(data = .,
-                                           value = value,
-                                           value_type = 1,
-                                           se = se_calc,
-                                           repeats = repetitions,
-                                           sqrt_a = sqrt_a,
-                                           b_sqrt_a = b_sqrt_a,
-                                           rii = FALSE,
-                                           reliability_stat = FALSE))
-
-            }
-
-            lower_cls <- confidence %>%
-                lapply(my_fun, data = sim_CI$data)
+                tidyr::nest() %>%
+                mutate(CI_params = lapply(data,
+                                          function(x) { map(confidence,
+                                                            function(y) {SimulationFunc(data = x,
+                                                                                        value = value,
+                                                                                        value_type = value_type,
+                                                                                        se = se_calc,
+                                                                                        confidence = y,
+                                                                                        repeats = repetitions,
+                                                                                        sqrt_a = sqrt_a,
+                                                                                        b_sqrt_a = b_sqrt_a,
+                                                                                        rii = rii,
+                                                                                        reliability_stat = reliability_stat)
+                                                            })
+                                          }))
 
             }
 
@@ -551,6 +533,6 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
     #    }
 
         # return output dataset
-    return(lower_cls)
+    return(sim_CI)
 
 }
