@@ -3,6 +3,8 @@ library(PHEindicatormethods)
 library(tidyverse)
 library(readxl)
 
+source("R/utils.R")
+
 # load and group test data
 SII_test_data <- read_excel("tests/testthat/testdata_SII.xlsx") %>%
                      group_by(Area, Grouping1, Grouping2)
@@ -12,7 +14,7 @@ SII_test_data <- SII_test_data[21:40, 3:13]
 
 
 # run phe_sii() normally
-normal_result <- phe_sii(SII_test_data,
+normal_result_95 <- phe_sii(SII_test_data,
                   Quantile, Population,
                   value_type = 0,
                   value = Value,
@@ -23,14 +25,27 @@ normal_result <- phe_sii(SII_test_data,
                   rii = FALSE,
                   type = "standard")
 
+normal_result_99_8 <- phe_sii(SII_test_data,
+                            Quantile, Population,
+                            value_type = 0,
+                            value = Value,
+                            lower_cl = LowerCL,
+                            upper_cl = UpperCL,
+                            confidence = 0.998,
+                            repetitions = 100000,
+                            rii = FALSE,
+                            type = "standard")
+
+# test the new multiple CI functionality
 debug(phe_sii_test)
+undebug(phe_sii_test)
 test_result <- phe_sii_test(SII_test_data,
                          Quantile, Population,
                          value_type = 0,
                          value = Value,
                          lower_cl = LowerCL,
                          upper_cl = UpperCL,
-                         confidence = c(0.998, 0.97),
+                         confidence = c(0.95, 0.998),
                          repetitions = 100000,
                          rii = FALSE,
                          type = "standard")

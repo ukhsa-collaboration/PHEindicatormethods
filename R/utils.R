@@ -309,6 +309,7 @@ SimulationFunc <- function(data,
                            se,
                            repeats = 100000,
                            confidence = 0.95,
+                           multiplier = 1,
                            sqrt_a,
                            b_sqrt_a,
                            rii = FALSE,
@@ -321,7 +322,7 @@ SimulationFunc <- function(data,
   b_sqrt_a = enquo(b_sqrt_a)
 
   # find critical upper value at given confidence
-  confidence <- confidence + ((1 - confidence) / 2)
+  confidence_value <- confidence + ((1 - confidence) / 2)
 
   # Set 10x no. of reps if reliability stats requested
   no_reps <- ifelse(reliability_stat == TRUE, 10*repeats, repeats)
@@ -382,6 +383,11 @@ SimulationFunc <- function(data,
         RII_results <- matrix(RII_results, ncol = 1)
       }
 
+      # Apply multiplicative factor to RII
+      if(multiplier < 0) {
+        RII_results <- 1/RII_results
+      }
+
       # Order simulated RIIs from lowest to highest
       sortresults_RII <- apply(RII_results, 2, sort, decreasing = FALSE)
 
@@ -395,6 +401,9 @@ SimulationFunc <- function(data,
     }
   }
 
+  # Apply multiplicative factor to SII
+  SII_results <- multiplier * SII_results
+
   # Order simulated SIIs from lowest to highest
   sortresults_SII <- apply(SII_results, 2, sort, decreasing = FALSE)
 
@@ -402,12 +411,16 @@ SimulationFunc <- function(data,
   # as confidence limits
 
   # position of lower percentile
-  pos_lower <- round(repeats*(1-confidence), digits=0)
+  pos_lower <- round(repeats*(1-confidence_value), digits=0)
   # position of upper percentile
-  pos_upper <- round(repeats*confidence, digits=0)
+  pos_upper <- round(repeats*confidence_value, digits=0)
 
   # Extract SII confidence limits from critical percentiles of first column of samples
   SII_initial <- sortresults_SII[c(pos_lower, pos_upper), 1]
+
+  # Define column names
+  cl_level <- paste0(gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)), "cl")
+
 
   if(rii == TRUE) {
 
@@ -427,20 +440,21 @@ SimulationFunc <- function(data,
 
       # Return SII/RII confidence limits from first of the 10 samples, plus the
       # reliability measures
-      return(data.frame(sii_lowercl = SII_initial[1],
+
+      results <- data.frame("sii_lower_cl" = SII_initial[1],
                         sii_uppercl = SII_initial[2],
                         sii_MAD = signif(sii_MAD, 4),
                         rii_lowercl = RII_initial[1],
                         rii_uppercl = RII_initial[2],
-                        rii_MAD = signif(rii_MAD, 4)))
+                        rii_MAD = signif(rii_MAD, 4))
     } else {
       # Return SII/RII confidence limits from single sample taken
-      return(data.frame(sii_lowercl = SII_initial[1],
+      results <- data.frame(sii_lowercl = SII_initial[1],
                         sii_uppercl = SII_initial[2],
                         sii_MAD = NA,
                         rii_lowercl = RII_initial[1],
                         rii_uppercl = RII_initial[2],
-                        rii_MAD = NA))
+                        rii_MAD = NA)
     }
 
   } else {
@@ -456,21 +470,30 @@ SimulationFunc <- function(data,
 
       # Return SII/RII confidence limits from first of the 10 samples, plus the
       # reliability measures
-      return(data.frame(sii_lowercl = SII_initial[1],
+      results <- data.frame(sii_lowercl = SII_initial[1],
                         sii_uppercl = SII_initial[2],
                         sii_MAD = signif(sii_MAD, 4),
                         rii_lowercl = NA,
                         rii_uppercl = NA,
-                        rii_MAD = NA))
+                        rii_MAD = NA)
     } else {
       # Return SII/RII confidence limits from single sample taken
-      return(data.frame(sii_lowercl = SII_initial[1],
+      results <- data.frame(sii_lowercl = SII_initial[1],
                         sii_uppercl = SII_initial[2],
                         sii_MAD = NA,
                         rii_lowercl = NA,
                         rii_uppercl = NA,
-                        rii_MAD = NA))
+                        rii_MAD = NA)
     }
   }
+
+  names(results) <- c(paste0("sii_lower_", cl_level),
+                      paste0("sii_upper_", cl_level),
+                      paste0("sii_MAD_", cl_level),
+                      paste0("rii_lower_", cl_level),
+                      paste0("rii_upper_", cl_level),
+                      paste0("rii_MAD_", cl_level))
+
+  return(results)
 
 }
