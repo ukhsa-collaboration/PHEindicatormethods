@@ -64,7 +64,8 @@ inverse of the RII is taken to account for the change in polarity; numeric; defa
 numeric; default 100,000}
 
 \item{confidence}{confidence level used to calculate the lower and upper confidence limits of SII;
-numeric between 0.5 and 0.9999 or 50 and 99.99; default 0.95}
+numeric between 0.5 and 0.9999 or 50 and 99.99 or can be a vector to output multiple CIs;
+default 0.95}
 
 \item{rii}{option to return the Relative Index of Inequality (RII) with associated confidence limits
 as well as the SII; logical; default FALSE}

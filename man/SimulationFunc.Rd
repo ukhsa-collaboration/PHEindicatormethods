@@ -11,6 +11,7 @@ SimulationFunc(
   se,
   repeats = 1e+05,
   confidence = 0.95,
+  multiplier = 1,
   sqrt_a,
   b_sqrt_a,
   rii = FALSE,

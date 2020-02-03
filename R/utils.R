@@ -291,6 +291,9 @@ FindXValues <- function(xvals, no_quantiles){
 #'        numeric; default 100,000
 #' @param confidence confidence level used to calculate the lower and upper confidence limits of SII;
 #'        numeric between 0.5 and 0.9999 or 50 and 99.99; default 0.95
+#' @param multiplier factor to multiply the SII and SII confidence limits by (e.g. set to 100 to return
+#'        prevalences on a percentage scale between 0 and 100). If the multiplier is negative, the
+#'        inverse of the RII is taken to account for the change in polarity; numeric; default 1;
 #' @param sqrt_a field name within dataset containing square root of a values;
 #'        unquoted string; no default
 #' @param b_sqrt_a field name within dataset containing square root of a values multiplied
