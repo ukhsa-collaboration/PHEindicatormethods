@@ -358,17 +358,23 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # Different nest() argument needed for ungrouped dataset
         if(length(grouping_variables) == 0) {
             sim_CI <- pops_prep_ab %>%
-                tidyr::nest(data = everything()) %>%
-                mutate(CI_params = purrr::map(data, ~ SimulationFunc(data = ., value, value_type, se_calc, repetitions, confidence, sqrt_a, b_sqrt_a, rii, reliability_stat)))
+                tidyr::nest(data = everything())
+
         } else {
 
+            sim_CI <- pops_prep_ab %>%
+                group_by(!!! syms(grouping_variables)) %>%
+                tidyr::nest()
+
+        }
+
+         # Define function to coalesce non-nulls over rows
             coalesce_all_columns <- function(df) {
                 return(coalesce(!!! as.list(df)))
             }
 
-            sim_CI <- pops_prep_ab %>%
-                group_by(!!! syms(grouping_variables)) %>%
-                tidyr::nest() %>%
+         # Run simulation function on nested dataset
+            sim_CI <- sim_CI %>%
                 mutate(CI_params = lapply(data,
                                           function(x) { map(confidence,
                                                             function(y) {SimulationFunc(data = x,
@@ -385,7 +391,6 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                                                             })
                                           }))
 
-        }
 
 
         # Extract confidence limits and reliability measures in a data frame for joining

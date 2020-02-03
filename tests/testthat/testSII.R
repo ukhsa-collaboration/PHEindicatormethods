@@ -251,7 +251,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   repetitions = no_reps,
                                   rii = FALSE,
                                   type = "standard")),
-               data.frame(SII_test_grouped[c(111,121), c(3:5,16:18)]),
+               data.frame(SII_test_grouped[c(111,121), c(3:5,16,18,19)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test proportion with positive multiplier without RII", tolerance = tol)
 
@@ -398,7 +398,7 @@ test_that("errors are generated when invalid parameters are entered",{
                        value = Value,
                        se = StandardError,
                        confidence = 40),
-               "confidence level for SII must be between 50 and 99.99, or between 0.5 and 0.9999",
+               "all confidence levels must be between 90 and 100 or between 0.9 and 1",
                info = "invalid confidence limit pc - too low")
         # invalid confidence limit (%) - too high
   expect_error(phe_sii(SII_test_grouped[1:20, 3:13],
@@ -407,7 +407,7 @@ test_that("errors are generated when invalid parameters are entered",{
                        value = Value,
                        se = StandardError,
                        confidence = 135),
-               "confidence level for SII must be between 50 and 99.99, or between 0.5 and 0.9999",
+               "all confidence levels must be between 90 and 100 or between 0.9 and 1",
                info = "invalid confidence limit pc - too high")
 
 })
