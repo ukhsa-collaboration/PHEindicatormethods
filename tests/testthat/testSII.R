@@ -120,6 +120,20 @@ test_that("SII and confidence limits calculate correctly",{
                check.attributes=FALSE, check.names=FALSE,
                info="test at 99% confidence (%)", tolerance = tol)
 
+  # test SII calculation on multiple confidence intervals (inputted as %)
+  expect_equal(data.frame(phe_sii(SII_test_grouped[226:245, 3:13],
+                                  Quantile, Population,
+                                  value_type = 0,
+                                  value = Value,
+                                  se = StandardError,
+                                  confidence = c(95,99),
+                                  repetitions = no_reps,
+                                  rii = TRUE,
+                                  type = "standard")), # SII confidence changed
+               data.frame(SII_test_grouped[c(226,236), c(3:5,16:25)]),
+               check.attributes=FALSE, check.names=FALSE,
+               info="test at 95 and 99% confidence (%)", tolerance = tol)
+
     # test SII calculation on 100,000 repetitions
   expect_equal(data.frame(phe_sii(SII_test_grouped[41:60, 3:13],
                                   Quantile, Population,
@@ -281,7 +295,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   repetitions = no_reps,
                                   rii = FALSE,
                                   type = "standard")),
-               data.frame(SII_test_grouped[c(131,141), c(3:5,16:18)]),
+               data.frame(SII_test_grouped[c(131,141), c(3:5,16,18,19)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test proportion with negative multiplier without RII", tolerance = tol)
 })
@@ -389,7 +403,7 @@ test_that("errors are generated when invalid parameters are entered",{
                        value = Value,
                        se = StandardError,
                        confidence = 0.35),
-               "confidence level for SII must be between 50 and 99.99, or between 0.5 and 0.9999",
+               "all confidence levels must be between 90 and 100 or between 0.9 and 1",
                info = "invalid confidence limit (decimal)")
         # invalid confidence limit (%) - too low
   expect_error(phe_sii(SII_test_grouped[1:20, 3:13],

@@ -51,8 +51,8 @@
 #' This function does not include checks for linearity or stability; it is the user's responsibility
 #' to ensure the input data is suitable for the SII calculation.
 #'
-#' @param data data.frame containing the data to calculate slope index of inequality from, pre-grouped if
-#'        multiple DSRs required; unquoted string; no default
+#' @param data data.frame containing the required input fields, pre-grouped if an SII is required for
+#'        each subgroup; unquoted string; no default
 #' @param quantile field name within data that contains the quantile label (e.g. decile). The number
 #'        of quantiles should be between 5 and 100; unquoted string; no default
 #' @param population field name within data that contains the quantile populations (ie, denominator).
@@ -80,9 +80,9 @@
 #'        inverse of the RII is taken to account for the change in polarity; numeric; default 1;
 #' @param repetitions number of random samples to perform to return confidence interval of SII;
 #'        numeric; default 100,000
-#' @param confidence confidence level used to calculate the lower and upper confidence limits of SII;
-#'        numeric between 0.5 and 0.9999 or 50 and 99.99 or can be a vector to output multiple CIs;
-#'        default 0.95
+#' @param confidence confidence level used to calculate the lower and upper confidence limits of SII,
+#'        expressed as a number between 0.9 and 1, or 90 and 100. It can be a vector of 0.95 and 0.998,
+#'        for example, to output both 95\% and 99.8\% CIs; numeric; default 0.95
 #' @param rii option to return the Relative Index of Inequality (RII) with associated confidence limits
 #'        as well as the SII; logical; default FALSE
 #' @param reliability_stat option to carry out the SII confidence interval simulation 10 times instead
@@ -105,6 +105,60 @@
 #' @importFrom purrr map
 #' @importFrom tidyr nest unnest spread
 #' @importFrom stats rnorm qnorm lm
+#'
+#' @examples
+#' library(dplyr)
+#'
+#' data <- data.frame(area = c(rep("Area1", 10), rep("Area2", 10)),
+#'                    decile = c(1:10, 1:10),
+#'                    population = c(7291, 7997, 6105, 7666, 5790, 6934, 5918, 5974, 7147, 7534, 21675,
+#'                                   20065, 19750, 24713, 20112, 19618, 22408, 19752, 18939, 19312),
+#'                    value = c(75.9, 78.3, 83.8, 83.6, 80.5, 81.1, 81.7, 84.2, 80.6, 86.3, 70.5,
+#'                               71.6, 72.5, 73.5, 73.1, 76.2, 78.7, 80.6, 80.9, 80),
+#'                    lowerCL = c(72.7,75.3,80.9,80.2,77.1,78,79,81.4,75.8,83.2,
+#'                                70.1,71.1,72,73.1, 72.7, 75.7, 78.2,80.1,80.4,79.5),
+#'                    upperCL = c(79.1,81.4,86.8,87.1,83.8,84.2,84.4,86.9,85.4,
+#'                                 89.4,71,72.1,73.2,73.7,75.8,78.8,79.8,81.2,81.3,80.9),
+#'                    StandardError = c(1.64,1.58,1.51,1.78,1.7,1.56,1.37,1.4,2.43,
+#'                                      1.57,0.23,0.26,0.3,0.16,0.79,0.78,0.4,0.28,0.23,0.35)
+#'                    )
+#'
+#'
+#' # Run SII function on the two areas in the data
+#' phe_sii(group_by(data, area),
+#'         decile,
+#'         population,
+#'         value_type = 0, # default normal distribution
+#'         value = value,
+#'         lower_cl = lowerCL,
+#'         upper_cl = upperCL,
+#'         confidence = 0.95,
+#'         rii = TRUE,
+#'         type = "standard")
+#'
+#' # Supplying the standard error instead of the indicator 95% confidence limits
+#' # gives the same result
+#' phe_sii(group_by(data, area),
+#'         decile,
+#'         population,
+#'         value_type = 0,
+#'         value = value,
+#'         se = StandardError,
+#'         confidence = 0.95,
+#'         rii = TRUE,
+#'         type = "standard")
+#'
+#' # multiple confidence intervals
+#' phe_sii(group_by(data, area),
+#'         decile,
+#'         population,
+#'         value_type = 0,
+#'         value = value,
+#'         se = StandardError,
+#'         confidence = c(0.95, 0.998),
+#'         repetitions = 10000,
+#'         rii = TRUE,
+#'         type = "standard")
 #'
 #' @author Emma Clegg, \email{emma.clegg@@phe.gov.uk}
 #'
@@ -355,26 +409,23 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # calculate confidence interval for SII via simulation
         # Repeat this 10 times to get a "variability" measure if requested
 
-        # Different nest() argument needed for ungrouped dataset
+        # Nest data (different argument needed for grouped vs. ungrouped dataset)
         if(length(grouping_variables) == 0) {
-            sim_CI <- pops_prep_ab %>%
+            popsSII_model <- pops_prep_ab %>%
                 tidyr::nest(data = everything())
-
         } else {
-
-            sim_CI <- pops_prep_ab %>%
+            popsSII_model <- pops_prep_ab %>%
                 group_by(!!! syms(grouping_variables)) %>%
                 tidyr::nest()
-
         }
 
-         # Define function to coalesce non-nulls over rows
+         # Define function to coalesce non-null entries over rows
             coalesce_all_columns <- function(df) {
                 return(coalesce(!!! as.list(df)))
             }
 
          # Run simulation function on nested dataset
-            sim_CI <- sim_CI %>%
+            sim_CI <- popsSII_model %>%
                 mutate(CI_params = lapply(data,
                                           function(x) { map(confidence,
                                                             function(y) {SimulationFunc(data = x,
@@ -392,8 +443,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                                           }))
 
 
-
-        # Extract confidence limits and reliability measures in a data frame for joining
+        # Unnest confidence limits and reliability measures in a data frame for joining
            sim_CI <- sim_CI %>%
                select(-data) %>%
                tidyr::unnest(CI_params) %>%
@@ -401,16 +451,6 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                summarise_all(coalesce_all_columns)
 
          # Perform regression to calculate SII and extract model parameters
-
-        # Different nest() argument needed for ungrouped dataset
-    if(length(grouping_variables) == 0) {
-        popsSII_model <- pops_prep_ab %>%
-                tidyr::nest(data = everything())
-    } else {
-        popsSII_model <- pops_prep_ab %>%
-            group_by(!!! syms(grouping_variables)) %>%
-            tidyr::nest()
-    }
 
         popsSII_model <- popsSII_model %>%
             # perform linear model
