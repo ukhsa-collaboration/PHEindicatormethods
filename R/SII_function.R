@@ -168,7 +168,7 @@
 #'
 #' @family PHEindicatormethods package functions
 
-phe_sii <- function(data, quantile, population,  # compulsory fields
+phe_sii_test <- function(data, quantile, population,  # compulsory fields
                     x = NULL,                    # optional fields
                     value = NULL,
                     value_type = 0,
@@ -419,36 +419,34 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                 tidyr::nest()
         }
 
-         # Define function to coalesce non-null entries over rows
-            coalesce_all_columns <- function(df) {
-                return(coalesce(!!! as.list(df)))
-            }
+        # Different nest() argument needed for ungrouped dataset
+        if(length(grouping_variables) == 0) {
+            sim_CI <- pops_prep_ab %>%
+                tidyr::nest(data = everything()) %>%
+                mutate(CI_params = purrr::map(data, ~ SimulationFunc(data = ., value, value_type, se_calc, repetitions, confidence, multiplier, sqrt_a, b_sqrt_a, rii, reliability_stat)))
+        } else {
+            sim_CI <- pops_prep_ab %>%
+                group_by(!!! syms(grouping_variables)) %>%
+                tidyr::nest() %>%
+                mutate(CI_params = purrr::map(data, ~ SimulationFunc(data = .,
+                                                                     value,
+                                                                     value_type,
+                                                                     se_calc,
+                                                                     repetitions,
+                                                                     confidence,
+                                                                     multiplier,
+                                                                     sqrt_a,
+                                                                     b_sqrt_a,
+                                                                     rii,
+                                                                     reliability_stat)))
+        }
 
-         # Run simulation function on nested dataset
-            sim_CI <- popsSII_model %>%
-                mutate(CI_params = lapply(data,
-                                          function(x) { map(confidence,
-                                                            function(y) {SimulationFunc(data = x,
-                                                                                        value = value,
-                                                                                        value_type = value_type,
-                                                                                        se = se_calc,
-                                                                                        confidence = y,
-                                                                                        multiplier = multiplier,
-                                                                                        repeats = repetitions,
-                                                                                        sqrt_a = sqrt_a,
-                                                                                        b_sqrt_a = b_sqrt_a,
-                                                                                        rii = rii,
-                                                                                        reliability_stat = reliability_stat)
-                                                            })
-                                          }))
 
 
         # Unnest confidence limits and reliability measures in a data frame for joining
            sim_CI <- sim_CI %>%
                select(-data) %>%
-               tidyr::unnest(CI_params) %>%
-               tidyr::unnest(CI_params) %>%
-               summarise_all(coalesce_all_columns)
+               tidyr::unnest(CI_params)
 
          # Perform regression to calculate SII and extract model parameters
 
