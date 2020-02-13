@@ -60,7 +60,8 @@ limits (i.e. one or the other of these fields must be supplied); unquoted string
 prevalences on a percentage scale between 0 and 100). If the multiplier is negative, the
 inverse of the RII is taken to account for the change in polarity; numeric; default 1;}
 
-\item{repetitions}{number of random samples to perform to return confidence interval of SII;
+\item{repetitions}{number of random samples to perform to return confidence interval of SII (and RII).
+Minimum is 1000, no maximum (though the more repetitions, the longer the run time);
 numeric; default 100,000}
 
 \item{confidence}{confidence level used to calculate the lower and upper confidence limits of SII,

@@ -78,7 +78,8 @@
 #' @param multiplier factor to multiply the SII and SII confidence limits by (e.g. set to 100 to return
 #'        prevalences on a percentage scale between 0 and 100). If the multiplier is negative, the
 #'        inverse of the RII is taken to account for the change in polarity; numeric; default 1;
-#' @param repetitions number of random samples to perform to return confidence interval of SII;
+#' @param repetitions number of random samples to perform to return confidence interval of SII (and RII).
+#'        Minimum is 1000, no maximum (though the more repetitions, the longer the run time);
 #'        numeric; default 100,000
 #' @param confidence confidence level used to calculate the lower and upper confidence limits of SII,
 #'        expressed as a number between 0.9 and 1, or 90 and 100. It can be a vector of 0.95 and 0.998,
@@ -168,7 +169,7 @@
 #'
 #' @family PHEindicatormethods package functions
 
-phe_sii_test <- function(data, quantile, population,  # compulsory fields
+phe_sii <- function(data, quantile, population,  # compulsory fields
                     x = NULL,                    # optional fields
                     value = NULL,
                     value_type = 0,
@@ -200,8 +201,8 @@ phe_sii_test <- function(data, quantile, population,  # compulsory fields
         if (!(class(multiplier) %in% c("numeric", "integer") & class(repetitions) %in% c("numeric", "integer") & class(confidence) %in% c("numeric", "integer"))) {
           stop("multiplier, repetitions and confidence inputs should be numeric")
         }
-        if (repetitions <= 0) {
-          stop("number of repetitions must be greater than 0. Default is 100,000")
+        if (repetitions < 1000) {
+          stop("number of repetitions must be 1000 or greater. Default is 100,000")
         }
 
         # check on confidence limit requirements

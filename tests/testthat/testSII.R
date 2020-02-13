@@ -24,7 +24,7 @@ test1 <- data.frame(phe_sii(SII_test_grouped[1:20, 3:13],
                             value_type = 0, # default normal distribution
                             value = Value, # value supplied
                             se = StandardError,
-                            repetitions = 100,
+                            repetitions = 1000,
                             rii = TRUE,
                             type = "standard"))
 
@@ -35,7 +35,7 @@ test2 <- data.frame(phe_sii(SII_test_grouped[1:20, 3:13],
                             value_type = 0, # default normal distribution
                             value = Value, # value supplied
                             se = StandardError,
-                            repetitions = 100,
+                            repetitions = 1000,
                             rii = TRUE,
                             type = "standard"))
 
@@ -126,11 +126,11 @@ test_that("SII and confidence limits calculate correctly",{
                                   value_type = 0,
                                   value = Value,
                                   se = StandardError,
-                                  confidence = c(95,99),
+                                  confidence = c(95, 99),
                                   repetitions = no_reps,
                                   rii = TRUE,
                                   type = "standard")), # SII confidence changed
-               data.frame(SII_test_grouped[c(226,236), c(3:5,16:25)]),
+               data.frame(SII_test_grouped[c(226,236), c(3:5,16:18,22,19,23,20,24,21,25)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test at 95 and 99% confidence (%)", tolerance = tol)
 
@@ -385,7 +385,7 @@ test_that("errors are generated when invalid parameters are entered",{
                        value = Value,
                        se = StandardError,
                        repetitions = 0),
-               "number of repetitions must be greater than 0. Default is 100,000",
+               "number of repetitions must be 1000 or greater. Default is 100,000",
                info = "invalid number of repetitions - numeric")
         # invalid number of repetitions - string
   expect_error(phe_sii(SII_test_grouped[1:20, 3:13],
@@ -550,7 +550,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                value = Value,
                                lower_cl = LowerCL,
                                upper_cl = UpperCL,
-                               repetitions = 100,
+                               repetitions = 1000,
                                reliability_stat = TRUE,
                                type = "standard")),
                        c(2,7))
@@ -562,7 +562,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  reliability_stat = FALSE,
                                  type = "standard")),
                      c(2,6))
@@ -574,7 +574,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                          value = Value,
                                          lower_cl = LowerCL,
                                          upper_cl = UpperCL,
-                                         repetitions = 100,
+                                         repetitions = 1000,
                                          multiplier = -1,
                                          reliability_stat = TRUE,
                                          type = "standard")),
@@ -587,7 +587,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  multiplier = -1,
                                  reliability_stat = FALSE,
                                  type = "standard")),
@@ -600,7 +600,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  reliability_stat = TRUE,
                                  type = "full")),
                      c(2,11))
@@ -612,7 +612,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  reliability_stat = FALSE,
                                  type = "full")),
                      c(2,10))
@@ -627,7 +627,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                          value = Value,
                                          lower_cl = LowerCL,
                                          upper_cl = UpperCL,
-                                         repetitions = 100,
+                                         repetitions = 1000,
                                          rii = TRUE,
                                          reliability_stat = TRUE,
                                          type = "standard")),
@@ -640,7 +640,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  rii = TRUE,
                                  reliability_stat = FALSE,
                                  type = "standard")),
@@ -653,7 +653,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                          value = Value,
                                          lower_cl = LowerCL,
                                          upper_cl = UpperCL,
-                                         repetitions = 100,
+                                         repetitions = 1000,
                                          multiplier = -1,
                                          rii = TRUE,
                                          reliability_stat = TRUE,
@@ -667,7 +667,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  multiplier = -1,
                                  rii = TRUE,
                                  reliability_stat = FALSE,
@@ -681,7 +681,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  rii = TRUE,
                                  reliability_stat = TRUE,
                                  type = "full")),
@@ -694,7 +694,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  rii = TRUE,
                                  reliability_stat = FALSE,
                                  type = "full")),
