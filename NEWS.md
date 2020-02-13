@@ -1,3 +1,6 @@
+## PHEindicatormethods v1.2.1
+phe_sii function updated to be able to output multiple confidence intervals.
+
 ## PHEindicatormethods v1.2.0
 The following changes may affect backwards compatibility with earlier versions of the package:  
 

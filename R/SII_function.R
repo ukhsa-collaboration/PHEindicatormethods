@@ -424,7 +424,17 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         if(length(grouping_variables) == 0) {
             sim_CI <- pops_prep_ab %>%
                 tidyr::nest(data = everything()) %>%
-                mutate(CI_params = purrr::map(data, ~ SimulationFunc(data = ., value, value_type, se_calc, repetitions, confidence, multiplier, sqrt_a, b_sqrt_a, rii, reliability_stat)))
+                mutate(CI_params = purrr::map(data, ~ SimulationFunc(data = .,
+                                                                     value,
+                                                                     value_type,
+                                                                     se_calc,
+                                                                     repetitions,
+                                                                     confidence,
+                                                                     multiplier,
+                                                                     sqrt_a,
+                                                                     b_sqrt_a,
+                                                                     rii,
+                                                                     reliability_stat)))
         } else {
             sim_CI <- pops_prep_ab %>%
                 group_by(!!! syms(grouping_variables)) %>%
