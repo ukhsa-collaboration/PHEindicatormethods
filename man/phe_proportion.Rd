@@ -4,8 +4,7 @@
 \alias{phe_proportion}
 \title{Calculate Proportions using phe_proportion}
 \usage{
-phe_proportion(data, x, n, type = "full", confidence = 0.95,
-  multiplier = 1)
+phe_proportion(data, x, n, type = "full", confidence = 0.95, multiplier = 1)
 }
 \arguments{
 \item{data}{a data.frame containing the data to calculate proportions for, pre-grouped if proportions required for
@@ -65,10 +64,16 @@ phe_proportion(dfg, numerator, denominator, multiplier=100)
  2000. Pg 46 to 48.
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_life_expectancy}},
-  \code{\link{phe_mean}}, \code{\link{phe_quantile}},
-  \code{\link{phe_rate}}, \code{\link{phe_sii}},
-  \code{\link{phe_smr}}
+Other PHEindicatormethods package functions: 
+\code{\link{phe_dsr}()},
+\code{\link{phe_fun_prop_plot}()},
+\code{\link{phe_fun_prop_sig}()},
+\code{\link{phe_isr}()},
+\code{\link{phe_life_expectancy}()},
+\code{\link{phe_mean}()},
+\code{\link{phe_quantile}()},
+\code{\link{phe_rate}()},
+\code{\link{phe_sii}()},
+\code{\link{phe_smr}()}
 }
 \concept{PHEindicatormethods package functions}

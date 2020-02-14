@@ -4,8 +4,16 @@
 \alias{phe_dsr}
 \title{Calculate Directly Standardised Rates using phe_dsr}
 \usage{
-phe_dsr(data, x, n, stdpop = esp2013, stdpoptype = "vector",
-  type = "full", confidence = 0.95, multiplier = 1e+05)
+phe_dsr(
+  data,
+  x,
+  n,
+  stdpop = esp2013,
+  stdpoptype = "vector",
+  type = "full",
+  confidence = 0.95,
+  multiplier = 1e+05
+)
 }
 \arguments{
 \item{data}{data.frame containing the data to be standardised, pre-grouped if multiple DSRs required; unquoted string; no default}
@@ -72,10 +80,16 @@ df \%>\%
 [2] Dobson A et al. Confidence intervals for weighted sums of Poisson parameters. Stat Med 1991;10:457-62.
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{phe_isr}},
-  \code{\link{phe_life_expectancy}},
-  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_quantile}}, \code{\link{phe_rate}},
-  \code{\link{phe_sii}}, \code{\link{phe_smr}}
+Other PHEindicatormethods package functions: 
+\code{\link{phe_fun_prop_plot}()},
+\code{\link{phe_fun_prop_sig}()},
+\code{\link{phe_isr}()},
+\code{\link{phe_life_expectancy}()},
+\code{\link{phe_mean}()},
+\code{\link{phe_proportion}()},
+\code{\link{phe_quantile}()},
+\code{\link{phe_rate}()},
+\code{\link{phe_sii}()},
+\code{\link{phe_smr}()}
 }
 \concept{PHEindicatormethods package functions}
