@@ -1,11 +1,11 @@
-context("test_phe_fun_sig")
+context("test_phe_fun_prop_plot")
 
 
 # test calculations
-test_that("proportions and CIs calculate correctly",{
+test_that("confidence limits calculate correctly",{
 
-  expect_equal(data.frame(phe_fun_prop_sig((test_fs)[1:3], numerator, denominator)),
-               data.frame(test_fs),check.attributes=FALSE, check.names=FALSE, info="test default")
+  expect_equal(data.frame(phe_fun_prop_plot((test_fs)[2:3], numerator, denominator)),
+               data.frame(test_fp),check.attributes=FALSE, check.names=FALSE, info="test default")
 
 
 #  expect_equal(data.frame(phe_proportion(slice(test_Prop,9:16)[1:3], Numerator, Denominator,

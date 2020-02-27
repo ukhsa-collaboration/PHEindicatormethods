@@ -12,7 +12,7 @@
 #'               (the denominator for the CLs); unquoted string; no default
 #'
 #' @return returns the original data.frame with the following appended:
-#'         lower 0.025 limit, upper 0.025 limite, lower 0.001 limit, upper 0.001 limit and
+#'         lower 0.025 limit, upper 0.025 limit, lower 0.001 limit, upper 0.001 limit and
 #'         baseline average
 #'
 #' @import dplyr
@@ -39,7 +39,6 @@ phe_fun_prop_plot<-function(data,x,denom){
     stop("function phe_proportion requires at least 3 arguments: data, x, n")
   }
 
-  # declare a rounding function
 
     #calculate the initialisation variables - record level data
 
@@ -93,7 +92,12 @@ phe_fun_prop_plot<-function(data,x,denom){
    t[j,7]= av*100
   }
 t<-as.data.frame(t)
-
+t<-t%>%
+#    mutate(Population=round(Population,4),Lower2s0025limit=round(Lower2s0025limit,4),
+#Upper2s0025limit= round(Upper2s0025limit,4),Lower3s0001limit=round(Lower3s0001limit,4),
+#Upper3s0001limit=round(Upper3s0001limit,4),Baseline=round(Baseline,4))%>%
+    select("Population","Lower2s0025limit","Upper2s0025limit","Lower3s0001limit",
+           "Upper3s0001limit","Baseline","Row.number")
 }
 
 

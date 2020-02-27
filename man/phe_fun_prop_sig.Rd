@@ -2,7 +2,7 @@
 % Please edit documentation in R/Funnel_prop_sig.R
 \name{phe_fun_prop_sig}
 \alias{phe_fun_prop_sig}
-\title{Calculate confidence intervals/control limits and levels of significance}
+\title{Calculate confidence intervals/control limits and levels of significance around a funnel plot for proportions}
 \usage{
 phe_fun_prop_sig(data, x, denom, multiplier = 100)
 }

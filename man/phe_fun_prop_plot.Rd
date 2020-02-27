@@ -18,7 +18,7 @@ required condition (the numerator for the CLs); unquoted string; no default}
 }
 \value{
 returns the original data.frame with the following appended:
-        lower 0.025 limit, upper 0.025 limite, lower 0.001 limit, upper 0.001 limit and
+        lower 0.025 limit, upper 0.025 limit, lower 0.001 limit, upper 0.001 limit and
         baseline average
 }
 \description{

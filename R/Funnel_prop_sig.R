@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' Calculate confidence intervals/control limits and levels of significance
+#' Calculate confidence intervals/control limits and levels of significance around a funnel plot for proportions
 #'
 #' Calculates control limits adopting consistent method as per the PHE Fingertips Technical Guidance : https://fingertips.phe.org.uk/profile/guidance
 #'
