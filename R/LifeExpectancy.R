@@ -381,7 +381,8 @@ phe_life_expectancy <- function(data, deaths, population, startage,
              is.na(ni_2b_removed) ~ 2 / M_2b_removed,
              TRUE ~ ni_2b_removed),
            qi_2b_removed = case_when(
-             id_2b_removed < number_age_bands ~ M_2b_removed * ni_2b_removed / (1 + M_2b_removed * ni_2b_removed * (1 - ai_2b_removed)),
+             {{ deaths }} <= {{ population }} / ni_2b_removed / ai_2b_removed ~
+               M_2b_removed * ni_2b_removed / (1 + M_2b_removed * ni_2b_removed * (1 - ai_2b_removed)),
              TRUE ~ 1),
            p_2b_removed = 1 - qi_2b_removed,
            l_2b_removed = case_when(
