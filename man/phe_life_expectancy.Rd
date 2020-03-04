@@ -4,10 +4,17 @@
 \alias{phe_life_expectancy}
 \title{Calculate Life Expectancy using phe_life_expectancy}
 \usage{
-phe_life_expectancy(data, deaths, population, startage,
-  age_contents = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L,
-  50L, 55L, 60L, 65L, 70L, 75L, 80L, 85L, 90L), le_age = "all",
-  type = "full", confidence = 0.95)
+phe_life_expectancy(
+  data,
+  deaths,
+  population,
+  startage,
+  age_contents = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L, 60L,
+    65L, 70L, 75L, 80L, 85L, 90L),
+  le_age = "all",
+  type = "full",
+  confidence = 0.95
+)
 }
 \arguments{
 \item{data}{data.frame or tbl containing the deaths and population data}
@@ -141,11 +148,17 @@ small populations. National Statistics  Methodological Series No 33. HMSO 2003. 
 life expectancy estimation. J Epidemiol Community Health 2004;58:243-249 \cr \cr
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_mean}},
-  \code{\link{phe_proportion}}, \code{\link{phe_quantile}},
-  \code{\link{phe_rate}}, \code{\link{phe_sii}},
-  \code{\link{phe_smr}}
+Other PHEindicatormethods package functions: 
+\code{\link{phe_dsr}()},
+\code{\link{phe_fun_prop_plot}()},
+\code{\link{phe_fun_prop_sig}()},
+\code{\link{phe_isr}()},
+\code{\link{phe_mean}()},
+\code{\link{phe_proportion}()},
+\code{\link{phe_quantile}()},
+\code{\link{phe_rate}()},
+\code{\link{phe_sii}()},
+\code{\link{phe_smr}()}
 }
 \author{
 Sebastian Fox, \email{sebastian.fox@phe.gov.uk}

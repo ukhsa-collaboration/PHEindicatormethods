@@ -55,8 +55,12 @@ test_quantiles_fail <- test_quantiles %>%
 # Byars Wilson test data
 test_BW <- read_excel(".\\tests\\testthat\\testdata_Byars_Wilson.xlsx", sheet="testdata_B_W",   col_names=TRUE)
 
+# Funnel proportions
+test_fp <- read_excel(".\\tests\\testthat\\testdata_funnel_prop.xlsx", sheet="Plot",   col_names=TRUE)
 
-
+test_fs <- read_excel(".\\tests\\testthat\\testdata_funnel_prop.xlsx", sheet="Sig",   col_names=TRUE)
+test_fs[is.na(test_fs)]<-""
+test_fs$Area<-as.factor(test_fs$Area)
 
 # Proportions test data
 test_Prop   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)
@@ -131,5 +135,5 @@ usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results,
                   test_Mean, test_Mean_Grp, test_Mean_results,
                   test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results,
                   test_ISR_refdata, test_ISR_results, test_ISR_ownref,
-                  SII_test_data, SII_test_grouped,
+                  SII_test_data, SII_test_grouped,test_fp, test_fs,
                   internal = TRUE, overwrite = TRUE)

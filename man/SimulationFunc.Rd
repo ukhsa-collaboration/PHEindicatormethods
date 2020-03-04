@@ -4,9 +4,18 @@
 \alias{SimulationFunc}
 \title{SimulationFunc}
 \usage{
-SimulationFunc(data, value, value_type = 0, se, repeats = 1e+05,
-  confidence = 0.95, sqrt_a, b_sqrt_a, rii = FALSE,
-  reliability_stat = FALSE)
+SimulationFunc(
+  data,
+  value,
+  value_type = 0,
+  se,
+  repeats = 1e+05,
+  confidence = 0.95,
+  sqrt_a,
+  b_sqrt_a,
+  rii = FALSE,
+  reliability_stat = FALSE
+)
 }
 \arguments{
 \item{data}{data.frame containing the data to calculate SII confidence limits

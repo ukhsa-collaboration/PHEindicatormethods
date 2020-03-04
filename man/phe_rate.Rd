@@ -4,8 +4,7 @@
 \alias{phe_rate}
 \title{Calculate Rates using phe_rate}
 \usage{
-phe_rate(data, x, n, type = "full", confidence = 0.95,
-  multiplier = 1e+05)
+phe_rate(data, x, n, type = "full", confidence = 0.95, multiplier = 1e+05)
 }
 \arguments{
 \item{data}{the data.frame containing the data to calculate rates for, pre-grouped if proportions required for
@@ -60,10 +59,16 @@ phe_rate(dfg, obs, pop)
   Oxford: Blackwell; 2002.
 }
 \seealso{
-Other PHEindicatormethods package functions: \code{\link{phe_dsr}},
-  \code{\link{phe_isr}}, \code{\link{phe_life_expectancy}},
-  \code{\link{phe_mean}}, \code{\link{phe_proportion}},
-  \code{\link{phe_quantile}}, \code{\link{phe_sii}},
-  \code{\link{phe_smr}}
+Other PHEindicatormethods package functions: 
+\code{\link{phe_dsr}()},
+\code{\link{phe_fun_prop_plot}()},
+\code{\link{phe_fun_prop_sig}()},
+\code{\link{phe_isr}()},
+\code{\link{phe_life_expectancy}()},
+\code{\link{phe_mean}()},
+\code{\link{phe_proportion}()},
+\code{\link{phe_quantile}()},
+\code{\link{phe_sii}()},
+\code{\link{phe_smr}()}
 }
 \concept{PHEindicatormethods package functions}
