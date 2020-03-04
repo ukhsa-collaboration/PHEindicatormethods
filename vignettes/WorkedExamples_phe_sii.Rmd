@@ -57,8 +57,10 @@ LE_data_SII <- LE_data %>%
                 population = Pop ,
                 value = LifeExp,
                 value_type = 0, # specify default indicator type
+                confidence = c(0.95, 0.998),
                 se = SE,
-                repetitions = 100,
+                repetitions = 1000,
+                rii = FALSE,
                 type = "full") # use smaller no. of repetitions e.g. for testing
 
 # View first 10 rows of results

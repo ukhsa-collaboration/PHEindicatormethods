@@ -291,6 +291,9 @@ FindXValues <- function(xvals, no_quantiles){
 #'        numeric; default 100,000
 #' @param confidence confidence level used to calculate the lower and upper confidence limits of SII;
 #'        numeric between 0.5 and 0.9999 or 50 and 99.99; default 0.95
+#' @param multiplier factor to multiply the SII and SII confidence limits by (e.g. set to 100 to return
+#'        prevalences on a percentage scale between 0 and 100). If the multiplier is negative, the
+#'        inverse of the RII is taken to account for the change in polarity; numeric; default 1;
 #' @param sqrt_a field name within dataset containing square root of a values;
 #'        unquoted string; no default
 #' @param b_sqrt_a field name within dataset containing square root of a values multiplied
@@ -309,6 +312,7 @@ SimulationFunc <- function(data,
                            se,
                            repeats = 100000,
                            confidence = 0.95,
+                           multiplier = 1,
                            sqrt_a,
                            b_sqrt_a,
                            rii = FALSE,
@@ -321,7 +325,7 @@ SimulationFunc <- function(data,
   b_sqrt_a = enquo(b_sqrt_a)
 
   # find critical upper value at given confidence
-  confidence <- confidence + ((1 - confidence) / 2)
+  confidence_value <- confidence + ((1 - confidence) / 2)
 
   # Set 10x no. of reps if reliability stats requested
   no_reps <- ifelse(reliability_stat == TRUE, 10*repeats, repeats)
@@ -382,6 +386,11 @@ SimulationFunc <- function(data,
         RII_results <- matrix(RII_results, ncol = 1)
       }
 
+      # Apply multiplicative factor to RII
+      if(multiplier < 0) {
+        RII_results <- 1/RII_results
+      }
+
       # Order simulated RIIs from lowest to highest
       sortresults_RII <- apply(RII_results, 2, sort, decreasing = FALSE)
 
@@ -395,6 +404,9 @@ SimulationFunc <- function(data,
     }
   }
 
+  # Apply multiplicative factor to SII
+  SII_results <- multiplier * SII_results
+
   # Order simulated SIIs from lowest to highest
   sortresults_SII <- apply(SII_results, 2, sort, decreasing = FALSE)
 
@@ -402,75 +414,111 @@ SimulationFunc <- function(data,
   # as confidence limits
 
   # position of lower percentile
-  pos_lower <- round(repeats*(1-confidence), digits=0)
+  pos_lower <- round(repeats*(1-confidence_value), digits=0)
   # position of upper percentile
-  pos_upper <- round(repeats*confidence, digits=0)
+  pos_upper <- round(repeats*confidence_value, digits=0)
+
+  # Combine position indexes for SII CLs
+  pos <- rbind(pos_lower, pos_upper)
 
   # Extract SII confidence limits from critical percentiles of first column of samples
-  SII_initial <- sortresults_SII[c(pos_lower, pos_upper), 1]
+  SII_lower_cls <- sortresults_SII[pos_lower, 1]
+  SII_upper_cls <- sortresults_SII[pos_upper, 1]
 
+  # Define column names (adding in confidence level)
+  names(SII_lower_cls) <- paste0("sii_lower",
+                             gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)),
+                             "cl")
+  names(SII_upper_cls) <- paste0("sii_upper",
+                             gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)),
+                             "cl")
+
+  # Combine lower and upper SII CLs
+  SII_cls <- t(c(SII_lower_cls, SII_upper_cls))
+
+  # CASE 1 - Calculate RII CLs if requested
   if(rii == TRUE) {
 
-    # Extract SII confidence limits from critical percentiles of first column of samples
-    RII_initial <- sortresults_RII[c(pos_lower, pos_upper), 1]
+    # Extract RII confidence limits from critical percentiles of first column of samples
+    RII_lower_cls <- sortresults_RII[pos_lower, 1]
+    RII_upper_cls <- sortresults_RII[pos_upper, 1]
+
+    # Define column names (adding in confidence level)
+    names(RII_lower_cls) <- paste0("rii_lower",
+                                   gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)),
+                                   "cl")
+    names(RII_upper_cls) <- paste0("rii_upper",
+                                   gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)),
+                                   "cl")
+
+    # Combine lower and upper RII CLs
+    RII_cls <- t(c(RII_lower_cls, RII_upper_cls))
 
     if (reliability_stat == TRUE) {
 
       # Calculate variability by taking the absolute difference between each of the lower/upper
       # limits in the additional 9 sample sets and the initial lower/upper limits
-      SII_diffs <- t(apply(sortresults_SII[c(pos_lower, pos_upper),], 1, function(x) abs(x - x[1])))
-      RII_diffs <- t(apply(sortresults_RII[c(pos_lower, pos_upper),], 1, function(x) abs(x - x[1])))
+      SII_diffs <- apply(pos, 2, function(x) { # run function over each column of "pos" (i.e. for each confidence)
 
-      # Calculate mean absolute difference over all 18 differences
-      sii_MAD <- mean(SII_diffs[, 2:10])
-      rii_MAD <- mean(RII_diffs[, 2:10])
+        diffs_sample_original <- t(apply(sortresults_SII[c(x[1], x[2]),], 1, function(y) abs(y - y[1])))
 
-      # Return SII/RII confidence limits from first of the 10 samples, plus the
+        # Calculate mean absolute difference over all 18 differences
+        sii_mad <- mean(diffs_sample_original[, 2:10])
+      })
+
+      RII_diffs <- apply(pos, 2, function(x) { # run function over each column of "pos" (i.e. for each confidence)
+
+        diffs_sample_original <- t(apply(sortresults_RII[c(x[1], x[2]),], 1, function(y) abs(y - y[1])))
+
+        # Calculate mean absolute difference over all 18 differences
+        rii_mad <- mean(diffs_sample_original[, 2:10])
+      })
+
+      # Define column names (adding in confidence level)
+      names(SII_diffs) <- paste0("sii_mad",
+                                 gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)))
+      names(RII_diffs) <- paste0("rii_mad",
+                                 gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)))
+
+      # Return SII confidence limits from first of the 10 samples, plus the
       # reliability measures
-      return(data.frame(sii_lowercl = SII_initial[1],
-                        sii_uppercl = SII_initial[2],
-                        sii_MAD = signif(sii_MAD, 4),
-                        rii_lowercl = RII_initial[1],
-                        rii_uppercl = RII_initial[2],
-                        rii_MAD = signif(rii_MAD, 4)))
+      results <- cbind(SII_cls, RII_cls, t(SII_diffs), t(RII_diffs))
+
+
     } else {
-      # Return SII/RII confidence limits from single sample taken
-      return(data.frame(sii_lowercl = SII_initial[1],
-                        sii_uppercl = SII_initial[2],
-                        sii_MAD = NA,
-                        rii_lowercl = RII_initial[1],
-                        rii_uppercl = RII_initial[2],
-                        rii_MAD = NA))
+      # Return SII and RII confidence limits from single sample taken
+      results <- cbind(SII_cls, RII_cls)
     }
 
+  # CASE 2 - Return SII stats only
   } else {
 
     if (reliability_stat == TRUE) {
 
       # Calculate variability by taking the absolute difference between each of the lower/upper
       # limits in the additional 9 sample sets and the initial lower/upper limits
-      SII_diffs <- t(apply(sortresults_SII[c(pos_lower, pos_upper),], 1, function(x) abs(x - x[1])))
+      SII_diffs <- apply(pos, 2, function(x) { # run function over each column of "pos" (i.e. for each confidence)
 
-      # Calculate mean absolute difference over all 18 differences
-      sii_MAD <- mean(SII_diffs[, 2:10])
+                       diffs_sample_original <- t(apply(sortresults_SII[c(x[1], x[2]),], 1, function(y) abs(y - y[1])))
 
-      # Return SII/RII confidence limits from first of the 10 samples, plus the
+                       # Calculate mean absolute difference over all 18 differences
+                       sii_MAD <- mean(diffs_sample_original[, 2:10])
+                    })
+
+      # Define column names (adding in confidence level)
+      names(SII_diffs) <- paste0("sii_mad",
+                                     gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)))
+
+      # Return SII confidence limits from first of the 10 samples, plus the
       # reliability measures
-      return(data.frame(sii_lowercl = SII_initial[1],
-                        sii_uppercl = SII_initial[2],
-                        sii_MAD = signif(sii_MAD, 4),
-                        rii_lowercl = NA,
-                        rii_uppercl = NA,
-                        rii_MAD = NA))
+      results <- cbind(SII_cls, t(SII_diffs))
+
     } else {
-      # Return SII/RII confidence limits from single sample taken
-      return(data.frame(sii_lowercl = SII_initial[1],
-                        sii_uppercl = SII_initial[2],
-                        sii_MAD = NA,
-                        rii_lowercl = NA,
-                        rii_uppercl = NA,
-                        rii_MAD = NA))
+      # Return SII confidence limits only from single sample taken
+      results <- SII_cls
     }
   }
+
+  return(data.frame(results))
 
 }

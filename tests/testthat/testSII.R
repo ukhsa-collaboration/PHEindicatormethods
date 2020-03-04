@@ -24,7 +24,7 @@ test1 <- data.frame(phe_sii(SII_test_grouped[1:20, 3:13],
                             value_type = 0, # default normal distribution
                             value = Value, # value supplied
                             se = StandardError,
-                            repetitions = 100,
+                            repetitions = 1000,
                             rii = TRUE,
                             type = "standard"))
 
@@ -35,7 +35,7 @@ test2 <- data.frame(phe_sii(SII_test_grouped[1:20, 3:13],
                             value_type = 0, # default normal distribution
                             value = Value, # value supplied
                             se = StandardError,
-                            repetitions = 100,
+                            repetitions = 1000,
                             rii = TRUE,
                             type = "standard"))
 
@@ -119,6 +119,20 @@ test_that("SII and confidence limits calculate correctly",{
                data.frame(SII_test_grouped[c(21,31), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test at 99% confidence (%)", tolerance = tol)
+
+  # test SII calculation on multiple confidence intervals (inputted as %)
+  expect_equal(data.frame(phe_sii(SII_test_grouped[226:245, 3:13],
+                                  Quantile, Population,
+                                  value_type = 0,
+                                  value = Value,
+                                  se = StandardError,
+                                  confidence = c(95, 99),
+                                  repetitions = no_reps,
+                                  rii = TRUE,
+                                  type = "standard")), # SII confidence changed
+               data.frame(SII_test_grouped[c(226,236), c(3:5,16:18,22,19,23,20,24,21,25)]),
+               check.attributes=FALSE, check.names=FALSE,
+               info="test at 95 and 99% confidence (%)", tolerance = tol)
 
     # test SII calculation on 100,000 repetitions
   expect_equal(data.frame(phe_sii(SII_test_grouped[41:60, 3:13],
@@ -251,7 +265,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   repetitions = no_reps,
                                   rii = FALSE,
                                   type = "standard")),
-               data.frame(SII_test_grouped[c(111,121), c(3:5,16:18)]),
+               data.frame(SII_test_grouped[c(111,121), c(3:5,16,18,19)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test proportion with positive multiplier without RII", tolerance = tol)
 
@@ -281,7 +295,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   repetitions = no_reps,
                                   rii = FALSE,
                                   type = "standard")),
-               data.frame(SII_test_grouped[c(131,141), c(3:5,16:18)]),
+               data.frame(SII_test_grouped[c(131,141), c(3:5,16,18,19)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test proportion with negative multiplier without RII", tolerance = tol)
 })
@@ -371,7 +385,7 @@ test_that("errors are generated when invalid parameters are entered",{
                        value = Value,
                        se = StandardError,
                        repetitions = 0),
-               "number of repetitions must be greater than 0. Default is 100,000",
+               "number of repetitions must be 1000 or greater. Default is 100,000",
                info = "invalid number of repetitions - numeric")
         # invalid number of repetitions - string
   expect_error(phe_sii(SII_test_grouped[1:20, 3:13],
@@ -389,7 +403,7 @@ test_that("errors are generated when invalid parameters are entered",{
                        value = Value,
                        se = StandardError,
                        confidence = 0.35),
-               "confidence level for SII must be between 50 and 99.99, or between 0.5 and 0.9999",
+               "all confidence levels must be between 90 and 100 or between 0.9 and 1",
                info = "invalid confidence limit (decimal)")
         # invalid confidence limit (%) - too low
   expect_error(phe_sii(SII_test_grouped[1:20, 3:13],
@@ -398,7 +412,7 @@ test_that("errors are generated when invalid parameters are entered",{
                        value = Value,
                        se = StandardError,
                        confidence = 40),
-               "confidence level for SII must be between 50 and 99.99, or between 0.5 and 0.9999",
+               "all confidence levels must be between 90 and 100 or between 0.9 and 1",
                info = "invalid confidence limit pc - too low")
         # invalid confidence limit (%) - too high
   expect_error(phe_sii(SII_test_grouped[1:20, 3:13],
@@ -407,7 +421,7 @@ test_that("errors are generated when invalid parameters are entered",{
                        value = Value,
                        se = StandardError,
                        confidence = 135),
-               "confidence level for SII must be between 50 and 99.99, or between 0.5 and 0.9999",
+               "all confidence levels must be between 90 and 100 or between 0.9 and 1",
                info = "invalid confidence limit pc - too high")
 
 })
@@ -536,7 +550,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                value = Value,
                                lower_cl = LowerCL,
                                upper_cl = UpperCL,
-                               repetitions = 100,
+                               repetitions = 1000,
                                reliability_stat = TRUE,
                                type = "standard")),
                        c(2,7))
@@ -548,7 +562,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  reliability_stat = FALSE,
                                  type = "standard")),
                      c(2,6))
@@ -560,7 +574,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                          value = Value,
                                          lower_cl = LowerCL,
                                          upper_cl = UpperCL,
-                                         repetitions = 100,
+                                         repetitions = 1000,
                                          multiplier = -1,
                                          reliability_stat = TRUE,
                                          type = "standard")),
@@ -573,7 +587,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  multiplier = -1,
                                  reliability_stat = FALSE,
                                  type = "standard")),
@@ -586,7 +600,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  reliability_stat = TRUE,
                                  type = "full")),
                      c(2,11))
@@ -598,7 +612,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  reliability_stat = FALSE,
                                  type = "full")),
                      c(2,10))
@@ -613,7 +627,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                          value = Value,
                                          lower_cl = LowerCL,
                                          upper_cl = UpperCL,
-                                         repetitions = 100,
+                                         repetitions = 1000,
                                          rii = TRUE,
                                          reliability_stat = TRUE,
                                          type = "standard")),
@@ -626,7 +640,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  rii = TRUE,
                                  reliability_stat = FALSE,
                                  type = "standard")),
@@ -639,7 +653,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                          value = Value,
                                          lower_cl = LowerCL,
                                          upper_cl = UpperCL,
-                                         repetitions = 100,
+                                         repetitions = 1000,
                                          multiplier = -1,
                                          rii = TRUE,
                                          reliability_stat = TRUE,
@@ -653,7 +667,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  multiplier = -1,
                                  rii = TRUE,
                                  reliability_stat = FALSE,
@@ -667,7 +681,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  rii = TRUE,
                                  reliability_stat = TRUE,
                                  type = "full")),
@@ -680,7 +694,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  value = Value,
                                  lower_cl = LowerCL,
                                  upper_cl = UpperCL,
-                                 repetitions = 100,
+                                 repetitions = 1000,
                                  rii = TRUE,
                                  reliability_stat = FALSE,
                                  type = "full")),

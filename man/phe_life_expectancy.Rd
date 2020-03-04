@@ -94,6 +94,9 @@ df <- data.frame(startage = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L
                             263L, 304L, 536L, 872L, 1390L, 1605L, 1936L, 1937L))
 phe_life_expectancy(df, deaths, pops, startage)
 
+## or with multiple confidence limits
+phe_life_expectancy(df, deaths, pops, startage, confidence = c(95, 99.8))
+
 ## OR
 
 phe_life_expectancy(df, deaths, pops, startage, le_age = c(5, 25), type = "standard")
