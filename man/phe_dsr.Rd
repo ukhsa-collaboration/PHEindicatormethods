@@ -40,7 +40,7 @@ numeric; default 0.95}
 \item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000}
 }
 \value{
-When type = "full", returns a tibble of total counts, total populations, standardised populations,
+When type = "full", returns a tibble of total counts, total populations,
  directly standardised rates, lower confidence limits, upper confidence limits,
  confidence level, statistic and method for each grouping set
 }
