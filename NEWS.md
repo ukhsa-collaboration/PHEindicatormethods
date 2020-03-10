@@ -1,8 +1,8 @@
-## PHEindicatormethods v1.2.1
+## PHEindicatormethods v1.3.0
 * `phe_sii function` updated to be able to output multiple confidence intervals
 * `phe_life_expectancy()` function previously calculated life expectancy and confidence levels inaccurately when the number of deaths in all age groups except the final one was 40% or more of the size of the population in any age group (apart from the 1–4 age group where it’s 50%). It had an affect in very few scenarios, but was inaccurate nonetheless. This has now been corrected to agree with the published methodology
 * `phe_life_expectancy()` now accepts a numeric vector as an input to the `confidence` argument so users can calculate multiple confidence limits in one command
-* `phe_dsr` The standardised_pop output variable added in v1.2.0 has been removed as this was not providing a meaningful value.
+* `phe_dsr` The standardised_pop output variable added in v1.2.0 has been removed as this was not providing a meaningful value. This may result in some backwards incompatability if code has been written to reference (eg drop) this column as it will no longer be included in the phe_dsr output.
 
 
 ## PHEindicatormethods v1.2.0
