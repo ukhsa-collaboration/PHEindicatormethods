@@ -1,3 +1,15 @@
+## PHEindicatormethods v1.3.1
+Amendements to ensure continued compatibility with dplyr when v1.0.0 is released.  
+
+The following changes will not be noticeable to end users  
+* `phe_proportion` and `phe_rate`: amended conditional statement to determine if input data frame is grouped
+
+
+To Do:
+Life expectancy - errors at count() line 200 when negative_deaths is empty/does not exist
+quantile test errors
+sii test errors
+
 ## PHEindicatormethods v1.3.0
 * `phe_sii function` updated to be able to output multiple confidence intervals
 * `phe_life_expectancy()` function previously calculated life expectancy and confidence levels inaccurately when the number of deaths in all age groups except the final one was 40% or more of the size of the population in any age group (apart from the 1–4 age group where it’s 50%). It had an affect in very few scenarios, but was inaccurate nonetheless. This has now been corrected to agree with the published methodology

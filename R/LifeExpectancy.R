@@ -70,6 +70,7 @@
 #' @inheritParams phe_dsr
 #' @import dplyr
 #' @importFrom purrr map_chr
+#' @importFrom tibble as_tibble
 #' @examples
 #' library(dplyr)
 #'
@@ -195,11 +196,12 @@ phe_life_expectancy <- function(data, deaths, population, startage,
       mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
       group_by_at(group_vars(data))
   }
-  negative_deaths <- negative_deaths %>%
+  negative_deaths <- as_tibble(negative_deaths) %>%
           filter({{ deaths }} < 0) %>%
           count() %>%
           filter(n != 0) %>%
           select(-n)
+
   if (nrow(negative_deaths) > 0) {
           warning("some age bands have negative deaths; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
@@ -228,11 +230,12 @@ phe_life_expectancy <- function(data, deaths, population, startage,
       mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
       group_by_at(group_vars(data))
   }
-  negative_pops <- negative_pops %>%
+  negative_pops <- as_tibble(negative_pops) %>%
           filter({{ population }} <= 0) %>%
           count() %>%
           filter(n != 0) %>%
           select(-n)
+
   if (nrow(negative_pops) > 0) {
           warning("some age bands have a zero or less population; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
@@ -255,7 +258,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   }
   # check for all rows per group
   number_age_bands <- 20 #length(age_contents)
-  incomplete_areas <- data %>%
+  incomplete_areas <- as_tibble(data) %>%
     count()
   if (length(group_vars(data)) > 0) {
     incomplete_areas <- incomplete_areas %>%
@@ -296,11 +299,12 @@ phe_life_expectancy <- function(data, deaths, population, startage,
       mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
       group_by_at(group_vars(data))
   }
-  deaths_more_than_pops <- deaths_more_than_pops %>%
+  deaths_more_than_pops <- as_tibble(deaths_more_than_pops) %>%
           filter({{ deaths }} >  {{ population }}) %>%
           count() %>%
           filter(n != 0) %>%
           select(-n)
+
   if (nrow(deaths_more_than_pops) > 0) {
           warning("some age bands have more deaths than population; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
