@@ -196,7 +196,9 @@ phe_life_expectancy <- function(data, deaths, population, startage,
       mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
       group_by_at(group_vars(data))
   }
+
   negative_deaths <- as_tibble(negative_deaths) %>%
+          group_by_at(group_vars(data)) %>%
           filter({{ deaths }} < 0) %>%
           count() %>%
           filter(n != 0) %>%
@@ -218,10 +220,8 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                     select(-startage_2b_removed)
                   return(data)
           }
-
-
-
   }
+
   # check for less than or equal to zero pops
   negative_pops <- data
   if (length(group_vars(data)) > 0) {
@@ -230,7 +230,9 @@ phe_life_expectancy <- function(data, deaths, population, startage,
       mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
       group_by_at(group_vars(data))
   }
+
   negative_pops <- as_tibble(negative_pops) %>%
+          group_by_at(group_vars(data)) %>%
           filter({{ population }} <= 0) %>%
           count() %>%
           filter(n != 0) %>%
@@ -252,13 +254,12 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                     select(-startage_2b_removed)
                   return(data)
           }
-
-
-
   }
+
   # check for all rows per group
   number_age_bands <- 20 #length(age_contents)
   incomplete_areas <- as_tibble(data) %>%
+    group_by_at(group_vars(data)) %>%
     count()
   if (length(group_vars(data)) > 0) {
     incomplete_areas <- incomplete_areas %>%
@@ -300,6 +301,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
       group_by_at(group_vars(data))
   }
   deaths_more_than_pops <- as_tibble(deaths_more_than_pops) %>%
+          group_by_at(group_vars(data)) %>%
           filter({{ deaths }} >  {{ population }}) %>%
           count() %>%
           filter(n != 0) %>%
@@ -470,6 +472,6 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                          statistic = paste("life expectancy at", {{ startage }}),
                          method = "Chiang, using Silcocks et al for confidence limits")
   }
-  return(data)
+  return(as.data.frame(data))
 
 }
