@@ -183,7 +183,6 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                     reliability_stat = FALSE,
                     type = "full") {
 
-
         # Part 1 - Checks on input data ---------------------------------------------
 
         if (missing(data)| missing(quantile)| missing(population)) {
@@ -333,7 +332,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # Start by counting the number of quantiles each area has data for -
         # exclude any areas with missing data (SII cannot be calculated)
         valid_areas <- valid_complete %>%
-                         summarise(n = n_distinct(!!quantile)) %>%
+                         summarise(n = length(unique(!!quantile))) %>%
                          filter(n == no_quantiles)
 
         # Create table of areas to calculate SII for
