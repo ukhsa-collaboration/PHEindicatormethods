@@ -1,6 +1,9 @@
 #' PHEindicatormethods: A package for performing standard statistics for public
 #' health indicators
 #'
+#' A package for performing standard statistics for public
+#' health indicators.
+#'
 #' @docType package
 #' @name PHEindicatormethods
 NULL
@@ -25,6 +28,7 @@ globalVariables(c("a_vals",
                   "method",
                   "model",
                   "naflag",
+                  "na_flag",
                   "nrefpop_calc",
                   "observed",
                   "p_2b_removed",

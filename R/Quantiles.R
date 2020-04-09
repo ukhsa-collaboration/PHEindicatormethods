@@ -90,17 +90,17 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
     # error handling for valid data types and values
     if (!(is.numeric(pull(data, {{ values }})))) {
         stop("values argument must be a numeric field from data")
-
+    }
 
     #check all invert values are identical within groups
-    } else if (nrow(count(data,invert_calc)) != nrow(count(data))) {
+    if (!n_groups(data) == nrow(unique(select(data,invert_calc)))) {
         stop("invert field values must take the same logical value for each data grouping set")
     }
 
 
     # assign quantiles
     phe_quantile <- data %>%
-        mutate(naflag = if_else(is.na(Value),0,1)) %>%
+        mutate(naflag = if_else(is.na({{ values }}),0,1)) %>%
         add_count(name = "na_flag", wt = naflag) %>%
         mutate(adj_value = if_else(invert_calc == TRUE, max({{ values }}, na.rm=TRUE)-{{ values }},{{ values }}),
                rank      = rank(adj_value, ties.method="min", na.last = "keep"),
