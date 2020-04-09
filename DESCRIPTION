@@ -36,11 +36,12 @@ Imports:
     broom,
     tidyr,
     purrr,
-    stats
+    stats,
+    tibble
 Suggests: 
     knitr,
     readxl,
     rmarkdown,
     testthat
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 VignetteBuilder: knitr
