@@ -4,7 +4,9 @@
 \name{DSR_data}
 \alias{DSR_data}
 \title{SII test datasets - DSR}
-\format{A data table}
+\format{
+A data table
+}
 \usage{
 data(DSR_data)
 }

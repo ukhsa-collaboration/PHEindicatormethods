@@ -5,7 +5,3 @@
 \alias{PHEindicatormethods}
 \title{PHEindicatormethods: A package for performing standard statistics for public
 health indicators}
-\description{
-PHEindicatormethods: A package for performing standard statistics for public
-health indicators
-}
