@@ -2,12 +2,13 @@
 Amendements to ensure continued compatibility with dplyr when v1.0.0 is released.  
 
 The following changes will not be noticeable to end users  
-* `phe_proportion` and `phe_rate`: amended conditional statement to determine if input data frame is grouped
+* `phe_proportion`: amended conditional statement to determine if input data frame is grouped
+* `phe_rate`: amended conditional statement to determine if input data frame is grouped
+* `phe_quantile`: amended code to add number of rows in group to data frame, and amended how test data groups are applied before using in tests.
 
 
 To Do:
-Life expectancy - errors at count() line 200 when negative_deaths is empty/does not exist
-quantile test errors
+Life expectancy 
 sii test errors
 
 ## PHEindicatormethods v1.3.0
