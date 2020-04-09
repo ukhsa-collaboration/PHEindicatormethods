@@ -16,12 +16,12 @@ df4 <- test_quantiles_ug %>% filter(GroupSet == "None")
 
 #test calculations
 test_that("quantiles calculate correctly",{
-  expect_equal(data.frame(phe_quantile(group_by(df1, ParentCode, add=TRUE),Value,
+  expect_equal(data.frame(phe_quantile(group_by(df1, ParentCode, .add=TRUE),Value,
                             invert = Polarity, inverttype = "field")[15]),
                rename(df1,quantile = QuantileInGrp)[14],
                check.attributes=FALSE, check.names=FALSE,info="test grouped df field")
 
-  expect_equal(data.frame(phe_quantile(group_by(df2, ParentCode, add=TRUE),Value,
+  expect_equal(data.frame(phe_quantile(group_by(df2, ParentCode, .add=TRUE),Value,
                             invert = FALSE))[15:18],
                data.frame(tibble(quantile = df2$QuantileInGrp,
                       nquantiles = 10L,
@@ -29,12 +29,12 @@ test_that("quantiles calculate correctly",{
                       qinverted = "lowest quantile represents lowest values")),
                check.attributes=FALSE, check.names=FALSE,info="test grouped df logical")
 
-  expect_equal(phe_quantile(group_by(df3, IndSexRef, add=TRUE), Value,
+  expect_equal(phe_quantile(group_by(df3, IndSexRef, .add=TRUE), Value,
                             invert = Polarity, inverttype = "field", nquantiles = 7L)[15],
                rename(df3,quantile = QuantileInGrp)[14],check.attributes=FALSE,
                check.names=FALSE,info="test ungrouped df field")
 
-  expect_equal(phe_quantile(group_by(df4, GroupSet, add=TRUE), Value, nquantiles = 4L)[15],
+  expect_equal(phe_quantile(group_by(df4, GroupSet, .add=TRUE), Value, nquantiles = 4L)[15],
                rename(df4,quantile = QuantileInGrp)[14],
                check.attributes=FALSE, check.names=FALSE,info="test ungrouped df logical")
 
