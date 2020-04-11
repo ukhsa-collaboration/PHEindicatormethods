@@ -1,15 +1,11 @@
 ## PHEindicatormethods v1.3.1
-Amendements to ensure continued compatibility with dplyr when v1.0.0 is released.  
 
-The following changes will not be noticeable to end users  
-* `phe_proportion`: amended conditional statement to determine if input data frame is grouped
-* `phe_rate`: amended conditional statement to determine if input data frame is grouped
-* `phe_quantile`: amended code to add number of rows in group to data frame, and amended how test data groups are applied before using in tests.
+`phe_proportion`, `phe_rate`, `phe_quantile`, `phe_life_expectancy`, `phe_sii`:  
+Functions amended to ensure continued compatibility with dplyr when v1.0.0 is released.
+These changes will not be noticeable to end users.
 
+`phe_life_expectancy`: dropped population and death columns from output as these are no longer applicable to the final LE statistic.  Added pops_used and dths_used columns to output when type = 'full' which reflect the cumulative populations and deaths used in each LE calculation (ie the pops and deaths for all ages equal to or above the Life_Expectancy_At age)
 
-To Do:
-Life expectancy 
-sii test errors
 
 ## PHEindicatormethods v1.3.0
 * `phe_sii function` updated to be able to output multiple confidence intervals

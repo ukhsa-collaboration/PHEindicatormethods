@@ -20,6 +20,9 @@
 #'   added details on the calculation within the dataframe); quoted
 #'   string; default full
 #' @inheritParams phe_dsr
+#' @return returns a data frame containing the life expectancies and confidence intervals
+#'         for each le_age requested.  When type = 'full' additionally returns the cumulative
+#'         populations and deaths used in each LE calculation and metadata indicating parameters passed.
 #' @details This function aligns with the methodology in Public Health England's
 #'   \href{https://fingertips.phe.org.uk/documents/PHE\%20Life\%20Expectancy\%20Calculator.xlsm}{Life Expectancy Excel Tool}.
 #'
@@ -446,6 +449,21 @@ phe_life_expectancy <- function(data, deaths, population, startage,
 
   if (nrow(suppressed_data) > 0) data <- bind_rows(data, suppressed_data)
 
+  # calculate cumulative pops and deaths used in each calc (sum for all startages >= startage)
+  cumdata <- data %>%
+    arrange(desc(startage_2b_removed)) %>%
+    select(startage_2b_removed, {{population}}, {{deaths}}) %>%
+    mutate(pops_used = cumsum({{population}}),
+           dths_used = cumsum({{deaths}})) %>%
+    select(-{{population}}, -{{deaths}}) %>%
+    arrange(startage_2b_removed)
+
+  # join cumulative deaths and pops to data frame and drop original deaths and pops
+  join_vars <- c(group_vars(data), "startage_2b_removed")
+  data <- data %>%
+    left_join(cumdata, by = join_vars) %>%
+    select(-{{population}}, -{{deaths}})
+
   data <- data %>%
     select(-ends_with("_2b_removed"))
   if (length(le_age) == 1) {
@@ -471,7 +489,11 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                   mutate(confidence = paste0(confidence * 100, "%", collapse = ", "),
                          statistic = paste("life expectancy at", {{ startage }}),
                          method = "Chiang, using Silcocks et al for confidence limits")
+  } else {
+          data <- data %>%
+            select(-pops_used, -dths_used)
   }
+
   return(as.data.frame(data))
 
 }

@@ -11,6 +11,13 @@ df1 <- data.frame(startage = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45
                   deaths = c(17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L,
                              263L, 304L, 536L, 872L, 1390L, 1605L, 1936L, 1937L))
 
+df1_cum <- data.frame(pops_used = c(787954,	780894,	745835,	698861,	650372,	607153,	568592,
+                                    522583,	465375,	403940,	348339,	298130,	241714,	195303,
+                                    155483,	117505,	80466,	47178,	23872,	11936),
+                      dths_used = c(9357,	9340,	9331,	9327,	9319,	9299,	9284,
+                                    9260,	9227,	9177,	9106,	9006,	8843,	8580,
+                                    8276,	7740,	6868,	5478,	3873,	1937))
+
 df2 <- data.frame(startage = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L,
                                60L, 70L, 75L, 80L, 85L, 90L, 65L),
                   pops = c(7060L, 35059L, 46974L, 48489L, 43219L, 38561L, 46009L, 57208L,
@@ -131,10 +138,12 @@ answer1 <- round(data.frame(value = c(80.16960813, 79.36245674, 75.44193645, 70.
 
 answer2 <- cbind(df1[c(3, 7),],
                  round(answer1[c(3, 7),], n),
+                 df1_cum[c(3, 7),],
                  data.frame(stringsAsFactors = FALSE,
                             confidence  = rep("95%", 2),
                             statistic = paste("life expectancy at", c(5, 25)),
-                            method = rep("Chiang, using Silcocks et al for confidence limits", 2)))
+                            method = rep("Chiang, using Silcocks et al for confidence limits", 2))) %>%
+                select(-pops, -deaths)
 
 test1 <- phe_life_expectancy(df1, deaths, pops, startage, type="standard")
 test1.1 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = 95)
@@ -214,7 +223,7 @@ test_that("LE and CIs calculate correctly",{
 })
 
 test_that("LE - warnings are generated when invalid arguments are used",{
-  expect_equal(ncol(test1), expected_num_cols - 3)
+  expect_equal(ncol(test1), expected_num_cols - 5)
   expect_equal(ncol(test2), expected_num_cols)
   expect_equal(ncol(test8), expected_num_cols - 2 + (2 * 2))
   expect_equal(ncol(phe_life_expectancy(df1, deaths, pops, startage, confidence = 90:99)),
