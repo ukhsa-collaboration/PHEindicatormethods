@@ -83,7 +83,7 @@ phe_proportion <- function(data, x, n, type="full", confidence=0.95, multiplier=
 
 
     # if data is grouped then summarise
-    if(!is.null(groups(data))) {
+    if(!n_groups(data) == 1) {
         data <- data %>%
         summarise({{ x }} := sum({{ x }}),
                   {{ n }} := sum({{ n }}))

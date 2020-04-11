@@ -1,3 +1,12 @@
+## PHEindicatormethods v1.3.1
+
+`phe_proportion`, `phe_rate`, `phe_quantile`, `phe_life_expectancy`, `phe_sii`:  
+Functions amended to ensure continued compatibility with dplyr when v1.0.0 is released.
+These changes will not be noticeable to end users.
+
+`phe_life_expectancy`: dropped population and death columns from output as these are no longer applicable to the final LE statistic.  Added pops_used and dths_used columns to output when type = 'full' which reflect the cumulative populations and deaths used in each LE calculation (ie the pops and deaths for all ages equal to or above the Life_Expectancy_At age)
+
+
 ## PHEindicatormethods v1.3.0
 * `phe_sii function` updated to be able to output multiple confidence intervals
 * `phe_life_expectancy()` function previously calculated life expectancy and confidence levels inaccurately when the number of deaths in all age groups except the final one was 40% or more of the size of the population in any age group (apart from the 1–4 age group where it’s 50%). It had an affect in very few scenarios, but was inaccurate nonetheless. This has now been corrected to agree with the published methodology

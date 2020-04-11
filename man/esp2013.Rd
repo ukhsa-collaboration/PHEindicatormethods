@@ -4,7 +4,9 @@
 \name{esp2013}
 \alias{esp2013}
 \title{European Standard Population 2013}
-\format{A numeric vector with 19 elements}
+\format{
+A numeric vector with 19 elements
+}
 \usage{
 esp2013
 }

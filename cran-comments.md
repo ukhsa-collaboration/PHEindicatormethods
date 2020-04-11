@@ -1,6 +1,7 @@
-## Submission of package version 1.3.0
-This package contains enhancements to the phe_sii and phe_life_expectancy functions.
-An output variable to phe_dsr() that was added in version 1.2.0 has been removed as it was calculating a nonsensical value - hence the increment to the second part of the package version number.
+## Submission of package version 1.3.1
+Five functions within the package have been amended to ensure continued compatability with dplyr v1.0.0 due for release 1st May 2020.
+
+Additionally, the phe_life_expectancy function has been amended to show more relevant population and death counts in the output.
 
 ## R CMD check results
 There were no ERRORs, WARNINGS or NOTES on local Windows 10 install using R 3.6.3 and RStudio 1.2.5019
@@ -8,7 +9,7 @@ There were no ERRORs, WARNINGS or NOTES on local Windows 10 install using R 3.6.
 ## Test Environments  
 * local windows 10 installs: R3.6.3 - OK 
 
-* Travis check on Linux (2020-03-05) - passed  
+* Travis check on Linux (2020-04-11) - passed  
 
 * devtools::check_win gave no ERRORS, WARNINGS or NOTES on the following versions: R version 3.5.3 (2019-03-11), R version 3.6.3 (2020-02-29) and R Under development (unstable) (2020-01-28 r77738).  
 

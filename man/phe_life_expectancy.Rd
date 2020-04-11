@@ -45,6 +45,11 @@ string; default full}
 or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
 numeric; default 0.95}
 }
+\value{
+returns a data frame containing the life expectancies and confidence intervals
+        for each le_age requested.  When type = 'full' additionally returns the cumulative
+        populations and deaths used in each LE calculation and metadata indicating parameters passed.
+}
 \description{
 Compute life expectancy for a given age, and its standard error
 }

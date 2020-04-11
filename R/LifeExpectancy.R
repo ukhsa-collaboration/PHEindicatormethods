@@ -20,6 +20,9 @@
 #'   added details on the calculation within the dataframe); quoted
 #'   string; default full
 #' @inheritParams phe_dsr
+#' @return returns a data frame containing the life expectancies and confidence intervals
+#'         for each le_age requested.  When type = 'full' additionally returns the cumulative
+#'         populations and deaths used in each LE calculation and metadata indicating parameters passed.
 #' @details This function aligns with the methodology in Public Health England's
 #'   \href{https://fingertips.phe.org.uk/documents/PHE\%20Life\%20Expectancy\%20Calculator.xlsm}{Life Expectancy Excel Tool}.
 #'
@@ -70,6 +73,7 @@
 #' @inheritParams phe_dsr
 #' @import dplyr
 #' @importFrom purrr map_chr
+#' @importFrom tibble as_tibble
 #' @examples
 #' library(dplyr)
 #'
@@ -195,11 +199,14 @@ phe_life_expectancy <- function(data, deaths, population, startage,
       mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
       group_by_at(group_vars(data))
   }
-  negative_deaths <- negative_deaths %>%
+
+  negative_deaths <- as_tibble(negative_deaths) %>%
+          group_by_at(group_vars(data)) %>%
           filter({{ deaths }} < 0) %>%
           count() %>%
           filter(n != 0) %>%
           select(-n)
+
   if (nrow(negative_deaths) > 0) {
           warning("some age bands have negative deaths; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
@@ -216,10 +223,8 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                     select(-startage_2b_removed)
                   return(data)
           }
-
-
-
   }
+
   # check for less than or equal to zero pops
   negative_pops <- data
   if (length(group_vars(data)) > 0) {
@@ -228,11 +233,14 @@ phe_life_expectancy <- function(data, deaths, population, startage,
       mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
       group_by_at(group_vars(data))
   }
-  negative_pops <- negative_pops %>%
+
+  negative_pops <- as_tibble(negative_pops) %>%
+          group_by_at(group_vars(data)) %>%
           filter({{ population }} <= 0) %>%
           count() %>%
           filter(n != 0) %>%
           select(-n)
+
   if (nrow(negative_pops) > 0) {
           warning("some age bands have a zero or less population; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
@@ -249,13 +257,12 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                     select(-startage_2b_removed)
                   return(data)
           }
-
-
-
   }
+
   # check for all rows per group
   number_age_bands <- 20 #length(age_contents)
-  incomplete_areas <- data %>%
+  incomplete_areas <- as_tibble(data) %>%
+    group_by_at(group_vars(data)) %>%
     count()
   if (length(group_vars(data)) > 0) {
     incomplete_areas <- incomplete_areas %>%
@@ -296,11 +303,13 @@ phe_life_expectancy <- function(data, deaths, population, startage,
       mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
       group_by_at(group_vars(data))
   }
-  deaths_more_than_pops <- deaths_more_than_pops %>%
+  deaths_more_than_pops <- as_tibble(deaths_more_than_pops) %>%
+          group_by_at(group_vars(data)) %>%
           filter({{ deaths }} >  {{ population }}) %>%
           count() %>%
           filter(n != 0) %>%
           select(-n)
+
   if (nrow(deaths_more_than_pops) > 0) {
           warning("some age bands have more deaths than population; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
@@ -440,6 +449,21 @@ phe_life_expectancy <- function(data, deaths, population, startage,
 
   if (nrow(suppressed_data) > 0) data <- bind_rows(data, suppressed_data)
 
+  # calculate cumulative pops and deaths used in each calc (sum for all startages >= startage)
+  cumdata <- data %>%
+    arrange(desc(startage_2b_removed)) %>%
+    select(startage_2b_removed, {{population}}, {{deaths}}) %>%
+    mutate(pops_used = cumsum({{population}}),
+           dths_used = cumsum({{deaths}})) %>%
+    select(-{{population}}, -{{deaths}}) %>%
+    arrange(startage_2b_removed)
+
+  # join cumulative deaths and pops to data frame and drop original deaths and pops
+  join_vars <- c(group_vars(data), "startage_2b_removed")
+  data <- data %>%
+    left_join(cumdata, by = join_vars) %>%
+    select(-{{population}}, -{{deaths}})
+
   data <- data %>%
     select(-ends_with("_2b_removed"))
   if (length(le_age) == 1) {
@@ -465,7 +489,11 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                   mutate(confidence = paste0(confidence * 100, "%", collapse = ", "),
                          statistic = paste("life expectancy at", {{ startage }}),
                          method = "Chiang, using Silcocks et al for confidence limits")
+  } else {
+          data <- data %>%
+            select(-pops_used, -dths_used)
   }
-  return(data)
+
+  return(as.data.frame(data))
 
 }

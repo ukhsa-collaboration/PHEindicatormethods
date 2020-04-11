@@ -4,7 +4,9 @@
 \name{LE_data}
 \alias{LE_data}
 \title{SII test datasets - Life Expectancy}
-\format{A data table}
+\format{
+A data table
+}
 \usage{
 data(LE_data)
 }

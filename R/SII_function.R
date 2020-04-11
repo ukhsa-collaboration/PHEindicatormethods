@@ -183,7 +183,6 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                     reliability_stat = FALSE,
                     type = "full") {
 
-
         # Part 1 - Checks on input data ---------------------------------------------
 
         if (missing(data)| missing(quantile)| missing(population)) {
@@ -223,18 +222,18 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         confidence[confidence >= 90] <- confidence[confidence >= 90] / 100
 
         # check for non numeric inputs
-        if(!(class(pull(data, !!population)) %in% c("numeric", "integer")
-            & ifelse(rlang::quo_text(x) %in% names(data), (class(pull(data, !!x)) %in% c("numeric", "integer")), TRUE)
-            & ifelse(rlang::quo_text(value) %in% names(data), (class(pull(data, !!value)) %in% c("numeric", "integer")), TRUE)
-            & ifelse(rlang::quo_text(se) %in% names(data), (class(pull(data, !!se)) %in% c("numeric", "integer")), TRUE)
-            & ifelse(rlang::quo_text(lower_cl) %in% names(data), (class(pull(data, !!lower_cl)) %in% c("numeric", "integer")), TRUE)
-            & ifelse(rlang::quo_text(upper_cl) %in% names(data), (class(pull(data, !!upper_cl)) %in% c("numeric", "integer")), TRUE))) {
+        if(!(class(pull(data, {{ population }})) %in% c("numeric", "integer")
+            & ifelse(rlang::quo_text(x) %in% names(data), (class(pull(data, {{ x }})) %in% c("numeric", "integer")), TRUE)
+            & ifelse(rlang::quo_text(value) %in% names(data), (class(pull(data, {{ value }})) %in% c("numeric", "integer")), TRUE)
+            & ifelse(rlang::quo_text(se) %in% names(data), (class(pull(data, {{ se }})) %in% c("numeric", "integer")), TRUE)
+            & ifelse(rlang::quo_text(lower_cl) %in% names(data), (class(pull(data, {{ lower_cl }})) %in% c("numeric", "integer")), TRUE)
+            & ifelse(rlang::quo_text(upper_cl) %in% names(data), (class(pull(data, {{ upper_cl }})) %in% c("numeric", "integer")), TRUE))) {
                 stop("some input fields in data.frame are non-numeric")
         }
 
         # check for zero or negative populations
         negative_pops <- data %>%
-                filter(!!population <= 0 | is.na(!!population))
+                filter({{ population }} <= 0 | is.na({{ population }}))
 
                 if (nrow(negative_pops) > 0) {
                         stop("some groups have a zero, negative or missing population")
@@ -243,7 +242,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # check for negative/missing standard errors
         if(rlang::quo_text(se) %in% names(data)) {
         negative_se <- data %>%
-                filter(!!se < 0 | is.na(!!se))
+                filter({{ se }} < 0 | is.na({{ se }}))
 
                 if (nrow(negative_se) > 0) {
                         stop("negative or missing standard errors in input dataset")
@@ -253,7 +252,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # check for missing confidence limits
         if(rlang::quo_text(lower_cl) %in% names(data) & rlang::quo_text(upper_cl) %in% names(data)) {
           negative_cl <- data %>%
-            filter(is.na(!!lower_cl) | is.na(!!upper_cl))
+            filter(is.na({{ lower_cl }}) | is.na({{ upper_cl }}))
 
           if (nrow(negative_cl) > 0) {
             stop("missing lower or upper confidence limits in input dataset")
@@ -266,7 +265,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
             # check for proportions outside (0,1) range
             if(rlang::quo_text(value) %in% names(data)) {
               invalid_prop <- data %>%
-                filter(!!value < 0 | !!value > 1)
+                filter({{ value }} < 0 | {{ value }} > 1)
 
               if (nrow(invalid_prop) > 0) {
                 stop("value proportions are not all between 0 and 1")
@@ -276,7 +275,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
             # check for lower and upper CLs outside (0,1) range
             if(rlang::quo_text(lower_cl) %in% names(data) & rlang::quo_text(upper_cl) %in% names(data)) {
               invalid_prop_cl <- data %>%
-                filter(!!lower_cl < 0 | !!lower_cl > 1 | !!upper_cl < 0 | !!upper_cl > 1)
+                filter({{ lower_cl }} < 0 | {{ lower_cl }} > 1 | {{ upper_cl }} < 0 | {{ upper_cl }} > 1)
 
               if (nrow(invalid_prop_cl) > 0) {
                 stop("confidence limit proportions are not all between 0 and 1")
@@ -286,7 +285,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
             # check for zero or negative counts
             if(!(rlang::quo_text(value) %in% names(data)) & rlang::quo_text(x) %in% names(data)) {
               negative_x <- data %>%
-                filter(!!x <= 0)
+                filter({{ x }} <= 0)
 
               if (nrow(negative_x) > 0) {
                 stop("some groups have a zero or negative count x")
@@ -306,7 +305,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                  group_by(!!! syms(c(grouping_variables)))
 
         # Extract vector of quantiles and save the number to "no_quantiles"
-        quantile_list <- unique(select(ungroup(data), !!quantile))
+        quantile_list <- unique(select(ungroup(data), {{ quantile }}))
         no_quantiles <- nrow(quantile_list)
 
         # Output warning on number of quantiles inputted
@@ -320,20 +319,20 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         if (rlang::quo_text(se) %in% names(data)) {
 
         valid_complete <- data %>%
-                             filter(!!population > 0,
-                                    !is.na(!!se))
+                             filter({{ population }} > 0,
+                                    !is.na({{ se }}))
         } else if (rlang::quo_text(lower_cl) %in% names(data) & rlang::quo_text(upper_cl) %in% names(data)) {
 
         valid_complete <- data %>%
-                                filter(!!population > 0,
-                                       !is.na(!!lower_cl), !is.na(!!upper_cl))
+                                filter({{ population }} > 0,
+                                       !is.na({{ lower_cl }}), !is.na({{ upper_cl }}))
         }
 
         # Not all quantiles may have data for each grouping
         # Start by counting the number of quantiles each area has data for -
         # exclude any areas with missing data (SII cannot be calculated)
         valid_areas <- valid_complete %>%
-                         summarise(n = n_distinct(!!quantile)) %>%
+                         summarise(n = length(unique({{ quantile }}))) %>%
                          filter(n == no_quantiles)
 
         # Create table of areas to calculate SII for
@@ -357,9 +356,9 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # quantile (x/population)
 
         if (rlang::quo_text(value) %in% names(pops_prep)) {
-                pops_prep <- mutate(pops_prep, value = !!value)
+                pops_prep <- mutate(pops_prep, value = {{ value }})
         } else if (value_type == 2) {
-                pops_prep <- mutate(pops_prep, value = !!x / !!population)
+                pops_prep <- mutate(pops_prep, value = {{ x }} / {{ population }})
         }
 
         # Transform value, lower and upper confidence limits if value is a rate or proportion
@@ -372,13 +371,13 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
          if (rlang::quo_text(lower_cl) %in% names(pops_prep) & rlang::quo_text(upper_cl) %in% names(pops_prep)) {
 
          pops_prep <- pops_prep %>%
-                mutate(lower_cl = ifelse(value_type == 0, !!lower_cl,
-                                      ifelse(value_type == 1, log(!!lower_cl),
-                                         ifelse(value_type == 2, log(!!lower_cl/(1-!!lower_cl)),
+                mutate(lower_cl = ifelse(value_type == 0, {{ lower_cl }},
+                                      ifelse(value_type == 1, log({{ lower_cl }}),
+                                         ifelse(value_type == 2, log({{ lower_cl }}/(1-{{ lower_cl }})),
                                                 NA))),
-                       upper_cl = ifelse(value_type == 0, !!upper_cl,
-                                        ifelse(value_type == 1, log(!!upper_cl),
-                                                ifelse(value_type == 2, log(!!upper_cl/(1-!!upper_cl)),
+                       upper_cl = ifelse(value_type == 0, {{ upper_cl }},
+                                        ifelse(value_type == 1, log({{ upper_cl }}),
+                                                ifelse(value_type == 2, log({{ upper_cl }}/(1-{{ upper_cl }})),
                                          NA))))
          }
 
@@ -386,7 +385,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         z <- stats::qnorm(0.975) # hard-coded at 95% confidence
 
         if (rlang::quo_text(se) %in% names(pops_prep)) {
-                pops_prep <- mutate(pops_prep, se_calc = !!se)
+                pops_prep <- mutate(pops_prep, se_calc = {{ se }})
         } else {
                 pops_prep <- mutate(pops_prep, se_calc = (upper_cl - lower_cl) / z / 2)
         }
@@ -394,8 +393,8 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # Calculate a and b vals
         pops_prep_ab <- pops_prep %>%
                 group_by(!!! syms(grouping_variables)) %>%
-                mutate(a_vals = !!population / sum(!!population), # Proportion of total population of subgroup
-                       b_vals = FindXValues(!!population, no_quantiles))
+                mutate(a_vals = {{ population }}/ sum({{ population }}), # Proportion of total population of subgroup
+                       b_vals = FindXValues({{ population }}, no_quantiles))
 
         # Calculate sqrt(a), bsqrt(a) and un-transformed y value for regression
         pops_prep_ab <- pops_prep_ab %>%
