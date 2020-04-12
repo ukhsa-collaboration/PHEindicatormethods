@@ -23,7 +23,7 @@ devtools::check_win gave no ERRORS, WARNINGS or NOTES on the following versions:
 
 
 ## CRAN Checks for current package release version v1.3.0
-There is currently a WARNING against r-patched-osx-x86_64 which relates to an issue loading the package vignette.  I am unable to resolve this without access to this OS.  The vignettes seem to work Ok elsewhere and are not essential to the package functionality.  I have added a comment to the README file offering alternative signposting to package vignettes on CRAN package webpage.
+There is currently a WARNING against r-patched-osx-x86_64 which relates to an issue loading the package vignette.  A message on the r-package-devel distribution list on 12-04-2020 suggests this is currently happening for all packages that use vignettes.  I am unable to resolve this without access to this OS. The vignettes seem to work Ok elsewhere and are not essential to the package functionality.  I have added a comment to the README file offering alternative signposting to package vignettes on CRAN package webpage.
 
 ## Downstream dependencies
 There are no known downstream dependencies on CRAN
