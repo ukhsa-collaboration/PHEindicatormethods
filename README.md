@@ -81,14 +81,13 @@ see individual item documentation for full details
 
   - phe\_dsr  
   - phe\_isr  
+  - phe\_life\_expectancy
   - phe\_mean  
   - phe\_proportion  
   - phe\_quantile  
   - phe\_rate  
-  - phe\_smr  
-  - phe\_quantile
-  - phe\_life\_expectancy
   - phe\_sii
+  - phe\_smr
 
 **Datasets:**
 
@@ -105,4 +104,6 @@ see individual item documentation for full details
     periods  
   - Vignette showing worked examples of the phe\_sii function
 
-(type ‘browseVignettes(“PHEindicatormethods”)’ to view in HTML)
+(type ‘browseVignettes(“PHEindicatormethods”)’ to view in HTML or access
+vignettes from the package’s CRAN webpage
+[here](https://CRAN.R-project.org/package=PHEindicatormethods))

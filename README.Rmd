@@ -85,14 +85,13 @@ The package contains the following functions, datasets and vignettes - see indiv
 
 - phe_dsr  
 - phe_isr  
+- phe_life_expectancy
 - phe_mean  
 - phe_proportion   
 - phe_quantile  
 - phe_rate  
-- phe_smr  
-- phe_quantile 
-- phe_life_expectancy
 - phe_sii
+- phe_smr  
   
 
 **Datasets:**  
@@ -108,6 +107,6 @@ The package contains the following functions, datasets and vignettes - see indiv
 - Vignette for calculating DSRs for multiple geographies and time periods  
 - Vignette showing worked examples of the phe_sii function
 
-(type 'browseVignettes("PHEindicatormethods")' to view in HTML)
+(type 'browseVignettes("PHEindicatormethods")' to view in HTML or access vignettes from the package's CRAN webpage [here](https://CRAN.R-project.org/package=PHEindicatormethods))
 
 
