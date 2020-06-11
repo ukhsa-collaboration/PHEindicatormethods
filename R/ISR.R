@@ -133,7 +133,8 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
         summarise(observed  = sum({{ x }}, na.rm=TRUE),
                   expected  = sum(exp_x),
-                  ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier) %>%
+                  ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
+                  .groups = "keep") %>%
         mutate(value     = observed / expected * ref_rate,
                lower95_0cl = if_else(observed<10, qchisq((1-conf1)/2,2*observed)/2/expected * ref_rate,
                                  byars_lower(observed,conf1)/expected * ref_rate),
@@ -175,7 +176,8 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
             mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
             summarise(observed  = sum({{ x }}, na.rm=TRUE),
                       expected  = sum(exp_x),
-                      ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier) %>%
+                      ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
+                      .groups = "keep") %>%
             mutate(value     = observed / expected * ref_rate,
                    lowercl = if_else(observed<10, qchisq((1-confidence)/2,2*observed)/2/expected * ref_rate,
                                      byars_lower(observed,confidence)/expected * ref_rate),

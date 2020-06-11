@@ -78,7 +78,8 @@ phe_rate <- function(data,x, n, type = "full", confidence = 0.95, multiplier = 1
     if(!n_groups(data) == 1) {
         data <- data %>%
                 summarise({{ x }} := sum({{ x }}),
-                          {{ n }} := sum({{ n }}))
+                          {{ n }} := sum({{ n }}),
+                          .groups = "keep")
     }
 
 

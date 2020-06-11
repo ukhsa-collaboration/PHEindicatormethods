@@ -64,15 +64,15 @@ test_that("dsrs and CIs calculate correctly",{
                data.frame(select(slice(test_DSR_results,1:3),1:6)),
                check.attributes=FALSE, check.names=FALSE,info="test multiplier")
 
-  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, confidence = c(0.95, 0.998)),9)),
+  expect_equal(data.frame(select(ungroup(phe_dsr(test_multiarea, count, pop, confidence = c(0.95, 0.998))),9)),
                data.frame(confidence = c("95%, 99.8%","95%, 99.8%","95%, 99.8%"), stringsAsFactors=FALSE),
                check.attributes=FALSE, check.names=FALSE,info="test 2 CIs metadata")
 
-  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop),7)),
+  expect_equal(data.frame(select(ungroup(phe_dsr(test_multiarea, count, pop)),7)),
                data.frame(confidence = c("95%", "95%", "95%"), stringsAsFactors=FALSE),
                check.attributes=FALSE, check.names=FALSE,info="test 95% CI metadata")
 
-  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, confidence = 0.998),7)),
+  expect_equal(data.frame(select(ungroup(phe_dsr(test_multiarea, count, pop, confidence = 0.998)),7)),
                data.frame(confidence = c("99.8%", "99.8%", "99.8%"), stringsAsFactors=FALSE),
                check.attributes=FALSE, check.names=FALSE,info="test 99.8% CI metadata")
 

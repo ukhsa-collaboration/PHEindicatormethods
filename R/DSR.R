@@ -140,7 +140,8 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
                       lower99_8cl = value + sqrt((vardsr/sum({{ x }}, na.rm=TRUE)))*
                           (byars_lower(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier,
                       upper99_8cl = value + sqrt((vardsr/sum({{ x }}, na.rm=TRUE)))*
-                          (byars_upper(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier) %>%
+                          (byars_upper(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier,
+                      .groups = "keep") %>%
             select(-vardsr) %>%
             mutate(confidence = "95%, 99.8%",
                    statistic = paste("dsr per",format(multiplier,scientific=F)),
@@ -192,7 +193,8 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
                       lowercl = value + sqrt((vardsr/sum({{ x }},na.rm=TRUE)))*(byars_lower(sum({{ x }},na.rm=TRUE),
                                         confidence)-sum({{ x }},na.rm=TRUE)) * multiplier,
                       uppercl = value + sqrt((vardsr/sum({{ x }},na.rm=TRUE)))*(byars_upper(sum({{ x }},na.rm=TRUE),
-                                        confidence)-sum({{ x }},na.rm=TRUE)) * multiplier) %>%
+                                        confidence)-sum({{ x }},na.rm=TRUE)) * multiplier,
+                      .groups = "keep") %>%
             select(-vardsr) %>%
             mutate(confidence = paste(confidence*100,"%",sep=""),
                    statistic = paste("dsr per",format(multiplier,scientific=F)),

@@ -102,8 +102,8 @@ test_that("smrs and CIs calculate correctly",{
                data.frame(select(slice(test_ISR_results,7:9),1:3,5,8:9)),
                check.attributes=FALSE, check.names=FALSE,info="test two CIs 99.8")
 
-  expect_equal(data.frame(select(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop, confidence = c(0.95,0.998),
-                                         x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),9)),
+  expect_equal(data.frame(select(ungroup(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop, confidence = c(0.95,0.998),
+                                         x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop)),9)),
                data.frame(confidence = rep("95%, 99.8%",3), stringsAsFactors=FALSE),
                check.attributes=FALSE, check.names=FALSE,info="test two CIS metadata")
 
