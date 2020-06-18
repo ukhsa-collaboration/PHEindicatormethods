@@ -1,13 +1,11 @@
 ## Submission of package version 1.3.1
-Five functions within the package have been amended to ensure continued compatability with dplyr v1.0.0 due for release 1st May 2020.
-
-Additionally, the phe_life_expectancy function has been amended (bug fix) to show more relevant population and death counts in the output.
+Functions have been updated to use the new .groups argument in dplyr::summarise to ensure grouping sets remain unchanged on output objects
 
 ## R CMD check results
-There were no ERRORs, WARNINGS or NOTES on local Windows 10 install using R 3.6.3 and RStudio 1.2.5019
+There were no ERRORs, WARNINGS or NOTES on local Windows 10 install using R 4.0.0 and RStudio 1.2.5042
 
 ## Test Environments  
-local windows 10 installs: R3.6.3 - OK   
+local windows 10 installs: R4.0.0 - OK   
 
 Travis check on Linux (2020-04-11) - OK  
 

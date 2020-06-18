@@ -151,9 +151,7 @@ test2 <- phe_life_expectancy(df2, deaths, pops, startage)
 test3 <- df1 %>%
   mutate(area = "test") %>%
   group_by(area) %>%
-  phe_life_expectancy(deaths, pops, startage) %>%
-  ungroup() %>%
-  data.frame()
+  phe_life_expectancy(deaths, pops, startage)
 test4 <- phe_life_expectancy(df3, deaths, pops, startage,
                              age_contents = c("0", "1-4", "5-9",
                                               "10 – 14", "15 – 19",
@@ -197,7 +195,7 @@ test_that("LE and CIs calculate correctly",{
                info = "test confidence = 95")
   expect_equal(round(test2[, cols_to_test], n), round(answer1, n),
                info = "incorrect ageband order")
-  expect_equal(round(test3[, cols_to_test], n), round(answer1, n),
+  expect_equal(round(test3[, cols_to_test], n), as_tibble(round(answer1, n)),
                info = "single area grouping")
   expect_equal(round(test4[, cols_to_test], n), round(answer1, n),
                info = "custom age bands in wrong order")
@@ -222,12 +220,28 @@ test_that("LE and CIs calculate correctly",{
 
 })
 
-test_that("LE - warnings are generated when invalid arguments are used",{
+# test that correct columns are output
+test_that("LE - correct column numbers are output",{
   expect_equal(ncol(test1), expected_num_cols - 5)
   expect_equal(ncol(test2), expected_num_cols)
   expect_equal(ncol(test8), expected_num_cols - 2 + (2 * 2))
   expect_equal(ncol(phe_life_expectancy(df1, deaths, pops, startage, confidence = 90:99)),
                expected_num_cols - 2 + (2 * length(90:99)))
+})
+
+# test that output is in correct format
+test_that("LE - correct output format",{
+  expect_true(is.data.frame(test1),   info = "test1 is dataframe format")
+  expect_true(is.data.frame(test1.1), info = "test1.1 is dataframe format")
+  expect_true(is.data.frame(test2),   info = "test2 is dataframe format")
+  expect_true(is.data.frame(test3),   info = "test3 is dataframe format")
+  expect_true(is.data.frame(test4),   info = "test4 is dataframe format")
+  expect_true(is.data.frame(test5),   info = "test5 is dataframe format")
+  expect_true(is.data.frame(test6),   info = "test6 is dataframe format")
+  expect_true(is.data.frame(test7),   info = "test7 is dataframe format")
+  expect_true(is.data.frame(test8),   info = "test8 is dataframe format")
+  expect_true(is.data.frame(test_grouped_with_warnings),   info = "test_grouped_with_warnings is dataframe format")
+  expect_equal(group_vars(test3), c("area"), info = "test3 output is grouped by area")
 })
 
 # test warnings
