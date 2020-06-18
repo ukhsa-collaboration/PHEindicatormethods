@@ -43,7 +43,9 @@ The example below calculates the SII on some life expectancy data. This is assum
 
 The relevant fields in the input dataset are specified for the arguments `quantile`, `population` and `value`. `value_type` is kept equal to 0 (default), and the number of repetitions set to 100 for faster running of the function as a demonstration.
 
-The standard error (`se`) has been provided here in the input dataset, meaning this will be used directly and lower/upper 95% confidence limits of the indicator values are not needed.
+The standard error (`se`) has been provided here in the input dataset, meaning this will be used directly and lower/upper 95% confidence limits of the indicator values are not needed.  
+
+A warning is generated because one of the GeoCodes (E06000053) in the data does not contain a record for every quantile so no output is provided for this area.
 
 
 ```{r default_example}

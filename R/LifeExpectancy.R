@@ -494,6 +494,13 @@ phe_life_expectancy <- function(data, deaths, population, startage,
             select(-pops_used, -dths_used)
   }
 
-  return(as.data.frame(data))
+  # ensure output is a data frame with original group attributes
+  grp_vars <- group_vars(data)
+  data <- as.data.frame(data)
+  if(length(grp_vars) > 0) {
+    data <- data %>% group_by_at(grp_vars)
+  }
+
+  return(data)
 
 }

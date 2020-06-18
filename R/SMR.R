@@ -126,7 +126,8 @@ phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         phe_smr <- data %>%
           mutate(exp_x = na.zero(xrefpop_calc) / nrefpop_calc * na.zero({{ n }})) %>%
           summarise(observed  = sum({{ x }}, na.rm = TRUE),
-                    expected  = sum(exp_x)) %>%
+                    expected  = sum(exp_x),
+                    .groups = "keep") %>%
           mutate(value     = observed / expected * refvalue,
                  lower95_0cl = if_else(observed < 10, qchisq((1-conf1)/2,2*observed)/2/expected * refvalue,
                                    byars_lower(observed,conf1)/expected * refvalue),
@@ -166,7 +167,8 @@ phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         phe_smr <- data %>%
             mutate(exp_x = na.zero(xrefpop_calc) / nrefpop_calc * na.zero({{ n }})) %>%
             summarise(observed = sum({{ x }}, na.rm = TRUE),
-                  expected     = sum(exp_x)) %>%
+                  expected     = sum(exp_x),
+                  .groups = "keep") %>%
             mutate(value      = observed / expected * refvalue,
                    lowercl    = if_else(observed < 10, qchisq((1-confidence)/2,2*observed)/2/expected * refvalue,
                                     byars_lower(observed,confidence)/expected * refvalue),

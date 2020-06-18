@@ -522,7 +522,7 @@ test_that("warnings are generated when data does not pass quality checks",{
                              lower_cl = LowerCL,
                              upper_cl = UpperCL,
                              type = "standard"),
-                     "some records have been removed due to incomplete or invalid data")
+                     "WARNING: some records have been removed due to incomplete or invalid data")
 
         # large number of quantiles
         expect_warning(phe_sii(SII_test_grouped[211:225, 3:13],
@@ -532,7 +532,7 @@ test_that("warnings are generated when data does not pass quality checks",{
                                lower_cl = LowerCL,
                                upper_cl = UpperCL,
                                type = "standard"),
-                       "Small values can make SII unstable when using a large number of quantiles")
+                       "WARNING: Small values can make SII unstable when using a large number of quantiles")
 })
 
 
