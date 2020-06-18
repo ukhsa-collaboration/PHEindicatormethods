@@ -71,7 +71,8 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
         phe_mean <- data %>%
             summarise(value_sum   = sum({{ x }}),
                       value_count = length({{ x }}),
-                      stdev   = sd({{ x }})) %>%
+                      stdev   = sd({{ x }}),
+                      .groups = "keep") %>%
             mutate(value = value_sum / value_count,
                    lower95_0cl = value - abs(qt(p1, value_count - 1)) * stdev / sqrt(value_count),
                    upper95_0cl = value + abs(qt(p1, value_count - 1)) * stdev / sqrt(value_count),
@@ -110,7 +111,8 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
         phe_mean <- data %>%
             summarise(value_sum   = sum({{ x }}),
                       value_count = length({{ x }}),
-                      stdev   = sd({{ x }})) %>%
+                      stdev   = sd({{ x }}),
+                      .groups = "keep") %>%
             mutate(value = value_sum / value_count,
                    lowercl = value - abs(qt(p, value_count - 1)) * stdev / sqrt(value_count),
                    uppercl = value + abs(qt(p, value_count - 1)) * stdev / sqrt(value_count),

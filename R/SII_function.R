@@ -312,7 +312,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         if (no_quantiles < 5 | no_quantiles > 100) {
                 stop("Number of quantiles must be between 5 and 100")
         } else if (no_quantiles > 10) {
-                warning("Small values can make SII unstable when using a large number of quantiles")
+                warning("WARNING: Small values can make SII unstable when using a large number of quantiles")
         }
 
         # Remove records with missing essential data
@@ -342,7 +342,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                               all.y = TRUE)
 
         if (nrow(valid_deciles) != nrow(data)) {
-                warning("some records have been removed due to incomplete or invalid data")
+                warning("WARNING: some records have been removed due to incomplete or invalid data")
         }
 
 

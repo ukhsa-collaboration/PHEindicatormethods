@@ -222,8 +222,8 @@ df_std %>%
 df_std %>%
     group_by(area, year, ageband) %>%
     summarise(obs = sum(obs),
-              pop = sum(pop)) %>%
-    group_by(area, year) %>%
+              pop = sum(pop),
+              .groups = "drop_last") %>%
     phe_dsr(obs,pop)
 ```
 
@@ -251,7 +251,8 @@ df_ref <- df_std %>%
     filter(year == 2006) %>%
     group_by(ageband) %>%
     summarise(obs = sum(obs),
-              pop = sum(pop))
+              pop = sum(pop),
+              .groups = "drop_last")
     
 head(df_ref)
 ```
@@ -275,8 +276,8 @@ df_std %>%
 df_std %>%
     group_by(year, ageband) %>%
     summarise(obs = sum(obs),
-              pop = sum(pop)) %>%
-    group_by(year) %>%
+              pop = sum(pop),
+              .groups = "drop_last") %>%
     phe_smr(obs, pop, df_ref$obs, df_ref$pop, type="standard")
 ```
 
@@ -299,7 +300,7 @@ df_std %>%
 df_std %>%
     group_by(year, ageband) %>%
     summarise(obs = sum(obs),
-              pop = sum(pop)) %>%
-    group_by(year) %>%
+              pop = sum(pop),
+              .groups = "drop_last")  %>%
     phe_isr(obs, pop, df_ref$obs, df_ref$pop, type="standard")
 ```
