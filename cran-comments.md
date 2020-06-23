@@ -13,7 +13,8 @@ devtools::check_win gave no ERRORS, WARNINGS or NOTES on the following versions:
 * release:    R version 4.0.0 (2020-04-20)
 * oldrelease: R version 3.6.3 (2020-02-29)
 
-devtools::check_win_devel has repeatedly timed out and I have not been able to run this.
+devtools::check_win gave no ERRORS OR WARNINGS but there was 1 NOTE about possible invalid DOIs which has been checked and is not critical to the functionality of the package:  
+* devel:      R Under development (unstable) (2020-06-12 r78687)
 
 
 * devtools::check_rhub has been run on the following platforms.  I had to use the argument **env_vars=c(R_COMPILE_AND_INSTALL_PACKAGES = "always")** as a workaround to avoid the error **Error in loadNamespace(name) : there is no package called 'utf8'** on Windows platform as described [here](https://github.com/r-hub/rhub/issues/374). These checks produced a NOTE about possible invalid DOIs which have been checked and are not critical to the functionality of the package. 
