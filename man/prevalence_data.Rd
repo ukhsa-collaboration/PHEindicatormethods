@@ -4,7 +4,9 @@
 \name{prevalence_data}
 \alias{prevalence_data}
 \title{SII test datasets - Prevalence}
-\format{A data table}
+\format{
+A data table
+}
 \usage{
 data(prevalence_data)
 }

@@ -151,8 +151,8 @@ Journal of Public Health; 2004;26:388-395. \cr \cr
 \seealso{
 Other PHEindicatormethods package functions: 
 \code{\link{phe_dsr}()},
-\code{\link{phe_fun_prop_plot}()},
-\code{\link{phe_fun_prop_sig}()},
+\code{\link{phe_funnel_significance}()},
+\code{\link{phe_funnels}()},
 \code{\link{phe_isr}()},
 \code{\link{phe_life_expectancy}()},
 \code{\link{phe_mean}()},

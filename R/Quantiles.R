@@ -21,8 +21,6 @@
 #' @param type defines whether to include metadata columns in output to reference the arguments passed;
 #'             can be "standard" or "full"; quoted string; default = "full"
 #'
-#' @inheritParams phe_dsr
-#'
 #' @return When type = "full", returns the original data.frame with quantile (quantile value), nquantiles (number of quantiles requested)
 #'         and invert (indicating direction of quantile assignment) fields appended.
 #'
