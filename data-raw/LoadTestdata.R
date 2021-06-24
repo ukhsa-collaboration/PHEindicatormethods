@@ -33,7 +33,7 @@ qnames <- data.frame(quantiles = c(2L,3L,4L,5L,6L,7L,8L,10L,12L,16L,20L),
 
 
 # quantile test data
-test_quantiles <- read_excel(".\\tests\\testthat\\testdata_Quantiles.xlsx",
+test_quantiles <- read_excel("tests/testthat/testdata_Quantiles.xlsx",
                              sheet="testdata_Quantiles",   col_names=TRUE)  %>%
   select(-Rank, -RevValue, -Sex, -RowsInGrp)
 
@@ -53,40 +53,54 @@ test_quantiles_fail <- test_quantiles %>%
 
 
 # Byars Wilson test data
-test_BW <- read_excel(".\\tests\\testthat\\testdata_Byars_Wilson.xlsx", sheet="testdata_B_W",   col_names=TRUE)
+test_BW <- read_excel("tests/testthat/testdata_Byars_Wilson.xlsx", sheet="testdata_B_W",   col_names=TRUE)
 
 # Funnel proportions
-test_fp <- read_excel(".\\tests\\testthat\\testdata_funnel_prop.xlsx", sheet="Plot",   col_names=TRUE)
 
-test_fs <- read_excel(".\\tests\\testthat\\testdata_funnel_prop.xlsx", sheet="Sig",   col_names=TRUE)
-test_fs[is.na(test_fs)]<-""
-test_fs$Area<-as.factor(test_fs$Area)
+test_funnel_inputs <- read.csv("tests/testthat/testdata_funnel_prop_inputs.csv",
+                                col.names = c("Area", "numerator", "denominator", "significance"),
+                                colClasses = c("character", "numeric", "integer", "factor"))
+
+test_funnel_outputs <- read.csv("tests/testthat/testdata_funnel_prop_outputs.csv",
+                                col.names = c("Population",
+                                              "Lower2s0025limit", "Upper2s0025limit",
+                                              "Lower3s0001limit", "Upper3s0001limit",
+                                              "Baseline"),
+                                colClasses = "numeric")
+
+test_funnel_outputs_axis_variation <- read.csv("tests/testthat/testdata_funnel_prop_outputs_with_axis_variation.csv",
+                                               col.names = c("Population",
+                                                             "Lower2s0025limit", "Upper2s0025limit",
+                                                             "Lower3s0001limit", "Upper3s0001limit",
+                                                             "Baseline"),
+                                               colClasses = "numeric")
+
 
 # Proportions test data
-test_Prop   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)
+test_Prop   <- read_excel("tests/testthat/testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)
 
 test_Prop_g <- test_Prop %>%
   group_by(Area)
 
-test_Prop_g_results   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop_g",   col_names=TRUE)
+test_Prop_g_results   <- read_excel("tests/testthat/testdata_Proportion.xlsx", sheet="testdata_Prop_g",   col_names=TRUE)
 
 
 
 
 #Rates test data
-test_Rate <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate", col_names=TRUE)
+test_Rate <- read_excel("tests/testthat/testdata_Rate.xlsx", sheet="testdata_Rate", col_names=TRUE)
 
 test_Rate_g <- test_Rate %>%
   group_by(Area)
 
-test_Rate_g_results   <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate_g",   col_names=TRUE)
+test_Rate_g_results   <- read_excel("tests/testthat/testdata_Rate.xlsx", sheet="testdata_Rate_g",   col_names=TRUE)
 
 
 
 
 #Means test data
-test_Mean         <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet="testdata_Mean",         col_names=TRUE)
-test_Mean_results <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet="testdata_Mean_results", col_names=TRUE)
+test_Mean         <- read_excel("tests/testthat/testdata_Mean.xlsx", sheet="testdata_Mean",         col_names=TRUE)
+test_Mean_results <- read_excel("tests/testthat/testdata_Mean.xlsx", sheet="testdata_Mean_results", col_names=TRUE)
 
 test_Mean_Grp <- group_by(test_Mean,area)
 
@@ -95,20 +109,20 @@ test_Mean_Grp <- group_by(test_Mean,area)
 
 
 # DSRs, ISRs and SMRs test data
-test_multiarea   <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multiarea", col_names=TRUE) %>%
+test_multiarea   <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multiarea", col_names=TRUE) %>%
   group_by(area)
-test_DSR_1976    <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_1976",   col_names=TRUE)
-test_err1        <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err1",   col_names=TRUE)
-test_err2        <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err2",   col_names=TRUE) %>%
+test_DSR_1976    <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_1976",   col_names=TRUE)
+test_err1        <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err1",   col_names=TRUE)
+test_err2        <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err2",   col_names=TRUE) %>%
   group_by(area)
-test_err3        <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err3",   col_names=TRUE)
-test_DSR_results <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testresults_DSR", col_names=TRUE)
-test_multigroup  <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multigroup", col_names=TRUE) %>%
+test_err3        <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err3",   col_names=TRUE)
+test_DSR_results <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testresults_DSR", col_names=TRUE)
+test_multigroup  <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multigroup", col_names=TRUE) %>%
   group_by(area,year)
 
-test_ISR_results <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testresults_ISR", col_names=TRUE)
-test_ISR_refdata <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="refdata",         col_names=TRUE)
-test_ISR_ownref  <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multiarea_isrsmr", col_names=TRUE) %>%
+test_ISR_results <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testresults_ISR", col_names=TRUE)
+test_ISR_refdata <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="refdata",         col_names=TRUE)
+test_ISR_ownref  <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multiarea_isrsmr", col_names=TRUE) %>%
                       group_by(area)
 
 # SII
@@ -135,5 +149,6 @@ usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results,
                   test_Mean, test_Mean_Grp, test_Mean_results,
                   test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results,
                   test_ISR_refdata, test_ISR_results, test_ISR_ownref,
-                  SII_test_data, SII_test_grouped,test_fp, test_fs,
+                  SII_test_data, SII_test_grouped,
+                  test_funnel_inputs, test_funnel_outputs, test_funnel_outputs_axis_variation,
                   internal = TRUE, overwrite = TRUE)
