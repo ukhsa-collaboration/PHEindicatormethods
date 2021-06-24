@@ -11,6 +11,13 @@ df1 <- data.frame(startage = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45
                   deaths = c(17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L,
                              263L, 304L, 536L, 872L, 1390L, 1605L, 1936L, 1937L))
 
+df1_cum <- data.frame(pops_used = c(787954,	780894,	745835,	698861,	650372,	607153,	568592,
+                                    522583,	465375,	403940,	348339,	298130,	241714,	195303,
+                                    155483,	117505,	80466,	47178,	23872,	11936),
+                      dths_used = c(9357,	9340,	9331,	9327,	9319,	9299,	9284,
+                                    9260,	9227,	9177,	9106,	9006,	8843,	8580,
+                                    8276,	7740,	6868,	5478,	3873,	1937))
+
 df2 <- data.frame(startage = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L,
                                60L, 70L, 75L, 80L, 85L, 90L, 65L),
                   pops = c(7060L, 35059L, 46974L, 48489L, 43219L, 38561L, 46009L, 57208L,
@@ -131,24 +138,20 @@ answer1 <- round(data.frame(value = c(80.16960813, 79.36245674, 75.44193645, 70.
 
 answer2 <- cbind(df1[c(3, 7),],
                  round(answer1[c(3, 7),], n),
+                 df1_cum[c(3, 7),],
                  data.frame(stringsAsFactors = FALSE,
-                            confidence  = rep(0.95, 2),
+                            confidence  = rep("95%", 2),
                             statistic = paste("life expectancy at", c(5, 25)),
-                            method = rep("Chiang, using Silcocks et al for confidence limits", 2)))
+                            method = rep("Chiang, using Silcocks et al for confidence limits", 2))) %>%
+                select(-pops, -deaths)
 
-test1 <- phe_life_expectancy(df1, deaths, pops, startage, type="standard") %>%
-  select(value:uppercl)
-test1.1 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = 95) %>%
-  select(value:uppercl)
-test2 <- phe_life_expectancy(df2, deaths, pops, startage) %>%
-  select(value:uppercl)
+test1 <- phe_life_expectancy(df1, deaths, pops, startage, type="standard")
+test1.1 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = 95)
+test2 <- phe_life_expectancy(df2, deaths, pops, startage)
 test3 <- df1 %>%
   mutate(area = "test") %>%
   group_by(area) %>%
-  phe_life_expectancy(deaths, pops, startage) %>%
-  ungroup() %>%
-  select(value:uppercl) %>%
-  data.frame()
+  phe_life_expectancy(deaths, pops, startage)
 test4 <- phe_life_expectancy(df3, deaths, pops, startage,
                              age_contents = c("0", "1-4", "5-9",
                                               "10 – 14", "15 – 19",
@@ -159,61 +162,86 @@ test4 <- phe_life_expectancy(df3, deaths, pops, startage,
                                               "60 – 64", "65 – 69",
                                               "70 – 74", "75 – 79",
                                               "80 – 84", "85 – 89",
-                                              "90 +")) %>%
-  select(value:uppercl)
-test5 <- phe_life_expectancy(df1, deaths, pops, startage, le_age = 5) %>%
-  select(value:uppercl)
+                                              "90 +"))
+test5 <- phe_life_expectancy(df1, deaths, pops, startage, le_age = 5)
 test6 <- phe_life_expectancy(df1, deaths, pops, startage, le_age = c(5, 25), type="full") %>%
   mutate_at(c("value", "lowercl", "uppercl"), round, digits = n)
-negative_warning <- capture_warnings(test_neg <- phe_life_expectancy(df_neg_deaths, deaths, pop, age) %>%
-                                       select(value:uppercl))
-zero_warning <- capture_warnings(test_zero_pop <- phe_life_expectancy(df_zero_pop, deaths, pop, age) %>%
-                                  select(value:uppercl))
-deaths_pops_warning <- capture_warnings(test_greater_than_pops <- phe_life_expectancy(df_deaths_greater_pops, deaths, pop, age) %>%
-                                          select(value:uppercl))
+
+test7 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = 99.8)
+test8 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = c(95, 99.8))
+
+negative_warning <- capture_warnings(test_neg <- phe_life_expectancy(df_neg_deaths, deaths, pop, age))
+zero_warning <- capture_warnings(test_zero_pop <- phe_life_expectancy(df_zero_pop, deaths, pop, age))
+deaths_pops_warning <- capture_warnings(test_greater_than_pops <- phe_life_expectancy(df_deaths_greater_pops, deaths, pop, age))
 age_contents_short <- c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L,
                         40L, 45L, 50L, 55L, 60L, 65L, 70L, 75L, 80L, 85L)
-low_pops_warning <- capture_warnings(test_low_pops <- phe_life_expectancy(df_low_pops, deaths, pop, age) %>%
-                                      select(value:uppercl))
+low_pops_warning <- capture_warnings(test_low_pops <- phe_life_expectancy(df_low_pops, deaths, pop, age))
 missing_warning <- capture_warnings(test_missing_ageband <- phe_life_expectancy(df_missing_age, deaths, pop, age,
-                                                                                age_contents = age_contents_short) %>%
-                                      select(value:uppercl))
+                                                                                age_contents = age_contents_short))
 multi_warnings <- capture_warnings(
   test_grouped_with_warnings <- df_grouped_with_warnings %>%
                                     group_by(area) %>%
                                     phe_life_expectancy(deaths, pop, age)
   )
 
+cols_to_test <- c("value", "lowercl", "uppercl")
+expected_num_cols <- 9
 
 #test calculations
 test_that("LE and CIs calculate correctly",{
-  expect_equal(round(test1, n), round(answer1, n),
+  expect_equal(round(test1[, cols_to_test], n), round(answer1, n),
                info = "test defaults but with type standard")
-  expect_equal(round(test1.1, n), round(answer1, n),
+  expect_equal(round(test1.1[, cols_to_test], n), round(answer1, n),
                info = "test confidence = 95")
-  expect_equal(round(test2, n), round(answer1, n),
+  expect_equal(round(test2[, cols_to_test], n), round(answer1, n),
                info = "incorrect ageband order")
-  expect_equal(round(test3, n), round(answer1, n),
+  expect_equal(round(test3[, cols_to_test], n), as_tibble(round(answer1, n)),
                info = "single area grouping")
-  expect_equal(round(test4, n), round(answer1, n),
+  expect_equal(round(test4[, cols_to_test], n), round(answer1, n),
                info = "custom age bands in wrong order")
-  expect_equal(round(test5, n), round(answer1[3, ], n),
+  expect_equal(round(test5[, cols_to_test], n), round(answer1[3, ], n),
                check.attributes = FALSE, #because the row names are different and we are only interested in values
                info = "return single age band")
   expect_equal(test6, answer2,
                check.attributes = FALSE, #because the row names are different and we are only interested in values
                info = "type = 'full' with two filters")
-  expect_equal(sum(!is.na(test_neg)), 0,
+  expect_equal(sum(!is.na(test_neg[, cols_to_test])), 0,
                info = "negative deaths produces only NAs")
-  expect_equal(sum(!is.na(test_zero_pop)), 0,
+  expect_equal(sum(!is.na(test_zero_pop[, cols_to_test])), 0,
                info = "zero in pop age band produces only NAs")
-  expect_equal(sum(!is.na(test_greater_than_pops)), 0,
+  expect_equal(sum(!is.na(test_greater_than_pops[, cols_to_test])), 0,
                info = "deaths in age band greater than pops produces only NAs")
-  expect_equal(sum(!is.na(test_missing_ageband)), 0,
+  expect_equal(sum(!is.na(test_missing_ageband[, cols_to_test])), 0,
                info = "missing age band produces only NAs")
   expect_equal(nrow(test_grouped_with_warnings), nrow(df_grouped_with_warnings),
                info = "correct number of rows for grouped calcs")
+  expect_equivalent(test7[, c("lowercl", "uppercl")],
+                    test8[, c("lower99_8cl", "upper99_8cl")])
 
+})
+
+# test that correct columns are output
+test_that("LE - correct column numbers are output",{
+  expect_equal(ncol(test1), expected_num_cols - 5)
+  expect_equal(ncol(test2), expected_num_cols)
+  expect_equal(ncol(test8), expected_num_cols - 2 + (2 * 2))
+  expect_equal(ncol(phe_life_expectancy(df1, deaths, pops, startage, confidence = 90:99)),
+               expected_num_cols - 2 + (2 * length(90:99)))
+})
+
+# test that output is in correct format
+test_that("LE - correct output format",{
+  expect_true(is.data.frame(test1),   info = "test1 is dataframe format")
+  expect_true(is.data.frame(test1.1), info = "test1.1 is dataframe format")
+  expect_true(is.data.frame(test2),   info = "test2 is dataframe format")
+  expect_true(is.data.frame(test3),   info = "test3 is dataframe format")
+  expect_true(is.data.frame(test4),   info = "test4 is dataframe format")
+  expect_true(is.data.frame(test5),   info = "test5 is dataframe format")
+  expect_true(is.data.frame(test6),   info = "test6 is dataframe format")
+  expect_true(is.data.frame(test7),   info = "test7 is dataframe format")
+  expect_true(is.data.frame(test8),   info = "test8 is dataframe format")
+  expect_true(is.data.frame(test_grouped_with_warnings),   info = "test_grouped_with_warnings is dataframe format")
+  expect_equal(group_vars(test3), c("area"), info = "test3 output is grouped by area")
 })
 
 # test warnings
@@ -269,6 +297,6 @@ test_that("LE - errors are generated when invalid arguments are used",{
                "first age band in age_contents must be 0")
   expect_error(phe_life_expectancy(df1, deaths, pop, age,
                                    confidence = 0.8),
-               "confidence level must be between 90 and 100 or between 0.9 and 1")
+               "all confidence levels must be between 90 and 100 or between 0.9 and 1")
 
 })

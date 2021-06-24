@@ -1,3 +1,40 @@
+## PHEindicatormethods v1.3.2
+
+`phe_dsr`, `phe_isr`, `phe_mean`, `phe_proportion`, `phe_rate`, `phe_smr`, `phe_life_expectancy` amended so output data frame has the same grouping attributes as the input data frame.
+
+## PHEindicatormethods v1.3.1
+
+`phe_proportion`, `phe_rate`, `phe_quantile`, `phe_life_expectancy`, `phe_sii`:  
+Functions amended to ensure continued compatibility with dplyr when v1.0.0 is released.
+These changes will not be noticeable to end users.
+
+`phe_life_expectancy`: dropped population and death columns from output as these are no longer applicable to the final LE statistic.  Added pops_used and dths_used columns to output when type = 'full' which reflect the cumulative populations and deaths used in each LE calculation (ie the pops and deaths for all ages equal to or above the Life_Expectancy_At age)
+
+
+## PHEindicatormethods v1.3.0
+* `phe_sii function` updated to be able to output multiple confidence intervals
+* `phe_life_expectancy()` function previously calculated life expectancy and confidence levels inaccurately when the number of deaths in all age groups except the final one was 40% or more of the size of the population in any age group (apart from the 1–4 age group where it’s 50%). It had an affect in very few scenarios, but was inaccurate nonetheless. This has now been corrected to agree with the published methodology
+* `phe_life_expectancy()` now accepts a numeric vector as an input to the `confidence` argument so users can calculate multiple confidence limits in one command
+* `phe_dsr` The standardised_pop output variable added in v1.2.0 has been removed as this was not providing a meaningful value. This may result in some backwards incompatability if code has been written to reference (eg drop) this column as it will no longer be included in the phe_dsr output.
+
+
+## PHEindicatormethods v1.2.0
+The following changes may affect backwards compatibility with earlier versions of the package:  
+
+* phe_quantile - highergeog argument deprecated.  Argument wasn't providing any additional functionality and its use was affecting grouping sets on output data frame.  Input dataframe must now be pre-grouped to reproduce the results previously obtained using the highergeog argument.  Also documentation references to geographies removed as function is applicable to other subgroups.
+
+<br>
+
+The following changes will not affect backwards compatibility with earlier versions of the package: 
+
+* Amended functions to use new embrace interpolation features of rlang 0.4.0: dsr, isr, smr, rate, proportion, mean, quantile.  Package dependencies now require Rlang version 0.4.0 or higher   
+
+* Added ability to output both 95% and 99.8% confidence intervals in a single execution to dsr, isr, smr, rate, proportion, mean functions
+
+* Amended phe_dsr to also output the standardised population used in the calculation when type="full"
+
+* Some warnings that occurred with `phe_life_expectancy()` have been fixed
+
 ## PHEindicatormethods v1.1.5
 phe_sii function updated to be compatible with nest and unnest functions from tidyr version 1.0
 

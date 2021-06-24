@@ -15,7 +15,8 @@ phe_mean(data, x, type = "full", confidence = 0.95)
 can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or 90 and 100; numeric; default 0.95}
+or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
+numeric; default 0.95}
 }
 \value{
 When type = "full", returns a data.frame of value_sum, value_count, stdev, value, lowercl, uppercl, confidence, statistic and method
@@ -27,9 +28,14 @@ Calculates means with confidence limits using Student's t-distribution method.
 \examples{
 library(dplyr)
 df <- data.frame(values = c(30,40,50,60))
+
+## default execution
 phe_mean(df, values)
 
-## OR
+## calculate 95\% and 99.8\% CIs in single execution
+phe_mean(df, values, confidence = c(0.95, 0.998))
+
+## calculate multiple means in a single execution
 
 df2 <- data.frame(area = rep(c("Area1", "Area2"),each=3),
                   values = c(20,30,40,200,300,400)) \%>\%

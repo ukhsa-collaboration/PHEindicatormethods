@@ -20,7 +20,8 @@ unquoted string; no default}
 can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or 90 and 100; numeric; default 0.95}
+or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
+numeric; default 0.95}
 
 \item{multiplier}{the multiplier used to express the final values (eg 100 = percentage); numeric; default 1}
 }
@@ -47,7 +48,7 @@ df <- data.frame(area = rep(c("Area1","Area2","Area3","Area4"), each=3),
 phe_proportion(df, numerator, denominator)
 phe_proportion(df, numerator, denominator, confidence=99.8)
 phe_proportion(df, numerator, denominator, type="standard")
-
+phe_proportion(df, numerator, denominator, confidence = c(0.95, 0.998))
 
 # grouped data frame
 library(dplyr)

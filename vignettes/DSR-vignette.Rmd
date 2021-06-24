@@ -156,7 +156,17 @@ identical(right,wrong)
  
 Now we're ready to calculate the DSRs using our correctly ordered df data frame.  
 
-By default the function will apply 95% confidence, a 100,000 multiplier and will output just 3 fields against each grouping set - the dsr, the lower confidence limit and the upper confidence limit: 
+By default the function will apply 95% confidence, a 100,000 multiplier and will output 3 data fields against each grouping set:  
+
+* the dsr value  
+* the lower confidence limit
+* the upper confidence limit  
+
+It will also output 3 metadata fields as an audit showing which argument parameters were passed:  
+
+* confidence - the confidence level(s) returned
+* multiplier - the multiplier applied
+* method - the DSR method applied
  
 ``` {r calculate DSRs}
 phe_dsr(df, dths, pop)
@@ -165,11 +175,7 @@ phe_dsr(df, dths, pop)
 </br>
 </br>
 
-Alternatively, we can add further arguments to specify:
-
-* the level of detail required in the output (type = standard will drop metadata fields)
-* the confidence level (confidence)
-* the multiplier (multiplier)
+Alternatively, we can just output the data fields by specifying the 'type' argument value as 'standard':  
 
 ``` {r alternative dsr}
 phe_dsr(df, dths, pop, type = "standard", confidence = 99.8, multiplier = 10000)

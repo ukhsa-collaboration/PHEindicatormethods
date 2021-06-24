@@ -42,7 +42,13 @@ added details on the calculation within the dataframe); quoted
 string; default full}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or 90 and 100; numeric; default 0.95}
+or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
+numeric; default 0.95}
+}
+\value{
+returns a data frame containing the life expectancies and confidence intervals
+        for each le_age requested.  When type = 'full' additionally returns the cumulative
+        populations and deaths used in each LE calculation and metadata indicating parameters passed.
 }
 \description{
 Compute life expectancy for a given age, and its standard error
@@ -92,6 +98,9 @@ df <- data.frame(startage = c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L
                  deaths = c(17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 71L, 100L, 163L,
                             263L, 304L, 536L, 872L, 1390L, 1605L, 1936L, 1937L))
 phe_life_expectancy(df, deaths, pops, startage)
+
+## or with multiple confidence limits
+phe_life_expectancy(df, deaths, pops, startage, confidence = c(95, 99.8))
 
 ## OR
 

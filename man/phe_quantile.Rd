@@ -15,34 +15,34 @@ phe_quantile(
 )
 }
 \arguments{
-\item{data}{a data.frame containing the base (and optionally higher) geography data and quantitative data for assigning quantiles,
-pre-grouped if quantiles required for breakdowns other than the defined higher geographies;
+\item{data}{a data frame containing the quantitative data to be assigned to quantiles.
+If pre-grouped, separate sets of quantiles will be assigned for each grouping set;
 unquoted string; no default}
 
-\item{values}{field name from data containing the numeric values for each base geography area to rank data by and assign quantiles from;
+\item{values}{field name from data containing the numeric values to rank data by and assign quantiles from;
 unquoted string; no default}
 
-\item{highergeog}{field name from data containing the higher geographies to assign separate quantile categories within if required;
-unquoted string; default = NULL}
+\item{highergeog}{deprecated - functionality replaced by pre-grouping the input data frame}
 
-\item{nquantiles}{the number of quantiles to assign per higher geography; numeric; default=10L}
+\item{nquantiles}{the number of quantiles to separate each grouping set into; numeric; default=10L}
 
 \item{invert}{whether the quantiles should be directly (FALSE) or inversely (TRUE) related to the numerical value order;
-unquoted string referencing logical values as either a single logical value or field name from data
-depending on value of inverttype; default = TRUE (ie highest values assigned to quantile 1)}
+logical (to apply same value to all grouping sets) OR unquoted string referencing field name from data
+that stores logical values for each grouping set; default = TRUE (ie highest values assigned to quantile 1)}
 
-\item{inverttype}{whether the invert argument has been specified as a single logical value or a field name from data;
+\item{inverttype}{whether the invert argument has been specified as a logical value or a field name from data;
 quoted string "field" or "logical"; default = "logical"}
 
 \item{type}{defines whether to include metadata columns in output to reference the arguments passed;
 can be "standard" or "full"; quoted string; default = "full"}
 }
 \value{
-When type = "full", returns the original data.frame with quantile (quantile value), nquantiles (number of quantiles requested)
+When type = "full", returns the original data.frame with quantile (quantile value),
+        nquantiles (number of quantiles requested), groupvars (grouping sets quantiles assigned within)
         and invert (indicating direction of quantile assignment) fields appended.
 }
 \description{
-Assigns small areas to quantiles based on numeric data rankings.
+Assigns data to quantiles based on numeric data rankings.
 }
 \section{Notes}{
  See [PHE Technical Guide - Assigning Deprivation Quintiles](https://fingertips.phe.org.uk/profile/guidance) for methodology.
@@ -58,19 +58,16 @@ df <- data.frame(region = as.character(rep(c("Region1","Region2","Region3","Regi
                    vals = as.numeric(sample(200, 1000, replace = TRUE)),
                    stringsAsFactors=FALSE)
 
-# assign small areas to deciles within regions - method 1: assign grouping set within function
-phe_quantile(df, vals, region)
+# assign small areas to deciles across whole data frame
+phe_quantile(df, vals)
 
-# assign small area to deciles within regions - method 2: pre-group input dataframe
+# assign small area to deciles within regions by pre-grouping the input data frame
 library(dplyr)
 df_grp <- df \%>\% group_by(region)
 phe_quantile(df_grp, vals)
 
-# assign smallareas to decile across whole data frame (ignoring region)
-phe_quantile(df, vals)
-
-# assign smallareas to quintiles within regions, where high val = lowest quantile
-phe_quantile(df, vals, region, invert=FALSE)
+# assign small areas to quintiles, where highest value = highest quantile
+phe_quantile(df, vals, nquantiles = 5L, invert=FALSE)
 
 }
 \seealso{

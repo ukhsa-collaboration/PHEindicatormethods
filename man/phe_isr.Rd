@@ -38,7 +38,8 @@ quoted string "field" or "vector"; default = "vector"}
 can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or 90 and 100; numeric; default 0.95}
+or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
+numeric; default 0.95}
 
 \item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000}
 }
@@ -71,15 +72,20 @@ df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 *
 refdf <- data.frame(refcount = sample(200, 19, replace = TRUE),
                     refpop = sample(10000:20000, 19, replace = TRUE))
 
+## calculate multiple ISRs in single execution
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
     phe_isr(obs, pop, refdf$refcount, refdf$refpop)
 
-## OR
-
+## execute without outputting metadata fields
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
     phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="standard", confidence=99.8)
+
+## calculate 95\% and 99.8\% CIs in single execution
+df \%>\%
+    group_by(indicatorid, year, sex) \%>\%
+    phe_isr(obs, pop, refdf$refcount, refdf$refpop, confidence = c(0.95, 0.998))
 
 }
 \references{
