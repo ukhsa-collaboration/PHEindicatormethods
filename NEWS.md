@@ -1,5 +1,9 @@
 ## PHEindicatormethods v1.3.2
 
+* `phe_funnels()` and `phe_funnel_significance()` added to available functions. This provides ability to calculate funnel plot lines and significance for provided data in line with PHE published technical guidance.
+
+## PHEindicatormethods v1.3.2
+
 `phe_dsr`, `phe_isr`, `phe_mean`, `phe_proportion`, `phe_rate`, `phe_smr`, `phe_life_expectancy` amended so output data frame has the same grouping attributes as the input data frame.
 
 ## PHEindicatormethods v1.3.1
