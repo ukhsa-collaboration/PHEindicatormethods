@@ -77,7 +77,7 @@ phe_funnels <- function(data, x, denominator,
 
   # check required arguments present
   if (missing(data) | missing(x) | missing(denominator)) {
-    stop("function phe_proportion requires at least 3 arguments: data, x, n")
+    stop("function phe_funnels requires at least 3 arguments: data, x, n")
   }
 
 
@@ -221,7 +221,7 @@ phe_funnel_significance <- function(data, x, denominator,
 
   # check required arguments present
   if (missing(data) | missing(x) | missing(denominator)) {
-    stop("function phe_proportion requires at least 3 arguments: data, x, n")
+    stop("function phe_funnel_significance requires at least 3 arguments: data, x, n")
   }
 
   # validate arguments

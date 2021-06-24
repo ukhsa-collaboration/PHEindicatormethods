@@ -95,7 +95,19 @@ test_that("phe_funnel_significance requires data, x and denominator", {
         area = c("Area1", "Area2", "Area3"),
         pop = c(100, 100, 20)
       ), pop),
-    "function phe_proportion requires at least 3 arguments: data, x, n",
+    "function phe_funnel_significance requires at least 3 arguments: data, x, n",
+    info = "check the parameters passed into the function"
+  )
+})
+
+test_that("phe_funnels requires data, x and denominator", {
+  expect_error(
+    phe_funnels(
+      data.frame(
+        area = c("Area1", "Area2", "Area3"),
+        pop = c(100, 100, 20)
+      ), pop),
+    "function phe_funnels requires at least 3 arguments: data, x, n",
     info = "check the parameters passed into the function"
   )
 })
