@@ -2,7 +2,7 @@
 % Please edit documentation in R/Funnels.R
 \name{phe_funnel_significance}
 \alias{phe_funnel_significance}
-\title{Calculate confidence intervals/control limits and levels of significance around a funnel plot for proportions}
+\title{Identifies level of outlier based on funnel plot methodology}
 \usage{
 phe_funnel_significance(
   data,
@@ -15,21 +15,27 @@ phe_funnel_significance(
 \arguments{
 \item{data}{a data.frame containing the data to calculate control limits for,}
 
-\item{x}{field name from data containing the observed numbers of cases in the sample meeting the required condition
-(the numerator for the CLs); unquoted string; no default}
+\item{x}{field name from data containing the observed numbers of cases in the
+sample meeting the required condition (the numerator for the CLs); unquoted
+string; no default}
 
-\item{denominator}{field name from data containing the population(s) in the sample (the denominator for the CLs);
-unquoted string; no default}
+\item{denominator}{field name from data containing the population(s) in the
+sample (the denominator for the CLs); unquoted string; no default}
 
-\item{multiplier}{the multiplier used to express the final values (eg 100 = percentage); numeric; default 100}
+\item{multiplier}{the multiplier used to express the final values (eg 100 =
+percentage); numeric; default 100}
 
-\item{statistic}{string; type of statistic to inform funnel calculations. Currently only accepts "proportion"}
+\item{statistic}{string; type of statistic to inform funnel calculations.
+Currently only accepts "proportion"}
 }
 \value{
 returns the original data.frame with the significance level appended
 }
 \description{
-Calculates control limits adopting consistent method as per the PHE Fingertips Technical Guidance : https://fingertips.phe.org.uk/profile/guidance
+Determines whether records are outliers, and the level they are outliers,
+among a dataset of numerators and denominators. This follows the same
+methodology as that published on the PHE Fingertips Technical Guidance page:
+https://fingertips.phe.org.uk/profile/guidance
 }
 \examples{
 library(dplyr)
@@ -54,5 +60,8 @@ Other PHEindicatormethods package functions:
 \code{\link{phe_rate}()},
 \code{\link{phe_sii}()},
 \code{\link{phe_smr}()}
+}
+\author{
+Matthew Francis, \email{Matthew.Francis@phe.gov.uk}
 }
 \concept{PHEindicatormethods package functions}

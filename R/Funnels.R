@@ -1,10 +1,33 @@
-
-
+# -------------------------------------------------------------------------------------------------
+#' Calculate the funnel point value for a specific population based on a
+#' population average value
+#'
+#' Returns a value equivalent to the higher/lower funnel plot point based on the
+#' input population and probability
+#'
+#' @param p numeric (between 0 and 1); probability to calculate funnel plot
+#'   point (will normally be either 0.975 or 0.999)
+#' @param population numeric; the population for the area
+#' @param average_proportion numeric; the average proportion for all the areas
+#'   included in the funnel plot (the sum of the numerators divided by the sum
+#'   of the denominators)
+#' @param side string; "low" or "high" to determine which funnel to calculate
+#' @param multiplier  numeric; the multiplier used to express the final values
+#'   (eg 100 = percentage); default 100
+#' @return returns a value equivalent to the specified funnel for the input
+#'   population
+#'
+#' @examples
+#' sigma_adjustment(p = 0.975,
+#'                  population = 10000,
+#'                  average_proportion = 0.25,
+#'                  side = "low",
+#'                  multiplier = 100)
+#'
+#' @author Sebastian Fox, \email{sebastian.fox@@phe.gov.uk}
+#'
+# -------------------------------------------------------------------------------------------------
 sigma_adjustment <- function(p, population, average_proportion, side, multiplier) {
-  # ((av * (t[j, "Population"] / qnorm(0.999)^2 + 1) +
-  #     sigma_adjustment(t, 0.999, j) / 8) /
-  #    (1 / qnorm(0.999)^2 + 1 / t[j, "Population"]) /
-  #    t[j, "Population"]) * multiplier
   first_part <- average_proportion * (population /
                              qnorm(p)^2 + 1)
 
@@ -34,22 +57,26 @@ sigma_adjustment <- function(p, population, average_proportion, side, multiplier
 
 
 # -------------------------------------------------------------------------------------------------
-#' Calculate confidence intervals/control limits and levels of significance
+#' Calculate confidence intervals/control limits for funnel plots
 #'
-#' Calculates control limits adopting consistent method as per the PHE Fingertips Technical Guidance : https://fingertips.phe.org.uk/profile/guidance
+#' Calculates control limits adopting a consistent method as per the PHE
+#' Fingertips Technical Guidance: https://fingertips.phe.org.uk/profile/guidance
 #'
 #' @param data a data.frame containing the data to calculate control limits for;
-#'            unquoted string; no default
+#'   unquoted string; no default
 #'
-#' @param x field name from data containing the observed numbers of cases in the sample meeting the
-#'          required condition (the numerator for the CLs); unquoted string; no default
-#' @param denominator field name from data containing the population(s) in the sample
-#'               (the denominator for the CLs); unquoted string; no default
-#' @param multiplier the multiplier used to express the final values (eg 100 = percentage); numeric; default 100
-#' @param statistic string; type of statistic to inform funnel calculations. Currently only accepts "proportion"
-#' @return returns the original data.frame with the following appended:
-#'         lower 0.025 limit, upper 0.025 limit, lower 0.001 limit, upper 0.001 limit and
-#'         baseline average
+#' @param x field name from data containing the observed numbers of cases in the
+#'   sample meeting the required condition (the numerator for the CLs); unquoted
+#'   string; no default
+#' @param denominator field name from data containing the population(s) in the
+#'   sample (the denominator for the CLs); unquoted string; no default
+#' @param multiplier the multiplier used to express the final values (eg 100 =
+#'   percentage); numeric; default 100
+#' @param statistic string; type of statistic to inform funnel calculations.
+#'   Currently only accepts "proportion"
+#' @return returns the original data.frame with the following appended: lower
+#'   0.025 limit, upper 0.025 limit, lower 0.001 limit, upper 0.001 limit and
+#'   baseline average
 #'
 #' @import dplyr
 #' @importFrom rlang sym quo_name := .data
@@ -182,16 +209,21 @@ phe_funnels <- function(data, x, denominator,
 
 
 # -------------------------------------------------------------------------------------------------
-#' Calculate confidence intervals/control limits and levels of significance around a funnel plot for proportions
+#' Identifies level of outlier based on funnel plot methodology
 #'
-#' Calculates control limits adopting consistent method as per the PHE Fingertips Technical Guidance : https://fingertips.phe.org.uk/profile/guidance
+#' Determines whether records are outliers, and the level they are outliers,
+#' among a dataset of numerators and denominators. This follows the same
+#' methodology as that published on the PHE Fingertips Technical Guidance page:
+#' https://fingertips.phe.org.uk/profile/guidance
 #'
 #' @param data a data.frame containing the data to calculate control limits for,
-#' @param x field name from data containing the observed numbers of cases in the sample meeting the required condition
-#'          (the numerator for the CLs); unquoted string; no default
-#' @param denominator field name from data containing the population(s) in the sample (the denominator for the CLs);
-#'          unquoted string; no default
-#' @param multiplier the multiplier used to express the final values (eg 100 = percentage); numeric; default 100
+#' @param x field name from data containing the observed numbers of cases in the
+#'   sample meeting the required condition (the numerator for the CLs); unquoted
+#'   string; no default
+#' @param denominator field name from data containing the population(s) in the
+#'   sample (the denominator for the CLs); unquoted string; no default
+#' @param multiplier the multiplier used to express the final values (eg 100 =
+#'   percentage); numeric; default 100
 #' @inheritParams phe_funnels
 #'
 #' @return returns the original data.frame with the significance level appended
@@ -212,10 +244,8 @@ phe_funnels <- function(data, x, denominator,
 #' @export
 #'
 #' @family PHEindicatormethods package functions
+#' @author Matthew Francis, \email{Matthew.Francis@@phe.gov.uk}
 # -------------------------------------------------------------------------------------------------
-
-# First function - to append the level of significance
-
 phe_funnel_significance <- function(data, x, denominator,
                                     multiplier = 100, statistic = "proportion") {
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Funnels.R
 \name{phe_funnels}
 \alias{phe_funnels}
-\title{Calculate confidence intervals/control limits and levels of significance}
+\title{Calculate confidence intervals/control limits for funnel plots}
 \usage{
 phe_funnels(data, x, denominator, multiplier = 100, statistic = "proportion")
 }
@@ -10,23 +10,27 @@ phe_funnels(data, x, denominator, multiplier = 100, statistic = "proportion")
 \item{data}{a data.frame containing the data to calculate control limits for;
 unquoted string; no default}
 
-\item{x}{field name from data containing the observed numbers of cases in the sample meeting the
-required condition (the numerator for the CLs); unquoted string; no default}
+\item{x}{field name from data containing the observed numbers of cases in the
+sample meeting the required condition (the numerator for the CLs); unquoted
+string; no default}
 
-\item{denominator}{field name from data containing the population(s) in the sample
-(the denominator for the CLs); unquoted string; no default}
+\item{denominator}{field name from data containing the population(s) in the
+sample (the denominator for the CLs); unquoted string; no default}
 
-\item{multiplier}{the multiplier used to express the final values (eg 100 = percentage); numeric; default 100}
+\item{multiplier}{the multiplier used to express the final values (eg 100 =
+percentage); numeric; default 100}
 
-\item{statistic}{string; type of statistic to inform funnel calculations. Currently only accepts "proportion"}
+\item{statistic}{string; type of statistic to inform funnel calculations.
+Currently only accepts "proportion"}
 }
 \value{
-returns the original data.frame with the following appended:
-        lower 0.025 limit, upper 0.025 limit, lower 0.001 limit, upper 0.001 limit and
-        baseline average
+returns the original data.frame with the following appended: lower
+  0.025 limit, upper 0.025 limit, lower 0.001 limit, upper 0.001 limit and
+  baseline average
 }
 \description{
-Calculates control limits adopting consistent method as per the PHE Fingertips Technical Guidance : https://fingertips.phe.org.uk/profile/guidance
+Calculates control limits adopting a consistent method as per the PHE
+Fingertips Technical Guidance: https://fingertips.phe.org.uk/profile/guidance
 }
 \examples{
 library(dplyr)
