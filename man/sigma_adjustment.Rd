@@ -30,14 +30,6 @@ returns a value equivalent to the specified funnel for the input
 Returns a value equivalent to the higher/lower funnel plot point based on the
 input population and probability
 }
-\examples{
-sigma_adjustment(p = 0.975,
-                 population = 10000,
-                 average_proportion = 0.25,
-                 side = "low",
-                 multiplier = 100)
-
-}
 \author{
 Sebastian Fox, \email{sebastian.fox@phe.gov.uk}
 }

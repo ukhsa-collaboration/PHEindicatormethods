@@ -17,13 +17,6 @@
 #' @return returns a value equivalent to the specified funnel for the input
 #'   population
 #'
-#' @examples
-#' sigma_adjustment(p = 0.975,
-#'                  population = 10000,
-#'                  average_proportion = 0.25,
-#'                  side = "low",
-#'                  multiplier = 100)
-#'
 #' @author Sebastian Fox, \email{sebastian.fox@@phe.gov.uk}
 #'
 # -------------------------------------------------------------------------------------------------
@@ -79,7 +72,6 @@ sigma_adjustment <- function(p, population, average_proportion, side, multiplier
 #'   baseline average
 #'
 #' @import dplyr
-#' @importFrom rlang sym quo_name := .data
 #'
 #' @examples
 #' library(dplyr)
@@ -106,13 +98,6 @@ phe_funnels <- function(data, x, denominator,
   if (missing(data) | missing(x) | missing(denominator)) {
     stop("function phe_funnels requires at least 3 arguments: data, x, n")
   }
-
-
-  # calculate the initialisation variables - record level data
-
-  prop_calc <- data %>%
-    mutate(prop = 100 * {{ x }} / {{ denominator }}) %>%
-    pull()
 
   # aggregated data
   summaries <- data %>%
@@ -181,8 +166,6 @@ phe_funnels <- function(data, x, denominator,
   t[1, "Baseline"] <- av * multiplier
 
   for (j in 2:100) {
-
-    # t[j, "Row.number"] <- t[j - 1] + 1
     t[j, "Population"] <- max(round((axis_maximum / t[j - 1, "Population"])^(1 / (101 - j)) *
                                       t[j - 1, "Population"]),
                               t[j - 1, "Population"] + 1)
@@ -197,13 +180,7 @@ phe_funnels <- function(data, x, denominator,
     t[j, "Baseline"] <- av * multiplier
   }
 
-  t <- as.data.frame(t) %>%
-    select(
-      .data$Population,
-      .data$Lower2s0025limit, .data$Upper2s0025limit,
-      .data$Lower3s0001limit,
-      .data$Upper3s0001limit, .data$Baseline
-    )
+  t <- as.data.frame(t)
   return(t)
 }
 
