@@ -63,6 +63,9 @@ sigma_adjustment <- function(p, population, average_proportion, side, multiplier
 #'   string; no default
 #' @param denominator field name from data containing the population(s) in the
 #'   sample (the denominator for the CLs); unquoted string; no default
+#' @param type defines the data and metadata columns to be included in output;
+#'   "standard" (for all data) or "full" (for all data and metadata); quoted
+#'   string; default = "full"
 #' @param multiplier the multiplier used to express the final values (eg 100 =
 #'   percentage); numeric; default 100
 #' @param statistic string; type of statistic to inform funnel calculations.
@@ -91,13 +94,17 @@ sigma_adjustment <- function(p, population, average_proportion, side, multiplier
 # NB -this does not alter the original dataset but generates a dataframe of 100 records for
 # plotting the control limits
 
-phe_funnels <- function(data, x, denominator,
+phe_funnels <- function(data, x, denominator, type = "full",
                         multiplier = 100, statistic = "proportion") {
 
   # check required arguments present
   if (missing(data) | missing(x) | missing(denominator)) {
     stop("function phe_funnels requires at least 3 arguments: data, x, n")
   }
+
+  # check string inputs
+  type <- match.arg(type, c("full", "standard"))
+  statistic <- match.arg(statistic, c("proportion"))
 
   # aggregated data
   summaries <- data %>%
@@ -181,6 +188,9 @@ phe_funnels <- function(data, x, denominator,
   }
 
   t <- as.data.frame(t)
+
+  if (type == "full") t$statistic <- statistic
+
   return(t)
 }
 

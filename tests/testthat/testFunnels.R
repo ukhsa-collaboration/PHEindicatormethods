@@ -5,10 +5,10 @@ context("test_phe_funnels")
 test_that("confidence limits calculate correctly",{
   funnel_table <- test_funnel_inputs %>%
     dplyr::select(numerator, denominator) %>%
-    phe_funnels(numerator, denominator) %>%
-    data.frame()
+    phe_funnels(numerator, denominator,
+                type = "standard")
   expect_equal(funnel_table,
-               data.frame(test_funnel_outputs),
+               test_funnel_outputs,
                info = "test default")
 
 
@@ -19,10 +19,9 @@ test_that("confidence limits calculate correctly with axis variation",{
   funnel_table <- test_funnel_inputs %>%
     dplyr::select(numerator, denominator) %>%
     filter(denominator < 31000) %>%
-    phe_funnels(numerator, denominator) %>%
-    data.frame()
+    phe_funnels(numerator, denominator)
   expect_equal(funnel_table,
-               data.frame(test_funnel_outputs_axis_variation),
+               test_funnel_outputs_axis_variation,
                info = "test default with axis variation")
 
 
@@ -40,6 +39,30 @@ test_that("Significance for proportions calculates correctly", {
 })
 
 # test error handling
+test_that("incorrect statistic argument", {
+  expect_error(
+    test_funnel_inputs %>%
+      dplyr::select(numerator, denominator) %>%
+      filter(denominator < 31000) %>%
+      phe_funnels(numerator, denominator,
+                  statistic = "pop"),
+    "'arg' should be one of \"proportion\"",
+    info = "incorrect argument specified to statistic for phe_funnels"
+  )
+})
+
+test_that("incorrect type argument", {
+  expect_error(
+    test_funnel_inputs %>%
+      dplyr::select(numerator, denominator) %>%
+      filter(denominator < 31000) %>%
+      phe_funnels(numerator, denominator,
+                  type = "srtd"),
+    "'arg' should be one of \"full\", \"standard\"",
+    info = "incorrect argument specified to type for phe_funnels"
+  )
+})
+
 test_that("denominators must be greater than zero", {
   expect_error(
     phe_funnel_significance(

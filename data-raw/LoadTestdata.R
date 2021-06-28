@@ -72,7 +72,7 @@ test_funnel_outputs_axis_variation <- read.csv("tests/testthat/testdata_funnel_p
                                                              "Lower3s0001limit", "Upper3s0001limit",
                                                              "Baseline"),
                                                colClasses = "numeric")
-
+test_funnel_outputs_axis_variation$statistic <- "proportion"
 
 # Proportions test data
 test_Prop   <- read_excel("tests/testthat/testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)
