@@ -594,3 +594,35 @@ poisson_funnel <- function(obs, p, side) {
   return(p)
 }
 
+
+funnel_ratio_significance <- function(obs, expected, p, side) {
+  if (obs == 0 & side == "low") {
+    test_statistic <- 0
+  } else if (obs < 389) {
+    if (side == "low") {
+      degree_freedom <- 2 * obs
+      lower_tail_setting <- FALSE
+    } else if (side == "high") {
+      degree_freedom <- 2 * obs + 2
+      lower_tail_setting <- TRUE
+    }
+
+    test_statistic <- qchisq(p = 0.5 + p / 2,
+                             df = degree_freedom,
+                             lower.tail = lower_tail_setting) / 2
+  } else {
+    if (side == "low") {
+      obs_adjusted <- obs
+      test_statistic <- obs_adjusted * (1 - 1 / (9 * obs_adjusted) -
+                                          qnorm(0.5 + p / 2) / 3 / sqrt(obs_adjusted))^3
+    } else if (side == "high") {
+      obs_adjusted <- obs + 1
+      test_statistic <- obs_adjusted * (1 - 1 / (9 * obs_adjusted) +
+                                          qnorm(0.5 + p / 2) / 3 / sqrt(obs_adjusted))^3
+    }
+  }
+
+  test_statistic <- test_statistic / expected
+  return(test_statistic)
+}
+

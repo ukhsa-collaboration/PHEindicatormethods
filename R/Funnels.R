@@ -20,7 +20,7 @@
 #' @author Sebastian Fox, \email{sebastian.fox@@phe.gov.uk}
 #'
 # -------------------------------------------------------------------------------------------------
-sigma_adjustment <- function(p, population, average_proportion, side, multiplier) {
+sigma_adjustment <- function(p, population, average_proportion, side, multiplier = 100) {
   first_part <- average_proportion * (population /
                              qnorm(p)^2 + 1)
 
@@ -241,8 +241,6 @@ phe_funnels <- function(data, x, denominator, type = "full",
 #'   string; no default
 #' @param denominator field name from data containing the population(s) in the
 #'   sample (the denominator for the CLs); unquoted string; no default
-#' @param multiplier the multiplier used to express the final values (eg 100 =
-#'   percentage); numeric; default 100
 #' @inheritParams phe_funnels
 #'
 #' @return returns the original data.frame with the significance level appended
@@ -266,7 +264,7 @@ phe_funnels <- function(data, x, denominator, type = "full",
 #' @author Matthew Francis, \email{Matthew.Francis@@phe.gov.uk}
 # -------------------------------------------------------------------------------------------------
 phe_funnel_significance <- function(data, x, denominator,
-                                    multiplier = 100, statistic = "proportion") {
+                                    statistic = "proportion") {
 
   # check required arguments present
   if (missing(data) | missing(x) | missing(denominator)) {
@@ -278,38 +276,63 @@ phe_funnel_significance <- function(data, x, denominator,
     stop("numerators must be greater than or equal to zero")
   } else if (any(pull(data, {{ denominator }}) <= 0, na.rm = TRUE)) {
     stop("denominators must be greater than zero")
-  } else if (any(pull(data, {{ x }}) > pull(data, {{ denominator }}), na.rm = TRUE)) {
-    stop("numerators must be less than or equal to denominator for a proportion statistic")
   }
+
+  if (statistic == "proportion") {
+    if (any(pull(data, {{ x }}) > pull(data, {{ denominator }}), na.rm = TRUE)) {
+      stop("numerators must be less than or equal to denominator for a proportion statistic")
+    }
+  }
+
 
   average <- sum(pull(data, {{ x }})) /
     sum(pull(data, {{ denominator }}))
 
-  significance <- data %>%
-    mutate(significance = case_when(
-      multiplier * {{ x }} / {{ denominator }} < sigma_adjustment(p = 0.999,
-                                                                  population = {{ denominator }},
-                                                                  average_proportion = average,
-                                                                  side = "low",
-                                                                  multiplier = multiplier) ~ "Low (0.001)",
-      multiplier * {{ x }} / {{ denominator }} < sigma_adjustment(p = 0.975,
-                                                                  population = {{ denominator }},
-                                                                  average_proportion = average,
-                                                                  side = "low",
-                                                                  multiplier = multiplier) ~ "Low (0.025)",
-      multiplier * {{ x }} / {{ denominator }} > sigma_adjustment(p = 0.999,
-                                                                  population = {{ denominator }},
-                                                                  average_proportion = average,
-                                                                  side = "high",
-                                                                  multiplier = multiplier) ~ "High (0.001)",
-      multiplier * {{ x }} / {{ denominator }} > sigma_adjustment(p = 0.975,
-                                                                  population = {{ denominator }},
-                                                                  average_proportion = average,
-                                                                  side = "high",
-                                                                  multiplier = multiplier) ~ "High (0.025)",
-      TRUE ~ "Not significant"
-    ),
-            significance = factor(significance))
+  if (statistic == "proportion") {
+    dummy_multiplier <- 1
+    significance <- data %>%
+      mutate(significance = case_when(
+        {{ x }} / {{ denominator }} < sigma_adjustment(p = 0.999,
+                                                       population = {{ denominator }},
+                                                       average_proportion = average,
+                                                       side = "low",
+                                                       multiplier = dummy_multiplier) ~ "Low (0.001)",
+        {{ x }} / {{ denominator }} < sigma_adjustment(p = 0.975,
+                                                       population = {{ denominator }},
+                                                       average_proportion = average,
+                                                       side = "low",
+                                                       multiplier = dummy_multiplier) ~ "Low (0.025)",
+        {{ x }} / {{ denominator }} > sigma_adjustment(p = 0.999,
+                                                       population = {{ denominator }},
+                                                       average_proportion = average,
+                                                       side = "high",
+                                                       multiplier = dummy_multiplier) ~ "High (0.001)",
+        {{ x }} / {{ denominator }} > sigma_adjustment(p = 0.975,
+                                                       population = {{ denominator }},
+                                                       average_proportion = average,
+                                                       side = "high",
+                                                       multiplier = dummy_multiplier) ~ "High (0.025)",
+        TRUE ~ "Not significant"
+      ))
+  } else if (statistic == "ratio") {
+    significance <- data %>%
+      rowwise() %>%
+      mutate(significance = case_when(
+        1 < funnel_ratio_significance({{ x }}, {{ denominator }}, 0.998, "low") ~ "High (0.001)",
+        1 < funnel_ratio_significance({{ x }}, {{ denominator }}, 0.95, "low") ~ "High (0.025)",
+        1 > funnel_ratio_significance({{ x }}, {{ denominator }}, 0.998, "high") ~ "Low (0.001)",
+        1 > funnel_ratio_significance({{ x }}, {{ denominator }}, 0.95, "high") ~ "Low (0.025)",
+        TRUE ~ "Not significant"
+      ))
+  }
+
+  significance <- significance %>%
+    mutate(significance = factor(significance,
+                                 levels = c("High (0.001)",
+                                            "High (0.025)",
+                                            "Low (0.001)",
+                                            "Low (0.025)",
+                                            "Not significant")))
   return(significance)
 }
 

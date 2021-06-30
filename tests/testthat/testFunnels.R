@@ -63,7 +63,20 @@ test_that("confidence limits calculate correctly for ratios (count)",{
 test_that("Significance for proportions calculates correctly", {
   expect_equal(data.frame(phe_funnel_significance(test_funnel_inputs[1:3], numerator, denominator)),
                test_funnel_inputs,
-               info = "Default funnel plot for proportions for significance"
+               info = "Funnel significance for proportions"
+  )
+
+
+})
+
+test_that("Significance for ratios calculates correctly", {
+  testing_ratio_sig <- test_funnel_ratio_inputs[1:2] %>%
+    phe_funnel_significance(obs, expected,
+                            statistic = "ratio") %>%
+    data.frame()
+  expect_equal(testing_ratio_sig,
+               test_funnel_ratio_inputs,
+               info = "Funnel significance for ratios"
   )
 
 

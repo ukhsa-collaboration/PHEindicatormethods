@@ -75,7 +75,8 @@ test_funnel_outputs_axis_variation <- read.csv("tests/testthat/testdata_funnel_p
 test_funnel_outputs_axis_variation$statistic <- "proportion"
 
 test_funnel_ratio_inputs <- read.csv("tests/testthat/testdata_funnel_ratio_inputs.csv",
-                                     col.names = c("obs", "expected"))
+                                     col.names = c("obs", "expected", "significance"),
+                                     colClasses = c("numeric", "numeric", "factor"))
 
 test_funnel_ratio_outputs <- read.csv("tests/testthat/testdata_funnel_ratio_outputs.csv")
 names(test_funnel_ratio_outputs)[1] <- "Observed_events"

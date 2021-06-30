@@ -5,7 +5,7 @@
 \title{Calculate the funnel point value for a specific population based on a
 population average value}
 \usage{
-sigma_adjustment(p, population, average_proportion, side, multiplier)
+sigma_adjustment(p, population, average_proportion, side, multiplier = 100)
 }
 \arguments{
 \item{p}{numeric (between 0 and 1); probability to calculate funnel plot

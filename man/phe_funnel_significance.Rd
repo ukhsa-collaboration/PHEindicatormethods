@@ -4,13 +4,7 @@
 \alias{phe_funnel_significance}
 \title{Identifies level of outlier based on funnel plot methodology}
 \usage{
-phe_funnel_significance(
-  data,
-  x,
-  denominator,
-  multiplier = 100,
-  statistic = "proportion"
-)
+phe_funnel_significance(data, x, denominator, statistic = "proportion")
 }
 \arguments{
 \item{data}{a data.frame containing the data to calculate control limits for,}
@@ -21,9 +15,6 @@ string; no default}
 
 \item{denominator}{field name from data containing the population(s) in the
 sample (the denominator for the CLs); unquoted string; no default}
-
-\item{multiplier}{the multiplier used to express the final values (eg 100 =
-percentage); numeric; default 100}
 
 \item{statistic}{string; type of statistic to inform funnel calculations.
 Currently only accepts "proportion"}
