@@ -70,6 +70,8 @@ sigma_adjustment <- function(p, population, average_proportion, side, multiplier
 #'   percentage); numeric; default 100
 #' @param statistic string; type of statistic to inform funnel calculations.
 #'   Currently only accepts "proportion"
+#' @param ratio_type if statistic is "ratio" the user can specify either "count"
+#'   or "isr" (indirectly standardised rate) here as a string
 #' @return returns the original data.frame with the following appended: lower
 #'   0.025 limit, upper 0.025 limit, lower 0.001 limit, upper 0.001 limit and
 #'   baseline average
@@ -95,7 +97,8 @@ sigma_adjustment <- function(p, population, average_proportion, side, multiplier
 # plotting the control limits
 
 phe_funnels <- function(data, x, denominator, type = "full",
-                        multiplier = 100, statistic = "proportion") {
+                        multiplier = 100, statistic = "proportion",
+                        ratio_type = NA) {
 
   # check required arguments present
   if (missing(data) | missing(x) | missing(denominator)) {
@@ -104,7 +107,9 @@ phe_funnels <- function(data, x, denominator, type = "full",
 
   # check string inputs
   type <- match.arg(type, c("full", "standard"))
-  statistic <- match.arg(statistic, c("proportion"))
+  statistic <- match.arg(statistic, c("proportion", "ratio"))
+
+  if (statistic == "ratio") ratio_type <- match.arg(ratio_type, c("count", "isr"))
 
   # aggregated data
   summaries <- data %>%
@@ -129,7 +134,7 @@ phe_funnels <- function(data, x, denominator, type = "full",
   }
 
   # function that rounds up to the desired significance level to make the axis display neat
-  signif.ceiling <- function(x, percentage_up = 1.05){
+  signif.ceiling <- function(x, percentage_up = 1.05) {
     n <- nchar(ceiling(x * percentage_up)) - 2
     y <- ceiling(x * percentage_up / 10^n) * 10^n
 
@@ -146,50 +151,77 @@ phe_funnels <- function(data, x, denominator, type = "full",
 
   axis_maximum <- signif.ceiling(max_denominator)
 
-    # First create a vector with the numbers 1 to 100 (as the plot will have 100 data points)
-  # Create a blank matrix which will be populated with results obtained above
-
-  t <- matrix(
-    ncol = 6,
-    nrow = 100
-  )
-  colnames(t) <- c(
-    "Population",
-    "Lower2s0025limit", "Upper2s0025limit",
-    "Lower3s0001limit", "Upper3s0001limit",
-    "Baseline"
-  )
-
-  t[1, "Population"] <- max(1, axis_minimum)
-
-  t[1, "Lower2s0025limit"] <- max(0,
-                                  sigma_adjustment(0.975, t[1, "Population"], av, "low", multiplier))
-  t[1, "Upper2s0025limit"] <- min(100,
-                                  sigma_adjustment(0.975, t[1, "Population"], av, "high", multiplier))
-  t[1, "Lower3s0001limit"] <- max(0,
-                                  sigma_adjustment(0.999, t[1, "Population"], av, "low", multiplier))
-  t[1, "Upper3s0001limit"] <- min(100,
-                                  sigma_adjustment(0.999, t[1, "Population"], av, "high", multiplier))
-  t[1, "Baseline"] <- av * multiplier
-
-  for (j in 2:100) {
-    t[j, "Population"] <- max(round((axis_maximum / t[j - 1, "Population"])^(1 / (101 - j)) *
-                                      t[j - 1, "Population"]),
-                              t[j - 1, "Population"] + 1)
-    t[j, "Lower2s0025limit"] <- max(0,
-                                    sigma_adjustment(0.975, t[j, "Population"], av, "low", multiplier))
-    t[j, "Upper2s0025limit"] <- min(100,
-                                    sigma_adjustment(0.975, t[j, "Population"], av, "high", multiplier))
-    t[j, "Lower3s0001limit"] <- max(0,
-                                    sigma_adjustment(0.999, t[j, "Population"], av, "low", multiplier))
-    t[j, "Upper3s0001limit"] <- min(100,
-                                    sigma_adjustment(0.999, t[j, "Population"], av, "high", multiplier))
-    t[j, "Baseline"] <- av * multiplier
+ if (statistic == "proportion") {
+    col_header <- "Population"
+ } else if (statistic == "ratio") {
+    col_header <- "Observed_events"
   }
 
-  t <- as.data.frame(t)
+  first_col <- max(1, axis_minimum)
+  for (j in 2:100) {
+    if (statistic == "proportion") {
+      offset <- j
+    } else if (statistic == "ratio") {
+      offset <- j - 1
+    }
+    first_col[j] <- max(round((axis_maximum / first_col[j - 1])^(1 / (101 - offset)) *
+                                first_col[j - 1]),
+                        first_col[j - 1] + 1)
+  }
 
-  if (type == "full") t$statistic <- statistic
+  t <- tibble(!! rlang::sym(col_header) := first_col)
+
+  if (statistic == "proportion") {
+    t <- t %>%
+      group_by(.data$Population) %>%
+      mutate(
+        lower_2s_limit = max(0,
+                             sigma_adjustment(0.975, .data$Population, av, "low", multiplier)),
+        upper_2s_limit = min(100,
+                             sigma_adjustment(0.975, .data$Population, av, "high", multiplier)),
+        lower_3s_limit = max(0,
+                             sigma_adjustment(0.999, .data$Population, av, "low", multiplier)),
+        upper_3s_limit = min(100,
+                             sigma_adjustment(0.999, .data$Population, av, "high", multiplier)),
+        baseline = av * multiplier
+      ) %>%
+      ungroup()
+  } else if (statistic == "ratio") {
+    t <- t %>%
+      group_by(.data$Observed_events) %>%
+      mutate(
+        lower_2s_exp_events = poisson_funnel(.data$Observed_events, 0.025, "high"),
+        lower_2s_limit = .data$Observed_events / .data$lower_2s_exp_events,
+        upper_2s_exp_events = poisson_funnel(.data$Observed_events, 0.025, "low"),
+        upper_2s_limit = .data$Observed_events / .data$upper_2s_exp_events,
+        lower_3s_exp_events = poisson_funnel(.data$Observed_events, 0.001, "high"),
+        lower_3s_limit = .data$Observed_events / .data$lower_3s_exp_events,
+        upper_3s_exp_events = poisson_funnel(.data$Observed_events, 0.001, "low"),
+        upper_3s_limit = .data$Observed_events / .data$upper_3s_exp_events,
+      ) %>%
+      ungroup()
+    if (ratio_type == "count") {
+      t <- t %>%
+        mutate(across(ends_with("limit"),
+                      function(x) x - 1))
+    } else if (ratio_type == "isr") {
+      t <- t %>%
+        mutate(across(ends_with("limit"),
+                      function(x) x * 100))
+
+    }
+  }
+
+  if (type == "full") {
+    t$statistic <- statistic
+    if (statistic == "ratio") {
+      t <- t %>%
+        mutate(statistic = paste0(
+          statistic, " (", ratio_type, ")"
+        ))
+    }
+  }
+
 
   return(t)
 }
@@ -280,3 +312,4 @@ phe_funnel_significance <- function(data, x, denominator,
             significance = factor(significance))
   return(significance)
 }
+

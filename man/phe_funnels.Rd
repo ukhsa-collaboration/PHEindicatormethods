@@ -10,7 +10,8 @@ phe_funnels(
   denominator,
   type = "full",
   multiplier = 100,
-  statistic = "proportion"
+  statistic = "proportion",
+  ratio_type = NA
 )
 }
 \arguments{
@@ -33,6 +34,9 @@ percentage); numeric; default 100}
 
 \item{statistic}{string; type of statistic to inform funnel calculations.
 Currently only accepts "proportion"}
+
+\item{ratio_type}{if statistic is "ratio" the user can specify either "count"
+or "isr" (indirectly standardised rate) here as a string}
 }
 \value{
 returns the original data.frame with the following appended: lower

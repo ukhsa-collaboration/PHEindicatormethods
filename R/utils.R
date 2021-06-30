@@ -522,3 +522,75 @@ SimulationFunc <- function(data,
   return(data.frame(results))
 
 }
+
+
+
+poisson_cis <- function(z, x_a, x_b) {
+  # this is in the Excel macro code, but none of the following can occur based
+  # on Funnels.R
+  # if (any(z < 0, x_a < 0, x_b < 0, x_b < x_a, x_a %% 1 > 0, x_b %% 1 > 0))
+  #   return(NA)
+
+  q <- 1
+  tot <- 0
+  s <- 0
+  k <- 0
+
+  while (any(k <= z, q > tot * 1e-10)) {
+    tot <- tot + q
+    if (k >= x_a & k <= x_b) s <- s + q
+    if (tot > 1e30) {
+      s <- s / 1e30
+      tot <- tot / 1e30
+      q <- q / 1e30
+    }
+
+    k <- k + 1
+    q <- q * z / k
+
+  }
+  return(s / tot)
+}
+
+poisson_funnel <- function(obs, p, side) {
+  # this is in the Excel macro code, but none of the following can occur based
+  # on Funnels.R
+  # if (any(obs < 0, p < 0, p > 1, obs %% 1 != 0)) return(NA)
+
+  v <- 0.5
+  dv <- 0.5
+
+  if (side == "low") {
+
+    # this is in the Excel macro code, but obs can't be 0 based on Funnels.R
+    # if (obs == 0) return(0)
+
+    while (dv > 1e-7) {
+      dv <- dv / 2
+
+      if (poisson_cis((1 + obs) * v / (1 - v),
+                      obs,
+                      10000000000) > p) {
+        v <- v - dv
+      } else {
+        v <- v + dv
+      }
+    }
+  } else if (side == "high") {
+
+    while (dv > 1e-7) {
+      dv <- dv / 2
+      if (poisson_cis((1 + obs) * v / (1 - v),
+                      0,
+                      obs) < p) {
+        v <- v - dv
+      } else {
+        v <- v + dv
+      }
+    }
+
+  }
+  p <- (1 + obs) * v / (1 - v)
+  return(p)
+}
+

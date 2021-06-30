@@ -2,17 +2,14 @@ context("test_phe_funnels")
 
 
 # test calculations
-test_that("confidence limits calculate correctly",{
+test_that("confidence limits calculate correctly for proportions",{
   funnel_table <- test_funnel_inputs %>%
     dplyr::select(numerator, denominator) %>%
     phe_funnels(numerator, denominator,
                 type = "standard")
-  expect_equal(funnel_table,
+  expect_equal(data.frame(funnel_table),
                test_funnel_outputs,
-               info = "test default")
-
-
-
+               info = "Default funnel plot for proportions")
 })
 
 test_that("confidence limits calculate correctly with axis variation",{
@@ -20,19 +17,53 @@ test_that("confidence limits calculate correctly with axis variation",{
     dplyr::select(numerator, denominator) %>%
     filter(denominator < 31000) %>%
     phe_funnels(numerator, denominator)
-  expect_equal(funnel_table,
+  expect_equal(data.frame(funnel_table),
                test_funnel_outputs_axis_variation,
-               info = "test default with axis variation")
+               info = "Default funnel plot for proportions with axis variation")
+})
 
+test_that("confidence limits calculate correctly for ratios (count)",{
+  funnel_table <- test_funnel_ratio_inputs %>%
+    phe_funnels(obs,
+                expected,
+                type = "full",
+                statistic = "ratio",
+                ratio_type = "count") %>%
+    data.frame()
+  test_funnel_ratio_counts <- test_funnel_ratio_outputs %>%
+    mutate(across(ends_with("isr"),
+                  function(x) NULL)) %>%
+    rename_with(.fn = function(x) gsub("count", "limit", x),
+                .cols = ends_with("count")) %>%
+    mutate(statistic = "ratio (count)")
+  expect_equal(funnel_table,
+               test_funnel_ratio_counts,
+               info = "Full funnel plot for ratios (count)")
+})
 
-
+test_that("confidence limits calculate correctly for ratios (count)",{
+  funnel_table <- test_funnel_ratio_inputs %>%
+    phe_funnels(obs,
+                expected,
+                type = "standard",
+                statistic = "ratio",
+                ratio_type = "isr") %>%
+    data.frame()
+  test_funnel_ratio_isrs <- test_funnel_ratio_outputs %>%
+    mutate(across(ends_with("count"),
+                  function(x) NULL)) %>%
+    rename_with(.fn = function(x) gsub("isr", "limit", x),
+                .cols = ends_with("isr"))
+  expect_equal(funnel_table,
+               test_funnel_ratio_isrs,
+               info = "Default funnel plot for ratios (count)")
 })
 
 # test significance calculations
 test_that("Significance for proportions calculates correctly", {
   expect_equal(data.frame(phe_funnel_significance(test_funnel_inputs[1:3], numerator, denominator)),
-               data.frame(test_funnel_inputs),
-               info = "test default"
+               test_funnel_inputs,
+               info = "Default funnel plot for proportions for significance"
   )
 
 

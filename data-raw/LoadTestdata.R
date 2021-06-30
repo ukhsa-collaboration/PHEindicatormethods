@@ -61,18 +61,24 @@ test_funnel_inputs <- read.csv("tests/testthat/testdata_funnel_prop_inputs.csv",
 
 test_funnel_outputs <- read.csv("tests/testthat/testdata_funnel_prop_outputs.csv",
                                 col.names = c("Population",
-                                              "Lower2s0025limit", "Upper2s0025limit",
-                                              "Lower3s0001limit", "Upper3s0001limit",
-                                              "Baseline"),
+                                              "lower_2s_limit", "upper_2s_limit",
+                                              "lower_3s_limit", "upper_3s_limit",
+                                              "baseline"),
                                 colClasses = "numeric")
 
 test_funnel_outputs_axis_variation <- read.csv("tests/testthat/testdata_funnel_prop_outputs_with_axis_variation.csv",
                                                col.names = c("Population",
-                                                             "Lower2s0025limit", "Upper2s0025limit",
-                                                             "Lower3s0001limit", "Upper3s0001limit",
-                                                             "Baseline"),
+                                                             "lower_2s_limit", "upper_2s_limit",
+                                                             "lower_3s_limit", "upper_3s_limit",
+                                                             "baseline"),
                                                colClasses = "numeric")
 test_funnel_outputs_axis_variation$statistic <- "proportion"
+
+test_funnel_ratio_inputs <- read.csv("tests/testthat/testdata_funnel_ratio_inputs.csv",
+                                     col.names = c("obs", "expected"))
+
+test_funnel_ratio_outputs <- read.csv("tests/testthat/testdata_funnel_ratio_outputs.csv")
+names(test_funnel_ratio_outputs)[1] <- "Observed_events"
 
 # Proportions test data
 test_Prop   <- read_excel("tests/testthat/testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)
@@ -149,4 +155,5 @@ usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results,
                   test_ISR_refdata, test_ISR_results, test_ISR_ownref,
                   SII_test_data, SII_test_grouped,
                   test_funnel_inputs, test_funnel_outputs, test_funnel_outputs_axis_variation,
+                  test_funnel_ratio_inputs, test_funnel_ratio_outputs,
                   internal = TRUE, overwrite = TRUE)
