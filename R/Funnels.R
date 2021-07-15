@@ -1,4 +1,3 @@
-# -------------------------------------------------------------------------------------------------
 #' Calculate the funnel point value for a specific population based on a
 #' population average value
 #'
@@ -19,7 +18,6 @@
 #'
 #' @author Sebastian Fox, \email{sebastian.fox@@phe.gov.uk}
 #'
-# -------------------------------------------------------------------------------------------------
 sigma_adjustment <- function(p, population, average_proportion, side, multiplier = 100) {
   first_part <- average_proportion * (population /
                              qnorm(p)^2 + 1)
@@ -46,10 +44,6 @@ sigma_adjustment <- function(p, population, average_proportion, side, multiplier
   return(adj_return)
 }
 
-
-
-
-# -------------------------------------------------------------------------------------------------
 #' Calculate confidence intervals/control limits for funnel plots
 #'
 #' Calculates control limits adopting a consistent method as per the PHE
@@ -58,7 +52,7 @@ sigma_adjustment <- function(p, population, average_proportion, side, multiplier
 #' @param data a data.frame containing the data to calculate control limits for;
 #'   unquoted string; no default
 #'
-#' @param x field name from data containing the observed numbers of cases in the
+#' @param numerator field name from data containing the observed numbers of cases in the
 #'   sample meeting the required condition (the numerator for the CLs); unquoted
 #'   string; no default
 #' @param denominator field name from data containing the population(s) in the
@@ -77,6 +71,7 @@ sigma_adjustment <- function(p, population, average_proportion, side, multiplier
 #'   baseline average
 #'
 #' @import dplyr
+#' @importFrom rlang := .data
 #'
 #' @examples
 #' library(dplyr)
@@ -90,19 +85,18 @@ sigma_adjustment <- function(p, population, average_proportion, side, multiplier
 #' @author Matthew Francis, \email{Matthew.Francis@@phe.gov.uk}
 #'
 #' @family PHEindicatormethods package functions
-# -------------------------------------------------------------------------------------------------
 
 # Generate a dataframe of the confidence limits for plotting
 # NB -this does not alter the original dataset but generates a dataframe of 100 records for
 # plotting the control limits
 
-phe_funnels <- function(data, x, denominator, type = "full",
+phe_funnels <- function(data, numerator, denominator, type = "full",
                         multiplier = 100, statistic = "proportion",
                         ratio_type = NA) {
 
   # check required arguments present
-  if (missing(data) | missing(x) | missing(denominator)) {
-    stop("function phe_funnels requires at least 3 arguments: data, x, n")
+  if (missing(data) | missing(numerator) | missing(denominator)) {
+    stop("function phe_funnels requires at least 3 arguments: data, numerator, denominator")
   }
 
   # check string inputs
@@ -114,7 +108,7 @@ phe_funnels <- function(data, x, denominator, type = "full",
   # aggregated data
   summaries <- data %>%
     summarise(
-      av = sum({{ x }}) / sum({{ denominator }}),
+      av = sum({{ numerator }}) / sum({{ denominator }}),
       min_denominator = min({{ denominator }}),
       max_denominator = max({{ denominator }})
     )
@@ -227,7 +221,6 @@ phe_funnels <- function(data, x, denominator, type = "full",
 }
 
 
-# -------------------------------------------------------------------------------------------------
 #' Identifies level of outlier based on funnel plot methodology
 #'
 #' Determines whether records are outliers, and the level they are outliers,
@@ -236,17 +229,22 @@ phe_funnels <- function(data, x, denominator, type = "full",
 #' https://fingertips.phe.org.uk/profile/guidance
 #'
 #' @param data a data.frame containing the data to calculate control limits for,
-#' @param x field name from data containing the observed numbers of cases in the
+#' @param numerator field name from data containing the observed numbers of cases in the
 #'   sample meeting the required condition (the numerator for the CLs); unquoted
 #'   string; no default
 #' @param denominator field name from data containing the population(s) in the
 #'   sample (the denominator for the CLs); unquoted string; no default
+#' @param rate field name from data containing the rate data when creating
+#'   funnels for a Directly Standardised Rate; unquoted string; no default
+#' @param rate_type string; one of "dsr" or "crude"; when statistic is rate this
+#'   argument needs completing
+#' @param rate_multiplier numeric; the multiplier that the rate is normalised
+#'   with (ie, per 100,000); only required when statistic = "rate
 #' @inheritParams phe_funnels
 #'
 #' @return returns the original data.frame with the significance level appended
 #'
 #' @import dplyr
-#' @importFrom rlang sym quo_name :=
 #'
 #' @examples
 #' library(dplyr)
@@ -262,77 +260,156 @@ phe_funnels <- function(data, x, denominator, type = "full",
 #'
 #' @family PHEindicatormethods package functions
 #' @author Matthew Francis, \email{Matthew.Francis@@phe.gov.uk}
-# -------------------------------------------------------------------------------------------------
-phe_funnel_significance <- function(data, x, denominator,
-                                    statistic = "proportion") {
+
+phe_funnel_significance <- function(data, numerator, denominator, rate,
+                                    statistic = "proportion", rate_type = NA,
+                                    rate_multiplier = NULL) {
 
   # check required arguments present
-  if (missing(data) | missing(x) | missing(denominator)) {
-    stop("function phe_funnel_significance requires at least 3 arguments: data, x, n")
+  if (statistic == "rate") {
+    if (missing(data) | missing(numerator) | missing(rate)) {
+      stop("function phe_funnel_significance requires at least 3 arguments for rates: data, numerator, rate")
+    } else if (any(pull(data, {{ numerator }}) == 0) & missing(denominator)) {
+      stop("for rates, where there are 0 events for a record, the denominator field needs to be provided using the denominator argument")
+    } else if (is.null(rate_multiplier)) {
+      stop("for rates, a rate multiplier is required to test the significance of the points")
+    }
+
+    rate_type <- match.arg(rate_type, c("dsr", "crude"))
+
+  } else {
+    if (missing(data) | missing(numerator) | missing(denominator)) {
+      stop("function phe_funnel_significance requires at least 3 arguments for ratios and proportions: data, numerator, denominator")
+    }
   }
 
+
   # validate arguments
-  if (any(pull(data, {{ x }}) < 0, na.rm = TRUE)) {
+  if (any(pull(data, {{ numerator }}) < 0, na.rm = TRUE)) {
     stop("numerators must be greater than or equal to zero")
   } else if (any(pull(data, {{ denominator }}) <= 0, na.rm = TRUE)) {
     stop("denominators must be greater than zero")
   }
 
+
+
   if (statistic == "proportion") {
-    if (any(pull(data, {{ x }}) > pull(data, {{ denominator }}), na.rm = TRUE)) {
+    if (any(pull(data, {{ numerator }}) > pull(data, {{ denominator }}), na.rm = TRUE)) {
       stop("numerators must be less than or equal to denominator for a proportion statistic")
     }
   }
 
 
-  average <- sum(pull(data, {{ x }})) /
+  average <- sum(pull(data, {{ numerator }})) /
     sum(pull(data, {{ denominator }}))
 
   if (statistic == "proportion") {
     dummy_multiplier <- 1
     significance <- data %>%
       mutate(significance = case_when(
-        {{ x }} / {{ denominator }} < sigma_adjustment(p = 0.999,
+        {{ numerator }} / {{ denominator }} < sigma_adjustment(p = 0.999,
                                                        population = {{ denominator }},
                                                        average_proportion = average,
                                                        side = "low",
                                                        multiplier = dummy_multiplier) ~ "Low (0.001)",
-        {{ x }} / {{ denominator }} < sigma_adjustment(p = 0.975,
+        {{ numerator }} / {{ denominator }} < sigma_adjustment(p = 0.975,
                                                        population = {{ denominator }},
                                                        average_proportion = average,
                                                        side = "low",
                                                        multiplier = dummy_multiplier) ~ "Low (0.025)",
-        {{ x }} / {{ denominator }} > sigma_adjustment(p = 0.999,
+        {{ numerator }} / {{ denominator }} > sigma_adjustment(p = 0.999,
                                                        population = {{ denominator }},
                                                        average_proportion = average,
                                                        side = "high",
                                                        multiplier = dummy_multiplier) ~ "High (0.001)",
-        {{ x }} / {{ denominator }} > sigma_adjustment(p = 0.975,
+        {{ numerator }} / {{ denominator }} > sigma_adjustment(p = 0.975,
                                                        population = {{ denominator }},
                                                        average_proportion = average,
                                                        side = "high",
                                                        multiplier = dummy_multiplier) ~ "High (0.025)",
         TRUE ~ "Not significant"
       ))
+
+        significance_levels <- c("High (0.001)",
+                             "High (0.025)",
+                             "Low (0.001)",
+                             "Low (0.025)",
+                             "Not significant")
+
   } else if (statistic == "ratio") {
     significance <- data %>%
       rowwise() %>%
       mutate(significance = case_when(
-        1 < funnel_ratio_significance({{ x }}, {{ denominator }}, 0.998, "low") ~ "High (0.001)",
-        1 < funnel_ratio_significance({{ x }}, {{ denominator }}, 0.95, "low") ~ "High (0.025)",
-        1 > funnel_ratio_significance({{ x }}, {{ denominator }}, 0.998, "high") ~ "Low (0.001)",
-        1 > funnel_ratio_significance({{ x }}, {{ denominator }}, 0.95, "high") ~ "Low (0.025)",
+        1 < funnel_ratio_significance({{ numerator }}, {{ denominator }}, 0.998, "low") ~ "High (0.001)",
+        1 < funnel_ratio_significance({{ numerator }}, {{ denominator }}, 0.95, "low") ~ "High (0.025)",
+        1 > funnel_ratio_significance({{ numerator }}, {{ denominator }}, 0.998, "high") ~ "Low (0.001)",
+        1 > funnel_ratio_significance({{ numerator }}, {{ denominator }}, 0.95, "high") ~ "Low (0.025)",
         TRUE ~ "Not significant"
-      ))
+      )) %>%
+      ungroup()
+
+    significance_levels <- c("High (0.001)",
+                             "High (0.025)",
+                             "Low (0.001)",
+                             "Low (0.025)",
+                             "Not significant")
+
+  } else if (statistic == "rate") {
+    # calculate approximate weighted average
+    if (rate_type == "dsr") {
+      data <- data %>%
+        mutate(
+          derived_denominator = case_when(
+            {{ numerator }} == 0 ~ NA_real_,
+            TRUE ~ {{ numerator }} / {{ rate }} * rate_multiplier
+          )
+        )
+    } else if (rate_type == "crude") {
+      data <- data %>%
+        mutate(
+          derived_denominator = case_when(
+            {{ numerator }} == 0 ~ {{ denominator }},
+            TRUE ~ {{ numerator }} / {{ rate }} * rate_multiplier
+          ))
+
+    }
+
+    weighted_average <- sum(pull(data, {{ numerator }})) /
+      sum(pull(data, .data$derived_denominator), na.rm = TRUE)
+
+    significance <- data %>%
+      rowwise() %>%
+      mutate(significance = case_when(
+        weighted_average < funnel_ratio_significance({{ numerator }}, .data$derived_denominator, 0.998, "low") ~ "High (0.001)",
+        weighted_average < funnel_ratio_significance({{ numerator }}, .data$derived_denominator, 0.95, "low") ~ "High (0.025)",
+        weighted_average > funnel_ratio_significance({{ numerator }}, .data$derived_denominator, 0.998, "high") ~ "Low (0.001)",
+        weighted_average > funnel_ratio_significance({{ numerator }}, .data$derived_denominator, 0.95, "high") ~ "Low (0.025)",
+        TRUE ~ "Not significant"
+      )) %>%
+      ungroup() %>%
+      select(-.data$derived_denominator)
+    if (rate_type == "dsr") {
+      significance <- significance %>%
+        mutate(
+          significance = case_when(
+            {{ numerator }} < 10 ~ "Not applicable for events less than 10 for dsrs",
+            TRUE ~ significance
+          )
+        )
+    }
+
+    significance_levels <- c("High (0.001)",
+                             "High (0.025)",
+                             "Low (0.001)",
+                             "Low (0.025)",
+                             "Not significant",
+                             "Not applicable for events less than 10 for dsrs")
+
   }
 
   significance <- significance %>%
     mutate(significance = factor(significance,
-                                 levels = c("High (0.001)",
-                                            "High (0.025)",
-                                            "Low (0.001)",
-                                            "Low (0.025)",
-                                            "Not significant")))
+                                 levels = significance_levels))
   return(significance)
 }
 

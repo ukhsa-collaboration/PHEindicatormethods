@@ -81,6 +81,21 @@ test_funnel_ratio_inputs <- read.csv("tests/testthat/testdata_funnel_ratio_input
 test_funnel_ratio_outputs <- read.csv("tests/testthat/testdata_funnel_ratio_outputs.csv")
 names(test_funnel_ratio_outputs)[1] <- "Observed_events"
 
+test_funnel_rate_inputs <- read.csv("tests/testthat/testdata_funnel_rate_dsr_inputs.csv",
+                                    colClasses = c("integer",
+                                                   rep("numeric", 4),
+                                                   rep("factor", 8))) %>%
+  mutate(across(starts_with(c("dsr", "crude")),
+                function(x) factor(x,
+                                   levels = c("High (0.001)",
+                                              "High (0.025)",
+                                              "Low (0.001)",
+                                              "Low (0.025)",
+                                              "Not significant",
+                                              "Not applicable for events less than 10 for dsrs")))) %>%
+  as_tibble()
+
+
 # Proportions test data
 test_Prop   <- read_excel("tests/testthat/testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)
 
@@ -157,4 +172,5 @@ usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results,
                   SII_test_data, SII_test_grouped,
                   test_funnel_inputs, test_funnel_outputs, test_funnel_outputs_axis_variation,
                   test_funnel_ratio_inputs, test_funnel_ratio_outputs,
+                  test_funnel_rate_inputs,
                   internal = TRUE, overwrite = TRUE)

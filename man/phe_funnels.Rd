@@ -6,7 +6,7 @@
 \usage{
 phe_funnels(
   data,
-  x,
+  numerator,
   denominator,
   type = "full",
   multiplier = 100,
@@ -18,7 +18,7 @@ phe_funnels(
 \item{data}{a data.frame containing the data to calculate control limits for;
 unquoted string; no default}
 
-\item{x}{field name from data containing the observed numbers of cases in the
+\item{numerator}{field name from data containing the observed numbers of cases in the
 sample meeting the required condition (the numerator for the CLs); unquoted
 string; no default}
 

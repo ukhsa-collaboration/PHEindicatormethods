@@ -65,8 +65,6 @@ test_that("Significance for proportions calculates correctly", {
                test_funnel_inputs,
                info = "Funnel significance for proportions"
   )
-
-
 })
 
 test_that("Significance for ratios calculates correctly", {
@@ -78,8 +76,162 @@ test_that("Significance for ratios calculates correctly", {
                test_funnel_ratio_inputs,
                info = "Funnel significance for ratios"
   )
+})
+
+test_that("Significance for rates calculates correctly; dsr per 100,000 with 0", {
+  testing_rate_sig <- test_funnel_rate_inputs[1:3] %>%
+    phe_funnel_significance(numerator = count,
+                            denominator = pop,
+                            rate = rate_dsr,
+                            statistic = "rate",
+                            rate_type = "dsr",
+                            rate_multiplier = 1e5)
+  expect_equal(testing_rate_sig,
+               select(test_funnel_rate_inputs,
+                      count, rate_dsr, pop,
+                      significance = dsr_per_100000_with_0),
+               info = "Funnel significance for rates; dsr per 100,000 with 0"
+  )
+})
 
 
+test_that("Significance for rates calculates correctly; dsr per 100 with 0", {
+  testing_rate_sig <- test_funnel_rate_inputs[1:3] %>%
+    phe_funnel_significance(numerator = count,
+                            denominator = pop,
+                            rate = rate_dsr,
+                            statistic = "rate",
+                            rate_type = "dsr",
+                            rate_multiplier = 100)
+  expect_equal(testing_rate_sig,
+               select(test_funnel_rate_inputs,
+                      count, rate_dsr, pop,
+                      significance = dsr_per_100_with_0),
+               info = "Funnel significance for rates; dsr per 100 with 0"
+  )
+})
+
+test_that("Significance for rates calculates correctly; dsr per 100,000 without 0", {
+  testing_rate_sig <- test_funnel_rate_inputs[1:3] %>%
+    filter(count != 0) %>%
+    phe_funnel_significance(numerator = count,
+                            denominator = pop,
+                            rate = rate_dsr,
+                            statistic = "rate",
+                            rate_type = "dsr",
+                            rate_multiplier = 1e5)
+  expect_equal(testing_rate_sig,
+               test_funnel_rate_inputs %>%
+                 filter(count != 0) %>%
+                 select(
+                   count,
+                   rate_dsr,
+                   pop,
+                   significance = dsr_per_100000_without_0),
+               info = "Funnel significance for rates; dsr per 100,000 without 0"
+  )
+})
+
+
+test_that("Significance for rates calculates correctly; dsr per 100 without 0", {
+  testing_rate_sig <- test_funnel_rate_inputs[1:3] %>%
+    filter(count != 0) %>%
+    phe_funnel_significance(numerator = count,
+                            denominator = pop,
+                            rate = rate_dsr,
+                            statistic = "rate",
+                            rate_type = "dsr",
+                            rate_multiplier = 100)
+  expect_equal(testing_rate_sig,
+               test_funnel_rate_inputs %>%
+                 filter(count != 0) %>%
+                 select(
+                   count,
+                   rate_dsr,
+                   pop,
+                   significance = dsr_per_100_without_0),
+               info = "Funnel significance for rates; dsr per 100 without 0"
+  )
+})
+
+test_that("Significance for rates calculates correctly; crude per 100,000 with 0", {
+  testing_rate_sig <- test_funnel_rate_inputs %>%
+    select(count, rate_crude_per_100000, pop) %>%
+    phe_funnel_significance(numerator = count,
+                            denominator = pop,
+                            rate = rate_crude_per_100000,
+                            statistic = "rate",
+                            rate_type = "crude",
+                            rate_multiplier = 1e5)
+  expect_equal(testing_rate_sig,
+               select(test_funnel_rate_inputs,
+                      count, rate_crude_per_100000, pop,
+                      significance = crude_per_100000_with_0),
+               info = "Funnel significance for rates; crude per 100,000 with 0"
+  )
+})
+
+
+test_that("Significance for rates calculates correctly; crude per 100 with 0", {
+  testing_rate_sig <- test_funnel_rate_inputs %>%
+    select(count, rate_crude_per_100, pop) %>%
+    phe_funnel_significance(numerator = count,
+                            denominator = pop,
+                            rate = rate_crude_per_100,
+                            statistic = "rate",
+                            rate_type = "crude",
+                            rate_multiplier = 100)
+  expect_equal(testing_rate_sig,
+               select(test_funnel_rate_inputs,
+                      count, rate_crude_per_100, pop,
+                      significance = crude_per_100_with_0),
+               info = "Funnel significance for rates; crude per 100 with 0"
+  )
+})
+
+test_that("Significance for rates calculates correctly; crude per 100,000 without 0", {
+  testing_rate_sig <- test_funnel_rate_inputs %>%
+    filter(count != 0) %>%
+    select(count, rate_crude_per_100000, pop) %>%
+    phe_funnel_significance(numerator = count,
+                            denominator = pop,
+                            rate = rate_crude_per_100000,
+                            statistic = "rate",
+                            rate_type = "crude",
+                            rate_multiplier = 1e5)
+  expect_equal(testing_rate_sig,
+               test_funnel_rate_inputs %>%
+                 filter(count != 0) %>%
+                 select(
+                   count,
+                   rate_crude_per_100000,
+                   pop,
+                   significance = crude_per_100000_without_0),
+               info = "Funnel significance for rates; crude per 100,000 without 0"
+  )
+})
+
+
+test_that("Significance for rates calculates correctly; crude per 100 without 0", {
+  testing_rate_sig <- test_funnel_rate_inputs %>%
+    filter(count != 0) %>%
+    select(count, rate_crude_per_100, pop) %>%
+    phe_funnel_significance(numerator = count,
+                            denominator = pop,
+                            rate = rate_crude_per_100,
+                            statistic = "rate",
+                            rate_type = "crude",
+                            rate_multiplier = 100)
+  expect_equal(testing_rate_sig,
+               test_funnel_rate_inputs %>%
+                 filter(count != 0) %>%
+                 select(
+                   count,
+                   rate_crude_per_100,
+                   pop,
+                   significance = crude_per_100_without_0),
+               info = "Funnel significance for rates; crude per 100 without 0"
+  )
 })
 
 # test error handling
@@ -90,7 +242,7 @@ test_that("incorrect statistic argument", {
       filter(denominator < 31000) %>%
       phe_funnels(numerator, denominator,
                   statistic = "pop"),
-    "'arg' should be one of \"proportion\"",
+    "'arg' should be one of \"proportion\", \"ratio\"",
     info = "incorrect argument specified to statistic for phe_funnels"
   )
 })
@@ -115,7 +267,7 @@ test_that("denominators must be greater than zero", {
         obs = c(65, 80, 30),
         pop = c(100, 100, 0)
       ),
-      x = obs,
+      numerator = obs,
       denominator = pop
     ),
     "denominators must be greater than zero",
@@ -131,7 +283,7 @@ test_that("numerators must be greater than or equal to zero", {
         obs = c(65, -80, 30),
         pop = c(100, 100, 200)
       ),
-      x = obs,
+      numerator = obs,
       denominator = pop
     ),
     "numerators must be greater than or equal to zero",
@@ -147,7 +299,7 @@ test_that("numerators must be less than or equal to denominator for a proportion
         obs = c(65, 80, 30),
         pop = c(100, 100, 20)
       ),
-      x = obs,
+      numerator = obs,
       denominator = pop
     ),
     "numerators must be less than or equal to denominator for a proportion statistic",
@@ -155,26 +307,76 @@ test_that("numerators must be less than or equal to denominator for a proportion
   )
 })
 
-test_that("phe_funnel_significance requires data, x and denominator", {
+test_that("phe_funnel_significance requires data, numerator and denominator", {
   expect_error(
     phe_funnel_significance(
       data.frame(
         area = c("Area1", "Area2", "Area3"),
         pop = c(100, 100, 20)
       ), pop),
-    "function phe_funnel_significance requires at least 3 arguments: data, x, n",
+    "function phe_funnel_significance requires at least 3 arguments for ratios and proportions: data, numerator, denominator",
     info = "check the parameters passed into the function"
   )
 })
 
-test_that("phe_funnels requires data, x and denominator", {
+test_that("phe_funnels requires data, numerator and denominator", {
   expect_error(
     phe_funnels(
       data.frame(
         area = c("Area1", "Area2", "Area3"),
         pop = c(100, 100, 20)
       ), pop),
-    "function phe_funnels requires at least 3 arguments: data, x, n",
+    "function phe_funnels requires at least 3 arguments: data, numerator, denominator",
     info = "check the parameters passed into the function"
+  )
+})
+
+test_that("phe_funnel_significance input error for rate; data, numerator and rate", {
+  expect_error(
+    phe_funnel_significance(
+      data.frame(
+        area = c("Area1", "Area2", "Area3"),
+        num = c(100, 100, 20)
+      ),
+      num, statistic = "rate",
+      rate_type = "dsr",
+      rate_multiplier = 100),
+    "function phe_funnel_significance requires at least 3 arguments for rates: data, numerator, rate",
+    info = "phe_funnel_significance input error for rate; data, numerator and rate"
+  )
+})
+
+test_that("phe_funnel_significance input error for rate; denominator field required when 0 in numerator", {
+  expect_error(
+    phe_funnel_significance(
+      data.frame(
+        area = c("Area1", "Area2", "Area3"),
+        num = c(0, 100, 20),
+        rate = c(0, 142, 111)
+      ),
+      numerator = num,
+      rate = rate,
+      statistic = "rate",
+      rate_type = "crude",
+      rate_multiplier = 100),
+    "for rates, where there are 0 events for a record, the denominator field needs to be provided using the denominator argument",
+    info = "phe_funnel_significance input error for rate; denominator field required when 0 in numerator"
+  )
+})
+
+test_that("phe_funnel_significance input error for rate; missing rate multiplier", {
+  expect_error(
+    phe_funnel_significance(
+      data.frame(
+        area = c("Area1", "Area2", "Area3"),
+        num = c(50, 100, 20),
+        rate = c(100, 142, 111)
+      ),
+      numerator = num,
+      rate = rate,
+      statistic = "rate",
+      rate_type = "crude"),
+    "for rates, a rate multiplier is required to test the significance of the points",
+    info = "phe_funnel_significance input error for rate; missing rate multiplier"
   )
 })

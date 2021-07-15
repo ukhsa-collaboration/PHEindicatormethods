@@ -598,7 +598,7 @@ poisson_funnel <- function(obs, p, side) {
 funnel_ratio_significance <- function(obs, expected, p, side) {
   if (obs == 0 & side == "low") {
     test_statistic <- 0
-  } else if (obs < 389) {
+  } else if (obs < 10) {
     if (side == "low") {
       degree_freedom <- 2 * obs
       lower_tail_setting <- FALSE

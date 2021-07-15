@@ -4,20 +4,37 @@
 \alias{phe_funnel_significance}
 \title{Identifies level of outlier based on funnel plot methodology}
 \usage{
-phe_funnel_significance(data, x, denominator, statistic = "proportion")
+phe_funnel_significance(
+  data,
+  numerator,
+  denominator,
+  rate,
+  statistic = "proportion",
+  rate_type = NA,
+  rate_multiplier = NULL
+)
 }
 \arguments{
 \item{data}{a data.frame containing the data to calculate control limits for,}
 
-\item{x}{field name from data containing the observed numbers of cases in the
+\item{numerator}{field name from data containing the observed numbers of cases in the
 sample meeting the required condition (the numerator for the CLs); unquoted
 string; no default}
 
 \item{denominator}{field name from data containing the population(s) in the
 sample (the denominator for the CLs); unquoted string; no default}
 
+\item{rate}{field name from data containing the rate data when creating
+funnels for a Directly Standardised Rate; unquoted string; no default}
+
 \item{statistic}{string; type of statistic to inform funnel calculations.
 Currently only accepts "proportion"}
+
+\item{rate_type}{string; one of "dsr" or "crude"; when statistic is rate this
+argument needs completing}
+
+\item{rate_multiplier}{numeric; the multiplier that the rate is normalised
+with (ie, per 100,000); only required when statistic = "rate}
 }
 \value{
 returns the original data.frame with the significance level appended
