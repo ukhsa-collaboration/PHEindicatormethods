@@ -8,10 +8,13 @@ phe_funnels(
   data,
   numerator,
   denominator,
+  rate,
   type = "full",
   multiplier = 100,
   statistic = "proportion",
-  ratio_type = NA
+  ratio_type = NULL,
+  rate_type = NULL,
+  years_of_data = NULL
 )
 }
 \arguments{
@@ -25,6 +28,9 @@ string; no default}
 \item{denominator}{field name from data containing the population(s) in the
 sample (the denominator for the CLs); unquoted string; no default}
 
+\item{rate}{field name from data containing the rate data when creating
+funnels for a Directly Standardised Rate; unquoted string; no default}
+
 \item{type}{defines the data and metadata columns to be included in output;
 "standard" (for all data) or "full" (for all data and metadata); quoted
 string; default = "full"}
@@ -33,10 +39,16 @@ string; default = "full"}
 percentage); numeric; default 100}
 
 \item{statistic}{string; type of statistic to inform funnel calculations.
-Currently only accepts "proportion"}
+Acceptable values are "proportion", "ratio" or "rate"}
 
 \item{ratio_type}{if statistic is "ratio" the user can specify either "count"
 or "isr" (indirectly standardised rate) here as a string}
+
+\item{rate_type}{string; one of "dsr" or "crude"; when statistic is rate this
+argument is required}
+
+\item{years_of_data}{numeric; number of years the data represents; this is
+required for statistic = "rate"}
 }
 \value{
 returns the original data.frame with the following appended: lower

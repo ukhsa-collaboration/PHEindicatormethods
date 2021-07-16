@@ -63,9 +63,15 @@ sigma_adjustment <- function(p, population, average_proportion, side, multiplier
 #' @param multiplier the multiplier used to express the final values (eg 100 =
 #'   percentage); numeric; default 100
 #' @param statistic string; type of statistic to inform funnel calculations.
-#'   Currently only accepts "proportion"
+#'   Acceptable values are "proportion", "ratio" or "rate"
 #' @param ratio_type if statistic is "ratio" the user can specify either "count"
 #'   or "isr" (indirectly standardised rate) here as a string
+#' @param rate field name from data containing the rate data when creating
+#'   funnels for a Directly Standardised Rate; unquoted string; no default
+#' @param rate_type string; one of "dsr" or "crude"; when statistic is rate this
+#'   argument is required
+#' @param years_of_data numeric; number of years the data represents; this is
+#'   required for statistic = "rate"
 #' @return returns the original data.frame with the following appended: lower
 #'   0.025 limit, upper 0.025 limit, lower 0.001 limit, upper 0.001 limit and
 #'   baseline average
@@ -90,27 +96,82 @@ sigma_adjustment <- function(p, population, average_proportion, side, multiplier
 # NB -this does not alter the original dataset but generates a dataframe of 100 records for
 # plotting the control limits
 
-phe_funnels <- function(data, numerator, denominator, type = "full",
+phe_funnels <- function(data, numerator, denominator, rate,
+                        type = "full",
                         multiplier = 100, statistic = "proportion",
-                        ratio_type = NA) {
+                        ratio_type = NULL, rate_type = NULL,
+                        years_of_data = NULL) {
 
   # check required arguments present
-  if (missing(data) | missing(numerator) | missing(denominator)) {
-    stop("function phe_funnels requires at least 3 arguments: data, numerator, denominator")
+  if (statistic == "rate") {
+    if (missing(data) | missing(numerator) | missing(rate)) {
+      stop("at least 3 arguments are required for rates: data, numerator, rate")
+    } else if (any(pull(data, {{ numerator }}) == 0) & missing(denominator)) {
+      stop("for rates, where there are 0 events for a record, the denominator field needs to be provided using the denominator argument")
+    } else if (is.null(multiplier)) {
+      stop("for rates, a multiplier is required to test the significance of the points")
+    }
+
+    rate_type <- match.arg(rate_type, c("dsr", "crude"))
+
+  } else if (statistic %in% c("proportion", "ratio")) {
+    if (missing(data) | missing(numerator) | missing(denominator)) {
+      stop("at least 3 arguments are required for ratios and proportions: data, numerator, denominator")
+    }
   }
+
 
   # check string inputs
   type <- match.arg(type, c("full", "standard"))
-  statistic <- match.arg(statistic, c("proportion", "ratio"))
+  statistic <- match.arg(statistic, c("proportion", "ratio", "rate"))
 
   if (statistic == "ratio") ratio_type <- match.arg(ratio_type, c("count", "isr"))
+  if (statistic == "rate") {
+    rate_type <- match.arg(rate_type, c("dsr", "crude"))
+    if (is.null(years_of_data)) stop("years_of_data is required when statstic is 'rate'")
+  }
 
+
+  if (statistic == "rate") {
+    rate_type <- match.arg(rate_type, c("dsr", "crude"))
+    if (rate_type == "dsr") {
+      data <- data %>%
+        mutate(
+          {{ rate }} := as.numeric({{ rate }}),
+          denominator_derived = case_when(
+            {{ numerator }} == 0 ~ NA_real_,
+            TRUE ~ multiplier * {{ numerator }} / {{ rate }}
+          )
+        )
+    } else if (rate_type == "crude") {
+      if (missing(denominator)) {
+        data <- data %>%
+          mutate(
+            denominator_derived = multiplier * {{ numerator }} / {{ rate }}
+          )
+
+      } else {
+        data <- data %>%
+          mutate(
+            denominator_derived = {{ denominator }}
+          )
+
+      }
+      data <- data %>%
+        mutate(
+          {{ rate }} := as.numeric({{ rate }})
+        )
+    }
+  } else if (statistic %in% c("proportion", "ratio")) {
+    data <- data %>%
+      mutate(denominator_derived = {{ denominator }})
+  }
   # aggregated data
   summaries <- data %>%
     summarise(
-      av = sum({{ numerator }}) / sum({{ denominator }}),
-      min_denominator = min({{ denominator }}),
-      max_denominator = max({{ denominator }})
+      av = sum({{ numerator }}) / sum(.data$denominator_derived, na.rm = TRUE),
+      min_denominator = min(.data$denominator_derived, na.rm = TRUE),
+      max_denominator = max(.data$denominator_derived, na.rm = TRUE)
     )
 
   av <- summaries$av
@@ -140,20 +201,38 @@ phe_funnels <- function(data, numerator, denominator, type = "full",
   if (max_denominator > 2 * min_denominator) {
     axis_minimum <- 0
   } else {
-    axis_minimum <- signif.floor(min_denominator)
+    if (statistic == "rate") {
+      axis_minimum <- signif.floor(min_denominator / years_of_data) *
+        years_of_data
+
+    } else if (statistic %in% c("proportion", "ratio")) {
+      axis_minimum <- signif.floor(min_denominator)
+
+    }
   }
 
-  axis_maximum <- signif.ceiling(max_denominator)
+  if (statistic == "rate") {
+    axis_maximum <- signif.ceiling(max_denominator / years_of_data) *
+      years_of_data
+  } else if (statistic %in% c("proportion", "ratio")) {
+    axis_maximum <- signif.ceiling(max_denominator)
+  }
 
- if (statistic == "proportion") {
+
+  if (statistic == "proportion") {
     col_header <- "Population"
- } else if (statistic == "ratio") {
+  } else if (statistic == "ratio") {
     col_header <- "Observed_events"
+  } else if (statistic == "rate") {
+    col_header <- "Events"
+    axis_minimum <- floor(axis_minimum * av)
+    axis_maximum <- ceiling(axis_maximum * av)
+
   }
 
   first_col <- max(1, axis_minimum)
   for (j in 2:100) {
-    if (statistic == "proportion") {
+    if (statistic %in% c("proportion", "rate")) {
       offset <- j
     } else if (statistic == "ratio") {
       offset <- j - 1
@@ -204,6 +283,26 @@ phe_funnels <- function(data, numerator, denominator, type = "full",
                       function(x) x * 100))
 
     }
+  } else if (statistic == "rate") {
+
+    t <- t %>%
+      group_by(.data$Events) %>%
+      mutate(
+        lower_2s_population_1_year = poisson_funnel(.data$Events, 0.025, "high") / av,
+        lower_2s_limit = .data$Events / .data$lower_2s_population_1_year,
+        upper_2s_population_1_year = poisson_funnel(.data$Events, 0.025, "low") / av,
+        upper_2s_limit = .data$Events / .data$upper_2s_population_1_year,
+        lower_3s_population_1_year = poisson_funnel(.data$Events, 0.001, "high") / av,
+        lower_3s_limit = .data$Events / .data$lower_3s_population_1_year,
+        upper_3s_population_1_year = poisson_funnel(.data$Events, 0.001, "low") / av,
+        upper_3s_limit = .data$Events / .data$upper_3s_population_1_year,
+        baseline = av * multiplier,
+        across(ends_with("limit"),
+               function(x) x * multiplier),
+        across(ends_with("1_year"),
+               function(x) x / years_of_data)
+        ) %>%
+      ungroup()
   }
 
   if (type == "full") {
@@ -212,6 +311,11 @@ phe_funnels <- function(data, numerator, denominator, type = "full",
       t <- t %>%
         mutate(statistic = paste0(
           statistic, " (", ratio_type, ")"
+        ))
+    } else if (statistic == "rate") {
+      t <- t %>%
+        mutate(statistic = paste0(
+          statistic, " (", rate_type, " per ", format(multiplier, big.mark = ",", scientific = FALSE), ")"
         ))
     }
   }
@@ -237,8 +341,8 @@ phe_funnels <- function(data, numerator, denominator, type = "full",
 #' @param rate field name from data containing the rate data when creating
 #'   funnels for a Directly Standardised Rate; unquoted string; no default
 #' @param rate_type string; one of "dsr" or "crude"; when statistic is rate this
-#'   argument needs completing
-#' @param rate_multiplier numeric; the multiplier that the rate is normalised
+#'   argument is required
+#' @param multiplier numeric; the multiplier that the rate is normalised
 #'   with (ie, per 100,000); only required when statistic = "rate
 #' @inheritParams phe_funnels
 #'
@@ -263,26 +367,25 @@ phe_funnels <- function(data, numerator, denominator, type = "full",
 
 phe_funnel_significance <- function(data, numerator, denominator, rate,
                                     statistic = "proportion", rate_type = NA,
-                                    rate_multiplier = NULL) {
+                                    multiplier = NULL) {
 
   # check required arguments present
   if (statistic == "rate") {
     if (missing(data) | missing(numerator) | missing(rate)) {
-      stop("function phe_funnel_significance requires at least 3 arguments for rates: data, numerator, rate")
+      stop("at least 3 arguments are required for rates: data, numerator, rate")
     } else if (any(pull(data, {{ numerator }}) == 0) & missing(denominator)) {
       stop("for rates, where there are 0 events for a record, the denominator field needs to be provided using the denominator argument")
-    } else if (is.null(rate_multiplier)) {
-      stop("for rates, a rate multiplier is required to test the significance of the points")
+    } else if (is.null(multiplier)) {
+      stop("for rates, a multiplier is required to test the significance of the points")
     }
 
     rate_type <- match.arg(rate_type, c("dsr", "crude"))
 
-  } else {
+  } else if (statistic %in% c("proportion", "ratio")) {
     if (missing(data) | missing(numerator) | missing(denominator)) {
-      stop("function phe_funnel_significance requires at least 3 arguments for ratios and proportions: data, numerator, denominator")
+      stop("at least 3 arguments are required for ratios and proportions: data, numerator, denominator")
     }
   }
-
 
   # validate arguments
   if (any(pull(data, {{ numerator }}) < 0, na.rm = TRUE)) {
@@ -290,8 +393,6 @@ phe_funnel_significance <- function(data, numerator, denominator, rate,
   } else if (any(pull(data, {{ denominator }}) <= 0, na.rm = TRUE)) {
     stop("denominators must be greater than zero")
   }
-
-
 
   if (statistic == "proportion") {
     if (any(pull(data, {{ numerator }}) > pull(data, {{ denominator }}), na.rm = TRUE)) {
@@ -361,7 +462,7 @@ phe_funnel_significance <- function(data, numerator, denominator, rate,
         mutate(
           derived_denominator = case_when(
             {{ numerator }} == 0 ~ NA_real_,
-            TRUE ~ {{ numerator }} / {{ rate }} * rate_multiplier
+            TRUE ~ {{ numerator }} / {{ rate }} * multiplier
           )
         )
     } else if (rate_type == "crude") {
@@ -369,7 +470,7 @@ phe_funnel_significance <- function(data, numerator, denominator, rate,
         mutate(
           derived_denominator = case_when(
             {{ numerator }} == 0 ~ {{ denominator }},
-            TRUE ~ {{ numerator }} / {{ rate }} * rate_multiplier
+            TRUE ~ {{ numerator }} / {{ rate }} * multiplier
           ))
 
     }
@@ -413,3 +514,65 @@ phe_funnel_significance <- function(data, numerator, denominator, rate,
   return(significance)
 }
 
+#' Derive rate and annual population values for charting based. Process removes
+#' rates where the rate type is dsr and the number of observed events are below
+#' 10.
+#'
+#'
+#' @inheritParams phe_funnels
+#' @export
+#' @return returns the same table as provided with two additional fields. First
+#'   will have the same name as the rate field, with the suffix "_chart", the
+#'   second will be called denominator_derived
+#'
+#' @author Sebastian Fox, \email{sebastian.fox@@phe.gov.uk}
+#'
+phe_funnel_convert_points <- function(data, numerator, denominator, rate,
+                                      rate_type, years_of_data, multiplier = NULL) {
+
+  # check required arguments present
+  if (missing(data) | missing(numerator) | missing(rate)) {
+    stop("at least 3 arguments are required for rates: data, numerator, rate")
+  } else if (any(pull(data, {{ numerator }}) == 0) & missing(denominator)) {
+    stop("for rates, where there are 0 events for a record, the denominator field needs to be provided using the denominator argument")
+  } else if (is.null(multiplier)) {
+    stop("a multiplier is required to convert the input data")
+  }
+
+
+  rate_type <- match.arg(rate_type, c("dsr", "crude"))
+  if (rate_type == "dsr") {
+    data <- data %>%
+      mutate(
+        "{{ rate }}_chart" := case_when(
+          {{ numerator }} < 10 ~ NA_real_,
+          TRUE ~ as.numeric({{ rate }})
+        ),
+        denominator_derived = case_when(
+          {{ numerator }} < 10 ~ NA_real_,
+          TRUE ~ (multiplier * {{ numerator }} / {{ rate }}) / years_of_data
+        )
+      )
+  } else if (rate_type == "crude") {
+    data <- data %>%
+      mutate(
+        "{{ rate }}_chart" := as.numeric({{ rate }}))
+
+    if (missing(denominator)) {
+      data <- data %>%
+        mutate(
+          denominator_derived = (multiplier * {{ numerator }} / {{ rate }}) / years_of_data
+        )
+    } else {
+      data <- data %>%
+        mutate(
+          denominator_derived = case_when(
+            {{ numerator }} == 0 ~ {{ denominator }} / years_of_data,
+            TRUE ~ (multiplier * {{ numerator }} / {{ rate }}) / years_of_data
+      ))
+    }
+  }
+
+  return(data)
+
+}

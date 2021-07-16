@@ -11,7 +11,7 @@ phe_funnel_significance(
   rate,
   statistic = "proportion",
   rate_type = NA,
-  rate_multiplier = NULL
+  multiplier = NULL
 )
 }
 \arguments{
@@ -28,12 +28,12 @@ sample (the denominator for the CLs); unquoted string; no default}
 funnels for a Directly Standardised Rate; unquoted string; no default}
 
 \item{statistic}{string; type of statistic to inform funnel calculations.
-Currently only accepts "proportion"}
+Acceptable values are "proportion", "ratio" or "rate"}
 
 \item{rate_type}{string; one of "dsr" or "crude"; when statistic is rate this
-argument needs completing}
+argument is required}
 
-\item{rate_multiplier}{numeric; the multiplier that the rate is normalised
+\item{multiplier}{numeric; the multiplier that the rate is normalised
 with (ie, per 100,000); only required when statistic = "rate}
 }
 \value{

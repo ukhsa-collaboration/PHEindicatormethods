@@ -96,6 +96,13 @@ test_funnel_rate_inputs <- read.csv("tests/testthat/testdata_funnel_rate_dsr_inp
   as_tibble()
 
 
+test_funnel_rate_funnels_input <- read.csv("tests/testthat/testdata_funnel_rate_input_funnels.csv")
+test_funnel_rate_funnels <- read.csv("tests/testthat/testdata_funnel_rate_outputs.csv") %>%
+  as_tibble()
+
+test_funnel_rate_funnels_2 <- read.csv("tests/testthat/testdata_funnel_rate_outputs_2.csv") %>%
+  as_tibble()
+
 # Proportions test data
 test_Prop   <- read_excel("tests/testthat/testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)
 
@@ -172,5 +179,6 @@ usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results,
                   SII_test_data, SII_test_grouped,
                   test_funnel_inputs, test_funnel_outputs, test_funnel_outputs_axis_variation,
                   test_funnel_ratio_inputs, test_funnel_ratio_outputs,
-                  test_funnel_rate_inputs,
+                  test_funnel_rate_inputs, test_funnel_rate_funnels_input,
+                  test_funnel_rate_funnels, test_funnel_rate_funnels_2,
                   internal = TRUE, overwrite = TRUE)

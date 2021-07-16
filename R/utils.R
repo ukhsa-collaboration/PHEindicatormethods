@@ -625,4 +625,3 @@ funnel_ratio_significance <- function(obs, expected, p, side) {
   test_statistic <- test_statistic / expected
   return(test_statistic)
 }
-
