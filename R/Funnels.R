@@ -108,11 +108,9 @@ phe_funnels <- function(data, numerator, denominator, rate,
       stop("at least 3 arguments are required for rates: data, numerator, rate")
     } else if (any(pull(data, {{ numerator }}) == 0) & missing(denominator)) {
       stop("for rates, where there are 0 events for a record, the denominator field needs to be provided using the denominator argument")
-    } else if (is.null(multiplier)) {
-      stop("for rates, a multiplier is required to test the significance of the points")
     }
 
-    rate_type <- match.arg(rate_type, c("dsr", "crude"))
+  rate_type <- match.arg(rate_type, c("dsr", "crude"))
 
   } else if (statistic %in% c("proportion", "ratio")) {
     if (missing(data) | missing(numerator) | missing(denominator)) {
@@ -153,7 +151,10 @@ phe_funnels <- function(data, numerator, denominator, rate,
       } else {
         data <- data %>%
           mutate(
-            denominator_derived = {{ denominator }}
+            denominator_derived = case_when(
+              {{ numerator }} == 0 ~ {{ denominator }},
+              TRUE ~ multiplier * {{ numerator }} / {{ rate }}
+            )
           )
 
       }

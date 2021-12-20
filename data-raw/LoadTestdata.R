@@ -103,6 +103,9 @@ test_funnel_rate_funnels <- read.csv("tests/testthat/testdata_funnel_rate_output
 test_funnel_rate_funnels_2 <- read.csv("tests/testthat/testdata_funnel_rate_outputs_2.csv") %>%
   as_tibble()
 
+test_funnel_rate_funnels_3 <- read.csv("tests/testthat/testdata_funnel_rate_outputs_3.csv") %>%
+  as_tibble()
+
 # Proportions test data
 test_Prop   <- read_excel("tests/testthat/testdata_Proportion.xlsx", sheet="testdata_Prop",   col_names=TRUE)
 
@@ -181,4 +184,5 @@ usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results,
                   test_funnel_ratio_inputs, test_funnel_ratio_outputs,
                   test_funnel_rate_inputs, test_funnel_rate_funnels_input,
                   test_funnel_rate_funnels, test_funnel_rate_funnels_2,
+                  test_funnel_rate_funnels_3,
                   internal = TRUE, overwrite = TRUE)
