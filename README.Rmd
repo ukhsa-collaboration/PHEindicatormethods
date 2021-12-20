@@ -12,10 +12,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-[![Build
-Status](https://travis-ci.org/PublicHealthEngland/PHEindicatormethods.svg?branch=master)](https://travis-ci.org/PublicHealthEngland/PHEindicatormethods?branch=master)
-
-
+[![R-CMD-check](https://github.com/publichealthengland/PHEindicatormethods/workflows/R-CMD-check/badge.svg)](https://github.com/publichealthengland/PHEindicatormethods/actions)
 
 [![Coverage
 Status](https://coveralls.io/repos/github/PublicHealthEngland/PHEindicatormethods/badge.svg?branch=master)](https://coveralls.io/github/PublicHealthEngland/PHEindicatormethods?branch=master)

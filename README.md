@@ -1,8 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-[![Build
-Status](https://travis-ci.org/PublicHealthEngland/PHEindicatormethods.svg?branch=master)](https://travis-ci.org/PublicHealthEngland/PHEindicatormethods?branch=master)
+[![R-CMD-check](https://github.com/publichealthengland/PHEindicatormethods/workflows/R-CMD-check/badge.svg)](https://github.com/publichealthengland/PHEindicatormethods/actions)
 
 [![Coverage
 Status](https://coveralls.io/repos/github/PublicHealthEngland/PHEindicatormethods/badge.svg?branch=master)](https://coveralls.io/github/PublicHealthEngland/PHEindicatormethods?branch=master)
@@ -79,30 +78,30 @@ see individual item documentation for full details
 
 **Functions:**
 
-  - phe\_dsr  
-  - phe\_isr  
-  - phe\_life\_expectancy
-  - phe\_mean  
-  - phe\_proportion  
-  - phe\_quantile  
-  - phe\_rate  
-  - phe\_sii
-  - phe\_smr
+-   phe_dsr  
+-   phe_isr  
+-   phe_life_expectancy
+-   phe_mean  
+-   phe_proportion  
+-   phe_quantile  
+-   phe_rate  
+-   phe_sii
+-   phe_smr
 
 **Datasets:**
 
-  - esp2013  
-  - LE\_data (for use with SII vignette)
-  - DSR\_data (for use with SII vignette)
-  - prevalence\_data (for use with SII vignette)
+-   esp2013  
+-   LE_data (for use with SII vignette)
+-   DSR_data (for use with SII vignette)
+-   prevalence_data (for use with SII vignette)
 
 **Vignettes:**
 
-  - Vignette to introduce the package functions included in the original
+-   Vignette to introduce the package functions included in the original
     package release
-  - Vignette for calculating DSRs for multiple geographies and time
+-   Vignette for calculating DSRs for multiple geographies and time
     periods  
-  - Vignette showing worked examples of the phe\_sii function
+-   Vignette showing worked examples of the phe_sii function
 
 (type ‘browseVignettes(“PHEindicatormethods”)’ to view in HTML or access
 vignettes from the package’s CRAN webpage
