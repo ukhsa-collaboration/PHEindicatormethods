@@ -42,6 +42,6 @@ Suggests:
     knitr,
     readxl,
     rmarkdown,
-    testthat,
+    testthat
 RoxygenNote: 7.1.2
 VignetteBuilder: knitr
