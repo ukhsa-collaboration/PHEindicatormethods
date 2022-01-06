@@ -15,10 +15,7 @@ knitr::opts_chunk$set(
 [![Build
 Status](https://travis-ci.org/PublicHealthEngland/PHEindicatormethods.svg?branch=master)](https://travis-ci.org/PublicHealthEngland/PHEindicatormethods?branch=master)
 
-
-
-[![Coverage
-Status](https://coveralls.io/repos/github/PublicHealthEngland/PHEindicatormethods/badge.svg?branch=master)](https://coveralls.io/github/PublicHealthEngland/PHEindicatormethods?branch=master)
+[![codecov](https://codecov.io/gh/sebastian-fox/PHEindicatormethods/branch/master/graph/badge.svg?token=5S4748IBZJ)](https://codecov.io/gh/sebastian-fox/PHEindicatormethods)
 
 
 # PHEindicatormethods
