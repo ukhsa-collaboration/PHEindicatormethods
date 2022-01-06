@@ -368,25 +368,27 @@ test_that("phe_funnel_convert_points works for dsrs with 0 event record and deno
 
 # test error handling -----------------------------------------------------
 test_that("incorrect statistic argument", {
+  skip_on_covr()
   expect_error(
     test_funnel_inputs %>%
       dplyr::select(numerator, denominator) %>%
       filter(denominator < 31000) %>%
       phe_funnels(numerator, denominator,
                   statistic = "pop"),
-    "'arg' should be one of “proportion”, “ratio”, “rate”",
+    "'arg' should be one of \"proportion\", \"ratio\", \"rate\"",
     info = "incorrect argument specified to statistic for phe_funnels"
   )
 })
 
 test_that("incorrect type argument", {
+  skip_on_covr()
   expect_error(
     test_funnel_inputs %>%
       dplyr::select(numerator, denominator) %>%
       filter(denominator < 31000) %>%
       phe_funnels(numerator, denominator,
                   type = "srtd"),
-    "'arg' should be one of “full”, “standard”",
+    "'arg' should be one of \"full\", \"standard\"",
     info = "incorrect argument specified to type for phe_funnels"
   )
 })
