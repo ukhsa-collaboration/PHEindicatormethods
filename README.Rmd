@@ -14,7 +14,6 @@ knitr::opts_chunk$set(
 
 
 [![codecov](https://codecov.io/gh/sebastian-fox/PHEindicatormethods/branch/master/graph/badge.svg?token=5S4748IBZJ)](https://codecov.io/gh/sebastian-fox/PHEindicatormethods)
-=======
 [![R-CMD-check](https://github.com/publichealthengland/PHEindicatormethods/workflows/R-CMD-check/badge.svg)](https://github.com/publichealthengland/PHEindicatormethods/actions)
 
 
