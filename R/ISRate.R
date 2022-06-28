@@ -1,23 +1,30 @@
 # -------------------------------------------------------------------------------------------------
-#' Calculate Indirectly Standardised Rates using phe_isr
+#' Calculate Indirectly Standardised Rates using calculate_ISRate
 #'
-#' Calculates indirectly standardised rates with confidence limits using Byar's [1] or exact [2] CI method.
+#' Calculates indirectly standardised rates with confidence limits using Byar's
+#' [1] or exact [2] CI method.
 #'
-#' @param data data.frame containing the data to be standardised, pre-grouped if multiple ISRs required; unquoted string; no default
-#' @param x_ref the observed number of events in the reference population for each standardisation category (eg age band);
-#'              unquoted string referencing a numeric vector or field name from data depending on value of refpoptype; no default
-#' @param n_ref the reference population for each standardisation category (eg age band);
-#'              unquoted string referencing a numeric vector or field name from data depending on value of refpoptype; no default
-#' @param refpoptype whether x_ref and n_ref have been specified as vectors or a field name from data;
-#'                   quoted string "field" or "vector"; default = "vector"
+#' @param data data.frame containing the data to be standardised, pre-grouped if
+#'   multiple ISRs required; unquoted string; no default
+#' @param x_ref the observed number of events in the reference population for
+#'   each standardisation category (eg age band); unquoted string referencing a
+#'   numeric vector or field name from data depending on value of refpoptype; no
+#'   default
+#' @param n_ref the reference population for each standardisation category (eg
+#'   age band); unquoted string referencing a numeric vector or field name from
+#'   data depending on value of refpoptype; no default
+#' @param refpoptype whether x_ref and n_ref have been specified as vectors or a
+#'   field name from data; quoted string "field" or "vector"; default = "vector"
 #'
 #' @inheritParams phe_dsr
 #'
 #' @import dplyr
 #' @export
 #'
-#' @return When type = "full", returns a tibble of observed events, expected events, indirectly standardised rate,
-#'  lower confidence limit, upper confidence limit, confidence level, statistic and method for each grouping set
+#' @return When type = "full", returns a tibble of observed events, expected
+#'   events, indirectly standardised rate, lower confidence limit, upper
+#'   confidence limit, confidence level, statistic and method for each grouping
+#'   set
 #'
 #' @examples
 #' library(dplyr)
@@ -35,24 +42,24 @@
 #' ## calculate multiple ISRs in single execution
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     phe_isr(obs, pop, refdf$refcount, refdf$refpop)
+#'     calculate_ISRate(obs, pop, refdf$refcount, refdf$refpop)
 #'
 #' ## execute without outputting metadata fields
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     phe_isr(obs, pop, refdf$refcount, refdf$refpop, type="standard", confidence=99.8)
+#'     calculate_ISRate(obs, pop, refdf$refcount, refdf$refpop, type="standard", confidence=99.8)
 #'
 #' ## calculate 95% and 99.8% CIs in single execution
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     phe_isr(obs, pop, refdf$refcount, refdf$refpop, confidence = c(0.95, 0.998))
+#'     calculate_ISRate(obs, pop, refdf$refcount, refdf$refpop, confidence = c(0.95, 0.998))
 #'
-#' @section Notes: User MUST ensure that x, n, x_ref and n_ref vectors are all ordered by
-#' the same standardisation category values as records will be matched by position. \cr  \cr
-#' For numerators >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
-#'  and \code{\link{byars_upper}} functions.  For small
-#'  numerators Byar's method is less accurate and so an exact method [2] based
-#'  on the Poisson distribution is used.
+#' @section Notes: User MUST ensure that x, n, x_ref and n_ref vectors are all
+#'   ordered by the same standardisation category values as records will be
+#'   matched by position. \cr  \cr For numerators >= 10 Byar's method [1] is
+#'   applied using the \code{\link{byars_lower}} and \code{\link{byars_upper}}
+#'   functions.  For small numerators Byar's method is less accurate and so an
+#'   exact method [2] based on the Poisson distribution is used.
 #'
 #' @references
 #' [1] Breslow NE, Day NE. Statistical methods in cancer research,
@@ -65,12 +72,12 @@
 # -------------------------------------------------------------------------------------------------
 
 
-phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
+calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
                     type = "full", confidence = 0.95, multiplier = 100000) {
 
     # check required arguments present
     if (missing(data)|missing(x)|missing(n)|missing(x_ref)|missing(n_ref)) {
-        stop("function phe_isr requires at least 5 arguments: data, x, n, x_ref and n_ref")
+        stop("function calculate_ISRate requires at least 5 arguments: data, x, n, x_ref and n_ref")
     }
 
 
@@ -129,7 +136,7 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         conf2 <- confidence[2]
 
         # calculate isr and CIs
-        phe_isr <- data %>%
+        ISRate <- data %>%
         mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
         summarise(observed  = sum({{ x }}, na.rm=TRUE),
                   expected  = sum(exp_x),
@@ -145,21 +152,21 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
                upper99_8cl = if_else(observed<10, qchisq(conf2+(1-conf2)/2,2*observed+2)/2/expected * ref_rate,
                                      byars_upper(observed,conf2)/expected * ref_rate),
                confidence = "95%, 99.8%",
-               statistic = paste("isr per",format(multiplier,scientific=F)),
+               statistic = paste("indirectly standardised rate per",format(multiplier,scientific=F)),
                method  = if_else(observed<10,"Exact","Byars"))
 
         # drop fields not required based on value of type argument
         if (type == "lower") {
-            phe_isr <- phe_isr %>%
+            ISRate <- ISRate %>%
                 select(-observed, -expected, -ref_rate, -value, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
         } else if (type == "upper") {
-            phe_isr <- phe_isr %>%
+            ISRate <- ISRate %>%
                 select(-observed, -expected, -ref_rate, -value, -lower95_0cl, -lower99_8cl, -confidence, -statistic, -method)
         } else if (type == "value") {
-            phe_isr <- phe_isr %>%
+            ISRate <- ISRate %>%
                 select(-observed, -expected, -ref_rate, -lower95_0cl, -lower99_8cl, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
         } else if (type == "standard") {
-            phe_isr <- phe_isr %>%
+            ISRate <- ISRate %>%
                 select(-confidence, -statistic, -method)
         }
 
@@ -172,7 +179,7 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
 
 
         # calculate isr with a single CI
-        phe_isr <- data %>%
+        ISRate <- data %>%
             mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
             summarise(observed  = sum({{ x }}, na.rm=TRUE),
                       expected  = sum(exp_x),
@@ -184,26 +191,26 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
                    uppercl = if_else(observed<10, qchisq(confidence+(1-confidence)/2,2*observed+2)/2/expected * ref_rate,
                                      byars_upper(observed,confidence)/expected * ref_rate),
                    confidence = paste(confidence*100,"%", sep=""),
-                   statistic = paste("isr per",format(multiplier,scientific=F)),
+                   statistic = paste("indirectly standardised rate per",format(multiplier,scientific=F)),
                    method  = if_else(observed<10,"Exact","Byars"))
 
         # drop fields not required based on value of type argument
         if (type == "lower") {
-            phe_isr <- phe_isr %>%
+            ISRate <- ISRate %>%
                 select(-observed, -expected, -ref_rate, -value, -uppercl, -confidence, -statistic, -method)
         } else if (type == "upper") {
-            phe_isr <- phe_isr %>%
+            ISRate <- ISRate %>%
                 select(-observed, -expected, -ref_rate, -value, -lowercl, -confidence, -statistic, -method)
         } else if (type == "value") {
-            phe_isr <- phe_isr %>%
+            ISRate <- ISRate %>%
                 select(-observed, -expected, -ref_rate, -lowercl, -uppercl, -confidence, -statistic, -method)
         } else if (type == "standard") {
-            phe_isr <- phe_isr %>%
+            ISRate <- ISRate %>%
                 select(-confidence, -statistic, -method)
         }
 
     }
 
-    return(phe_isr)
+    return(ISRate)
 }
 

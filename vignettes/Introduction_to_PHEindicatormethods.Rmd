@@ -36,15 +36,15 @@ library(dplyr)
 This vignette covers the following functions available within the first release of the package (v1.0.8) but has been updated to apply to these functions in their latest release versions.  If further functions are added to the package in future releases these will be explained elsewhere.
 
 | Function       | Type                      | Description                                 |
-|:---------------|:--------------------------|:--------------------------------------------|
-| phe_proportion | Non-aggregate             | Performs a calculation on each row of data (unless data is grouped)  |
-| phe_rate       | Non-aggregate             | Performs a calculation on each row of data (unless data is grouped)  |
-|                |                                |                                             |
-| phe_mean       | Aggregate                 | Performs a calculation on each grouping set |
-|                |                                |                                             |
-| phe_dsr        | Aggregate, standardised   | Performs a calculation on each grouping set and requires additional reference inputs |
-| phe_smr        | Aggregate, standardised   | Performs a calculation on each grouping set and requires additional reference inputs |
-| phe_isr        | Aggregate, standardised   | Performs a calculation on each grouping set and requires additional reference inputs |
+|:------------------|:--------------------------|:--------------------------------------------|
+| phe_proportion    | Non-aggregate             | Performs a calculation on each row of data (unless data is grouped)  |
+| phe_rate          | Non-aggregate             | Performs a calculation on each row of data (unless data is grouped)  |
+|                   |                           |                                             |
+| phe_mean          | Aggregate                 | Performs a calculation on each grouping set |
+|                   |                           |                                             |
+| phe_dsr           | Aggregate, standardised   | Performs a calculation on each grouping set and requires additional reference inputs |
+| calculate_ISRatio | Aggregate, standardised   | Performs a calculation on each grouping set and requires additional reference inputs |
+| calculate_ISRate  | Aggregate, standardised   | Performs a calculation on each grouping set and requires additional reference inputs |
 
 
 ## Non-aggregate functions
@@ -229,8 +229,8 @@ df_std %>%
 
 
 
-#### Execute phe_smr and phe_isr
-**INPUT:** Unlike the phe_dsr function, there is no default standard or reference data for the phe_smr and phe_isr functions.  These functions take a single data frame as input, with columns representing the numerators and denominators for each standardisation category, plus reference numerators and denominators for each standardisation category.  
+#### Execute calculate_ISRatio and calculate_ISRate
+**INPUT:** Unlike the phe_dsr function, there is no default standard or reference data for the calculate_ISRatio and calculate_ISRate functions.  These functions take a single data frame as input, with columns representing the numerators and denominators for each standardisation category, plus reference numerators and denominators for each standardisation category.  
 
 The reference data can either be provided in a separate data frame/vectors or as columns within the input data frame:  
 
@@ -257,20 +257,20 @@ df_ref <- df_std %>%
 head(df_ref)
 ```
 
-Here are some example code chunks to demonstrate the phe_smr function and the arguments that can optionally be specified
+Here are some example code chunks to demonstrate the calculate_ISRatio function and the arguments that can optionally be specified
 
-```{r Execute phe_smr}
+```{r Execute calculate_ISRatio}
 # calculate separate smrs for each area, year and sex
 df_std %>%
     group_by(area, year, sex) %>%
-    phe_smr(obs, pop, df_ref$obs, df_ref$pop)
+    calculate_ISRatio(obs, pop, df_ref$obs, df_ref$pop)
 
 # calculate the same smrs by appending the reference data to the data frame
 df_std %>%
     mutate(refobs = rep(df_ref$obs,40),
            refpop = rep(df_ref$pop,40)) %>%
     group_by(area, year, sex) %>%
-    phe_smr(obs, pop, refobs, refpop, refpoptype="field")
+    calculate_ISRatio(obs, pop, refobs, refpop, refpoptype="field")
 
 # calculate separate smrs for each year and drop metadata columns from output
 df_std %>%
@@ -278,23 +278,23 @@ df_std %>%
     summarise(obs = sum(obs),
               pop = sum(pop),
               .groups = "drop_last") %>%
-    phe_smr(obs, pop, df_ref$obs, df_ref$pop, type="standard")
+    calculate_ISRatio(obs, pop, df_ref$obs, df_ref$pop, type="standard")
 ```
 
-The phe_isr function works exactly the same way but instead of expressing the result as a ratio of the observed and expected rates the result is expressed as a rate and the reference rate is also provided.  Here are some examples:
+The calculate_ISRate function works exactly the same way but instead of expressing the result as a ratio of the observed and expected rates the result is expressed as a rate and the reference rate is also provided.  Here are some examples:
 
-```{r Execute phe_isr}
+```{r Execute calculate_ISRate}
 # calculate separate isrs for each area, year and sex
 df_std %>%
     group_by(area, year, sex) %>%
-    phe_isr(obs, pop, df_ref$obs, df_ref$pop)
+    calculate_ISRate(obs, pop, df_ref$obs, df_ref$pop)
 
 # calculate the same isrs by appending the reference data to the data frame
 df_std %>%
     mutate(refobs = rep(df_ref$obs,40),
            refpop = rep(df_ref$pop,40)) %>%
     group_by(area, year, sex) %>%
-    phe_isr(obs, pop, refobs, refpop, refpoptype="field")
+    calculate_ISRate(obs, pop, refobs, refpop, refpoptype="field")
 
 # calculate separate isrs for each year and drop metadata columns from output
 df_std %>%
@@ -302,5 +302,5 @@ df_std %>%
     summarise(obs = sum(obs),
               pop = sum(pop),
               .groups = "drop_last")  %>%
-    phe_isr(obs, pop, df_ref$obs, df_ref$pop, type="standard")
+    calculate_ISRate(obs, pop, df_ref$obs, df_ref$pop, type="standard")
 ```

@@ -161,7 +161,7 @@
 #'         rii = TRUE,
 #'         type = "standard")
 #'
-#' @author Emma Clegg, \email{emma.clegg@@phe.gov.uk}
+#' @author Emma Clegg
 #'
 #' @export
 #'

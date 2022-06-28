@@ -53,7 +53,7 @@ test_quantiles_fail <- test_quantiles %>%
 # Byars Wilson test data
 test_BW <- read_excel("tests/testthat/testdata_Byars_Wilson.xlsx", sheet="testdata_B_W",   col_names=TRUE)
 
-# Funnel proportions
+# Funnel test data
 
 test_funnel_inputs <- read.csv("tests/testthat/testdata_funnel_prop_inputs.csv",
                                 col.names = c("Area", "numerator", "denominator", "significance"),
@@ -73,6 +73,7 @@ test_funnel_outputs_axis_variation <- read.csv("tests/testthat/testdata_funnel_p
                                                              "baseline"),
                                                colClasses = "numeric")
 test_funnel_outputs_axis_variation$statistic <- "proportion"
+test_funnel_outputs_axis_variation$method <- "Wilson"
 
 test_funnel_ratio_inputs <- read.csv("tests/testthat/testdata_funnel_ratio_inputs.csv",
                                      col.names = c("obs", "expected", "significance"),
@@ -138,21 +139,21 @@ test_Mean_Grp <- group_by(test_Mean,area)
 
 
 
-# DSRs, ISRs and SMRs test data
-test_multiarea   <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multiarea", col_names=TRUE) %>%
+# DSRs, ISRs test data
+test_multiarea   <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_multiarea", col_names=TRUE) %>%
   group_by(area)
-test_DSR_1976    <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_1976",   col_names=TRUE)
-test_err1        <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err1",   col_names=TRUE)
-test_err2        <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err2",   col_names=TRUE) %>%
+test_DSR_1976    <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_1976",   col_names=TRUE)
+test_err1        <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_err1",   col_names=TRUE)
+test_err2        <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_err2",   col_names=TRUE) %>%
   group_by(area)
-test_err3        <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_err3",   col_names=TRUE)
-test_DSR_results <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testresults_DSR", col_names=TRUE)
-test_multigroup  <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multigroup", col_names=TRUE) %>%
+test_err3        <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_err3",   col_names=TRUE)
+test_DSR_results <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testresults_DSR", col_names=TRUE)
+test_multigroup  <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_multigroup", col_names=TRUE) %>%
   group_by(area,year)
 
-test_ISR_results <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testresults_ISR", col_names=TRUE)
-test_ISR_refdata <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="refdata",         col_names=TRUE)
-test_ISR_ownref  <- read_excel("tests/testthat/testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multiarea_isrsmr", col_names=TRUE) %>%
+test_ISR_results <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testresults_ISR", col_names=TRUE)
+test_ISR_refdata <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="refdata",         col_names=TRUE)
+test_ISR_ownref  <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_multiarea_isr", col_names=TRUE) %>%
                       group_by(area)
 
 # SII

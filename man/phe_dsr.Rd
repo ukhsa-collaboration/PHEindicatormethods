@@ -90,15 +90,16 @@ df \%>\%
 }
 \seealso{
 Other PHEindicatormethods package functions: 
-\code{\link{phe_funnel_significance}()},
-\code{\link{phe_funnels}()},
-\code{\link{phe_isr}()},
+\code{\link{assign_funnel_significance}()},
+\code{\link{calculate_ISRate}()},
+\code{\link{calculate_ISRatio}()},
+\code{\link{calculate_funnel_limits}()},
+\code{\link{calculate_funnel_points}()},
 \code{\link{phe_life_expectancy}()},
 \code{\link{phe_mean}()},
 \code{\link{phe_proportion}()},
 \code{\link{phe_quantile}()},
 \code{\link{phe_rate}()},
-\code{\link{phe_sii}()},
-\code{\link{phe_smr}()}
+\code{\link{phe_sii}()}
 }
 \concept{PHEindicatormethods package functions}

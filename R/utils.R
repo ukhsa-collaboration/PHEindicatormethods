@@ -5,6 +5,8 @@
 #'
 #' @param y input vector
 #'
+#' @noRd
+#'
 # -------------------------------------------------------------------------------------------------
 na.zero <- function (y) {
     y[is.na(y)] <- 0
@@ -141,6 +143,7 @@ byars_upper <- function(x, confidence = 0.95) {
 #' [2] Newcombe RG, Altman DG. Proportions and their differences. In Altman
 #'  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
 #'  2000. Pg 46 to 48.
+
 #'
 #' ------------------------------------------------------------------------------------------------
 
@@ -244,6 +247,9 @@ wilson_upper <- function(x, n, confidence = 0.95) {
 #'        populations; unquoted string; no default
 #' @param no_quantiles number of quantiles supplied in dataset for SII;
 #'        integer; no default
+#'
+#' @noRd
+#'
 # -------------------------------------------------------------------------------------------------
 
 FindXValues <- function(xvals, no_quantiles){
@@ -303,6 +309,8 @@ FindXValues <- function(xvals, no_quantiles){
 #' @param reliability_stat option to carry out the SII confidence interval simulation 10 times instead
 #'        of once and return the Mean Average Difference between the first and subsequent samples (as a
 #'        measure of the amount of variation); logical; default FALSE
+#'
+#' @noRd
 #'
 # -------------------------------------------------------------------------------------------------
 
@@ -524,10 +532,16 @@ SimulationFunc <- function(data,
 }
 
 
+# ------------------------------------------------------------------------------
+#' Poisson Function for funnel plots for ratios and rates
+#'
+#' @noRd
+#'
+# ------------------------------------------------------------------------------
+
 
 poisson_cis <- function(z, x_a, x_b) {
-  # this is in the Excel macro code, but none of the following can occur based
-  # on Funnels.R
+  # none of the following can occur based on Funnels.R
   # if (any(z < 0, x_a < 0, x_b < 0, x_b < x_a, x_a %% 1 > 0, x_b %% 1 > 0))
   #   return(NA)
 
@@ -552,9 +566,16 @@ poisson_cis <- function(z, x_a, x_b) {
   return(s / tot)
 }
 
+
+# ------------------------------------------------------------------------------
+#' Function for funnel plots for ratios and rates
+#'
+#' @noRd
+#'
+# ------------------------------------------------------------------------------
+
 poisson_funnel <- function(obs, p, side) {
-  # this is in the Excel macro code, but none of the following can occur based
-  # on Funnels.R
+  # None of the following can occur based on Funnels.R
   # if (any(obs < 0, p < 0, p > 1, obs %% 1 != 0)) return(NA)
 
   v <- 0.5
@@ -594,6 +615,13 @@ poisson_funnel <- function(obs, p, side) {
   return(p)
 }
 
+# ------------------------------------------------------------------------------
+#' Function for funnel plots for rates and ratios
+#'
+#' @noRd
+#'
+# ------------------------------------------------------------------------------
+
 
 funnel_ratio_significance <- function(obs, expected, p, side) {
   if (obs == 0 & side == "low") {
@@ -625,3 +653,53 @@ funnel_ratio_significance <- function(obs, expected, p, side) {
   test_statistic <- test_statistic / expected
   return(test_statistic)
 }
+
+#' Calculate the proportion funnel point value for a specific population based
+#' on a population average value
+#'
+#' Returns a value equivalent to the higher/lower funnel plot point based on the
+#' input population and probability
+#'
+#' @param p numeric (between 0 and 1); probability to calculate funnel plot
+#'   point (will normally be either 0.975 or 0.999)
+#' @param population numeric; the population for the area
+#' @param average_proportion numeric; the average proportion for all the areas
+#'   included in the funnel plot (the sum of the numerators divided by the sum
+#'   of the denominators)
+#' @param side string; "low" or "high" to determine which funnel to calculate
+#' @param multiplier  numeric; the multiplier used to express the final values
+#'   (eg 100 = percentage); default 100
+#' @return returns a value equivalent to the specified funnel plot point for the
+#'   input population
+#'
+#' @noRd
+#'
+#' @author Sebastian Fox, \email{sebastian.fox@@phe.gov.uk}
+#'
+
+sigma_adjustment <- function(p, population, average_proportion, side, multiplier) {
+  first_part <- average_proportion * (population /
+                                        qnorm(p)^2 + 1)
+
+  adj <- sqrt((-8 * average_proportion * (population /
+                                            qnorm(p)^2 + 1))^2 - 64 *
+                (1 / qnorm(p)^2 + 1 / population) *
+                average_proportion * (population *
+                                        (average_proportion * (population /
+                                                                 qnorm(p)^2 + 2) - 1) +
+                                        qnorm(p)^2 *
+                                        (average_proportion - 1)))
+
+  last_part <- (1 / qnorm(p)^2 + 1 /
+                  population)
+
+  if (side == "low") {
+    adj_return <- (first_part - adj / 8) / last_part
+  } else if (side == "high") {
+    adj_return <- (first_part + adj / 8) / last_part
+  }
+  adj_return <- (adj_return /
+                   population) * multiplier
+  return(adj_return)
+}
+
