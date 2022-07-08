@@ -2,6 +2,8 @@
 
 * `calculate_funnel_limits()`, `assign_funnel_significance()` and `prepare_funnel_plot()` functions added. This provides ability to calculate funnel plot lines and significance for provided data in line with [Fingertips](https://fingertips.phe.org.uk/profile/guidance/supporting-information/PH-methods) published technical guidance.
 * `calculate_ISRate` and `calculate_ISRatio` functions added to replace `phe_isr` and `phe_smr` respectively to overcome ambiguous naming of isr and smr functions.  `phe_isr` and `phe_smr` functions remain but have been badged as superceded and will be deprecated in future releases.
+* `phe_life_expectancy` now forces suppression of LEs when the 95% confidence interval is greater than 20 years.
+
 
 ## PHEindicatormethods v1.3.2
 

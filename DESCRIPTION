@@ -31,13 +31,14 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports: 
-    dplyr (>= 1.0.0),
-    rlang (>= 0.4.0),
     broom,
-    tidyr,
+    dplyr (>= 1.0.0),
+    lifecycle (>= 1.0.0),
     purrr,
+    rlang (>= 0.4.0),
     stats,
-    tibble
+    tibble,
+    tidyr
 Suggests: 
     knitr,
     readxl,

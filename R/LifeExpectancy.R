@@ -50,8 +50,12 @@
 #'   interval is zero. It will also not be calculated if the total person-years
 #'   is less than 5,000 as this is considered to be the minimum size for robust
 #'   calculation of life expectancy.[5]  Zero death counts are not a problem,
-#'   except for the final age interval - there must be at least one death in
-#'   the 90+ interval for the calculations to be possible.
+#'   except for the final age interval - there must be at least one death in the
+#'   90+ interval for the calculations to be possible.
+#'
+#'   Individual Life Expectancy values will be suppressed (although confidence
+#'   intervals will be shown) when the 95% confidence interval is greater
+#'   than 20 years.
 #'
 #'   The methodology used in this function, along with discussion of alternative
 #'   options for life expectancy calculation for small areas, were described Eayres
@@ -422,12 +426,19 @@ phe_life_expectancy <- function(data, deaths, population, startage,
              id_2b_removed < number_age_bands ~ spi_2b_removed * (l_2b_removed ^ 2) * (((1 - ai_2b_removed) * ni_2b_removed + lead(ei)) ^ 2),
              TRUE ~ ((l_2b_removed / 2) ^ 2) * spi_2b_removed),
            STi_2b_removed = rev(cumsum(rev(W_spi_2b_removed))),
-           SeSE_2b_removed = sqrt(STi_2b_removed / (l_2b_removed ^ 2)))
+           SeSE_2b_removed = sqrt(STi_2b_removed / (l_2b_removed ^ 2)),
+           ciover20_2b_removed = case_when(
+             qnorm(0.975) * SeSE_2b_removed > 10 ~ TRUE, TRUE ~ FALSE))
 
   lower_cls <- z %>%
     lapply(function(z, x, y) x - z * y, x = data$ei, y = data$SeSE_2b_removed)
   upper_cls <- z %>%
     lapply(function(z, x, y) x + z * y, x = data$ei, y = data$SeSE_2b_removed)
+
+  if (any(data$ciover20_2b_removed == TRUE)) {
+      warning(paste0("some life expectancy values have a 95% confidence interval ",
+                     "> 20 years; these values have been suppressed to NAs"))
+  }
 
   if (length(lower_cls) > 1) {
     names(lower_cls) <- paste0("lower",
@@ -448,6 +459,11 @@ phe_life_expectancy <- function(data, deaths, population, startage,
     rename(value = ei)
 
   data$value[data$value == Inf] <- NA
+
+  # suppress LE values when 95% CI is wider than 20 years
+  data <- data %>%
+    mutate(value = case_when(
+      ciover20_2b_removed == TRUE ~ NA_real_, TRUE ~ value))
 
   if (nrow(suppressed_data) > 0) data <- bind_rows(data, suppressed_data)
 

@@ -81,8 +81,12 @@ This function aligns with the methodology in Public Health England's
   interval is zero. It will also not be calculated if the total person-years
   is less than 5,000 as this is considered to be the minimum size for robust
   calculation of life expectancy.[5]  Zero death counts are not a problem,
-  except for the final age interval - there must be at least one death in
-  the 90+ interval for the calculations to be possible.
+  except for the final age interval - there must be at least one death in the
+  90+ interval for the calculations to be possible.
+
+  Individual Life Expectancy values will be suppressed (although confidence
+  intervals will be shown) when the 95% confidence interval is greater
+  than 20 years.
 
   The methodology used in this function, along with discussion of alternative
   options for life expectancy calculation for small areas, were described Eayres
