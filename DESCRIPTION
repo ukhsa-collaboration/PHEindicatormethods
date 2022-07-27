@@ -44,5 +44,5 @@ Suggests:
     readxl,
     rmarkdown,
     testthat
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 VignetteBuilder: knitr

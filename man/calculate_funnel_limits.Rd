@@ -30,7 +30,8 @@ sample (the denominator or expected counts for the control limits);
 unquoted string; no default}
 
 \item{rate}{field name from data containing the rate data when creating
-funnels for a Directly Standardised Rate; unquoted string; no default}
+funnels for a Crude or Directly Standardised Rate; unquoted string; no
+default}
 
 \item{type}{defines the data and metadata columns to be included in output;
 "standard" (for all data) or "full" (for all data and metadata); quoted

@@ -2,8 +2,8 @@
 % Please edit documentation in R/Funnels.R
 \name{assign_funnel_significance}
 \alias{assign_funnel_significance}
-\title{Identifies whether each value in a dataset falls outside of 95% and/or 99.8%
-control limits based on the aggregated average value across the whole
+\title{Identifies whether each value in a dataset falls outside of 95 and/or 99.8
+percent control limits based on the aggregated average value across the whole
 dataset as an indicator of statistically significant difference.}
 \usage{
 assign_funnel_significance(
@@ -29,7 +29,8 @@ sample (the denominator or expected counts for the control limits);
 unquoted string; no default}
 
 \item{rate}{field name from data containing the rate data when creating
-funnels for a Directly Standardised Rate; unquoted string; no default}
+funnels for a Crude or Directly Standardised Rate; unquoted string; no
+default}
 
 \item{statistic}{type of statistic to inform funnel calculations. Acceptable
 values are "proportion", "ratio" or "rate"; string; no default}

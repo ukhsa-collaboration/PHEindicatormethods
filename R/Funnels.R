@@ -22,7 +22,8 @@
 #' @param ratio_type if statistic is "ratio", specify either "count" or "isr"
 #'   (indirectly standardised ratio); string; no default
 #' @param rate field name from data containing the rate data when creating
-#'   funnels for a Directly Standardised Rate; unquoted string; no default
+#'   funnels for a Crude or Directly Standardised Rate; unquoted string; no
+#'   default
 #' @param rate_type if statistic is "rate", specify either "dsr" or "crude";
 #'   string; no default
 #' @param years_of_data number of years the data represents; this is required
@@ -33,7 +34,7 @@
 #'   baseline average
 #'
 #' @import dplyr
-#' @importFrom rlang := .data
+#' @importFrom rlang := .data sym
 #'
 #' @examples
 #' library(dplyr)
@@ -68,8 +69,35 @@ calculate_funnel_limits <- function(data, numerator, denominator, rate,
         is.null(rate_type) | is.null(years_of_data) | is.null(multiplier)) {
       stop(paste0("the following arguments are required for rates: ",
                   "data, numerator, rate, rate_type, multiplier, years_of_data"))
-    } else if (any(pull(data, {{ numerator }}) == 0) & missing(denominator)) {
-      stop("for rates, where there are 0 events for a record, the denominator field needs to be provided using the denominator argument")
+
+    } else if (any(is.na(pull(data, {{ numerator }})))) {
+      stop(paste0("for rates, numerators must be provided for all records, ",
+                  "even when their values are zero"))
+    } else if (!missing(denominator)) {
+      if (any(
+        is.na(pull(data, {{ denominator }})) &
+        is.na(pull(data, {{ rate }})))) {
+        stop(paste0("for rates, rates must be provided for all records, ",
+                    "or a denominator must be provided if the rate is zero"))
+      }
+    } else {
+      if (any(is.na(pull(data, {{ rate }})))) {
+        stop(paste0("for rates, rates must be provided for all records, ",
+                    "or a denominator must be provided if the rate is zero"))
+      }
+    }
+
+    # any numerator of 0 needs a denominator > 0 to be provided
+    if (any(pull(data, {{ numerator }}) == 0)) {
+      if (missing(denominator)) {
+        stop(paste0("for rates, where there are 0 events for a record, the ",
+                    "denominator field needs to be provided using the denominator argument"))
+      } else if (any(
+        pull(data, {{ numerator }}) == 0 &
+        (pull(data, {{ denominator }}) <= 0 | is.na(pull(data, {{ denominator }}))))) {
+        stop(paste0("for rates, where there are 0 events for a record, the ",
+                    "denominator must be provided"))
+      }
     }
 
     rate_type <- match.arg(rate_type, c("dsr", "crude"))
@@ -88,6 +116,13 @@ calculate_funnel_limits <- function(data, numerator, denominator, rate,
         is.null(multiplier)) {
       stop(paste0("the following arguments are required for proportions: ",
                   "data, numerator, denominator, multiplier"))
+    # if any numerators or denominators are NA - can't calc comparator avg so error
+    } else if (any(
+      is.na(pull(data, {{ numerator }})) |
+      is.na(pull(data, {{ denominator }})))
+    ) {
+      stop(paste0("for proportions, numerators and denominators must be provided ",
+                  "for all records, even when their values are zero"))
     }
   }
 
@@ -99,7 +134,7 @@ calculate_funnel_limits <- function(data, numerator, denominator, rate,
   # derive denominators to use ----
   if (statistic == "rate") {
 
-    data <- data %>% mutate( {{ rate }} := as.numeric( {{ rate }} ))
+    data <- data %>% mutate( {{ rate }} := as.numeric({{ rate }}))
 
     if (rate_type == "dsr") {
       data <- data %>%
@@ -120,7 +155,7 @@ calculate_funnel_limits <- function(data, numerator, denominator, rate,
         data <- data %>%
           mutate(
             denominator_derived = case_when(
-              {{ numerator }} == 0 ~ {{ denominator }},
+              {{ numerator }} == 0 ~ as.numeric({{ denominator }}),
               TRUE ~ multiplier * {{ numerator }} / {{ rate }}
             )
           )
@@ -129,7 +164,7 @@ calculate_funnel_limits <- function(data, numerator, denominator, rate,
     }
   } else if (statistic %in% c("proportion", "ratio")) {
     data <- data %>%
-      mutate(denominator_derived = {{ denominator }})
+      mutate(denominator_derived = as.numeric({{ denominator }}))
   }
 
   # aggregate data to calculate baseline average for funnel plot ----
@@ -302,8 +337,8 @@ calculate_funnel_limits <- function(data, numerator, denominator, rate,
 }
 
 
-#' Identifies whether each value in a dataset falls outside of 95% and/or 99.8%
-#' control limits based on the aggregated average value across the whole
+#' Identifies whether each value in a dataset falls outside of 95 and/or 99.8
+#' percent control limits based on the aggregated average value across the whole
 #' dataset as an indicator of statistically significant difference.
 #'
 #' This follows the funnel plot methodology published on the PHE Fingertips
@@ -350,9 +385,35 @@ assign_funnel_significance <- function(data, numerator, denominator, rate,
         is.null(rate_type) | is.null(multiplier)) {
       stop(paste0("the following arguments are required for rates: ",
                   "data, numerator, rate, rate_type, multiplier"))
-    } else if (any(pull(data, {{ numerator }}) == 0) & missing(denominator)) {
-      stop(paste0("for rates, where there are 0 events for a record, the ",
-                  "denominator field needs to be provided using the denominator argument"))
+    } else if (any(is.na(pull(data, {{ numerator }})))) {
+          stop(paste0("for rates, numerators must be provided for all records, ",
+                      "even when their values are zero"))
+    } else if (!missing(denominator)) {
+      if (any(
+        is.na(pull(data, {{ denominator }})) &
+        is.na(pull(data, {{ rate }})))) {
+        stop(paste0("for rates, rates must be provided for all records, ",
+                    "or a denominator must be provided if the rate is zero"))
+      }
+    } else {
+      if (any(is.na(pull(data, {{ rate }})))) {
+        stop(paste0("for rates, rates must be provided for all records, ",
+                    "or a denominator must be provided if the rate is zero"))
+      }
+    }
+
+    #  any numerator of 0 needs a denominator > 0 to be provided
+    if (any(pull(data, {{ numerator }}) == 0)) {
+      if (missing(denominator)) {
+        stop(paste0("for rates, where there are 0 events for a record, the ",
+                    "denominator field needs to be provided using the denominator argument"))
+      } else if (any(
+        pull(data, {{ numerator }}) == 0 &
+        (pull(data, {{ denominator }}) <= 0 | is.na(pull(data, {{ denominator }}))))) {
+        stop(paste0("for rates, where there are 0 events for a record, the ",
+                    "denominator must be provided"))
+      }
+    # if any numerators or rates are NA - can't calc comparator avg so error
     }
 
     rate_type <- match.arg(rate_type, c("dsr", "crude"))
@@ -361,6 +422,16 @@ assign_funnel_significance <- function(data, numerator, denominator, rate,
     if (missing(data) | missing(numerator) | missing(denominator)) {
       stop(paste0("the following arguments are required for ratios and proportions: ",
                   "data, numerator, denominator"))
+    # for proportions, if any numerators or denominators are NA - can't calc comparator avg so error
+    }
+    if (statistic == "proportion") {
+      if (any(
+        is.na(pull(data, {{ numerator }})) |
+        is.na(pull(data, {{ denominator }})))
+      ) {
+        stop(paste0("for proportions, numerators and denominators must be provided ",
+                    "for all records, even when their values are zero"))
+      }
     }
   }
 
@@ -378,10 +449,11 @@ assign_funnel_significance <- function(data, numerator, denominator, rate,
   }
 
 
-  average <- sum(pull(data, {{ numerator }})) /
-    sum(pull(data, {{ denominator }}))
-
   if (statistic == "proportion") {
+
+    average <- sum(pull(data, {{ numerator }})) /
+      sum(pull(data, {{ denominator }}))
+
     dummy_multiplier <- 1
     significance <- data %>%
       mutate(significance = case_when(
@@ -437,35 +509,45 @@ assign_funnel_significance <- function(data, numerator, denominator, rate,
     if (rate_type == "dsr") {
       data <- data %>%
         mutate(
-          derived_denominator = case_when(
+          denominator_derived = case_when(
             {{ numerator }} == 0 ~ NA_real_,
             TRUE ~ {{ numerator }} / {{ rate }} * multiplier
           )
         )
     } else if (rate_type == "crude") {
-      data <- data %>%
-        mutate(
-          derived_denominator = case_when(
-            {{ numerator }} == 0 ~ {{ denominator }},
-            TRUE ~ {{ numerator }} / {{ rate }} * multiplier
-          ))
+      if (missing(denominator)) {
+        data <- data %>%
+          mutate(
+            denominator_derived = multiplier * {{ numerator }} / {{ rate }}
+          )
 
+      } else {
+        data <- data %>%
+          mutate(
+            denominator_derived = case_when(
+              {{ numerator }} == 0 ~ as.numeric({{ denominator }}),
+              TRUE ~ multiplier * {{ numerator }} / {{ rate }}
+            )
+          )
+
+      }
     }
 
+
     weighted_average <- sum(pull(data, {{ numerator }})) /
-      sum(pull(data, .data$derived_denominator), na.rm = TRUE)
+      sum(pull(data, .data$denominator_derived), na.rm = TRUE)
 
     significance <- data %>%
       rowwise() %>%
       mutate(significance = case_when(
-        weighted_average < funnel_ratio_significance({{ numerator }}, .data$derived_denominator, 0.998, "low") ~ "High (0.001)",
-        weighted_average < funnel_ratio_significance({{ numerator }}, .data$derived_denominator, 0.95, "low") ~ "High (0.025)",
-        weighted_average > funnel_ratio_significance({{ numerator }}, .data$derived_denominator, 0.998, "high") ~ "Low (0.001)",
-        weighted_average > funnel_ratio_significance({{ numerator }}, .data$derived_denominator, 0.95, "high") ~ "Low (0.025)",
+        weighted_average < funnel_ratio_significance({{ numerator }}, .data$denominator_derived, 0.998, "low") ~ "High (0.001)",
+        weighted_average < funnel_ratio_significance({{ numerator }}, .data$denominator_derived, 0.95, "low") ~ "High (0.025)",
+        weighted_average > funnel_ratio_significance({{ numerator }}, .data$denominator_derived, 0.998, "high") ~ "Low (0.001)",
+        weighted_average > funnel_ratio_significance({{ numerator }}, .data$denominator_derived, 0.95, "high") ~ "Low (0.025)",
         TRUE ~ "Not significant"
       )) %>%
       ungroup() %>%
-      select(-.data$derived_denominator)
+      select(-.data$denominator_derived)
     if (rate_type == "dsr") {
       significance <- significance %>%
         mutate(
@@ -514,8 +596,16 @@ calculate_funnel_points <- function(data, numerator, denominator, rate,
       is.null(rate_type) | is.null(years_of_data) | is.null(multiplier)) {
     stop(paste0("the following arguments are required for rates: ",
                 "data, numerator, rate, rate_type, years_of_data, multiplier"))
-  } else if (any(pull(data, {{ numerator }}) == 0) & missing(denominator)) {
-    stop("for rates, where there are 0 events for a record, the denominator field needs to be provided using the denominator argument")
+  } else if (any(pull(data, {{ numerator }}) == 0)) {
+    if (missing(denominator)) {
+      stop(paste0("for rates, where there are 0 events for a record, the ",
+                  "denominator field needs to be provided using the denominator argument"))
+    } else if (any(
+      pull(data, {{ numerator }}) == 0 &
+      (pull(data, {{ denominator }}) == 0 | is.na(pull(data, {{ denominator }}))))) {
+      stop(paste0("for rates, where there are 0 events for a record, the ",
+                  "denominator must be provided"))
+    }
   }
 
   rate_type <- match.arg(rate_type, c("dsr", "crude"))
@@ -545,7 +635,7 @@ calculate_funnel_points <- function(data, numerator, denominator, rate,
       data <- data %>%
         mutate(
           denominator_derived = case_when(
-            {{ numerator }} == 0 ~ {{ denominator }} / years_of_data,
+            {{ numerator }} == 0 ~ as.numeric({{ denominator }}) / years_of_data,
             TRUE ~ (multiplier * {{ numerator }} / {{ rate }}) / years_of_data
       ))
     }
