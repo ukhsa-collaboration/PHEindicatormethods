@@ -1,39 +1,44 @@
-## Submission of package version 1.4.0
+## CRAN submission of PHEindicatormethods package version 1.4.0
 
 
 ## Updates
 
-* Package owner has a new contact email address due to organisational changes - contact details have been updated in DESCRIPTION file and this change can be confirmed via communication with the previous package contact email address which is still available and in use until September 2022.
+* Package maintainer has a new contact email address due to organisational changes - contact details have been updated in DESCRIPTION file and maintainer still has access to the previous email to confirm the change until at least September 2022.
 * GitHub Actions Continuous Integration implemented on Git repo.
-* Web URLs have been updated in documentation.
+* Expired web URLs have been updated in documentation.
 * Three new functions have been added to support funnel plot statistics.
-* Two functions have had to be renamed due to ambiguous terminology - to maintain backwards compatibility, both the old- and new- named versions of these functions now co-exist in the package with the old-named functions badged as superceded using lifecycle.  The old-named functions will be deprecated in a future release. 
+* Two functions have had to be renamed due to ambiguous terminology - to maintain backwards compatibility, both the old- and new- named versions of these functions now co-exist in the package with the old-named functions badged and documented as superceded.  The old-named functions will be deprecated in a future release. 
 * functionality of the `phe_life_expectancy` function has been amended to include an additional suppression condition.
 
 
-## R CMD check results
+## R CMD check results on local installations
 
-There were no ERRORs, WARNINGS or NOTES on local Windows 10 install using R 4.1.0 and RStudio 2022.02.2 Build 485
-
-
-## Test Environments 
-
-local windows 10 install: R4.1.0 - OK   
-
-GitHub actions successfully ran R CMD Check on Windows-latest (release), ubuntu-latest (release), ubuntu-latest (devel), ubuntu-latest (oldrel-1) but failed on MacOS-latest (release)  
-
-devtools::check_win gave no ERRORS, WARNINGS or NOTES on the following versions:  
-* release:    R version xxxxx
-* oldrelease: R version xxxxx
-
-devtools::check_win gave no ERRORS OR WARNINGS but there was 1 NOTE about possible invalid DOIs which has been checked and is not critical to the functionality of the package:  
-* devel:      R Under development (unstable) (2020-06-12 r78687)
+There were no ERRORs, WARNINGS or NOTES on the following local installations:
+* Windows 10 install using R 4.1.0 and RStudio 2022.02.2 Build 485
+*** Add R 4.2 from Annabel ***
 
 
-* devtools::check_rhub has been run on the following platforms.  I had to use the argument **env_vars=c(R_COMPILE_AND_INSTALL_PACKAGES = "always")** as a workaround to avoid the error **Error in loadNamespace(name) : there is no package called 'utf8'** on Windows platform as described [here](https://github.com/r-hub/rhub/issues/374). These checks produced a NOTE about possible invalid DOIs which have been checked and are not critical to the functionality of the package. 
-* Windows Server 2008 R2 SP1, R-devel, 32/64 bit 
-* Ubuntu Linux 16.04 LTS, R-release, GCC
-* Fedora Linux, R-devel, clang, gfortran  
+## Other Test Environments 
+
+devtools::check_win_* on the following R versions gave no ERRORS OR WARNINGS but there was 1 NOTE about a possible invalid DOI - this URL has been checked and is still valid (also not critical to functionality of the package).  The new maintainer email address is also cited in these logs:  
+* release:    R version 4.2.1 (2022-06-23 ucrt)  
+* oldrelease: R version 4.1.3 (2022-03-10)  
+* devel:      R Under development (unstable) (2022-07-31 r82648 ucrt)  
+
+GitHub actions successfully ran R CMD Check on:  
+* Windows-latest (release)
+* ubuntu-latest (release)
+* ubuntu-latest (devel)
+* ubuntu-latest (oldrel-1) 
+
+but failed on: 
+* MacOS-latest (release)  
+
+rhub::check() has been run on the following platforms with status OK.  
+* Ubuntu Linux 20.04.1 LTS, R-release, GCC
+* macOS 10.13.6 High Sierra, R-release, brew
+* macOS 10.13.6 High Sierra, R-release, CRAN's setup
+* Debian Linux, R-devel, clang, ISO-8859-15 locale
 
 
 ## CRAN Checks for existing package release version v1.3.2
@@ -43,4 +48,4 @@ All checks have status OK.
 
 ## Downstream dependencies
 
-There are no known downstream dependencies on CRAN
+revdepcheck::revdep_check() showed no downstream dependencies on CRAN

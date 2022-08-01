@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-[![codecov](https://codecov.io/gh/publichealthengland/PHEindicatormethods/branch/master/graph/badge.svg?token=C8U9EMHMGW)](https://codecov.io/gh/publichealthengland/PHEindicatormethods)
+[![codecov](https://codecov.io/gh/publichealthengland/PHEindicatormethods/branch/master/graph/badge.svg?token=C8U9EMHMGW)](https://app.codecov.io/gh/publichealthengland/PHEindicatormethods)
 [![R-CMD-check](https://github.com/publichealthengland/PHEindicatormethods/workflows/R-CMD-check/badge.svg)](https://github.com/publichealthengland/PHEindicatormethods/actions)
 
 # PHEindicatormethods
