@@ -1,5 +1,6 @@
 ## Submission of package version 1.4.0
 
+
 ## Updates
 
 * Package owner has a new contact email address due to organisational changes - contact details have been updated in DESCRIPTION file and this change can be confirmed via communication with the previous package contact email address which is still available and in use until September 2022.
@@ -17,13 +18,13 @@ There were no ERRORs, WARNINGS or NOTES on local Windows 10 install using R 4.1.
 
 ## Test Environments 
 
-local windows 10 installs: R4.1.0 - OK   
+local windows 10 install: R4.1.0 - OK   
 
-Travis check on Linux (2020-06-18) - OK  
+GitHub actions successfully ran R CMD Check on Windows-latest (release), ubuntu-latest (release), ubuntu-latest (devel), ubuntu-latest (oldrel-1) but failed on MacOS-latest (release)  
 
 devtools::check_win gave no ERRORS, WARNINGS or NOTES on the following versions:  
-* release:    R version 4.0.0 (2020-04-20)
-* oldrelease: R version 3.6.3 (2020-02-29)
+* release:    R version xxxxx
+* oldrelease: R version xxxxx
 
 devtools::check_win gave no ERRORS OR WARNINGS but there was 1 NOTE about possible invalid DOIs which has been checked and is not critical to the functionality of the package:  
 * devel:      R Under development (unstable) (2020-06-12 r78687)
@@ -34,8 +35,12 @@ devtools::check_win gave no ERRORS OR WARNINGS but there was 1 NOTE about possib
 * Ubuntu Linux 16.04 LTS, R-release, GCC
 * Fedora Linux, R-devel, clang, gfortran  
 
-## CRAN Checks for existing package release version v1.3.1
+
+## CRAN Checks for existing package release version v1.3.2
+
 All checks have status OK.
 
+
 ## Downstream dependencies
+
 There are no known downstream dependencies on CRAN
