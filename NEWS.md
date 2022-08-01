@@ -1,4 +1,4 @@
-## PHEindicatormethods v1.3.3
+## PHEindicatormethods v1.4.0
 
 * `calculate_funnel_limits()`, `assign_funnel_significance()` and `prepare_funnel_plot()` functions added. This provides ability to calculate funnel plot lines and significance for provided data in line with [Fingertips](https://fingertips.phe.org.uk/profile/guidance/supporting-information/PH-methods) published technical guidance.
 * `calculate_ISRate` and `calculate_ISRatio` functions added to replace `phe_isr` and `phe_smr` respectively to overcome ambiguous naming of isr and smr functions.  `phe_isr` and `phe_smr` functions remain but have been badged as superceded and will be deprecated in a future release.
@@ -22,7 +22,7 @@ These changes will not be noticeable to end users.
 * `phe_sii function` updated to be able to output multiple confidence intervals
 * `phe_life_expectancy()` function previously calculated life expectancy and confidence levels inaccurately when the number of deaths in all age groups except the final one was 40% or more of the size of the population in any age group (apart from the 1–4 age group where it’s 50%). It had an affect in very few scenarios, but was inaccurate nonetheless. This has now been corrected to agree with the published methodology
 * `phe_life_expectancy()` now accepts a numeric vector as an input to the `confidence` argument so users can calculate multiple confidence limits in one command
-* `phe_dsr` The standardised_pop output variable added in v1.2.0 has been removed as this was not providing a meaningful value. This may result in some backwards incompatability if code has been written to reference (eg drop) this column as it will no longer be included in the phe_dsr output.
+* `phe_dsr` The standardised_pop output variable added in v1.2.0 has been removed as this was not providing a meaningful value. This may result in some backwards incompatibility if code has been written to reference (eg drop) this column as it will no longer be included in the phe_dsr output.
 
 
 ## PHEindicatormethods v1.2.0

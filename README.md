@@ -10,7 +10,7 @@ This is an R package to support analysts in the execution of statistical
 methods approved for use in the production of PHE indicators such as
 those presented via Fingertips. It provides functions for the generation
 of Proportions, Rates, DSRs, ISRs, Means, Life Expectancy and Slope
-Index of Inequaltiy including confidence intervals for these statistics,
+Index of Inequality including confidence intervals for these statistics,
 and a function for assigning data to quantiles.
 
 Any feedback would be appreciated and can be provided using the Issues
@@ -64,5 +64,5 @@ major.minor.patch
 In-development versions of this package will have a fourth component,
 the development version number, which will increment from 9000.
 
-See <http://r-pkgs.had.co.nz/description.html> for further information
+See <https://r-pkgs.org/lifecycle.html#version> for further information
 on package versioning

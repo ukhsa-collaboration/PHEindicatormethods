@@ -1,11 +1,23 @@
-## Submission of package version 1.3.1
-Functions have been updated to use the new .groups argument in dplyr::summarise to ensure grouping sets remain unchanged on output objects
+## Submission of package version 1.4.0
+
+## Updates
+
+* Package owner has a new contact email address due to organisational changes - contact details have been updated in DESCRIPTION file and this change can be confirmed via communication with the previous package contact email address which is still available and in use until September 2022.
+* GitHub Actions Continuous Integration implemented on Git repo.
+* Web URLs have been updated in documentation.
+* Three new functions have been added to support funnel plot statistics.
+* Two functions have had to be renamed due to ambiguous terminology - to maintain backwards compatibility, both the old- and new- named versions of these functions now co-exist in the package with the old-named functions badged as superceded using lifecycle.  The old-named functions will be deprecated in a future release. 
+* functionality of the `phe_life_expectancy` function has been amended to include an additional suppression condition.
+
 
 ## R CMD check results
-There were no ERRORs, WARNINGS or NOTES on local Windows 10 install using R 4.0.0 and RStudio 1.2.5042
 
-## Test Environments  
-local windows 10 installs: R4.0.0 - OK   
+There were no ERRORs, WARNINGS or NOTES on local Windows 10 install using R 4.1.0 and RStudio 2022.02.2 Build 485
+
+
+## Test Environments 
+
+local windows 10 installs: R4.1.0 - OK   
 
 Travis check on Linux (2020-06-18) - OK  
 

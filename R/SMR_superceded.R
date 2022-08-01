@@ -4,7 +4,7 @@
 #'
 #' @description `r lifecycle::badge("superseded")`
 #'
-#' To prevent ambiguity over the ISR acronymn, the `phe_smr` function has been
+#' To prevent ambiguity over the ISR acronym, the `phe_smr` function has been
 #' replaced with a `calculate_ISRatio` function. Both functions take the same
 #' parameters and provide identical functionality.  The `phe_smr` function will
 #' remain available in the `PHEindicatormethods` package until at least December
