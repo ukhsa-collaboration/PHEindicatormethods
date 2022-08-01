@@ -61,7 +61,7 @@ calculate_funnel_limits <- function(data, numerator, denominator, rate,
 
   # check required arguments present and valid ----
   if (missing(statistic)) {
-    stop("statistic must be provided as 'proportion', 'rate' or 'ratio'")
+    stop("statistic must be provided as proportion, rate or ratio")
   }
 
   if (statistic == "rate") {
@@ -377,7 +377,7 @@ assign_funnel_significance <- function(data, numerator, denominator, rate,
 
   # check required arguments present and valid
   if (missing(statistic)) {
-    stop("statistic must be provided as 'proportion', 'rate' or 'ratio'")
+    stop("statistic must be provided as proportion, rate or ratio")
   }
 
   if (statistic == "rate") {

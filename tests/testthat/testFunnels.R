@@ -155,18 +155,18 @@ test_that("Significance for rates calculates correctly; dsr per 100,000 with 0",
 })
 
 
-test_that("Significance for rates calculates correctly; dsr per 100 with 0", {
-  testing_rate_sig <- test_funnel_rate_inputs[1:3] %>%
+test_that("Significance for rates calculates correctly; crude rate per 100 with 0", {
+  testing_rate_sig <- select(test_funnel_rate_inputs, count, rate_crude_per_100, pop) %>%
     assign_funnel_significance(numerator = count,
                             denominator = pop,
-                            rate = rate_dsr,
+                            rate = rate_crude_per_100,
                             statistic = "rate",
-                            rate_type = "dsr",
+                            rate_type = "crude",
                             multiplier = 100)
   expect_equal(testing_rate_sig,
                select(test_funnel_rate_inputs,
-                      count, rate_dsr, pop,
-                      significance = dsr_per_100_with_0),
+                      count, rate_crude_per_100, pop,
+                      significance = crude_per_100_with_0),
                info = "Funnel significance for rates; dsr per 100 with 0"
   )
 })
@@ -474,6 +474,21 @@ test_that("testing required arguments are provided to assign_funnel_significance
 })
 
 
+test_that("calculate_funnel_limits requires statistic to be passed", {
+  expect_error(
+    calculate_funnel_limits(
+      data.frame(
+        area = c("Area1", "Area2", "Area3"),
+        pop = c(100, 100, 20)
+      ),
+      numerator,
+      denominator,
+      multiplier = 100),
+    "statistic must be provided as proportion, rate or ratio",
+    info = "check the parameters passed into the function"
+  )
+})
+
 test_that("calculate_funnel_limits requires data, numerator, denominator and multiplier for proportions", {
   expect_error(
     calculate_funnel_limits(
@@ -485,6 +500,21 @@ test_that("calculate_funnel_limits requires data, numerator, denominator and mul
       statistic = "proportion",
       multiplier = 100),
     "the following arguments are required for proportions: data, numerator, denominator, multiplier",
+    info = "check the parameters passed into the function"
+  )
+})
+
+test_that("calculate_funnel_limits requires data, numerator, denominator and multiplier for proportions", {
+  expect_error(
+    calculate_funnel_limits(
+      data.frame(
+        area = c("Area1", "Area2", "Area3"),
+        pop = c(100, 100, 20)
+      ),
+      pop,
+      statistic = "ratio",
+      multiplier = 100),
+    "the following arguments are required for ratios: data, numerator, denominator, ratio_type, multiplier",
     info = "check the parameters passed into the function"
   )
 })
@@ -541,6 +571,21 @@ test_that("calculate_funnel_limits required years_of_data when calculating rates
     paste0("the following arguments are required for rates: ",
            "data, numerator, rate, rate_type, multiplier, years_of_data"),
     info = "check years_of_data is provided for rates"
+  )
+})
+
+test_that("assign_funnel_significance input error for statistic", {
+  expect_error(
+    assign_funnel_significance(
+      data.frame(
+        area = c("Area1", "Area2", "Area3"),
+        num = c(100, 100, 20)
+      ),
+      num,
+      rate_type = "dsr",
+      multiplier = 100),
+    "statistic must be provided as proportion, rate or ratio",
+    info = "assign_funnel_significance input error for rate; data, numerator and rate"
   )
 })
 
@@ -625,25 +670,6 @@ test_that("calculate_funnel_points input error; missing multiplier", {
   )
 })
 
-test_that("calculate_funnel_points input error; denominator when numerator has 0 for rate", {
-  expect_error(
-    test_funnel_rate_funnels_input %>%
-      mutate(ev = case_when(
-        ev == max(ev) ~ 0L,
-        TRUE ~ ev
-      )) %>%
-      calculate_funnel_points(
-        numerator = ev,
-        rate = rate,
-        rate_type = "dsr",
-        years_of_data = 3,
-        multiplier = 1e5),
-    "for rates, where there are 0 events for a record, the denominator field needs to be provided using the denominator argument",
-    info = "calculate_funnel_points input error; denominator when numerator has 0 for rate"
-  )
-})
-
-
 # create df with inputs missing for some records
 test_funnel_rate_funnels_input_NA <- test_funnel_rate_funnels_input %>%
   mutate(ev = case_when(between(pop, 5710, 5715) ~ NA_integer_,
@@ -664,6 +690,32 @@ test_funnel_rate_funnels_input_NA2 <- test_funnel_rate_funnels_input %>%
                          TRUE ~ pop),
 
   )
+
+test_that("calculate_funnel_points input error; denominator when numerator has 0 for rate", {
+  expect_error(
+    test_funnel_rate_funnels_input_NA2 %>%
+      calculate_funnel_points(
+        numerator = ev,
+        rate = rate,
+        rate_type = "dsr",
+        years_of_data = 3,
+        multiplier = 1e5),
+    "for rates, where there are 0 events for a record, the denominator field needs to be provided using the denominator argument",
+    info = "calculate_funnel_points input error; denominator when numerator has 0 for rate"
+  )
+  expect_error(
+    test_funnel_rate_funnels_input_NA2 %>%
+      calculate_funnel_points(
+        numerator = ev,
+        denominator = pop,
+        rate = rate,
+        rate_type = "dsr",
+        years_of_data = 3,
+        multiplier = 1e5),
+    "for rates, where there are 0 events for a record, the denominator must be provided",
+    info = "calculate_funnel_points input error; denominator when numerator has 0 for rate"
+  )
+})
 
 test_that("calculate_funnel_limits input error; rates and proportions need input values for all records", {
   expect_error(
@@ -693,6 +745,36 @@ test_that("calculate_funnel_limits input error; rates and proportions need input
   )
 
   expect_error(
+    test_funnel_rate_funnels_input_NA2 %>%
+      mutate(pop = case_when(ev == 0 ~ 0L,
+                             TRUE ~ ev)) %>%
+      calculate_funnel_limits(
+        numerator = ev,
+        denominator = pop,
+        rate = rate,
+        rate_type = "dsr",
+        years_of_data = 1,
+        multiplier = 1e5,
+        statistic = "rate"),
+    "for rates, where there are 0 events for a record, the denominator must be provided",
+    info = "calculate_funnel_limits input error; rates and proportions need input values for all records"
+  )
+
+  expect_error(
+    test_funnel_rate_funnels_input_NA2 %>%
+      calculate_funnel_limits(
+        numerator = ev,
+        rate = rate,
+        denominator = pop,
+        rate_type = "dsr",
+        years_of_data = 1,
+        multiplier = 1e5,
+        statistic = "rate"),
+    "for rates, rates must be provided for all records, or a denominator must be provided if the rate is zero",
+    info = "calculate_funnel_limits input error; rates and proportions need input values for all records"
+  )
+
+  expect_error(
     test_funnel_rate_funnels_input_NA %>%
       calculate_funnel_limits(
         numerator = ev,
@@ -706,7 +788,49 @@ test_that("calculate_funnel_limits input error; rates and proportions need input
 })
 
 
-test_that("calculate_funnel_significance input error; rates and proportions need input values for all records", {
+test_that("assign_funnel_significance input error; rates and proportions need input values for all records", {
+  expect_error(
+    test_funnel_rate_funnels_input_NA2 %>%
+      assign_funnel_significance(
+        numerator = ev,
+        rate = rate,
+        rate_type = "crude",
+        multiplier = 1e5,
+        statistic = "rate"),
+    paste0("for rates, rates must be provided for all records, ",
+           "or a denominator must be provided if the rate is zero"),
+    info = "calculate_funnel_limits input error; rates and proportions need input values for all records"
+  )
+
+  expect_error(
+    test_funnel_rate_funnels_input_NA2 %>%
+      mutate(pop = case_when(ev == 0 ~ 0L,
+                             TRUE ~ ev)) %>%
+      assign_funnel_significance(
+        numerator = ev,
+        denominator = pop,
+        rate = rate,
+        rate_type = "crude",
+        multiplier = 1e5,
+        statistic = "rate"),
+    "for rates, where there are 0 events for a record, the denominator must be provided",
+    info = "calculate_funnel_limits input error; rates and proportions need input values for all records"
+  )
+
+  expect_error(
+    test_funnel_rate_funnels_input_NA2 %>%
+      assign_funnel_significance(
+        numerator = ev,
+        denominator = pop,
+        rate = rate,
+        rate_type = "crude",
+        multiplier = 1e5,
+        statistic = "rate"),
+    paste0("for rates, rates must be provided for all records, ",
+           "or a denominator must be provided if the rate is zero"),
+    info = "calculate_funnel_limits input error; rates and proportions need input values for all records"
+  )
+
   expect_error(
     test_funnel_rate_funnels_input_NA %>%
       assign_funnel_significance(
