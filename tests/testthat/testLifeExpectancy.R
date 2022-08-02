@@ -71,6 +71,18 @@ df_low_pops <- data.frame(stringsAsFactors=FALSE,
                                   138L),
                           deaths = c(58L, 93L, 78L, 94L, 59L, 71L, 80L, 73L, 69L, 72L, 91L, 69L,
                                      78L, 71L, 54L, 91L, 82L, 53L, 50L, 84L))
+df_widecis_plus <- data.frame(area = c(rep("Area 1", 20), rep("Area 2", 20)),
+                 startage = rep(c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L, 40L, 45L, 50L, 55L,
+                                  60L, 65L, 70L, 75L, 80L, 85L, 90L), 2),
+                 pops = rep(c(270L, 235L, 246L, 248L, 243L, 238L, 246L, 257L,
+                              261L, 355L, 350L, 356L, 346L, 339L, 337L,
+                              337L, 333L, 323L, 311L, 311L), 2),
+                 deaths = rep(c(17L, 9L, 4L, 8L, 20L, 15L, 24L, 33L, 50L, 51L, 10L, 16L,
+                                26L, 30L, 36L, 22L, 13L, 5L, 6L, 1L), 2)) %>%
+  group_by(area)
+
+df_widecis_plus$deaths[df_widecis_plus$area == "Area 1" & df_widecis_plus$startage == 90] <- 312
+
 
 df_grouped_with_warnings <- data.frame(stringsAsFactors=FALSE,
                                        area = c(rep("Good data", 20),
@@ -145,6 +157,32 @@ answer2 <- cbind(df1[c(3, 7),],
                             method = rep("Chiang, using Silcocks et al for confidence limits", 2))) %>%
                 select(-pops, -deaths)
 
+answer_widecis <- round(tibble(value = c(19.22914685, 19.44120610, 18.33467808, 14.67659995,
+                                         11.81284556, 11.63815414, 10.05641628, 9.93152356,
+                                         11.95846561,
+                                         NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                                         NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                                         NA, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+                               lower95_0cl = c(16.43900644, 16.53437505, 15.62922550,
+                                               12.08108630, 9.21823373, 8.68414661,
+                                               6.54020385, 4.71570153, 2.37762283,
+                                               -1.60695210, -10.33328815, -17.16409724,
+                                               -26.91715103, -45.04820928, -76.27067271,
+                                               -137.12203187, -195.39453664, -242.37480291,
+                                               -266.74198466, -298.54880400,
+                                               NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                                               NA, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+                               upper95_0cl = c(22.01928726, 22.34803716, 21.04013066,
+                                               17.27211361, 14.40745738, 14.59216167,
+                                               13.57262872, 15.14734559, 21.53930839,
+                                               50.29765396, 97.99598549, 107.54413263,
+                                               128.91238524, 181.91668353, 278.06441642,
+                                               472.32822039, 649.40455756, 783.50845564,
+                                               841.04259816, 920.54880400,
+                                               NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                                               NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)),
+                        n)
+
 test1 <- phe_life_expectancy(df1, deaths, pops, startage, type="standard")
 test1.1 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = 95)
 test2 <- phe_life_expectancy(df2, deaths, pops, startage)
@@ -170,15 +208,24 @@ test6 <- phe_life_expectancy(df1, deaths, pops, startage, le_age = c(5, 25), typ
 test7 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = 99.8)
 test8 <- phe_life_expectancy(df1, deaths, pops, startage, confidence = c(95, 99.8))
 
-negative_warning <- capture_warnings(test_neg <- phe_life_expectancy(df_neg_deaths, deaths, pop, age))
-zero_warning <- capture_warnings(test_zero_pop <- phe_life_expectancy(df_zero_pop, deaths, pop, age))
-deaths_pops_warning <- capture_warnings(test_greater_than_pops <- phe_life_expectancy(df_deaths_greater_pops, deaths, pop, age))
+negative_warning <- capture_warnings(
+  test_neg <- phe_life_expectancy(df_neg_deaths, deaths, pop, age))
+zero_warning <- capture_warnings(
+  test_zero_pop <- phe_life_expectancy(df_zero_pop, deaths, pop, age))
+deaths_pops_warning <- capture_warnings(
+  test_greater_than_pops <- phe_life_expectancy(df_deaths_greater_pops, deaths, pop, age))
+low_pops_warning <- capture_warnings(
+  test_low_pops <- phe_life_expectancy(df_low_pops, deaths, pop, age))
+
 age_contents_short <- c(0L, 1L, 5L, 10L, 15L, 20L, 25L, 30L, 35L,
                         40L, 45L, 50L, 55L, 60L, 65L, 70L, 75L, 80L, 85L)
-low_pops_warning <- capture_warnings(test_low_pops <- phe_life_expectancy(df_low_pops, deaths, pop, age))
-missing_warning <- capture_warnings(test_missing_ageband <- phe_life_expectancy(df_missing_age, deaths, pop, age,
-                                                                                age_contents = age_contents_short))
-multi_warnings <- capture_warnings(
+
+missing_warning     <- capture_warnings(
+  test_missing_ageband <- phe_life_expectancy(df_missing_age, deaths, pop, age,
+                                              age_contents = age_contents_short))
+wideci_warning <- capture_warnings(
+  test_widecis <- phe_life_expectancy(df_widecis_plus, deaths, pops, startage, confidence = c(0.95, 0.998)))
+multi_warnings      <- capture_warnings(
   test_grouped_with_warnings <- df_grouped_with_warnings %>%
                                     group_by(area) %>%
                                     phe_life_expectancy(deaths, pop, age)
@@ -217,6 +264,9 @@ test_that("LE and CIs calculate correctly",{
                info = "correct number of rows for grouped calcs")
   expect_equivalent(test7[, c("lowercl", "uppercl")],
                     test8[, c("lower99_8cl", "upper99_8cl")])
+  expect_equal(round(test_widecis[, c("value", "lower95_0cl", "upper95_0cl")], n),
+               round(answer_widecis, n),
+               info = "suppress wide CI > 20")
 
 })
 
@@ -260,6 +310,10 @@ test_that("LE - warnings are generated when invalid arguments are used",{
                "some groups have a total population of less than 5,000; outputs have been suppressed to NAs")
   expect_match(missing_warning,
                "some groups contain a different number of age bands than 20; life expectancy cannot be calculated for these\\. These groups will contain NAs\\.")
+  expect_match(wideci_warning[1],
+               "some age bands have more deaths than population; outputs have been suppressed to NAs")
+  expect_match(wideci_warning[2],
+               "some life expectancy values have a 95% confidence interval > 20 years; these values have been suppressed to NAs")
   expect_match(multi_warnings, "some age bands have negative deaths; outputs have been suppressed to NAs",
                all = FALSE)
   expect_match(multi_warnings, "some age bands have a zero or less population; outputs have been suppressed to NAs",

@@ -55,7 +55,9 @@ Compute life expectancy for a given age, and its standard error
 }
 \details{
 This function aligns with the methodology in Public Health England's
-  \href{https://fingertips.phe.org.uk/documents/PHE\%20Life\%20Expectancy\%20Calculator.xlsm}{Life Expectancy Excel Tool}.
+  Life Expectancy Calculator available on the
+  [Fingertips Technical Guidance](https://fingertips.phe.org.uk/profile/guidance/supporting-information/PH-methods)
+  web page.
 
   The function is for an abridged life table using 5 year age intervals with
   a final age interval of 90+. The table has been completed using the methods
@@ -79,8 +81,12 @@ This function aligns with the methodology in Public Health England's
   interval is zero. It will also not be calculated if the total person-years
   is less than 5,000 as this is considered to be the minimum size for robust
   calculation of life expectancy.[5]  Zero death counts are not a problem,
-  except for the final age interval - there must be at least one death in
-  the 90+ interval for the calculations to be possible.
+  except for the final age interval - there must be at least one death in the
+  90+ interval for the calculations to be possible.
+
+  Individual Life Expectancy values will be suppressed (although confidence
+  intervals will be shown) when the 95% confidence interval is greater
+  than 20 years.
 
   The methodology used in this function, along with discussion of alternative
   options for life expectancy calculation for small areas, were described Eayres
@@ -158,14 +164,17 @@ life expectancy estimation. J Epidemiol Community Health 2004;58:243-249 \cr \cr
 }
 \seealso{
 Other PHEindicatormethods package functions: 
+\code{\link{assign_funnel_significance}()},
+\code{\link{calculate_ISRate}()},
+\code{\link{calculate_ISRatio}()},
+\code{\link{calculate_funnel_limits}()},
+\code{\link{calculate_funnel_points}()},
 \code{\link{phe_dsr}()},
-\code{\link{phe_isr}()},
 \code{\link{phe_mean}()},
 \code{\link{phe_proportion}()},
 \code{\link{phe_quantile}()},
 \code{\link{phe_rate}()},
-\code{\link{phe_sii}()},
-\code{\link{phe_smr}()}
+\code{\link{phe_sii}()}
 }
 \author{
 Sebastian Fox, \email{sebastian.fox@phe.gov.uk}

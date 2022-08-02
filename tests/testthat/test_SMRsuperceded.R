@@ -1,7 +1,5 @@
-context("test_phe_smr")
-
 #test calculations
-test_that("smrs and CIs calculate correctly",{
+test_that("phe_smr ratios and CIs calculate correctly",{
 
   expect_equal(data.frame(select(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop,
                                   x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),1:6,8:9)),
@@ -114,7 +112,7 @@ test_that("smrs and CIs calculate correctly",{
 
 # test error handling
 
-test_that("smrs - errors are generated when invalid arguments are used",{
+test_that("phe_smr - errors are generated when invalid arguments are used",{
 
   expect_error(phe_smr(test_multiarea, count, pop),
                "function phe_smr requires at least 5 arguments: data, x, n, x_ref and n_ref",info="error invalid number of arguments")
