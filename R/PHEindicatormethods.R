@@ -77,5 +77,5 @@ globalVariables(c("a_vals",
                   "W_spi_2b_removed",
                   "wt_rate",
                   "xrefpop_calc"
-                  )
+)
 )

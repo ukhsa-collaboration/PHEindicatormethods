@@ -1,19 +1,17 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+[![codecov](https://codecov.io/gh/publichealthengland/PHEindicatormethods/branch/master/graph/badge.svg?token=C8U9EMHMGW)](https://app.codecov.io/gh/publichealthengland/PHEindicatormethods)
 [![R-CMD-check](https://github.com/publichealthengland/PHEindicatormethods/workflows/R-CMD-check/badge.svg)](https://github.com/publichealthengland/PHEindicatormethods/actions)
-
-[![Coverage
-Status](https://coveralls.io/repos/github/PublicHealthEngland/PHEindicatormethods/badge.svg?branch=master)](https://coveralls.io/github/PublicHealthEngland/PHEindicatormethods?branch=master)
 
 # PHEindicatormethods
 
 This is an R package to support analysts in the execution of statistical
 methods approved for use in the production of PHE indicators such as
 those presented via Fingertips. It provides functions for the generation
-of Proportions, Rates, DSRs, ISRs, SMRs, Means, Life Expectancy and
-Slope Index of Inequaltiy including confidence intervals for these
-statistics, and a function for assigning data to quantiles.
+of Proportions, Rates, DSRs, ISRs, Means, Life Expectancy and Slope
+Index of Inequality including confidence intervals for these statistics,
+and a function for assigning data to quantiles.
 
 Any feedback would be appreciated and can be provided using the Issues
 section of the GitHub repository
@@ -66,43 +64,5 @@ major.minor.patch
 In-development versions of this package will have a fourth component,
 the development version number, which will increment from 9000.
 
-See <http://r-pkgs.had.co.nz/description.html> for further information
+See <https://r-pkgs.org/lifecycle.html#version> for further information
 on package versioning
-
-<br/> <br/>
-
-## Package Contents
-
-The package contains the following functions, datasets and vignettes -
-see individual item documentation for full details
-
-**Functions:**
-
--   phe_dsr  
--   phe_isr  
--   phe_life_expectancy
--   phe_mean  
--   phe_proportion  
--   phe_quantile  
--   phe_rate  
--   phe_sii
--   phe_smr
-
-**Datasets:**
-
--   esp2013  
--   LE_data (for use with SII vignette)
--   DSR_data (for use with SII vignette)
--   prevalence_data (for use with SII vignette)
-
-**Vignettes:**
-
--   Vignette to introduce the package functions included in the original
-    package release
--   Vignette for calculating DSRs for multiple geographies and time
-    periods  
--   Vignette showing worked examples of the phe_sii function
-
-(type ‘browseVignettes(“PHEindicatormethods”)’ to view in HTML or access
-vignettes from the package’s CRAN webpage
-[here](https://CRAN.R-project.org/package=PHEindicatormethods))
