@@ -3,7 +3,7 @@
 
 ## Updates
 
-* Package maintainer has a new contact email address due to organisational changes - contact details have been updated in DESCRIPTION file and maintainer still has access to the previous email to confirm the change until at least September 2022.
+* Package maintainer has a new email address domain name due to organisational changes - contact details have been updated in DESCRIPTION file and maintainer still has access to the previous email to confirm the change until at least September 2022.
 * GitHub Actions Continuous Integration implemented on Git repo.
 * Expired web URLs have been updated in documentation.
 * Three new functions have been added to support funnel plot statistics.
@@ -11,11 +11,10 @@
 * functionality of the `phe_life_expectancy` function has been amended to include an additional suppression condition.
 
 
-## R CMD check results on local installations
+## R CMD check results on local installation
 
-There were no ERRORs, WARNINGS or NOTES on the following local installations:
+There were no ERRORs, WARNINGS or NOTES on the following local installation:
 * Windows 10 install using R 4.1.0 and RStudio 2022.02.2 Build 485
-*** Add R 4.2 from Annabel ***
 
 
 ## Other Test Environments 
@@ -31,8 +30,9 @@ GitHub actions successfully ran R CMD Check on:
 * ubuntu-latest (devel)
 * ubuntu-latest (oldrel-1) 
 
-but failed on: 
-* MacOS-latest (release)  
+GitHub actions failed to run R CMD CHECK on MacOS-latest (release) - the failure references an inability to install package MASS because it requires R >= 4.3 but this appears to be a known bug which is documented at the following sites:
+* https://github.com/r-lib/pak/issues/393  
+* https://community.rstudio.com/t/github-actions-failing-for-macos-cannot-install-packages/139574
 
 rhub::check() has been run on the following platforms with status OK.  
 * Ubuntu Linux 20.04.1 LTS, R-release, GCC
