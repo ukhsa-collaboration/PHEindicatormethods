@@ -17,25 +17,27 @@ group aggregates; unquoted string; no default}
 unquoted string; no default}
 
 \item{type}{defines the data and metadata columns to be included in output;
-can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
+can be "value", "lower", "upper", "standard" (for all data) or "full" (for
+all data and metadata); quoted string; default = "full"}
 
-\item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
-numeric; default 0.95}
+\item{confidence}{the required level of confidence expressed as a number
+between 0.9 and 1 or a number between 90 and 100 or can be a vector of 0.95
+and 0.998, for example, to output both 95 percent and 99.8 percent percent CIs; numeric;
+default 0.95}
 
 \item{multiplier}{the multiplier used to express the final values (eg 100 = percentage); numeric; default 1}
 }
 \value{
 When type = "full", returns the original data.frame with the following appended:
-        proportion, lower confidence limit, upper confidence limit, confidence level, statistic and method
+proportion, lower confidence limit, upper confidence limit, confidence level, statistic and method
 }
 \description{
-Calculates proportions with confidence limits using Wilson Score method [1,2].
+Calculates proportions with confidence limits using Wilson Score method (1,2).
 }
 \section{Notes}{
- Wilson Score method [1,2] is applied using the \code{\link{wilson_lower}}
-         and \code{\link{wilson_upper}} functions. \cr \cr
-         The percentage argument was deprecated in v1_1_0, please use multiplier argument instead
+ Wilson Score method (2) is applied using the \code{\link{wilson_lower}}
+and \code{\link{wilson_upper}} functions. \cr \cr
+The percentage argument was deprecated in v1_1_0, please use multiplier argument instead
 }
 
 \examples{
@@ -58,11 +60,11 @@ phe_proportion(dfg, numerator, denominator, multiplier=100)
 
 }
 \references{
-[1] Wilson EB. Probable inference, the law of succession, and statistical
- inference. J Am Stat Assoc; 1927; 22. Pg 209 to 212. \cr
-[2] Newcombe RG, Altman DG. Proportions and their differences. In Altman
- DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
- 2000. Pg 46 to 48.
+(1) Wilson EB. Probable inference, the law of succession, and statistical
+inference. J Am Stat Assoc; 1927; 22. Pg 209 to 212. \cr
+(2) Newcombe RG, Altman DG. Proportions and their differences. In Altman
+DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
+2000. Pg 46 to 48.
 }
 \seealso{
 Other PHEindicatormethods package functions: 

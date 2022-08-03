@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
 #' Calculate Proportions using phe_proportion
 #'
-#' Calculates proportions with confidence limits using Wilson Score method [1,2].
+#' Calculates proportions with confidence limits using Wilson Score method (1,2).
 #'
 #' @param data a data.frame containing the data to calculate proportions for, pre-grouped if proportions required for
 #'             group aggregates; unquoted string; no default
@@ -20,7 +20,7 @@
 #' @importFrom rlang sym quo_name :=
 #' @export
 #'
-#' @section Notes: Wilson Score method [1,2] is applied using the \code{\link{wilson_lower}}
+#' @section Notes: Wilson Score method (2) is applied using the \code{\link{wilson_lower}}
 #'          and \code{\link{wilson_upper}} functions. \cr \cr
 #'          The percentage argument was deprecated in v1_1_0, please use multiplier argument instead
 #'
@@ -43,9 +43,9 @@
 #'
 #'
 #' @references
-#' [1] Wilson EB. Probable inference, the law of succession, and statistical
+#' (1) Wilson EB. Probable inference, the law of succession, and statistical
 #'  inference. J Am Stat Assoc; 1927; 22. Pg 209 to 212. \cr
-#' [2] Newcombe RG, Altman DG. Proportions and their differences. In Altman
+#' (2) Newcombe RG, Altman DG. Proportions and their differences. In Altman
 #'  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
 #'  2000. Pg 46 to 48.
 #'

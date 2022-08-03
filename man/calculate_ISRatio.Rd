@@ -20,10 +20,12 @@ calculate_ISRatio(
 \item{data}{data.frame containing the data to be standardised, pre-grouped if
 multiple ISRs required; unquoted string; no default}
 
-\item{x}{field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
-unquoted string; no default}
+\item{x}{field name from data containing the observed number of events for
+each standardisation category (eg ageband) within each grouping set (eg
+area); unquoted string; no default}
 
-\item{n}{field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
+\item{n}{field name from data containing the populations for each
+standardisation category (eg ageband) within each grouping set (eg area);
 unquoted string; no default}
 
 \item{x_ref}{the observed number of events in the reference population for
@@ -38,29 +40,33 @@ value of refpoptype; no default}
 field name from data; quoted string "field" or "vector"; default = "vector"}
 
 \item{type}{defines the data and metadata columns to be included in output;
-can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
+can be "value", "lower", "upper", "standard" (for all data) or "full" (for
+all data and metadata); quoted string; default = "full"}
 
-\item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
-numeric; default 0.95}
+\item{confidence}{the required level of confidence expressed as a number
+between 0.9 and 1 or a number between 90 and 100 or can be a vector of 0.95
+and 0.998, for example, to output both 95 percent and 99.8 percent percent CIs; numeric;
+default 0.95}
 
 \item{refvalue}{the standardised reference ratio, numeric, default = 1}
 }
 \value{
-When type = "full", returns a tibble of observed events, expected events, standardised mortality ratios,
- lower confidence limits, upper confidence limits, confidence level, statistic and method for each grouping set
+When type = "full", returns a tibble of observed events, expected
+events, standardised mortality ratios, lower confidence limits, upper
+confidence limits, confidence level, statistic and method for each grouping
+set
 }
 \description{
 Calculates standard mortality ratios (or indirectly standardised ratios) with
-confidence limits using Byar's [1] or exact [2] CI method.
+confidence limits using Byar's (1) or exact (2) CI method.
 }
 \section{Notes}{
  User MUST ensure that x, n, x_ref and n_ref vectors are all ordered by
 the same standardisation category values as records will be matched by position. \cr \cr
-For numerators >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
- and \code{\link{byars_upper}} functions.  For small
- numerators Byar's method is less accurate and so an exact method [2] based
- on the Poisson distribution is used.
+For numerators >= 10 Byar's method (1) is applied using the \code{\link{byars_lower}}
+and \code{\link{byars_upper}} functions.  For small
+numerators Byar's method is less accurate and so an exact method (2) based
+on the Poisson distribution is used.
 }
 
 \examples{
@@ -88,11 +94,11 @@ df \%>\%
 
 }
 \references{
-[1] Breslow NE, Day NE. Statistical methods in cancer research,
- volume II: The design and analysis of cohort studies. Lyon: International
- Agency for Research on Cancer, World Health Organisation; 1987. \cr \cr
-[2] Armitage P, Berry G. Statistical methods in medical research (4th edn).
-  Oxford: Blackwell; 2002.
+(1) Breslow NE, Day NE. Statistical methods in cancer research,
+volume II: The design and analysis of cohort studies. Lyon: International
+Agency for Research on Cancer, World Health Organisation; 1987. \cr \cr
+(2) Armitage P, Berry G. Statistical methods in medical research (4th edn).
+Oxford: Blackwell; 2002.
 }
 \seealso{
 Other PHEindicatormethods package functions: 

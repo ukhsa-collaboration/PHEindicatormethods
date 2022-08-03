@@ -38,17 +38,17 @@ can be "standard" or "full"; quoted string; default = "full"}
 }
 \value{
 When type = "full", returns the original data.frame with quantile (quantile value),
-        nquantiles (number of quantiles requested), groupvars (grouping sets quantiles assigned within)
-        and invert (indicating direction of quantile assignment) fields appended.
+nquantiles (number of quantiles requested), groupvars (grouping sets quantiles assigned within)
+and invert (indicating direction of quantile assignment) fields appended.
 }
 \description{
 Assigns data to quantiles based on numeric data rankings.
 }
 \section{Notes}{
- See [PHE Technical Guide - Assigning Deprivation Quintiles](https://fingertips.phe.org.uk/profile/guidance/supporting-information/PH-methods) for methodology.
-         In particular, note that this function strictly applies the algorithm defined but some manual
-         review, and potentially adjustment, is advised in some cases where multiple small areas with equal rank
-         fall across a natural quantile boundary.
+ See \href{https://fingertips.phe.org.uk/profile/guidance/supporting-information/PH-methods}{PHE Technical Guide - Assigning Deprivation Quintiles} for methodology.
+In particular, note that this function strictly applies the algorithm defined but some manual
+review, and potentially adjustment, is advised in some cases where multiple small areas with equal rank
+fall across a natural quantile boundary.
 }
 
 \examples{

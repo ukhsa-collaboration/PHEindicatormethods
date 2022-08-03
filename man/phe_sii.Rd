@@ -44,16 +44,16 @@ for proportions if count and population are given); unquoted string; no default}
 \item{value_type}{indicates the indicator type (1 = rate, 2 = proportion, 0 = other);
 integer; default 0}
 
-\item{lower_cl}{field name within data that contains 95\% lower confidence limit
+\item{lower_cl}{field name within data that contains 95 percent lower confidence limit
 of indicator value (to calculate standard error of indicator value). This field is needed
 if the se field is not supplied; unquoted string; no default}
 
-\item{upper_cl}{field name within data that contains 95\% upper confidence limit
+\item{upper_cl}{field name within data that contains 95 percent upper confidence limit
 of indicator value (to calculate standard error of indicator value). This field is needed
 if the se field is not supplied; unquoted string; no default}
 
 \item{se}{field name within data that contains the standard error of the indicator
-value. If not supplied, this will be calculated from the 95\% lower and upper confidence
+value. If not supplied, this will be calculated from the 95 percent lower and upper confidence
 limits (i.e. one or the other of these fields must be supplied); unquoted string; no default}
 
 \item{multiplier}{factor to multiply the SII and SII confidence limits by (e.g. set to 100 to return
@@ -66,7 +66,7 @@ numeric; default 100,000}
 
 \item{confidence}{confidence level used to calculate the lower and upper confidence limits of SII,
 expressed as a number between 0.9 and 1, or 90 and 100. It can be a vector of 0.95 and 0.998,
-for example, to output both 95\% and 99.8\% CIs; numeric; default 0.95}
+for example, to output both 95 percent and 99.8 percent CIs; numeric; default 0.95}
 
 \item{rii}{option to return the Relative Index of Inequality (RII) with associated confidence limits
 as well as the SII; logical; default FALSE}
@@ -81,69 +81,76 @@ has input to the function (value_type, multiplier, CI_confidence, CI_method); ch
 either "full" or "standard"; default "full"}
 }
 \value{
-The SII with lower and upper confidence limits for each subgroup of the inputted data.frame.
+The SII with lower and upper confidence limits for each subgroup of
+the inputted data.frame.
 }
 \description{
-\code{phe_sii} returns the slope index of inequality (SII) statistic for each subgroup
-of the inputted dataframe, with lower and upper confidence limits based on the specified
-confidence. The Relative Index of Inequality (RII) can also be returned via an optional
-argument.
+\code{phe_sii()}returns the slope index of inequality (SII) statistic for each
+subgroup of the inputted dataframe, with lower and upper confidence limits
+based on the specified confidence.
 }
 \details{
+The Relative Index of Inequality (RII) can also be returned via an optional
+argument.
+
 The SII and RII are two measures of health inequality. They show the relation
 between the level of health or frequency of a health problem in different
 population groups and the ranking of these groups on the social scale.
 
-The input dataframe should be grouped before passing to the function if an SII/RII for
-each subgroup is required, and quantiles ordered from least to most advantaged.
+The input dataframe should be grouped before passing to the function if an
+SII/RII for each subgroup is required, and quantiles ordered from least to
+most advantaged.
 }
 \section{Calculation}{
 
-The SII is calculated using linear regression [1]. To allow
-for differences in population size between quantiles (e.g. deprivation deciles),
-each is given a rank score (or relative rank) based on the midpoint of its range
-in the cumulative distribution of the total area population. The quantiles are
-first ordered (e.g from 1 most deprived to 10 least deprived for deprivation deciles).
-If quantile 1 then contains 12\% of the total population, its relative rank is
-  \code{0.12/2=0.6}. If quantile 2 includes 10\% of the population, its relative rank
-is  \code{0.12+(0.10/2)=0.17}. A square root transformation is applied to the regression
-to account for heteroskedasticity (the tendancy for the variances of the quantile values
-to be related to the size of the values, ie larger values will tend to have larger
-variances). A regression model is fitted to the transformed data:  \eqn{Y * \sqrt a =
-\sqrt a + b * \sqrt a}, where Y is the value of the indicator for the quantile, a is
-the proportion of the total population in the quantile and b is the relative rank.
 
-The SII is the gradient of the resulting fitted line, and could be positive or negative
-according to the indicator polarity. Since the relative ranks, by definition, range from
-0 to 1, the SII is the difference between the fitted value at  \code{x=1} and  \code{x=0}.
-
-The RII is the ratio of the fitted value at  \code{x=1,Y1} and the fitted value at
-  \code{x=0,Y0}.  which can be calculated as:  \code{RII = (Y0 + SII)/Y0}
+The SII is calculated using linear regression (1). To allow for differences
+in population size between quantiles (e.g. deprivation deciles), each is
+given a rank score (or relative rank) based on the midpoint of its range in
+the cumulative distribution of the total area population. The quantiles are
+first ordered (e.g from 1 most deprived to 10 least deprived for deprivation
+deciles). If quantile 1 then contains 12 percent of the total population, its
+relative rank is \code{0.12/2=0.6}. If quantile 2 includes 10 percent of the
+population, its relative rank is \code{0.12+(0.10/2)=0.17}. A square root
+transformation is applied to the regression to account for heteroskedasticity
+(the tendancy for the variances of the quantile values to be related to the
+size of the values, ie larger values will tend to have larger variances). A
+regression model is fitted to the transformed data:  \eqn{Y * \sqrt a = \sqrt
+a + b * \sqrt a}, where Y is the value of the indicator for the quantile, a
+is the proportion of the total population in the quantile and b is the
+relative rank. The SII is the gradient of the resulting fitted line, and
+could be positive or negative according to the indicator polarity. Since the
+relative ranks, by definition, range from 0 to 1, the SII is the difference
+between the fitted value at  \code{x=1} and  \code{x=0}. The RII is the ratio
+of the fitted value at  \code{x=1,Y1} and the fitted value at \code{x=0,Y0}.
+which can be calculated as:  \code{RII = (Y0 + SII)/Y0}
 }
 
 \section{Function arguments}{
 
-The indicator type can be specified via the \code{value_type} parameter. Transformations
-can be applied to the indicator value and its confidence limits before calculating the
-standard error in cases where the confidence interval around the indicator value is
-likely to be non-symmetric. This is a log transformation for rates, and logit for
-proportions.
 
-If the standard error is supplied directly to the function from the input dataset,
-this is used instead of calculating one from the indicator confidence limits.
+The indicator type can be specified via the \code{value_type} parameter.
+Transformations can be applied to the indicator value and its confidence
+limits before calculating the standard error in cases where the confidence
+interval around the indicator value is likely to be non-symmetric. This is a
+log transformation for rates, and logit for proportions. If the standard
+error is supplied directly to the function from the input dataset, this is
+used instead of calculating one from the indicator confidence limits.
 }
 
 \section{Warning}{
 
-The SII calculation assumes a linear relationship between indicator value and quantile,
-and small populations within quantiles can make it unstable.
 
-This function does not include checks for linearity or stability; it is the user's responsibility
-to ensure the input data is suitable for the SII calculation.
+The SII calculation assumes a linear relationship between indicator value and
+quantile, and small populations within quantiles can make it unstable. This
+function does not include checks for linearity or stability; it is the user's
+responsibility to ensure the input data is suitable for the SII calculation.
 }
 
 \section{Notes}{
- this function is using nest and unnest functions from tidyr version 1.0.0.
+
+
+This function is using nest and unnest functions from tidyr version 1.0.0.
 }
 
 \examples{
@@ -176,7 +183,7 @@ phe_sii(group_by(data, area),
         rii = TRUE,
         type = "standard")
 
-# Supplying the standard error instead of the indicator 95\% confidence limits
+# Supplying the standard error instead of the indicator 95 percent confidence limits
 # gives the same result
 phe_sii(group_by(data, area),
         decile,
@@ -202,7 +209,7 @@ phe_sii(group_by(data, area),
 
 }
 \references{
-[1] Low A & Low A. Measuring the gap: quantifying and comparing local health inequalities.
+(1) Low A & Low A. Measuring the gap: quantifying and comparing local health inequalities.
 Journal of Public Health; 2004;26:388-395. \cr \cr
 }
 \seealso{
@@ -218,8 +225,5 @@ Other PHEindicatormethods package functions:
 \code{\link{phe_proportion}()},
 \code{\link{phe_quantile}()},
 \code{\link{phe_rate}()}
-}
-\author{
-Emma Clegg
 }
 \concept{PHEindicatormethods package functions}

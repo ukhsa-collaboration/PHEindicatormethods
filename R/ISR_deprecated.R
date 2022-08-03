@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
 #' Calculate Indirectly Standardised Rates using calculate_ISRate
 #'
-#' @description `r lifecycle::badge("superseded")`
+#' @description `r lifecycle::badge("deprecated")`
 #'
 #' To prevent ambiguity over the ISR acronym, the `phe_isr` function has been
 #' replaced with a `calculate_ISRate` function. Both functions take the same
@@ -44,10 +44,19 @@
 #'     group_by(indicatorid, year, sex) %>%
 #'     phe_isr(obs, pop, refdf$refcount, refdf$refpop, confidence = c(0.95, 0.998))
 #'
+#' @keywords internal
+#'
 # -------------------------------------------------------------------------------------------------
 
 phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
                              type = "full", confidence = 0.95, multiplier = 100000) {
+
+  deprecate_warn("1.4.0", "phe_isr()", "Calculate_ISRate()",
+                 details = paste0("Due to ambiguous use of acronyms isr and smr, ",
+                                  "the phe_isr function has been replaced with Calculate_ISRate(). ",
+                                  "The functionality of the function has not changed.",
+                                  "The phe_isr function will be removed in a future ",
+                                  "release of PHEindicatormethods, not before December 2022."))
 
   # check required arguments present
   if (missing(data)|missing(x)|missing(n)|missing(x_ref)|missing(n_ref)) {

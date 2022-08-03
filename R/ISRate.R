@@ -2,7 +2,7 @@
 #' Calculate Indirectly Standardised Rates using calculate_ISRate
 #'
 #' Calculates indirectly standardised rates with confidence limits using Byar's
-#' [1] or exact [2] CI method.
+#' (1) or exact (2) CI method.
 #'
 #' @param data data.frame containing the data to be standardised, pre-grouped if
 #'   multiple ISRs required; unquoted string; no default
@@ -56,16 +56,16 @@
 #'
 #' @section Notes: User MUST ensure that x, n, x_ref and n_ref vectors are all
 #'   ordered by the same standardisation category values as records will be
-#'   matched by position. \cr  \cr For numerators >= 10 Byar's method [1] is
+#'   matched by position. \cr  \cr For numerators >= 10 Byar's method (1) is
 #'   applied using the \code{\link{byars_lower}} and \code{\link{byars_upper}}
 #'   functions.  For small numerators Byar's method is less accurate and so an
-#'   exact method [2] based on the Poisson distribution is used.
+#'   exact method (2) based on the Poisson distribution is used.
 #'
 #' @references
-#' [1] Breslow NE, Day NE. Statistical methods in cancer research,
+#' (1) Breslow NE, Day NE. Statistical methods in cancer research,
 #'  volume II: The design and analysis of cohort studies. Lyon: International
 #'  Agency for Research on Cancer, World Health Organisation; 1987. \cr \cr
-#' [2] Armitage P, Berry G. Statistical methods in medical research (4th edn).
+#' (2) Armitage P, Berry G. Statistical methods in medical research (4th edn).
 #'   Oxford: Blackwell; 2002.
 #'
 #' @family PHEindicatormethods package functions
