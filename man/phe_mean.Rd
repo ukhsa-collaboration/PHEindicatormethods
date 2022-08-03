@@ -12,15 +12,17 @@ phe_mean(data, x, type = "full", confidence = 0.95)
 \item{x}{field name from data containing the values to calculate the means for; unquoted string; no default}
 
 \item{type}{defines the data and metadata columns to be included in output;
-can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
+can be "value", "lower", "upper", "standard" (for all data) or "full" (for
+all data and metadata); quoted string; default = "full"}
 
-\item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
-numeric; default 0.95}
+\item{confidence}{the required level of confidence expressed as a number
+between 0.9 and 1 or a number between 90 and 100 or can be a vector of 0.95
+and 0.998, for example, to output both 95 percent and 99.8 percent percent CIs; numeric;
+default 0.95}
 }
 \value{
 When type = "full", returns a data.frame of value_sum, value_count, stdev, value, lowercl, uppercl, confidence, statistic and method
-        for each grouping set
+for each grouping set
 }
 \description{
 Calculates means with confidence limits using Student's t-distribution method.

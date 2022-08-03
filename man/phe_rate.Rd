@@ -7,33 +7,41 @@
 phe_rate(data, x, n, type = "full", confidence = 0.95, multiplier = 1e+05)
 }
 \arguments{
-\item{data}{the data.frame containing the data to calculate rates for, pre-grouped if proportions required for
-group aggregates; unquoted string; no default}
+\item{data}{the data.frame containing the data to calculate rates for,
+pre-grouped if proportions required for group aggregates; unquoted string;
+no default}
 
-\item{x}{field name from data containing the rate numerators (eg observed number of events); unquoted string; no default}
+\item{x}{field name from data containing the rate numerators (eg observed
+number of events); unquoted string; no default}
 
-\item{n}{field name from data containing the rate denominators (eg populations); unquoted string; no default}
+\item{n}{field name from data containing the rate denominators (eg
+populations); unquoted string; no default}
 
 \item{type}{defines the data and metadata columns to be included in output;
-can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"}
+can be "value", "lower", "upper", "standard" (for all data) or "full" (for
+all data and metadata); quoted string; default = "full"}
 
-\item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
-numeric; default 0.95}
+\item{confidence}{the required level of confidence expressed as a number
+between 0.9 and 1 or a number between 90 and 100 or can be a vector of 0.95
+and 0.998, for example, to output both 95 percent and 99.8 percent percent CIs; numeric;
+default 0.95}
 
-\item{multiplier}{the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000}
+\item{multiplier}{the multiplier used to express the final values (eg 100,000
+= rate per 100,000); numeric; default 100,000}
 }
 \value{
-When type = "full", returns the original data.frame with the following appended:
-        rate, lower confidence limit, upper confidence limit, confidence level, statistic and method
+When type = "full", returns the original data.frame with the
+following appended: rate, lower confidence limit, upper confidence limit,
+confidence level, statistic and method
 }
 \description{
-Calculates rates with confidence limits using Byar's [1] or exact [2] CI method.
+Calculates rates with confidence limits using Byar's (1) or exact (2) CI method.
 }
 \section{Notes}{
- For numerators >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
- and \code{\link{byars_upper}} functions.  For small numerators Byar's method is less accurate and so
- an exact method [2] based on the Poisson distribution is used.
+ For numerators >= 10 Byar's method (1) is applied using the
+\code{\link{byars_lower}} and \code{\link{byars_upper}} functions.  For
+small numerators Byar's method is less accurate and so an exact method (2)
+based on the Poisson distribution is used.
 }
 
 \examples{
@@ -53,11 +61,11 @@ phe_rate(dfg, obs, pop)
 
 }
 \references{
-[1] Breslow NE, Day NE. Statistical methods in cancer research,
- volume II: The design and analysis of cohort studies. Lyon: International
- Agency for Research on Cancer, World Health Organisation; 1987. \cr
-[2] Armitage P, Berry G. Statistical methods in medical research (4th edn).
-  Oxford: Blackwell; 2002.
+(1) Breslow NE, Day NE. Statistical methods in cancer research,
+volume II: The design and analysis of cohort studies. Lyon: International
+Agency for Research on Cancer, World Health Organisation; 1987. \cr
+(2) Armitage P, Berry G. Statistical methods in medical research (4th edn).
+Oxford: Blackwell; 2002.
 }
 \seealso{
 Other PHEindicatormethods package functions: 

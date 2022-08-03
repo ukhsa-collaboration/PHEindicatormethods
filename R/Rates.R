@@ -1,12 +1,15 @@
 # -------------------------------------------------------------------------------------------------
 #' Calculate Rates using phe_rate
 #'
-#' Calculates rates with confidence limits using Byar's [1] or exact [2] CI method.
+#' Calculates rates with confidence limits using Byar's (1) or exact (2) CI method.
 #'
-#' @param data the data.frame containing the data to calculate rates for, pre-grouped if proportions required for
-#'             group aggregates; unquoted string; no default
-#' @param x field name from data containing the rate numerators (eg observed number of events); unquoted string; no default
-#' @param n field name from data containing the rate denominators (eg populations); unquoted string; no default
+#' @param data the data.frame containing the data to calculate rates for,
+#'   pre-grouped if proportions required for group aggregates; unquoted string;
+#'   no default
+#' @param x field name from data containing the rate numerators (eg observed
+#'   number of events); unquoted string; no default
+#' @param n field name from data containing the rate denominators (eg
+#'   populations); unquoted string; no default
 #'
 #' @inheritParams phe_dsr
 #'
@@ -14,8 +17,9 @@
 #' @importFrom rlang sym quo_name :=
 #' @export
 #'
-#' @return When type = "full", returns the original data.frame with the following appended:
-#'         rate, lower confidence limit, upper confidence limit, confidence level, statistic and method
+#' @return When type = "full", returns the original data.frame with the
+#'   following appended: rate, lower confidence limit, upper confidence limit,
+#'   confidence level, statistic and method
 #'
 #' @examples
 #' # ungrouped data frame
@@ -32,15 +36,16 @@
 #' dfg <- df %>% group_by(area)
 #' phe_rate(dfg, obs, pop)
 #'
-#' @section Notes: For numerators >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
-#'  and \code{\link{byars_upper}} functions.  For small numerators Byar's method is less accurate and so
-#'  an exact method [2] based on the Poisson distribution is used.
+#' @section Notes: For numerators >= 10 Byar's method (1) is applied using the
+#'   \code{\link{byars_lower}} and \code{\link{byars_upper}} functions.  For
+#'   small numerators Byar's method is less accurate and so an exact method (2)
+#'   based on the Poisson distribution is used.
 #'
 #' @references
-#' [1] Breslow NE, Day NE. Statistical methods in cancer research,
+#' (1) Breslow NE, Day NE. Statistical methods in cancer research,
 #'  volume II: The design and analysis of cohort studies. Lyon: International
 #'  Agency for Research on Cancer, World Health Organisation; 1987. \cr
-#' [2] Armitage P, Berry G. Statistical methods in medical research (4th edn).
+#' (2) Armitage P, Berry G. Statistical methods in medical research (4th edn).
 #'   Oxford: Blackwell; 2002.
 #'
 #' @family PHEindicatormethods package functions

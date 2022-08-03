@@ -43,8 +43,8 @@ percentage); numeric; no default}
 }
 \value{
 returns the same table as provided with two additional fields. First
-  will have the same name as the rate field, with the suffix "_chart", the
-  second will be called denominator_derived
+will have the same name as the rate field, with the suffix "_chart", the
+second will be called denominator_derived
 }
 \description{
 For rate-based funnels: Derive rate and annual population values for charting

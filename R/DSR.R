@@ -1,27 +1,36 @@
 # -------------------------------------------------------------------------------------------------
 #' Calculate Directly Standardised Rates using phe_dsr
 #'
-#' Calculates directly standardised rates with confidence limits using Byar's method [1] with Dobson method adjustment [2].
+#' Calculates directly standardised rates with confidence limits using Byar's
+#' method (1) with Dobson method adjustment (2).
 #'
-#' @param data data.frame containing the data to be standardised, pre-grouped if multiple DSRs required; unquoted string; no default
-#' @param x field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area);
-#'          unquoted string; no default
-#' @param n field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area);
-#'          unquoted string; no default
-#' @param stdpop the standard populations for each standardisation category (eg age band);
-#'               unquoted string referencing a numeric vector or field name from data depending on value of stdpoptype; default = esp2013
-#' @param stdpoptype whether the stdpop has been specified as a vector or a field name from data;
-#'                   quoted string "field" or "vector"; default = "vector"
+#' @param data data.frame containing the data to be standardised, pre-grouped if
+#'   multiple DSRs required; unquoted string; no default
+#' @param x field name from data containing the observed number of events for
+#'   each standardisation category (eg ageband) within each grouping set (eg
+#'   area); unquoted string; no default
+#' @param n field name from data containing the populations for each
+#'   standardisation category (eg ageband) within each grouping set (eg area);
+#'   unquoted string; no default
+#' @param stdpop the standard populations for each standardisation category (eg
+#'   age band); unquoted string referencing a numeric vector or field name from
+#'   data depending on value of stdpoptype; default = esp2013
+#' @param stdpoptype whether the stdpop has been specified as a vector or a
+#'   field name from data; quoted string "field" or "vector"; default = "vector"
 #' @param type defines the data and metadata columns to be included in output;
-#'             can be "value", "lower", "upper", "standard" (for all data) or "full" (for all data and metadata); quoted string; default = "full"
-#' @param confidence the required level of confidence expressed as a number between 0.9 and 1
-#'                   or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
-#'                   numeric; default 0.95
-#' @param multiplier the multiplier used to express the final values (eg 100,000 = rate per 100,000); numeric; default 100,000
+#'   can be "value", "lower", "upper", "standard" (for all data) or "full" (for
+#'   all data and metadata); quoted string; default = "full"
+#' @param confidence the required level of confidence expressed as a number
+#'   between 0.9 and 1 or a number between 90 and 100 or can be a vector of 0.95
+#'   and 0.998, for example, to output both 95 percent and 99.8 percent percent CIs; numeric;
+#'   default 0.95
+#' @param multiplier the multiplier used to express the final values (eg 100,000
+#'   = rate per 100,000); numeric; default 100,000
 #'
-#' @return When type = "full", returns a tibble of total counts, total populations,
-#'  directly standardised rates, lower confidence limits, upper confidence limits,
-#'  confidence level, statistic and method for each grouping set
+#' @return When type = "full", returns a tibble of total counts, total
+#'   populations, directly standardised rates, lower confidence limits, upper
+#'   confidence limits, confidence level, statistic and method for each grouping
+#'   set
 #'
 #' @importFrom rlang sym quo_name
 #' @import dplyr
@@ -29,7 +38,8 @@
 #'
 #' @examples
 #' library(dplyr)
-#' df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
+#' df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314),
+#'                  each = 19 * 2 * 5),
 #'                  year = rep(2006:2010, each = 19 * 2),
 #'                  sex = rep(rep(c("Male", "Female"), each = 19), 5),
 #'                  ageband = rep(c(0,5,10,15,20,25,30,35,40,45,
@@ -53,17 +63,18 @@
 #'     group_by(indicatorid, year, sex) %>%
 #'     phe_dsr(obs, pop, type = "standard")
 #'
-#' @section Notes: User MUST ensure that x, n and stdpop vectors are all ordered by
-#' the same standardisation category values as records will be matched by position. \cr \cr
-#' For total counts >= 10 Byar's method [1] is applied using the \code{\link{byars_lower}}
-#' and \code{\link{byars_upper}} functions.  When the total count is < 10 DSRs are not reliable and will
-#' therefore not be calculated.
+#' @section Notes: User MUST ensure that x, n and stdpop vectors are all ordered
+#'   by the same standardisation category values as records will be matched by
+#'   position. \cr \cr For total counts >= 10 Byar's method (1) is applied using
+#'   the \code{\link{byars_lower}} and \code{\link{byars_upper}} functions.
+#'   When the total count is < 10 DSRs are not reliable and will therefore not
+#'   be calculated.
 #'
 #' @references
-#' [1] Breslow NE, Day NE. Statistical methods in cancer research,
+#' (1) Breslow NE, Day NE. Statistical methods in cancer research,
 #'  volume II: The design and analysis of cohort studies. Lyon: International
 #'  Agency for Research on Cancer, World Health Organisation; 1987. \cr \cr
-#' [2] Dobson A et al. Confidence intervals for weighted sums of Poisson parameters. Stat Med 1991;10:457-62.
+#' (2) Dobson A et al. Confidence intervals for weighted sums of Poisson parameters. Stat Med 1991;10:457-62.
 #'
 #'
 #' @family PHEindicatormethods package functions

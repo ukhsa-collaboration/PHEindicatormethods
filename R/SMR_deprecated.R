@@ -2,7 +2,7 @@
 #' Calculate Indirectly Standardised Ratio (Standardised Mortality Ratio or
 #' Standardised Admission Ratio) using calculate_ISRatio
 #'
-#' @description `r lifecycle::badge("superseded")`
+#' @description `r lifecycle::badge("deprecated")`
 #'
 #' To prevent ambiguity over the ISR acronym, the `phe_smr` function has been
 #' replaced with a `calculate_ISRatio` function. Both functions take the same
@@ -41,10 +41,19 @@
 #'     phe_smr(obs, pop, refdf$refcount, refdf$refpop, confidence=99.8, refvalue=100)
 #'
 #'
+#' @keywords internal
+#'
 # -------------------------------------------------------------------------------------------------
 
 phe_smr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
                               type = "full", confidence = 0.95, refvalue = 1) {
+
+  deprecate_warn("1.4.0", "phe_smr()", "Calculate_ISRatio()",
+                 details = paste0("Due to ambiguous use of acronyms isr and smr, ",
+                                  "the phe_smr function has been replaced with Calculate_ISRatio(). ",
+                                  "The functionality of the function has not changed.",
+                                  "The phe_smr function will be removed in a future ",
+                                  "release of PHEindicatormethods, not before December 2022."))
 
   # check required arguments present
   if (missing(data)|missing(x)|missing(n)|missing(x_ref)|missing(n_ref)) {

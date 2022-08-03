@@ -18,13 +18,13 @@ na.zero <- function (y) {
 # -------------------------------------------------------------------------------------------------
 #' byars_lower
 #'
-#' Calculates the lower confidence limits for observed numbers of events using Byar's method [1].
+#' Calculates the lower confidence limits for observed numbers of events using Byar's method (1).
 #'
 #' @param x the observed numbers of events; numeric vector; no default
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return Returns lower confidence limits for observed numbers of events using Byar's method [1]
+#' @return Returns lower confidence limits for observed numbers of events using Byar's method (1)
 #'
 #' @section Notes: This is an internal package function that is appropriately called by exported
 #'  'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
@@ -36,11 +36,11 @@ na.zero <- function (y) {
 #'  Byar's method is inaccurate and may return a negative number - in these cases an error is returned.
 #'
 #' @references
-#' [1] Breslow NE, Day NE. Statistical methods in cancer research,
+#' (1) Breslow NE, Day NE. Statistical methods in cancer research,
 #'  volume II: The design and analysis of cohort studies. Lyon: International
 #'  Agency for Research on Cancer, World Health Organisation; 1987.
-#'
-#' -------------------------------------------------------------------------------------------------
+#
+# -------------------------------------------------------------------------------------------------
 
 # create function to calculate Byar's lower CI limit
 byars_lower <- function(x, confidence = 0.95) {
@@ -74,13 +74,13 @@ byars_lower <- function(x, confidence = 0.95) {
 # -------------------------------------------------------------------------------------------------
 #' byars_upper
 #'
-#' Calculates the upper confidence limits for observed numbers of events using Byar's method [1].
+#' Calculates the upper confidence limits for observed numbers of events using Byar's method (1).
 #'
 #' @param x the observed numbers of events; numeric vector; no default
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return Returns upper confidence limits for observed numbers of events using Byar's method [1]
+#' @return Returns upper confidence limits for observed numbers of events using Byar's method (1)
 #'
 #' @section Notes: This is an internal package function that is appropriately called by exported
 #'  'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
@@ -90,11 +90,11 @@ byars_lower <- function(x, confidence = 0.95) {
 #'  will be below the true underlying value, is \eqn{\alpha}/2.
 #'
 #' @references
-#' [1] Breslow NE, Day NE. Statistical methods in cancer research,
+#' (1) Breslow NE, Day NE. Statistical methods in cancer research,
 #'  volume II: The design and analysis of cohort studies. Lyon: International
 #'  Agency for Research on Cancer, World Health Organisation; 1987.
 #'
-#' -------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 
 # create function to calculate Byar's upper CI limit
 byars_upper <- function(x, confidence = 0.95) {
@@ -122,14 +122,14 @@ byars_upper <- function(x, confidence = 0.95) {
 # -------------------------------------------------------------------------------------------------
 #' wilson_lower
 #'
-#' Calculates lower confidence limits for observed numbers of events using the Wilson Score method [1,2].
+#' Calculates lower confidence limits for observed numbers of events using the Wilson Score method (1,2).
 #'
 #' @param x the observed numbers of cases in the samples meeting the required condition; numeric vector; no default
 #' @param n the numbers of cases in the samples; numeric vector; no default
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return Returns lower confidence limits for observed numbers of events using the Wilson Score method [1,2]
+#' @return Returns lower confidence limits for observed numbers of events using the Wilson Score method (1,2)
 #'
 #' @section Notes: This is an internal package function that is appropriately called by exported
 #'  'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
@@ -138,14 +138,13 @@ byars_upper <- function(x, confidence = 0.95) {
 #'  will be above the true underlying value, is \eqn{\alpha}/2.#'
 #'
 #' @references
-#' [1] Wilson EB. Probable inference, the law of succession, and statistical
+#' (1) Wilson EB. Probable inference, the law of succession, and statistical
 #'  inference. J Am Stat Assoc; 1927; 22. Pg 209 to 212. \cr
-#' [2] Newcombe RG, Altman DG. Proportions and their differences. In Altman
+#' (2) Newcombe RG, Altman DG. Proportions and their differences. In Altman
 #'  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
 #'  2000. Pg 46 to 48.
-
 #'
-#' ------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
 
 # create function to calculate Wilson's lower CI limit
 wilson_lower <- function(x, n, confidence = 0.95) {
@@ -183,14 +182,14 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 # -------------------------------------------------------------------------------------------------
 #' wilson_upper
 #'
-#' Calculates upper confidence limits for observed numbers of events using the Wilson Score method [1,2].
+#' Calculates upper confidence limits for observed numbers of events using the Wilson Score method (1,2).
 #'
 #' @param x the observed numbers of cases in the samples meeting the required condition; numeric vector; no default
 #' @param n the numbers of cases in the samples; numeric vector; no default
 #'
 #' @inheritParams phe_dsr
 #'
-#' @return Returns upper confidence limits for observed numbers of events using the Wilson Score method [1,2]
+#' @return Returns upper confidence limits for observed numbers of events using the Wilson Score method (1,2)
 #'
 #' @section Notes: This is an internal package function that is appropriately called by exported
 #'  'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
@@ -199,13 +198,13 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 #'  will be below the true underlying value, is \eqn{\alpha}/2.#'
 #'
 #' @references
-#' [1] Wilson EB. Probable inference, the law of succession, and statistical
+#' (1) Wilson EB. Probable inference, the law of succession, and statistical
 #'  inference. J Am Stat Assoc; 1927; 22. Pg 209 to 212. \cr
-#' [2] Newcombe RG, Altman DG. Proportions and their differences. In Altman
+#' (2) Newcombe RG, Altman DG. Proportions and their differences. In Altman
 #'  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
 #'  2000. Pg 46 to 48.
 #'
-#' ------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
 
 # create function to calculate Wilson's lower CI limit
 wilson_upper <- function(x, n, confidence = 0.95) {

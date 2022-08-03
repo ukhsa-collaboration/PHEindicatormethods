@@ -9,31 +9,30 @@ byars_lower(x, confidence = 0.95)
 \arguments{
 \item{x}{the observed numbers of events; numeric vector; no default}
 
-\item{confidence}{the required level of confidence expressed as a number between 0.9 and 1
-or a number between 90 and 100 or can be a vector of 0.95 and 0.998, for example, to output both 95\% and 99.8\% CIs;
-numeric; default 0.95}
+\item{confidence}{the required level of confidence expressed as a number
+between 0.9 and 1 or a number between 90 and 100 or can be a vector of 0.95
+and 0.998, for example, to output both 95 percent and 99.8 percent percent CIs; numeric;
+default 0.95}
 }
 \value{
-Returns lower confidence limits for observed numbers of events using Byar's method [1]
+Returns lower confidence limits for observed numbers of events using Byar's method (1)
 }
 \description{
-Calculates the lower confidence limits for observed numbers of events using Byar's method [1].
+Calculates the lower confidence limits for observed numbers of events using Byar's method (1).
 }
 \section{Notes}{
  This is an internal package function that is appropriately called by exported
- 'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
- \code{byars_lower} and \code{\link{byars_upper}} together return symmetric confidence
- intervals around counts, therefore
- for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the lower limit returned
- will be above the true underlying value, is \eqn{\alpha}/2.
- If the confidence level is very close to 1 or the number of events is very small
- Byar's method is inaccurate and may return a negative number - in these cases an error is returned.
+'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
+\code{byars_lower} and \code{\link{byars_upper}} together return symmetric confidence
+intervals around counts, therefore
+for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the lower limit returned
+will be above the true underlying value, is \eqn{\alpha}/2.
+If the confidence level is very close to 1 or the number of events is very small
+Byar's method is inaccurate and may return a negative number - in these cases an error is returned.
 }
 
 \references{
-[1] Breslow NE, Day NE. Statistical methods in cancer research,
- volume II: The design and analysis of cohort studies. Lyon: International
- Agency for Research on Cancer, World Health Organisation; 1987.
-
--------------------------------------------------------------------------------------------------
+(1) Breslow NE, Day NE. Statistical methods in cancer research,
+volume II: The design and analysis of cohort studies. Lyon: International
+Agency for Research on Cancer, World Health Organisation; 1987.
 }
