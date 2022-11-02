@@ -188,7 +188,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           groupings <- group_vars(data)
 
           factor_vars <- lapply(data, is.factor) %>%
-            purrr::map_chr(c)
+            purrr::map_chr(function(x) as.character(as.integer(x)))
 
           grouping_factors <- intersect(groupings, names(factor_vars[factor_vars == "TRUE"]))
 
