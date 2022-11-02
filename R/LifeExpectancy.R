@@ -202,7 +202,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   if (length(group_vars(data)) > 0) {
     negative_deaths <- negative_deaths %>%
       ungroup() %>%
-      mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
+      mutate_at(vars(all_of(grouping_factors)), as.character) %>% #stops warning in cases where filters result in 0 records
       group_by_at(group_vars(data))
   }
 
@@ -236,7 +236,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   if (length(group_vars(data)) > 0) {
     negative_pops <- negative_pops %>%
       ungroup() %>%
-      mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
+      mutate_at(vars(all_of(grouping_factors)), as.character) %>% #stops warning in cases where filters result in 0 records
       group_by_at(group_vars(data))
   }
 
@@ -273,7 +273,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   if (length(group_vars(data)) > 0) {
     incomplete_areas <- incomplete_areas %>%
       ungroup() %>%
-      mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
+      mutate_at(vars(all_of(grouping_factors)), as.character) %>% #stops warning in cases where filters result in 0 records
       group_by_at(group_vars(data))
   }
   incomplete_areas <- incomplete_areas %>%
@@ -306,7 +306,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   if (length(group_vars(data)) > 0) {
     deaths_more_than_pops <- deaths_more_than_pops %>%
       ungroup() %>%
-      mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
+      mutate_at(vars(all_of(grouping_factors)), as.character) %>% #stops warning in cases where filters result in 0 records
       group_by_at(group_vars(data))
   }
   deaths_more_than_pops <- as_tibble(deaths_more_than_pops) %>%
@@ -343,7 +343,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           summarise(total_pop = sum({{ population }}))
   if (length(group_vars(data)) > 0) {
     total_pops <- total_pops %>%
-      mutate_at(vars(grouping_factors), as.character) #stops warning in cases where filters result in 0 records
+      mutate_at(vars(all_of(grouping_factors)), as.character) #stops warning in cases where filters result in 0 records
   }
   total_pops <- total_pops %>%
           filter(total_pop <= 5000) %>%
@@ -375,7 +375,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           unique()
   if (nrow(suppressed_data) > 0) {
     suppressed_data <- suppressed_data %>%
-      mutate_at(vars(grouping_factors), as.factor)
+      mutate_at(vars(all_of(grouping_factors)), as.factor)
 
   }
 

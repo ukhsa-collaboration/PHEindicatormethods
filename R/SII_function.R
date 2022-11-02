@@ -484,7 +484,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
             # Take inverse of RII if multiplier is negative
             mutate(rii = ifelse(multiplier < 0, 1/rii, rii)) %>%
             # Select fields to keep
-            select(grouping_variables, sii, rii)
+            select(all_of(grouping_variables), sii, rii)
 
 
                # join on dataset with confidence limits and reliability stats
