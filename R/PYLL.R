@@ -238,4 +238,4 @@ esp<-c(1000,4000,5500, 5500, 5500, 6000, 6000, 6500, 7000, 7000, 7000, 7000, 650
 
 datapyll<-data %>%
 group_by(areacode,sex,year) %>%
-phe_pyll(obs,pop,leadj,stdpop=esp)
+phe_pyll(datapyll,obs,pop,leadj,stdpop=esp)
