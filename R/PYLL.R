@@ -40,29 +40,22 @@
 #'
 #' @examples
 #' library(dplyr)
-#' df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314),
-#'                  each = 19 * 2 * 5),
-#'                  year = rep(2006:2010, each = 19 * 2),
-#'                  sex = rep(rep(c("Male", "Female"), each = 19), 5),
-#'                  ageband = rep(c(0,5,10,15,20,25,30,35,40,45,
-#'                                  50,55,60,65,70,75,80,85,90), times = 10),
-#'                  obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
-#'                  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
+#' data <- read.csv("data/testdata_pyllfunction.csv")
 #'
 #' ## default execution
 #' df %>%
-#'     group_by(indicatorid, year, sex) %>%
+#'     group_by(areacode, year, sex) %>%
 #'     phe_pyll(obs, pop, leadj)
 #'
 #' ## calculate both 95% and 99.8% CIs in single execution
 #' df %>%
-#'     group_by(indicatorid, year, sex) %>%
+#'     group_by(areacode, year, sex) %>%
 #'     phe_pyll(obs, pop, leadj confidence = c(0.95, 0.998))
 #'
 #' ## calculate DSRs for multiple grouping sets in single execution
 #'
 #' df %>%
-#'     group_by(indicatorid, year, sex) %>%
+#'     group_by(areacode, year, sex) %>%
 #'     phe_pyll(obs, pop, leadj type = "standard")
 #'
 #' @section Notes: User MUST ensure that x, n leadj and stdpop vectors are all ordered
@@ -87,7 +80,7 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
                     type = "full", confidence = 0.95, multiplier = 100000) {
 
   # check required arguments present
-  if (missing(data)|missing(x)|missing(n)) {
+  if (missing(data)|missing(x)|missing(n)|missing(leadj)) {
     stop("function phe_pyll requires at least 4 arguments: data, x, n, leadj")
   }
 
@@ -238,3 +231,11 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
   return(phe_pyll)
 
 }
+
+library(PHEindicatormethods)
+
+esp<-c(1000,4000,5500, 5500, 5500, 6000, 6000, 6500, 7000, 7000, 7000, 7000, 6500, 6000, 5500, 5000, 4000, 2500, 1500, 1000)
+
+datapyll<-data %>%
+group_by(areacode,sex,year) %>%
+phe_pyll(obs,pop,leadj,stdpop=esp)
