@@ -39,24 +39,6 @@
 #' @export
 #'
 #' @examples
-#' library(dplyr)
-#' data <- read.csv("data/testdata_pyllfunction.csv")
-#'
-#' ## default execution
-#' df %>%
-#'     group_by(areacode, year, sex) %>%
-#'     phe_pyll(obs, pop, leadj)
-#'
-#' ## calculate both 95% and 99.8% CIs in single execution
-#' df %>%
-#'     group_by(areacode, year, sex) %>%
-#'     phe_pyll(obs, pop, leadj confidence = c(0.95, 0.998))
-#'
-#' ## calculate DSRs for multiple grouping sets in single execution
-#'
-#' df %>%
-#'     group_by(areacode, year, sex) %>%
-#'     phe_pyll(obs, pop, leadj type = "standard")
 #'
 #' @section Notes: User MUST ensure that x, n leadj and stdpop vectors are all ordered
 #'   by the same standardisation category values as records will be matched by
@@ -138,7 +120,7 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
       summarise(total_count = sum({{ x }},na.rm=TRUE),
                 total_pop = sum({{ n }}),
                 value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
-                err_frac = sum(sum(stdpop_calc)^2 * sum(x)*sum(leadj)^2),
+                err_frac = sum(sum(stdpop_calc)^2 * sum({{ x}})*sum(leadj)^2),
                 pyll_lower95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
                   (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
                 pyll_upper95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
@@ -195,7 +177,7 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
       summarise(total_count = sum({{ x }},na.rm=TRUE),
                 total_pop = sum({{ n }}),
                 value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
-                err_frac = sum(sum(stdpop_calc)^2 * sum(x)*sum(leadj)^2),
+                err_frac = sum(sum(stdpop_calc)^2 * sum({{x}})*sum(leadj)^2),
                 lowercl = value + sqrt((err_frac/sum({{ x }},na.rm=TRUE)))*(byars_lower(sum({{ x }},na.rm=TRUE),
                                                                                       confidence)-sum({{ x }},na.rm=TRUE)) * multiplier,
                 uppercl = value + sqrt((err_frac/sum({{ x }},na.rm=TRUE)))*(byars_upper(sum({{ x }},na.rm=TRUE),
@@ -231,11 +213,3 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
   return(phe_pyll)
 
 }
-
-library(PHEindicatormethods)
-
-esp<-c(1000,4000,5500, 5500, 5500, 6000, 6000, 6500, 7000, 7000, 7000, 7000, 6500, 6000, 5500, 5000, 4000, 2500, 1500, 1000)
-
-datapyll<-data %>%
-group_by(areacode,sex,year) %>%
-phe_pyll(datapyll,obs,pop,leadj,stdpop=esp)
