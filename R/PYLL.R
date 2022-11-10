@@ -118,20 +118,20 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
       mutate(yll=({{leadj}}*{{x}}*(stdpop_calc/{{n}})),
              yll_numerator=({{leadj}}*{{x}}),
              err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{leadj}})^2)) %>%
-#      summarise(total_count = sum(yll_numerator),
-#                total_pop = sum({{ n }}),
-#                value = sum(yll) * multiplier,
-#                err_frac = sum(err_frac),
-#                pyll_lower95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-#                  (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-#                pyll_upper95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-#                  (byars_upper(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-#                pyll_lower99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-#                  (byars_lower(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-#                pyll_upper99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-#                  (byars_upper(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-#                .groups = "keep") %>%
-#      select(-err_frac) %>%
+      summarise(total_count = sum(yll_numerator),
+                total_pop = sum({{ n }}),
+                value = sum(yll),
+                err_frac = sum(err_frac),
+                pyll_lower95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+                  (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)),
+                pyll_upper95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+                  (byars_upper(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)),
+                pyll_lower99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+                  (byars_lower(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)),
+                pyll_upper99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+                  (byars_upper(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)),
+                .groups = "keep") %>%
+      select(-err_frac) %>%
       mutate(confidence = "95%, 99.8%",
              statistic = paste("dsr per",format(multiplier,scientific=F)),
              method = " variation")
@@ -173,17 +173,18 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
 
     # calculate pyll with a single CI
     phe_pyll <- data %>%
-      mutate(wt_rate = na.zero({{ x }}) *  stdpop_calc / ({{ n }}),
-             sq_rate = na.zero({{ x }}) * (stdpop_calc / ({{ n }}))^2, na.rm=TRUE) %>%
-      summarise(total_count = sum({{ x }},na.rm=TRUE),
-                total_pop = sum({{ n }}),
-                value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
-                err_frac = sum(sum(stdpop_calc)^2 * sum({{x}})*sum({{leadj}})^2),
+      mutate(yll=({{leadj}}*{{x}}*(stdpop_calc/{{n}})),
+             yll_numerator=({{leadj}}*{{x}}),
+             err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{leadj}})^2)) %>%
+            summarise(total_count = sum(yll_numerator),
+                      total_pop = sum({{ n }}),
+                      value = sum(yll),
+                      err_frac = sum(err_frac),
                 lowercl = value + sqrt((err_frac/sum({{ x }},na.rm=TRUE)))*(byars_lower(sum({{ x }},na.rm=TRUE),
-                                                                                      confidence)-sum({{ x }},na.rm=TRUE)) * multiplier,
+                                                                                      confidence)-sum({{ x }},na.rm=TRUE)),
                 uppercl = value + sqrt((err_frac/sum({{ x }},na.rm=TRUE)))*(byars_upper(sum({{ x }},na.rm=TRUE),
-                                                                                      confidence)-sum({{ x }},na.rm=TRUE)) * multiplier,
-                .groups = "keep") %>%
+                                                                                     confidence)-sum({{ x }},na.rm=TRUE)),
+               .groups = "keep") %>%
       select(-err_frac) %>%
       mutate(confidence = paste(confidence*100,"%",sep=""),
              statistic = paste("dsr per",format(multiplier,scientific=F)),
