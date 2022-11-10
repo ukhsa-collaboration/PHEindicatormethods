@@ -115,12 +115,13 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
 
     # calculate PYLL and CIs
     phe_pyll <- data %>%
-      mutate(wt_rate = na.zero({{ x }}) *  stdpop_calc / ({{ n }}),
-             sq_rate = na.zero({{ x }}) * (stdpop_calc / ({{ n }}))^2, na.rm=TRUE) %>%
-      summarise(total_count = sum({{ x }},na.rm=TRUE),
+      mutate(yll=({{leadj}}*{{x}}*(stdpop_calc/{{n}})),
+             yll_numerator=({{leadj}}*{{x}}),
+             err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{leadj}})^2)) %>%
+      summarise(total_count = sum(yll_numerator),
                 total_pop = sum({{ n }}),
-                value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
-                err_frac = sum(sum(stdpop_calc)^2 * sum({{ x}})*sum(leadj)^2),
+                value = sum(yll) * multiplier,
+                err_frac = sum(err_frac),
                 pyll_lower95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
                   (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
                 pyll_upper95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
@@ -177,7 +178,7 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
       summarise(total_count = sum({{ x }},na.rm=TRUE),
                 total_pop = sum({{ n }}),
                 value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
-                err_frac = sum(sum(stdpop_calc)^2 * sum({{x}})*sum(leadj)^2),
+                err_frac = sum(sum(stdpop_calc)^2 * sum({{x}})*sum({{leadj}})^2),
                 lowercl = value + sqrt((err_frac/sum({{ x }},na.rm=TRUE)))*(byars_lower(sum({{ x }},na.rm=TRUE),
                                                                                       confidence)-sum({{ x }},na.rm=TRUE)) * multiplier,
                 uppercl = value + sqrt((err_frac/sum({{ x }},na.rm=TRUE)))*(byars_upper(sum({{ x }},na.rm=TRUE),
