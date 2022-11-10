@@ -118,23 +118,23 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
       mutate(yll=({{leadj}}*{{x}}*(stdpop_calc/{{n}})),
              yll_numerator=({{leadj}}*{{x}}),
              err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{leadj}})^2)) %>%
-      summarise(total_count = sum(yll_numerator),
-                total_pop = sum({{ n }}),
-                value = sum(yll) * multiplier,
-                err_frac = sum(err_frac),
-                pyll_lower95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-                  (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-                pyll_upper95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-                  (byars_upper(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-                pyll_lower99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-                  (byars_lower(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-                pyll_upper99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-                  (byars_upper(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-                .groups = "keep") %>%
-      select(-err_frac) %>%
+#      summarise(total_count = sum(yll_numerator),
+#                total_pop = sum({{ n }}),
+#                value = sum(yll) * multiplier,
+#                err_frac = sum(err_frac),
+#                pyll_lower95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+#                  (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
+#                pyll_upper95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+#                  (byars_upper(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
+#                pyll_lower99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+#                  (byars_lower(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier,
+#                pyll_upper99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+#                  (byars_upper(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier,
+#                .groups = "keep") %>%
+#      select(-err_frac) %>%
       mutate(confidence = "95%, 99.8%",
              statistic = paste("dsr per",format(multiplier,scientific=F)),
-             method = "Dobson PYLL variation")
+             method = " variation")
 
     # remove DSR calculation for total counts < 10 - because numerator is years not deaths disclosure not applied
 #    phe_dsr$value[phe_dsr$total_count             < 10] <- NA
