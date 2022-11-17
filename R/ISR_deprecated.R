@@ -14,6 +14,7 @@
 #' @inheritParams calculate_ISRate
 #'
 #' @import dplyr lifecycle
+#' @importFrom stats qchisq
 #' @export
 #'
 #' @examples
@@ -120,37 +121,37 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
 
     # calculate isr and CIs
     phe_isr <- data %>%
-      mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
+      mutate(exp_x = na.zero(.data$xrefpop_calc)/.data$nrefpop_calc * na.zero({{ n }})) %>%
       summarise(observed  = sum({{ x }}, na.rm=TRUE),
-                expected  = sum(exp_x),
-                ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
+                expected  = sum(.data$exp_x),
+                ref_rate = sum(.data$xrefpop_calc, na.rm=TRUE) / sum(.data$nrefpop_calc) * multiplier,
                 .groups = "keep") %>%
-      mutate(value     = observed / expected * ref_rate,
-             lower95_0cl = if_else(observed<10, qchisq((1-conf1)/2,2*observed)/2/expected * ref_rate,
-                                   byars_lower(observed,conf1)/expected * ref_rate),
-             upper95_0cl = if_else(observed<10, qchisq(conf1+(1-conf1)/2,2*observed+2)/2/expected * ref_rate,
-                                   byars_upper(observed,conf1)/expected * ref_rate),
-             lower99_8cl = if_else(observed<10, qchisq((1-conf2)/2,2*observed)/2/expected * ref_rate,
-                                   byars_lower(observed,conf2)/expected * ref_rate),
-             upper99_8cl = if_else(observed<10, qchisq(conf2+(1-conf2)/2,2*observed+2)/2/expected * ref_rate,
-                                   byars_upper(observed,conf2)/expected * ref_rate),
+      mutate(value     = .data$observed / .data$expected * .data$ref_rate,
+             lower95_0cl = if_else(.data$observed<10, qchisq((1-conf1)/2,2*.data$observed)/2/.data$expected * .data$ref_rate,
+                                   byars_lower(.data$observed,conf1)/.data$expected * .data$ref_rate),
+             upper95_0cl = if_else(.data$observed<10, qchisq(conf1+(1-conf1)/2,2*.data$observed+2)/2/.data$expected * .data$ref_rate,
+                                   byars_upper(.data$observed,conf1)/.data$expected * .data$ref_rate),
+             lower99_8cl = if_else(.data$observed<10, qchisq((1-conf2)/2,2*.data$observed)/2/.data$expected * .data$ref_rate,
+                                   byars_lower(.data$observed,conf2)/.data$expected * .data$ref_rate),
+             upper99_8cl = if_else(.data$observed<10, qchisq(conf2+(1-conf2)/2,2*.data$observed+2)/2/.data$expected * .data$ref_rate,
+                                   byars_upper(.data$observed,conf2)/.data$expected * .data$ref_rate),
              confidence = "95%, 99.8%",
              statistic = paste("indirectly standardised rate per",format(multiplier,scientific=F)),
-             method  = if_else(observed<10,"Exact","Byars"))
+             method  = if_else(.data$observed < 10, "Exact", "Byars"))
 
     # drop fields not required based on value of type argument
     if (type == "lower") {
       phe_isr <- phe_isr %>%
-        select(-observed, -expected, -ref_rate, -value, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
+        select(!c("observed", "expected", "ref_rate", "value", "upper95_0cl", "upper99_8cl", "confidence", "statistic", "method"))
     } else if (type == "upper") {
       phe_isr <- phe_isr %>%
-        select(-observed, -expected, -ref_rate, -value, -lower95_0cl, -lower99_8cl, -confidence, -statistic, -method)
+        select(!c("observed", "expected", "ref_rate", "value", "lower95_0cl", "lower99_8cl", "confidence", "statistic", "method"))
     } else if (type == "value") {
       phe_isr <- phe_isr %>%
-        select(-observed, -expected, -ref_rate, -lower95_0cl, -lower99_8cl, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
+        select(!c("observed", "expected", "ref_rate", "lower95_0cl", "lower99_8cl", "upper95_0cl", "upper99_8cl", "confidence", "statistic", "method"))
     } else if (type == "standard") {
       phe_isr <- phe_isr %>%
-        select(-confidence, -statistic, -method)
+        select(!c("confidence", "statistic", "method"))
     }
 
   } else {
@@ -163,33 +164,33 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
 
     # calculate isr with a single CI
     phe_isr <- data %>%
-      mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
+      mutate(exp_x = na.zero(.data$xrefpop_calc)/.data$nrefpop_calc * na.zero({{ n }})) %>%
       summarise(observed  = sum({{ x }}, na.rm=TRUE),
-                expected  = sum(exp_x),
-                ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
+                expected  = sum(.data$exp_x),
+                ref_rate = sum(.data$xrefpop_calc, na.rm=TRUE) / sum(.data$nrefpop_calc) * multiplier,
                 .groups = "keep") %>%
-      mutate(value     = observed / expected * ref_rate,
-             lowercl = if_else(observed<10, qchisq((1-confidence)/2,2*observed)/2/expected * ref_rate,
-                               byars_lower(observed,confidence)/expected * ref_rate),
-             uppercl = if_else(observed<10, qchisq(confidence+(1-confidence)/2,2*observed+2)/2/expected * ref_rate,
-                               byars_upper(observed,confidence)/expected * ref_rate),
+      mutate(value     = .data$observed / .data$expected * .data$ref_rate,
+             lowercl = if_else(.data$observed<10, qchisq((1-confidence)/2,2*.data$observed)/2/.data$expected * .data$ref_rate,
+                               byars_lower(.data$observed,confidence)/.data$expected * .data$ref_rate),
+             uppercl = if_else(.data$observed<10, qchisq(confidence+(1-confidence)/2,2*.data$observed+2)/2/.data$expected * .data$ref_rate,
+                               byars_upper(.data$observed,confidence)/.data$expected * .data$ref_rate),
              confidence = paste(confidence*100,"%", sep=""),
              statistic = paste("indirectly standardised rate per",format(multiplier,scientific=F)),
-             method  = if_else(observed<10,"Exact","Byars"))
+             method  = if_else(.data$observed<10,"Exact","Byars"))
 
     # drop fields not required based on value of type argument
     if (type == "lower") {
       phe_isr <- phe_isr %>%
-        select(-observed, -expected, -ref_rate, -value, -uppercl, -confidence, -statistic, -method)
+        select(!c("observed", "expected", "ref_rate", "value", "uppercl", "confidence", "statistic", "method"))
     } else if (type == "upper") {
       phe_isr <- phe_isr %>%
-        select(-observed, -expected, -ref_rate, -value, -lowercl, -confidence, -statistic, -method)
+        select(!c("observed", "expected", "ref_rate", "value", "lowercl", "confidence", "statistic", "method"))
     } else if (type == "value") {
       phe_isr <- phe_isr %>%
-        select(-observed, -expected, -ref_rate, -lowercl, -uppercl, -confidence, -statistic, -method)
+        select(!c("observed", "expected", "ref_rate", "lowercl", "uppercl", "confidence", "statistic", "method"))
     } else if (type == "standard") {
       phe_isr <- phe_isr %>%
-        select(-confidence, -statistic, -method)
+        select(!c("confidence", "statistic", "method"))
     }
 
   }
