@@ -159,11 +159,6 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
                    method = "Dobson")
 
         # remove DSR calculation for total counts < 10
-        # phe_dsr$value[phe_dsr$total_count             < 10] <- NA
-        # phe_dsr$upper95_0cl[phe_dsr$total_count       < 10] <- NA
-        # phe_dsr$lower95_0cl[phe_dsr$total_count       < 10] <- NA
-        # phe_dsr$upper99_8cl[phe_dsr$total_count       < 10] <- NA
-        # phe_dsr$lower99_8cl[phe_dsr$total_count       < 10] <- NA
         phe_dsr <- phe_dsr %>%
           mutate(across(c("value", "upper95_0cl", "lower95_0cl",
                           "upper99_8cl", "lower99_8cl"),
@@ -171,7 +166,6 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
                  statistic = if_else(.data$total_count < 10,
                                      "dsr NA for total count < 10",
                                      .data$statistic))
-        # phe_dsr$statistic[phe_dsr$total_count         < 10] <- "dsr NA for total count < 10"
 
 
         # drop fields not required based on value of type argument
@@ -222,10 +216,12 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
                    method = "Dobson")
 
         # remove DSR calculation for total counts < 10
-        phe_dsr$value[phe_dsr$total_count            < 10] <- NA
-        phe_dsr$uppercl[phe_dsr$total_count          < 10] <- NA
-        phe_dsr$lowercl[phe_dsr$total_count          < 10] <- NA
-        phe_dsr$statistic[phe_dsr$total_count        < 10] <- "dsr NA for total count < 10"
+        phe_dsr <- phe_dsr %>%
+          mutate(across(c("value", "uppercl", "lowercl"),
+                        function(x) if_else(.data$total_count < 10, NA_real_, x)),
+                 statistic = if_else(.data$total_count < 10,
+                                     "dsr NA for total count < 10",
+                                     .data$statistic))
 
         # drop fields not required based on value of type argument
         if (type == "lower") {
