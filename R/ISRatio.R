@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' Calculate Standardised Mortality Ratios using calculate_ISRatio
+#' Calculate Indirectly standardised ratios using calculate_ISRatio
 #'
 #' Calculates standard mortality ratios (or indirectly standardised ratios) with
 #' confidence limits using Byar's (1) or exact (2) CI method.
