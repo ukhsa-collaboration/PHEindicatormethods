@@ -138,51 +138,52 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
 
         # calculate DSR and CIs
         phe_dsr <- data %>%
-            mutate(wt_rate = na.zero({{ x }}) *  stdpop_calc / ({{ n }}),
-                   sq_rate = na.zero({{ x }}) * (stdpop_calc / ({{ n }}))^2, na.rm=TRUE) %>%
-            summarise(total_count = sum({{ x }},na.rm=TRUE),
+            mutate(wt_rate = na.zero({{ x }}) *  .data$stdpop_calc / ({{ n }}),
+                   sq_rate = na.zero({{ x }}) * (.data$stdpop_calc / ({{ n }}))^2, na.rm=TRUE) %>%
+            summarise(total_count = sum({{ x }}, na.rm=TRUE),
                       total_pop = sum({{ n }}),
-                      value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
-                      vardsr = 1/sum(stdpop_calc)^2 * sum(sq_rate),
-                      lower95_0cl = value + sqrt((vardsr/sum({{ x }}, na.rm=TRUE)))*
+                      value = sum(.data$wt_rate) / sum(.data$stdpop_calc) * multiplier,
+                      vardsr = 1/sum(.data$stdpop_calc)^2 * sum(.data$sq_rate),
+                      lower95_0cl = .data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
                           (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-                      upper95_0cl = value + sqrt((vardsr/sum({{ x }}, na.rm=TRUE)))*
+                      upper95_0cl = .data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
                           (byars_upper(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-                      lower99_8cl = value + sqrt((vardsr/sum({{ x }}, na.rm=TRUE)))*
+                      lower99_8cl = .data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
                           (byars_lower(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-                      upper99_8cl = value + sqrt((vardsr/sum({{ x }}, na.rm=TRUE)))*
+                      upper99_8cl = .data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
                           (byars_upper(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier,
                       .groups = "keep") %>%
-            select(-vardsr) %>%
+            select(!c("vardsr")) %>%
             mutate(confidence = "95%, 99.8%",
                    statistic = paste("dsr per",format(multiplier,scientific=F)),
                    method = "Dobson")
 
         # remove DSR calculation for total counts < 10
-        phe_dsr$value[phe_dsr$total_count             < 10] <- NA
-        phe_dsr$upper95_0cl[phe_dsr$total_count       < 10] <- NA
-        phe_dsr$lower95_0cl[phe_dsr$total_count       < 10] <- NA
-        phe_dsr$upper99_8cl[phe_dsr$total_count       < 10] <- NA
-        phe_dsr$lower99_8cl[phe_dsr$total_count       < 10] <- NA
-        phe_dsr$statistic[phe_dsr$total_count         < 10] <- "dsr NA for total count < 10"
+        phe_dsr <- phe_dsr %>%
+          mutate(across(c("value", "upper95_0cl", "lower95_0cl",
+                          "upper99_8cl", "lower99_8cl"),
+                        function(x) if_else(.data$total_count < 10, NA_real_, x)),
+                 statistic = if_else(.data$total_count < 10,
+                                     "dsr NA for total count < 10",
+                                     .data$statistic))
 
 
         # drop fields not required based on value of type argument
         if (type == "lower") {
             phe_dsr <- phe_dsr %>%
-                select(-total_count, -total_pop, -value, -upper95_0cl, -upper99_8cl,
-                       -confidence, -statistic, -method)
+                select(!c("total_count", "total_pop", "value", "upper95_0cl", "upper99_8cl",
+                       "confidence", "statistic", "method"))
         } else if (type == "upper") {
             phe_dsr <- phe_dsr %>%
-                select(-total_count, -total_pop, -value, -lower95_0cl, -lower99_8cl,
-                       -confidence, -statistic, -method)
+                select(!c("total_count", "total_pop", "value", "lower95_0cl", "lower99_8cl",
+                       "confidence", "statistic", "method"))
         } else if (type == "value") {
             phe_dsr <- phe_dsr %>%
-                select(-total_count, -total_pop, -lower95_0cl, -lower99_8cl, -upper95_0cl, -upper99_8cl,
-                       -confidence, -statistic, -method)
+                select(!c("total_count", "total_pop", "lower95_0cl", "lower99_8cl", "upper95_0cl", "upper99_8cl",
+                       "confidence", "statistic", "method"))
         } else if (type == "standard") {
             phe_dsr <- phe_dsr %>%
-                select(-confidence, -statistic, -method)
+                select(!c("confidence", "statistic", "method"))
         }
 
     } else {
@@ -195,41 +196,46 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
 
         # calculate DSR with a single CI
         phe_dsr <- data %>%
-            mutate(wt_rate = na.zero({{ x }}) *  stdpop_calc / ({{ n }}),
-                   sq_rate = na.zero({{ x }}) * (stdpop_calc / ({{ n }}))^2, na.rm=TRUE) %>%
+            mutate(wt_rate = na.zero({{ x }}) *  .data$stdpop_calc / ({{ n }}),
+                   sq_rate = na.zero({{ x }}) * (.data$stdpop_calc / ({{ n }}))^2, na.rm=TRUE) %>%
             summarise(total_count = sum({{ x }},na.rm=TRUE),
                       total_pop = sum({{ n }}),
-                      value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
-                      vardsr = 1/sum(stdpop_calc)^2 * sum(sq_rate),
-                      lowercl = value + sqrt((vardsr/sum({{ x }},na.rm=TRUE)))*(byars_lower(sum({{ x }},na.rm=TRUE),
-                                        confidence)-sum({{ x }},na.rm=TRUE)) * multiplier,
-                      uppercl = value + sqrt((vardsr/sum({{ x }},na.rm=TRUE)))*(byars_upper(sum({{ x }},na.rm=TRUE),
-                                        confidence)-sum({{ x }},na.rm=TRUE)) * multiplier,
+                      value = sum(.data$wt_rate) / sum(.data$stdpop_calc) * multiplier,
+                      vardsr = 1/sum(.data$stdpop_calc)^2 * sum(.data$sq_rate),
+                      lowercl = .data$value +
+                        sqrt((.data$vardsr / sum({{ x }},na.rm=TRUE))) *
+                        (byars_lower(sum({{ x }},na.rm=TRUE),
+                                     confidence) - sum({{ x }},na.rm=TRUE)) * multiplier,
+                      uppercl = .data$value + sqrt((.data$vardsr / sum({{ x }}, na.rm=TRUE))) *
+                        (byars_upper(sum({{ x }},na.rm=TRUE),
+                                     confidence) - sum({{ x }},na.rm=TRUE)) * multiplier,
                       .groups = "keep") %>%
-            select(-vardsr) %>%
+            select(!c("vardsr")) %>%
             mutate(confidence = paste(confidence*100,"%",sep=""),
                    statistic = paste("dsr per",format(multiplier,scientific=F)),
                    method = "Dobson")
 
         # remove DSR calculation for total counts < 10
-        phe_dsr$value[phe_dsr$total_count            < 10] <- NA
-        phe_dsr$uppercl[phe_dsr$total_count          < 10] <- NA
-        phe_dsr$lowercl[phe_dsr$total_count          < 10] <- NA
-        phe_dsr$statistic[phe_dsr$total_count        < 10] <- "dsr NA for total count < 10"
+        phe_dsr <- phe_dsr %>%
+          mutate(across(c("value", "uppercl", "lowercl"),
+                        function(x) if_else(.data$total_count < 10, NA_real_, x)),
+                 statistic = if_else(.data$total_count < 10,
+                                     "dsr NA for total count < 10",
+                                     .data$statistic))
 
         # drop fields not required based on value of type argument
         if (type == "lower") {
          phe_dsr <- phe_dsr %>%
-            select(-total_count, -total_pop, -value, -uppercl, -confidence, -statistic, -method)
+            select(!c("total_count", "total_pop", "value", "uppercl", "confidence", "statistic", "method"))
         } else if (type == "upper") {
             phe_dsr <- phe_dsr %>%
-            select(-total_count, -total_pop, -value, -lowercl, -confidence, -statistic, -method)
+            select(!c("total_count", "total_pop", "value", "lowercl", "confidence", "statistic", "method"))
         } else if (type == "value") {
             phe_dsr <- phe_dsr %>%
-            select(-total_count, -total_pop, -lowercl, -uppercl, -confidence, -statistic, -method)
+            select(!c("total_count", "total_pop", "lowercl", "uppercl", "confidence", "statistic", "method"))
         } else if (type == "standard") {
             phe_dsr <- phe_dsr %>%
-            select(-confidence, -statistic, -method)
+            select(!c("confidence", "statistic", "method"))
         }
 
     }
