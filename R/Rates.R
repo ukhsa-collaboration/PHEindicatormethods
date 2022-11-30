@@ -15,6 +15,7 @@
 #'
 #' @import dplyr
 #' @importFrom rlang sym quo_name :=
+#' @importFrom stats qchisq
 #' @export
 #'
 #' @return When type = "full", returns the original data.frame with the
@@ -114,16 +115,16 @@ phe_rate <- function(data,x, n, type = "full", confidence = 0.95, multiplier = 1
         # generate output in required format
         if (type == "lower") {
             phe_rate <- phe_rate %>%
-                select(-value, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
+                select(!c("value", "upper95_0cl", "upper99_8cl", "confidence", "statistic", "method"))
         } else if (type == "upper") {
             phe_rate <- phe_rate %>%
-                select(-value, -lower95_0cl, -lower99_8cl, -confidence, -statistic, -method)
+                select(!c("value", "lower95_0cl", "lower99_8cl", "confidence", "statistic", "method"))
         } else if (type == "value") {
             phe_rate<- phe_rate %>%
-                select(-lower95_0cl, -upper95_0cl, -lower99_8cl, -upper99_8cl, -confidence, -statistic, -method)
+                select(!c("lower95_0cl", "upper95_0cl", "lower99_8cl", "upper99_8cl", "confidence", "statistic", "method"))
         } else if (type == "standard") {
             phe_rate <- phe_rate %>%
-                select( -confidence, -statistic, -method)
+                select(!c("confidence", "statistic", "method"))
         }
 
     } else {
@@ -149,16 +150,16 @@ phe_rate <- function(data,x, n, type = "full", confidence = 0.95, multiplier = 1
         # generate output in required format
         if (type == "lower") {
             phe_rate <- phe_rate %>%
-                select(-value, -uppercl, -confidence, -statistic, -method)
+                select(!c("value", "uppercl", "confidence", "statistic", "method"))
         } else if (type == "upper") {
             phe_rate <- phe_rate %>%
-                select(-value, -lowercl, -confidence, -statistic, -method)
+                select(!c("value", "lowercl", "confidence", "statistic", "method"))
         } else if (type == "value") {
             phe_rate<- phe_rate %>%
-                select(-lowercl, -uppercl, -confidence, -statistic, -method)
+                select(!c("lowercl", "uppercl", "confidence", "statistic", "method"))
         } else if (type == "standard") {
             phe_rate <- phe_rate %>%
-                select( -confidence, -statistic, -method)
+                select(!c("confidence", "statistic", "method"))
         }
 
     }

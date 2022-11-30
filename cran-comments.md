@@ -28,9 +28,10 @@ GitHub actions successfully ran R CMD Check on:
 * Windows-latest (release)
 * ubuntu-latest (release)
 * ubuntu-latest (devel)
-* ubuntu-latest (oldrel-1) 
+* ubuntu-latest (oldrel-1)
+* MacOS-latest (release) 
 
-GitHub actions failed to run R CMD CHECK on MacOS-latest (release) - the failure was not always reproduced as continuous integration ran on dev and main branches.  It references an inability to install package MASS because it requires R >= 4.3 but this appears to be a known bug which is documented at the following sites:
+GitHub actions has intermittently failed to run R CMD CHECK on MacOS-latest (release) - it passed on the latest development branch and I'm unable to predict if the error will re-occur when I push to main branch before submission to CRAN so am documenting herein case.  The error references an inability to install package MASS because it requires R >= 4.3 but this appears to be a known bug which is documented at the following sites:
 * https://github.com/r-lib/pak/issues/393  
 * https://community.rstudio.com/t/github-actions-failing-for-macos-cannot-install-packages/139574
 

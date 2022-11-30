@@ -1,3 +1,6 @@
+## PHEindicatormethods v1.4.2
+* updated for compatibility with tidyselect v1.2.0 and purrr releases due December 2022
+
 ## PHEindicatormethods v1.4.0
 
 * `calculate_funnel_limits()`, `assign_funnel_significance()` and `prepare_funnel_plot()` functions added. This provides ability to calculate funnel plot lines and significance for provided data in line with [Fingertips](https://fingertips.phe.org.uk/profile/guidance/supporting-information/PH-methods) published technical guidance.

@@ -157,9 +157,10 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   if (stripped_age_contents[1] != 0) stop("first age band in age_contents must be 0")
 
   # check age_contents is ascending
-  if (!identical(stripped_age_contents, sort(stripped_age_contents))) stop(paste("age_contents doesn't appear to be in ascending order; the following age bands appear out of position:",
-                                                                                 paste(age_contents[stripped_age_contents != sort(stripped_age_contents)],
-                                                                                       collapse = ", ")))
+  if (!identical(stripped_age_contents, sort(stripped_age_contents)))
+    stop(paste("age_contents doesn't appear to be in ascending order; the following age bands appear out of position:",
+               paste(age_contents[stripped_age_contents != sort(stripped_age_contents)],
+                     collapse = ", ")))
 
   # check on confidence limit requirements
   if (any(confidence < 0.9) | (any(confidence > 1) & any(confidence < 90)) | any(confidence > 100)) {
@@ -172,7 +173,8 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           unique() %>%
           sort()
 
-  if (!identical(as.character(age_bands), as.character(sort(age_contents)))) stop("the contents in the startage field do not match the contents of the age_contents vector")
+  if (!identical(as.character(age_bands), as.character(sort(age_contents))))
+    stop("the contents in the startage field do not match the contents of the age_contents vector")
 
   #calculate start age for each age band
   data <- data %>%
@@ -181,20 +183,21 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   # order the data by (group variables) and start age
   if (length(group_vars(data)) > 0) {
           data <- data %>%
-                  arrange(startage_2b_removed,
+                  arrange(.data$startage_2b_removed,
                           .by_group = TRUE)
 
           # preparation for later checks to prevent warnings around factors
           groupings <- group_vars(data)
 
           factor_vars <- lapply(data, is.factor) %>%
-            purrr::map_chr(c)
+            unlist()
 
-          grouping_factors <- intersect(groupings, names(factor_vars[factor_vars == "TRUE"]))
+          # identify which of the grouping variables are factors
+          grouping_factors <- intersect(groupings, names(factor_vars[factor_vars]))
 
   } else {
           data <- data %>%
-                  arrange(startage_2b_removed)
+                  arrange(.data$startage_2b_removed)
   }
 
   # check for negative deaths
@@ -202,16 +205,16 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   if (length(group_vars(data)) > 0) {
     negative_deaths <- negative_deaths %>%
       ungroup() %>%
-      mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
-      group_by_at(group_vars(data))
+      mutate(across(all_of(grouping_factors), as.character)) %>% #stops warning in cases where filters result in 0 records
+      group_by(across(all_of(group_vars(data))))
   }
 
   negative_deaths <- as_tibble(negative_deaths) %>%
-          group_by_at(group_vars(data)) %>%
+          group_by(across(all_of(group_vars(data)))) %>%
           filter({{ deaths }} < 0) %>%
           count() %>%
           filter(n != 0) %>%
-          select(-n)
+          select(!c("n"))
 
   if (nrow(negative_deaths) > 0) {
           warning("some age bands have negative deaths; outputs have been suppressed to NAs")
@@ -226,7 +229,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                     mutate(value = NA,
                            lowercl = NA,
                            uppercl = NA) %>%
-                    select(-startage_2b_removed)
+                    select(!c("startage_2b_removed"))
                   return(data)
           }
   }
@@ -236,12 +239,12 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   if (length(group_vars(data)) > 0) {
     negative_pops <- negative_pops %>%
       ungroup() %>%
-      mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
-      group_by_at(group_vars(data))
+      mutate(across(all_of(grouping_factors), as.character)) %>% #stops warning in cases where filters result in 0 records
+      group_by(across(all_of(group_vars(data))))
   }
 
   negative_pops <- as_tibble(negative_pops) %>%
-          group_by_at(group_vars(data)) %>%
+          group_by(across(all_of(group_vars(data)))) %>%
           filter({{ population }} <= 0) %>%
           count() %>%
           filter(n != 0) %>%
@@ -260,7 +263,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                     mutate(value = NA,
                            lowercl = NA,
                            uppercl = NA) %>%
-                    select(-startage_2b_removed)
+                    select(!c("startage_2b_removed"))
                   return(data)
           }
   }
@@ -268,17 +271,17 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   # check for all rows per group
   number_age_bands <- 20 #length(age_contents)
   incomplete_areas <- as_tibble(data) %>%
-    group_by_at(group_vars(data)) %>%
+    group_by(across(all_of(group_vars(data)))) %>%
     count()
   if (length(group_vars(data)) > 0) {
     incomplete_areas <- incomplete_areas %>%
       ungroup() %>%
-      mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
-      group_by_at(group_vars(data))
+      mutate(across(all_of(grouping_factors), as.character)) %>% #stops warning in cases where filters result in 0 records
+      group_by(across(all_of(group_vars(data))))
   }
   incomplete_areas <- incomplete_areas %>%
     filter(n != number_age_bands) %>%
-    select(-n)
+    select(!c("n"))
   if (nrow(incomplete_areas) > 0) {
           warning("some groups contain a different number of age bands than 20; life expectancy cannot be calculated for these. These groups will contain NAs.")
 
@@ -295,7 +298,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                     mutate(value = NA,
                            lowercl = NA,
                            uppercl = NA) %>%
-                    select(-startage_2b_removed)
+                    select(!c("startage_2b_removed"))
                   return(data)
           }
 
@@ -306,15 +309,15 @@ phe_life_expectancy <- function(data, deaths, population, startage,
   if (length(group_vars(data)) > 0) {
     deaths_more_than_pops <- deaths_more_than_pops %>%
       ungroup() %>%
-      mutate_at(vars(grouping_factors), as.character) %>% #stops warning in cases where filters result in 0 records
-      group_by_at(group_vars(data))
+      mutate(across(all_of(grouping_factors), as.character)) %>% #stops warning in cases where filters result in 0 records
+      group_by(across(all_of(group_vars(data))))
   }
   deaths_more_than_pops <- as_tibble(deaths_more_than_pops) %>%
-          group_by_at(group_vars(data)) %>%
+          group_by(across(all_of(group_vars(data)))) %>%
           filter({{ deaths }} >  {{ population }}) %>%
           count() %>%
           filter(n != 0) %>%
-          select(-n)
+          select(!c("n"))
 
   if (nrow(deaths_more_than_pops) > 0) {
           warning("some age bands have more deaths than population; outputs have been suppressed to NAs")
@@ -330,7 +333,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                     mutate(value = NA,
                            lowercl = NA,
                            uppercl = NA) %>%
-                    select(-startage_2b_removed)
+                    select(!c("startage_2b_removed"))
                   return(data)
           }
 
@@ -343,11 +346,11 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           summarise(total_pop = sum({{ population }}))
   if (length(group_vars(data)) > 0) {
     total_pops <- total_pops %>%
-      mutate_at(vars(grouping_factors), as.character) #stops warning in cases where filters result in 0 records
+     mutate(across(all_of(grouping_factors), as.character)) #stops warning in cases where filters result in 0 records
   }
   total_pops <- total_pops %>%
-          filter(total_pop <= 5000) %>%
-          select(-total_pop)
+          filter(.data$total_pop <= 5000) %>%
+          select(!c("total_pop"))
   if (nrow(total_pops) > 0) {
           warning("some groups have a total population of less than 5,000; outputs have been suppressed to NAs")
           if (length(group_vars(data)) > 0) {
@@ -362,7 +365,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                           mutate(value = NA,
                                  lowercl = NA,
                                  uppercl = NA) %>%
-                    select(-startage_2b_removed)
+                    select(!c("startage_2b_removed"))
                   return(data)
           }
 
@@ -375,7 +378,7 @@ phe_life_expectancy <- function(data, deaths, population, startage,
           unique()
   if (nrow(suppressed_data) > 0) {
     suppressed_data <- suppressed_data %>%
-      mutate_at(vars(grouping_factors), as.factor)
+     mutate(across(all_of(grouping_factors), as.factor))
 
   }
 
@@ -387,48 +390,50 @@ phe_life_expectancy <- function(data, deaths, population, startage,
     group_indices()
   data <- data %>%
     mutate(id_2b_removed = row_number(),
-           ni_2b_removed = as.numeric(lead(startage_2b_removed) - startage_2b_removed),
+           ni_2b_removed = as.numeric(lead(.data$startage_2b_removed) - .data$startage_2b_removed),
            ai_2b_removed = case_when(
-                   startage_2b_removed == 0 ~ 0.1,
-                   TRUE ~ 0.5),
+             .data$startage_2b_removed == 0 ~ 0.1,
+             TRUE ~ 0.5),
            M_2b_removed = {{ deaths }} / {{ population }},
            ni_2b_removed = case_when(
-             is.na(ni_2b_removed) ~ 2 / M_2b_removed,
-             TRUE ~ ni_2b_removed),
+             is.na(.data$ni_2b_removed) ~ 2 / .data$M_2b_removed,
+             TRUE ~ .data$ni_2b_removed),
            qi_2b_removed = case_when(
-             {{ deaths }} <= {{ population }} / ni_2b_removed / ai_2b_removed ~
-               M_2b_removed * ni_2b_removed / (1 + M_2b_removed * ni_2b_removed * (1 - ai_2b_removed)),
+             {{ deaths }} <= {{ population }} / .data$ni_2b_removed / .data$ai_2b_removed ~
+               .data$M_2b_removed * .data$ni_2b_removed / (1 + .data$M_2b_removed * .data$ni_2b_removed * (1 - .data$ai_2b_removed)),
              TRUE ~ 1),
-           p_2b_removed = 1 - qi_2b_removed,
+           p_2b_removed = 1 - .data$qi_2b_removed,
            l_2b_removed = case_when(
-             id_2b_removed == 1 ~ 1e5,
+             .data$id_2b_removed == 1 ~ 1e5,
              TRUE ~ 1),
-           p1_2b_removed = lag(p_2b_removed,
+           p1_2b_removed = lag(.data$p_2b_removed,
                                default = 1),
            l_2b_removed = case_when(
-             id_2b_removed != 1 ~ cumprod(l_2b_removed * p1_2b_removed),
-             TRUE ~ l_2b_removed),
-           di_2b_removed = l_2b_removed - lead(l_2b_removed, default = 0),
+             id_2b_removed != 1 ~ cumprod(.data$l_2b_removed * .data$p1_2b_removed),
+             TRUE ~ .data$l_2b_removed),
+           di_2b_removed = .data$l_2b_removed - lead(.data$l_2b_removed, default = 0),
            Li_2b_removed = case_when(
-             id_2b_removed < number_age_bands ~ ni_2b_removed * (lead(l_2b_removed) + (ai_2b_removed * di_2b_removed)),
+             .data$id_2b_removed < number_age_bands ~ .data$ni_2b_removed *
+               (lead(.data$l_2b_removed) + (.data$ai_2b_removed * .data$di_2b_removed)),
              TRUE ~ l_2b_removed / M_2b_removed),
-           Ti_2b_removed = rev(cumsum(rev(Li_2b_removed))),
+           Ti_2b_removed = rev(cumsum(rev(.data$Li_2b_removed))),
            ei = case_when(
-             l_2b_removed == 0 ~ 0,
-             TRUE ~ Ti_2b_removed / l_2b_removed),
+             .data$l_2b_removed == 0 ~ 0,
+             TRUE ~ .data$Ti_2b_removed / .data$l_2b_removed),
            spi_2b_removed = case_when(
-             di_2b_removed == 0 ~ 0,
-             TRUE ~ (qi_2b_removed ^ 2) * (1 - qi_2b_removed) / {{ deaths }}),
+             .data$di_2b_removed == 0 ~ 0,
+             TRUE ~ (.data$qi_2b_removed ^ 2) * (1 - .data$qi_2b_removed) / {{ deaths }}),
            spi_2b_removed = case_when(
-             id_2b_removed == number_age_bands ~ 4 / ({{ deaths }} * (M_2b_removed ^ 2)),
-             TRUE ~ spi_2b_removed),
+             .data$id_2b_removed == number_age_bands ~ 4 / ({{ deaths }} * (.data$M_2b_removed ^ 2)),
+             TRUE ~ .data$spi_2b_removed),
            W_spi_2b_removed = case_when(
-             id_2b_removed < number_age_bands ~ spi_2b_removed * (l_2b_removed ^ 2) * (((1 - ai_2b_removed) * ni_2b_removed + lead(ei)) ^ 2),
-             TRUE ~ ((l_2b_removed / 2) ^ 2) * spi_2b_removed),
-           STi_2b_removed = rev(cumsum(rev(W_spi_2b_removed))),
-           SeSE_2b_removed = sqrt(STi_2b_removed / (l_2b_removed ^ 2)),
+             .data$id_2b_removed < number_age_bands ~ .data$spi_2b_removed *
+               (.data$l_2b_removed ^ 2) * (((1 - .data$ai_2b_removed) * .data$ni_2b_removed + lead(ei)) ^ 2),
+             TRUE ~ ((.data$l_2b_removed / 2) ^ 2) * .data$spi_2b_removed),
+           STi_2b_removed = rev(cumsum(rev(.data$W_spi_2b_removed))),
+           SeSE_2b_removed = sqrt(.data$STi_2b_removed / (.data$l_2b_removed ^ 2)),
            ciover20_2b_removed = case_when(
-             qnorm(0.975) * SeSE_2b_removed > 10 ~ TRUE, TRUE ~ FALSE))
+             qnorm(0.975) * .data$SeSE_2b_removed > 10 ~ TRUE, TRUE ~ FALSE))
 
   lower_cls <- z %>%
     lapply(function(z, x, y) x - z * y, x = data$ei, y = data$SeSE_2b_removed)
@@ -456,34 +461,35 @@ phe_life_expectancy <- function(data, deaths, population, startage,
 
   data <- data %>%
     bind_cols(cls) %>%
-    rename(value = ei)
+    rename(value = "ei")
 
   data$value[data$value == Inf] <- NA
 
   # suppress LE values when 95% CI is wider than 20 years
   data <- data %>%
     mutate(value = case_when(
-      ciover20_2b_removed == TRUE ~ NA_real_, TRUE ~ value))
+      .data$ciover20_2b_removed == TRUE ~ NA_real_,
+      TRUE ~ .data$value))
 
   if (nrow(suppressed_data) > 0) data <- bind_rows(data, suppressed_data)
 
   # calculate cumulative pops and deaths used in each calc (sum for all startages >= startage)
   cumdata <- data %>%
-    arrange(desc(startage_2b_removed)) %>%
-    select(startage_2b_removed, {{population}}, {{deaths}}) %>%
-    mutate(pops_used = cumsum({{population}}),
-           dths_used = cumsum({{deaths}})) %>%
-    select(-{{population}}, -{{deaths}}) %>%
-    arrange(startage_2b_removed)
+    arrange(desc(.data$startage_2b_removed)) %>%
+    select("startage_2b_removed", {{ population }}, {{ deaths }}) %>%
+    mutate(pops_used = cumsum({{ population }}),
+           dths_used = cumsum({{ deaths }})) %>%
+    select(!c({{ population }}, {{ deaths }})) %>%
+    arrange(.data$startage_2b_removed)
 
   # join cumulative deaths and pops to data frame and drop original deaths and pops
   join_vars <- c(group_vars(data), "startage_2b_removed")
   data <- data %>%
     left_join(cumdata, by = join_vars) %>%
-    select(-{{population}}, -{{deaths}})
+    select(!c({{ population }}, {{ deaths }}))
 
   data <- data %>%
-    select(-ends_with("_2b_removed"))
+    select(!ends_with("_2b_removed"))
   if (length(le_age) == 1) {
           if (le_age != "all") {
                   if (sum(age_contents %in% le_age) == 0) {
@@ -509,14 +515,15 @@ phe_life_expectancy <- function(data, deaths, population, startage,
                          method = "Chiang, using Silcocks et al for confidence limits")
   } else {
           data <- data %>%
-            select(-pops_used, -dths_used)
+            select(!c("pops_used", "dths_used"))
   }
 
   # ensure output is a data frame with original group attributes
   grp_vars <- group_vars(data)
   data <- as.data.frame(data)
   if(length(grp_vars) > 0) {
-    data <- data %>% group_by_at(grp_vars)
+    data <- data %>%
+      group_by(across(all_of(grp_vars)))
   }
 
   return(data)

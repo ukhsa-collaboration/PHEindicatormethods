@@ -112,16 +112,16 @@ phe_proportion <- function(data, x, n, type="full", confidence=0.95, multiplier=
         # generate output in required format
         if (type == "lower") {
             phe_proportion <- phe_proportion %>%
-                select(-value, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
+                select(!c("value", "upper95_0cl", "upper99_8cl", "confidence", "statistic", "method"))
         } else if (type == "upper") {
             phe_proportion <- phe_proportion %>%
-                select(-value, -lower95_0cl, -lower99_8cl, -confidence, -statistic, -method)
+                select(!c("value", "lower95_0cl", "lower99_8cl", "confidence", "statistic", "method"))
         } else if (type == "value") {
             phe_proportion<- phe_proportion %>%
-                select(-lower95_0cl, -upper95_0cl, -lower99_8cl, -upper99_8cl, -confidence, -statistic, -method)
+                select(!c("lower95_0cl", "upper95_0cl", "lower99_8cl", "upper99_8cl", "confidence", "statistic", "method"))
         } else if (type == "standard") {
             phe_proportion <- phe_proportion %>%
-                select( -confidence, -statistic, -method)
+                select(!c("confidence", "statistic", "method"))
         }
 
 
@@ -147,16 +147,16 @@ phe_proportion <- function(data, x, n, type="full", confidence=0.95, multiplier=
         # generate output in required format
         if (type == "lower") {
             phe_proportion <- phe_proportion %>%
-                select(-value, -uppercl, -confidence, -statistic, -method)
+                select(!c("value", "uppercl", "confidence", "statistic", "method"))
         } else if (type == "upper") {
             phe_proportion <- phe_proportion %>%
-                select(-value, -lowercl, -confidence, -statistic, -method)
+                select(!c("value", "lowercl", "confidence", "statistic", "method"))
         } else if (type == "value") {
             phe_proportion<- phe_proportion %>%
-                select(-lowercl, -uppercl, -confidence, -statistic, -method)
+                select(!c("lowercl", "uppercl", "confidence", "statistic", "method"))
         } else if (type == "standard") {
             phe_proportion <- phe_proportion %>%
-                select( -confidence, -statistic, -method)
+                select(!c("confidence", "statistic", "method"))
         }
 
     }

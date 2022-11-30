@@ -618,6 +618,7 @@ poisson_funnel <- function(obs, p, side) {
 #' Function for funnel plots for rates and ratios
 #'
 #' @noRd
+#' @importFrom stats qchisq
 #'
 # ------------------------------------------------------------------------------
 

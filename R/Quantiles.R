@@ -93,7 +93,7 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
     }
 
     #check all invert values are identical within groups
-    if (!n_groups(data) == nrow(unique(select(data,invert_calc)))) {
+    if (!n_groups(data) == nrow(unique(select(data,"invert_calc")))) {
         stop("invert field values must take the same logical value for each data grouping set")
     }
 
@@ -101,25 +101,26 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
     # assign quantiles
     phe_quantile <- data %>%
         mutate(naflag = if_else(is.na({{ values }}),0,1)) %>%
-        add_count(name = "na_flag", wt = naflag) %>%
-        mutate(adj_value = if_else(invert_calc == TRUE, max({{ values }}, na.rm=TRUE)-{{ values }},{{ values }}),
-               rank      = rank(adj_value, ties.method="min", na.last = "keep"),
-               quantile  = floor((nquantiles+1)-ceiling(((na_flag+1)-rank)/(na_flag/nquantiles))),
-               quantile  = if_else(quantile == 0,1,quantile)) %>%
-        select(-naflag, -na_flag, -adj_value, -rank) %>%
+        add_count(name = "na_flag", wt = .data$naflag) %>%
+        mutate(adj_value = if_else(.data$invert_calc == TRUE, max({{ values }}, na.rm=TRUE)-{{ values }},{{ values }}),
+               rank      = rank(.data$adj_value, ties.method="min", na.last = "keep"),
+               quantile  = floor((nquantiles+1)-ceiling(((.data$na_flag+1)-rank)/(.data$na_flag/nquantiles))),
+               quantile  = if_else(.data$quantile == 0, 1, .data$quantile)) %>%
+        select(!c("naflag", "na_flag", "adj_value", "rank")) %>%
         mutate(nquantiles= nquantiles,
                groupvars = paste0(group_vars(data),collapse = ", "),
-               qinverted = if_else(invert_calc == TRUE,"lowest quantile represents highest values",
-                                                       "lowest quantile represents lowest values"))
+               qinverted = if_else(.data$invert_calc == TRUE,
+                                   "lowest quantile represents highest values",
+                                   "lowest quantile represents lowest values"))
 
 
     # remove columns if not required based on value of type argument
     if (type == "standard") {
         phe_quantile <- phe_quantile %>%
-                            select(-nquantiles, -groupvars, -qinverted, -invert_calc)
+                            select(!c("nquantiles", "groupvars", "qinverted", "invert_calc"))
     } else {
         phe_quantile <- phe_quantile %>%
-                            select(-invert_calc)
+                            select(!c("invert_calc"))
     }
 
 
