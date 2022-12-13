@@ -72,7 +72,11 @@
 # -------------------------------------------------------------------------------------------------
 
 
-calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
+data <- read.csv("R/isr_sheet.csv")
+
+
+
+calculate_ISRate <- function(data, x, n, x_ref, n_ref, poptype = "field", refpoptype = "vector",
                     type = "full", confidence = 0.95, multiplier = 100000) {
 
     # check required arguments present
@@ -84,6 +88,14 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
     # check same number of rows per group
     if (n_distinct(select(ungroup(count(data)),n)) != 1) {
         stop("data must contain the same number of rows for each group")
+    }
+
+    # check pops are valid
+    if (!(poptype %in% c("number","field"))) {
+      stop("valid values for poptype are vector and field")
+
+    } else if (refpoptype == "vector") {
+      print("hi")
     }
 
 
