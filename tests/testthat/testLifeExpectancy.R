@@ -310,10 +310,12 @@ test_that("LE - warnings are generated when invalid arguments are used",{
                "some groups have a total population of less than 5,000; outputs have been suppressed to NAs")
   expect_match(missing_warning,
                "some groups contain a different number of age bands than 20; life expectancy cannot be calculated for these\\. These groups will contain NAs\\.")
-  expect_match(wideci_warning[1],
-               "some age bands have more deaths than population; outputs have been suppressed to NAs")
-  expect_match(wideci_warning[2],
-               "some life expectancy values have a 95% confidence interval > 20 years; these values have been suppressed to NAs")
+  expect_match(wideci_warning,
+               "some age bands have more deaths than population; outputs have been suppressed to NAs",
+               all = FALSE)
+  expect_match(wideci_warning,
+               "some life expectancy values have a 95% confidence interval > 20 years; these values have been suppressed to NAs",
+               all = FALSE)
   expect_match(multi_warnings, "some age bands have negative deaths; outputs have been suppressed to NAs",
                all = FALSE)
   expect_match(multi_warnings, "some age bands have a zero or less population; outputs have been suppressed to NAs",
