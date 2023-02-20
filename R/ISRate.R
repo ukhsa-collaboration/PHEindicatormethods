@@ -74,34 +74,42 @@
 
 data <- read.csv("R/isr_sheet.csv")
 
+calculate_ISRate(data, obs, pop, refcount, refpop, refpoptype = 'field')
 
+#calculate_ISRate <- function(data, field/num, field/num, x_ref, n_ref, poptype = "field", refpoptype = "vector",
+#                             type = "full", confidence = 0.95, multiplier = 100000)
 
-calculate_ISRate <- function(data, x, n, x_ref, n_ref, poptype = "field", refpoptype = "vector",
-                    type = "full", confidence = 0.95, multiplier = 100000) {
+calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
+                    type = "full", confidence = 0.95, multiplier = 100000,
+                    x_lookup = NULL) {
 
     # check required arguments present
-    if (missing(data)|missing(x)|missing(n)|missing(x_ref)|missing(n_ref)) {
-        stop("function calculate_ISRate requires at least 5 arguments: data, x, n, x_ref and n_ref")
+    if (missing(x)|missing(n)|missing(x_ref)|missing(n_ref)) {
+        stop("function calculate_ISRate requires at least 4 arguments: data, x, n, x_ref and n_ref")
     }
 
 
-    # check same number of rows per group
-    if (n_distinct(select(ungroup(count(data)),n)) != 1) {
+    # check same number of rows per group - if data is used
+    if (!is.null(data)) {
+      if (n_distinct(select(ungroup(count(data)),n)) != 1) {
         stop("data must contain the same number of rows for each group")
+      }
     }
 
-    # check pops are valid
-    if (!(poptype %in% c("number","field"))) {
-      stop("valid values for poptype are vector and field")
-
-    } else if (refpoptype == "vector") {
-      print("hi")
+    # check x and n are in data/lookup
+    if (!is.null(x_lookup)) {
+      if (!(deparse(substitute(x)) %in% colnames(x_lookup))) {
+        stop("x_lookup is provided but x is not a field name in it")
+      }
+    } else {
+      if (!(deparse(substitute(x)) %in% colnames(data))) {
+        stop("x is not in data")
+      }
     }
-
 
     # check ref pops are valid and append to data
     if (!(refpoptype %in% c("vector","field"))) {
-        stop("valid values for refpoptype are vector and field")
+        stop("valid values for refpoptype are vector or field")
 
     } else if (refpoptype == "vector") {
         if (pull(slice(select(ungroup(count(data)),n),1)) != length(x_ref)) {
