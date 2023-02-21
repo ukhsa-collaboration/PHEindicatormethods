@@ -70,11 +70,38 @@
 #'
 #' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
+na.zero <- function (y) {
+  y[is.na(y)] <- 0
+  return(y)
+}
+## do people know they need to group their data?
+
+#data <- read.csv("R/isr_sheet.csv")
 
 
-data <- read.csv("R/isr_sheet.csv")
+library(dplyr)
+df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
+                 year = rep(2006:2010, each = 19 * 2),
+                 sex = rep(rep(c("Male", "Female"), each = 19), 5),
+                 ageband = rep(c(0,5,10,15,20,25,30,35,40,45,
+                                 50,55,60,65,70,75,80,85,90), times = 10),
+                 obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
+                 pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
 
-calculate_ISRate(data, obs, pop, refcount, refpop, refpoptype = 'field')
+refdf <- data.frame(refcount = sample(200, 19, replace = TRUE),
+                    refpop = sample(10000:20000, 19, replace = TRUE))
+
+df_group <- group_by(df, indicatorid, year, sex)
+
+calculate_ISRate(df_group, obs, pop, refdf$refcount, refdf$refpop, refpoptype = 'vector')
+
+
+x_lookup <- summarise(df_group, observed  = sum(obs, na.rm=TRUE), .groups = "keep")
+df_no_x <- select(df_group, -obs)
+calculate_ISRate(df_no_x, observed, pop, refdf$refcount, refdf$refpop, refpoptype = 'vector', x_lookup=x_lookup)
+
+
+
 
 #calculate_ISRate <- function(data, field/num, field/num, x_ref, n_ref, poptype = "field", refpoptype = "vector",
 #                             type = "full", confidence = 0.95, multiplier = 100000)
@@ -96,7 +123,7 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
       }
     }
 
-    # check x and n are in data/lookup
+    # check x is in data/lookup
     if (!is.null(x_lookup)) {
       if (!(deparse(substitute(x)) %in% colnames(x_lookup))) {
         stop("x_lookup is provided but x is not a field name in it")
@@ -106,6 +133,7 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         stop("x is not in data")
       }
     }
+
 
     # check ref pops are valid and append to data
     if (!(refpoptype %in% c("vector","field"))) {
@@ -128,6 +156,16 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
             } else stop("n_ref is not a field name from data")
         } else stop("x_ref is not a field name from data")
     }
+
+## if not grouped?
+  if (!is.null(x_lookup)) {
+    group_cols <- groups(data)
+    if (length(group_cols) > 0) {
+      if (!(group_cols %in% colnames(x_lookup))) {
+        stop("grouped columns in data are not in x_lookup")
+      }
+    }
+  }
 
 
     # validate arguments
@@ -156,13 +194,23 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         conf2 <- confidence[2]
 
         # calculate isr and CIs
-        ISRate <- data %>%
-        mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
-        summarise(observed  = sum({{ x }}, na.rm=TRUE),
-                  expected  = sum(exp_x),
-                  ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
-                  .groups = "keep") %>%
-        mutate(value     = observed / expected * ref_rate,
+        if (!is.null(x_lookup)) {
+          ISRate <- data %>%
+            mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
+            summarise(expected  = sum(exp_x),
+                      ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
+                      .groups = "keep") %>%
+            left_join(x_lookup, by=group_cols)
+        } else {
+          ISRate <- data %>%
+            mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
+            summarise(observed  = sum({{ x }}, na.rm=TRUE),
+                      expected  = sum(exp_x),
+                      ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
+                      .groups = "keep")
+        }
+        ISRate <- ISRate %>%
+          mutate(value     = observed / expected * ref_rate,
                lower95_0cl = if_else(observed<10, qchisq((1-conf1)/2,2*observed)/2/expected * ref_rate,
                                  byars_lower(observed,conf1)/expected * ref_rate),
                upper95_0cl = if_else(observed<10, qchisq(conf1+(1-conf1)/2,2*observed+2)/2/expected * ref_rate,
@@ -199,13 +247,23 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
 
 
         # calculate isr with a single CI
+      if (!is.null(x_lookup)) {
         ISRate <- data %>%
-            mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
-            summarise(observed  = sum({{ x }}, na.rm=TRUE),
-                      expected  = sum(exp_x),
-                      ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
-                      .groups = "keep") %>%
-            mutate(value     = observed / expected * ref_rate,
+          mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
+          summarise(expected  = sum(exp_x),
+                    ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
+                    .groups = "keep") %>%
+          left_join(x_lookup, by=group_cols)
+      } else {
+        ISRate <- data %>%
+          mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
+          summarise(observed  = sum({{ x }}, na.rm=TRUE),
+                    expected  = sum(exp_x),
+                    ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
+                    .groups = "keep")
+      }
+      ISRate <- ISRate %>%
+        mutate(value     = observed / expected * ref_rate,
                    lowercl = if_else(observed<10, qchisq((1-confidence)/2,2*observed)/2/expected * ref_rate,
                                      byars_lower(observed,confidence)/expected * ref_rate),
                    uppercl = if_else(observed<10, qchisq(confidence+(1-confidence)/2,2*observed+2)/2/expected * ref_rate,
