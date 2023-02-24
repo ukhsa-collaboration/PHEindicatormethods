@@ -2,7 +2,7 @@
 % Please edit documentation in R/ISRatio.R
 \name{calculate_ISRatio}
 \alias{calculate_ISRatio}
-\title{Calculate Standardised Mortality Ratios using calculate_ISRatio}
+\title{Calculate Indirectly standardised ratios using calculate_ISRatio}
 \usage{
 calculate_ISRatio(
   data,
