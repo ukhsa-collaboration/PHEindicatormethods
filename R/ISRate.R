@@ -70,37 +70,37 @@
 #'
 #' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
-na.zero <- function (y) {
-  y[is.na(y)] <- 0
-  return(y)
-}
+# na.zero <- function (y) {
+#   y[is.na(y)] <- 0
+#   return(y)
+# }
 ## do people know they need to group their data?
 
 #data <- read.csv("R/isr_sheet.csv")
 
 
-library(dplyr)
-df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
-                 year = rep(2006:2010, each = 19 * 2),
-                 sex = rep(rep(c("Male", "Female"), each = 19), 5),
-                 ageband = rep(c(0,5,10,15,20,25,30,35,40,45,
-                                 50,55,60,65,70,75,80,85,90), times = 10),
-                 obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
-                 pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
-
-refdf <- data.frame(refcount = sample(200, 19, replace = TRUE),
-                    refpop = sample(10000:20000, 19, replace = TRUE))
-
-df_group <- group_by(df, indicatorid, year, sex)
-
-calculate_ISRate(df_group, obs, pop, refdf$refcount, refdf$refpop, refpoptype = 'vector')
-
-
-x_lookup <- summarise(df_group, observed  = sum(obs, na.rm=TRUE), .groups = "keep")
-df_no_x <- select(df_group, -obs)
-calculate_ISRate(df_no_x, observed, pop, refdf$refcount, refdf$refpop, refpoptype = 'vector', x_lookup=x_lookup)
-
-
+# library(dplyr)
+# df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
+#                  year = rep(2006:2010, each = 19 * 2),
+#                  sex = rep(rep(c("Male", "Female"), each = 19), 5),
+#                  ageband = rep(c(0,5,10,15,20,25,30,35,40,45,
+#                                  50,55,60,65,70,75,80,85,90), times = 10),
+#                  obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
+#                  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
+#
+# refdf <- data.frame(refcount = sample(200, 19, replace = TRUE),
+#                     refpop = sample(10000:20000, 19, replace = TRUE))
+#
+# df_group <- group_by(df, indicatorid, year, sex)
+#
+# calculate_ISRate(df_group, obs, pop, refdf$refcount, refdf$refpop, refpoptype = 'vector')
+#
+#
+# x_lookup <- summarise(df_group, observed  = sum(obs, na.rm=TRUE), .groups = "keep")
+# df_no_x <- select(df_group, -obs)
+#
+# calculate_ISRate(df_no_x, observed, pop, refdf$refcount, refdf$refpop, refpoptype = 'vector',
+#                  x_lookup=x_lookup, lookup_cols = c("indicatorid", "year", "sex"))
 
 
 #calculate_ISRate <- function(data, field/num, field/num, x_ref, n_ref, poptype = "field", refpoptype = "vector",
@@ -108,7 +108,7 @@ calculate_ISRate(df_no_x, observed, pop, refdf$refcount, refdf$refpop, refpoptyp
 
 calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
                     type = "full", confidence = 0.95, multiplier = 100000,
-                    x_lookup = NULL) {
+                    x_lookup = NULL, lookup_cols = NULL) {
 
     # check required arguments present
     if (missing(x)|missing(n)|missing(x_ref)|missing(n_ref)) {
@@ -157,21 +157,11 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         } else stop("x_ref is not a field name from data")
     }
 
-## if not grouped?
-  if (!is.null(x_lookup)) {
-    group_cols <- groups(data)
-    if (length(group_cols) > 0) {
-      if (!(group_cols %in% colnames(x_lookup))) {
-        stop("grouped columns in data are not in x_lookup")
-      }
-    }
-  }
-
 
     # validate arguments
-    if (any(pull(data, {{ x }}) < 0, na.rm=TRUE)) {
-        stop("numerators must all be greater than or equal to zero")
-    } else if (any(pull(data, {{ n }}) < 0, na.rm=TRUE)) {
+    # if (any(pull(data, {{ x }}) < 0, na.rm=TRUE)) {
+    #     stop("numerators must all be greater than or equal to zero")
+    if (any(pull(data, {{ n }}) < 0, na.rm=TRUE)) {
         stop("denominators must all be greater than or equal to zero")
     } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
         stop("type must be one of value, lower, upper, standard or full")
@@ -200,7 +190,8 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
             summarise(expected  = sum(exp_x),
                       ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
                       .groups = "keep") %>%
-            left_join(x_lookup, by=group_cols)
+            left_join(x_lookup, by=lookup_cols) %>%
+            rename("observed" = {{ x }})
         } else {
           ISRate <- data %>%
             mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
@@ -253,7 +244,8 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
           summarise(expected  = sum(exp_x),
                     ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
                     .groups = "keep") %>%
-          left_join(x_lookup, by=group_cols)
+          left_join(x_lookup, by=lookup_cols) %>%
+          rename("observed" = {{ x }})
       } else {
         ISRate <- data %>%
           mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
