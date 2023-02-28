@@ -33,7 +33,6 @@ LazyData: true
 Imports: 
     broom,
     dplyr (>= 1.0.0),
-    lifecycle (>= 1.0.0),
     purrr,
     rlang (>= 0.4.0),
     stats,
