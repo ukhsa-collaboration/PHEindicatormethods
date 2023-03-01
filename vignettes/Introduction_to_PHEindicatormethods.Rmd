@@ -261,46 +261,38 @@ Here are some example code chunks to demonstrate the calculate_ISRatio function 
 
 ```{r Execute calculate_ISRatio}
 # calculate separate smrs for each area, year and sex
+# standardised against the all-year, all-sex, all-area reference data
 df_std %>%
     group_by(area, year, sex) %>%
     calculate_ISRatio(obs, pop, df_ref$obs, df_ref$pop)
 
 # calculate the same smrs by appending the reference data to the data frame
+# and drop metadata columns from output
 df_std %>%
     mutate(refobs = rep(df_ref$obs,40),
            refpop = rep(df_ref$pop,40)) %>%
     group_by(area, year, sex) %>%
-    calculate_ISRatio(obs, pop, refobs, refpop, refpoptype="field")
+    calculate_ISRatio(obs, pop, refobs, refpop, refpoptype="field",
+                      type = "standard")
 
-# calculate separate smrs for each year and drop metadata columns from output
-df_std %>%
-    group_by(year, ageband) %>%
-    summarise(obs = sum(obs),
-              pop = sum(pop),
-              .groups = "drop_last") %>%
-    calculate_ISRatio(obs, pop, df_ref$obs, df_ref$pop, type="standard")
 ```
 
 The calculate_ISRate function works exactly the same way but instead of expressing the result as a ratio of the observed and expected rates the result is expressed as a rate and the reference rate is also provided.  Here are some examples:
 
 ```{r Execute calculate_ISRate}
 # calculate separate indirectly standardised rates for each area, year and sex
+# standardised against the all-year, all-sex, all-area reference data
 df_std %>%
     group_by(area, year, sex) %>%
     calculate_ISRate(obs, pop, df_ref$obs, df_ref$pop)
 
 # calculate the same indirectly standardised rates by appending the reference data to the data frame
+# and drop metadata columns from output
 df_std %>%
     mutate(refobs = rep(df_ref$obs,40),
            refpop = rep(df_ref$pop,40)) %>%
     group_by(area, year, sex) %>%
-    calculate_ISRate(obs, pop, refobs, refpop, refpoptype="field")
+    calculate_ISRate(obs, pop, refobs, refpop, refpoptype="field",
+                     type = "standard")
 
-# calculate separate indirectly standardised rates for each year and drop metadata columns from output
-df_std %>%
-    group_by(year, ageband) %>%
-    summarise(obs = sum(obs),
-              pop = sum(pop),
-              .groups = "drop_last")  %>%
-    calculate_ISRate(obs, pop, df_ref$obs, df_ref$pop, type="standard")
 ```
