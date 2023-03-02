@@ -9,6 +9,10 @@
 #'          (the numerator for the proportion); unquoted string; no default
 #' @param n field name from data containing the number of cases in the sample (the denominator for the proportion);
 #'          unquoted string; no default
+#' @param confidence the required level of confidence expressed as a number
+#'   between 0.9 and 1 or a number between 90 and 100. The vector c(0.95, 0.998)
+#'   can also be passed to output both 95 percent and 99.8 percent CIs, or an NA
+#'   value can be passed if no confidence intervals are required.; numeric; default 0.95
 #' @param multiplier the multiplier used to express the final values (eg 100 = percentage); numeric; default 1
 #'
 #' @inheritParams phe_dsr
