@@ -21,9 +21,9 @@ can be "value", "lower", "upper", "standard" (for all data) or "full" (for
 all data and metadata); quoted string; default = "full"}
 
 \item{confidence}{the required level of confidence expressed as a number
-between 0.9 and 1 or a number between 90 and 100 or can be a vector of 0.95
-and 0.998, for example, to output both 95 percent and 99.8 percent percent CIs; numeric;
-default 0.95}
+between 0.9 and 1 or a number between 90 and 100. The vector c(0.95, 0.998)
+can also be passed to output both 95 percent and 99.8 percent CIs, or an NA
+value can be passed if no confidence intervals are required.; numeric; default 0.95}
 
 \item{multiplier}{the multiplier used to express the final values (eg 100 = percentage); numeric; default 1}
 }
@@ -35,8 +35,8 @@ proportion, lower confidence limit, upper confidence limit, confidence level, st
 Calculates proportions with confidence limits using Wilson Score method (1,2).
 }
 \section{Notes}{
- Wilson Score method (2) is applied using the \code{\link{wilson_lower}}
-and \code{\link{wilson_upper}} functions. \cr \cr
+ Wilson Score method (2) is applied using the internal wilson_lower
+and wilson_upper functions. \cr \cr
 The percentage argument was deprecated in v1_1_0, please use multiplier argument instead
 }
 
@@ -54,7 +54,7 @@ phe_proportion(df, numerator, denominator, confidence = c(0.95, 0.998))
 
 # grouped data frame
 library(dplyr)
-dfg <- df \%>\% group_by(area)
+dfg <- df |> group_by(area)
 phe_proportion(dfg, numerator, denominator, multiplier=100)
 
 
