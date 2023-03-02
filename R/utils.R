@@ -26,20 +26,23 @@ na.zero <- function (y) {
 #'
 #' @return Returns lower confidence limits for observed numbers of events using Byar's method (1)
 #'
-#' @section Notes: This is an internal package function that is appropriately called by exported
-#'  'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
-#'  \code{byars_lower} and \code{\link{byars_upper}} together return symmetric confidence
-#'  intervals around counts, therefore
-#'  for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the lower limit returned
-#'  will be above the true underlying value, is \eqn{\alpha}/2.
-#'  If the confidence level is very close to 1 or the number of events is very small
-#'  Byar's method is inaccurate and may return a negative number - in these cases an error is returned.
+#' @section Notes: This is an internal package function that is appropriately
+#'   called by exported 'phe_' prefixed functions within the PHEindicatormethods
+#'   package.  \cr \cr The internal byars_lower and byars_upper functions
+#'   together return symmetric confidence intervals around counts, therefore for
+#'   a specified confidence level, \eqn{\alpha}, the probability that, by
+#'   chance, the lower limit returned will be above the true underlying value,
+#'   is \eqn{\alpha}/2. If the confidence level is very close to 1 or the number
+#'   of events is very small Byar's method is inaccurate and may return a
+#'   negative number - in these cases an error is returned.
 #'
 #' @references
 #' (1) Breslow NE, Day NE. Statistical methods in cancer research,
 #'  volume II: The design and analysis of cohort studies. Lyon: International
 #'  Agency for Research on Cancer, World Health Organisation; 1987.
-#
+#'
+#' @noRd
+#'
 # -------------------------------------------------------------------------------------------------
 
 # create function to calculate Byar's lower CI limit
@@ -82,17 +85,20 @@ byars_lower <- function(x, confidence = 0.95) {
 #'
 #' @return Returns upper confidence limits for observed numbers of events using Byar's method (1)
 #'
-#' @section Notes: This is an internal package function that is appropriately called by exported
-#'  'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
-#'  \code{\link{byars_lower}} and \code{byars_upper} together return symmetric confidence
-#'  intervals around counts, therefore
-#'  for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the upper limit returned
-#'  will be below the true underlying value, is \eqn{\alpha}/2.
+#' @section Notes: This is an internal package function that is appropriately
+#'   called by exported 'phe_' prefixed functions within the PHEindicatormethods
+#'   package.  \cr \cr The internal byars_lower and byars_upper functions
+#'   together return symmetric confidence intervals around counts, therefore for
+#'   a specified confidence level, \eqn{\alpha}, the probability that, by
+#'   chance, the upper limit returned will be below the true underlying value,
+#'   is \eqn{\alpha}/2.
 #'
 #' @references
 #' (1) Breslow NE, Day NE. Statistical methods in cancer research,
 #'  volume II: The design and analysis of cohort studies. Lyon: International
 #'  Agency for Research on Cancer, World Health Organisation; 1987.
+#'
+#' @noRd
 #'
 # -------------------------------------------------------------------------------------------------
 
@@ -131,11 +137,13 @@ byars_upper <- function(x, confidence = 0.95) {
 #'
 #' @return Returns lower confidence limits for observed numbers of events using the Wilson Score method (1,2)
 #'
-#' @section Notes: This is an internal package function that is appropriately called by exported
-#'  'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
-#'  \code{wilson_lower} and \code{\link{wilson_upper}} together return symmetric confidence
-#'  intervals, therefore for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the lower limit returned
-#'  will be above the true underlying value, is \eqn{\alpha}/2.#'
+#' @section Notes: This is an internal package function that is appropriately
+#'   called by exported 'phe_' prefixed functions within the PHEindicatormethods
+#'   package.  \cr \cr The internal wilson_lower and wilson_upper functions
+#'   together return symmetric confidence intervals, therefore for a specified
+#'   confidence level, \eqn{\alpha}, the probability that, by chance, the lower
+#'   limit returned will be above the true underlying value, is
+#'   \eqn{\alpha}/2.#'
 #'
 #' @references
 #' (1) Wilson EB. Probable inference, the law of succession, and statistical
@@ -143,6 +151,8 @@ byars_upper <- function(x, confidence = 0.95) {
 #' (2) Newcombe RG, Altman DG. Proportions and their differences. In Altman
 #'  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
 #'  2000. Pg 46 to 48.
+#'
+#' @noRd
 #'
 # ------------------------------------------------------------------------------------------------
 
@@ -191,11 +201,13 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 #'
 #' @return Returns upper confidence limits for observed numbers of events using the Wilson Score method (1,2)
 #'
-#' @section Notes: This is an internal package function that is appropriately called by exported
-#'  'phe_' prefixed functions within the PHEindicatormethods package.  \cr \cr
-#'  \code{\link{wilson_lower}} and \code{wilson_upper} together return symmetric confidence
-#'  intervals, therefore for a specified confidence level, \eqn{\alpha}, the probability that, by chance, the upper limit returned
-#'  will be below the true underlying value, is \eqn{\alpha}/2.#'
+#' @section Notes: This is an internal package function that is appropriately
+#'   called by exported 'phe_' prefixed functions within the PHEindicatormethods
+#'   package.  \cr \cr The internal wilson_lower and wilson_upper functions
+#'   together return symmetric confidence intervals, therefore for a specified
+#'   confidence level, \eqn{\alpha}, the probability that, by chance, the upper
+#'   limit returned will be below the true underlying value, is
+#'   \eqn{\alpha}/2.#'
 #'
 #' @references
 #' (1) Wilson EB. Probable inference, the law of succession, and statistical
@@ -203,6 +215,8 @@ wilson_lower <- function(x, n, confidence = 0.95) {
 #' (2) Newcombe RG, Altman DG. Proportions and their differences. In Altman
 #'  DG et al. (eds). Statistics with confidence (2nd edn). London: BMJ Books;
 #'  2000. Pg 46 to 48.
+#'
+#' @noRd
 #'
 # ------------------------------------------------------------------------------------------------
 

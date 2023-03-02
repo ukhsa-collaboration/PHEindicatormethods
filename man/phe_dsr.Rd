@@ -60,7 +60,7 @@ method (1) with Dobson method adjustment (2).
  User MUST ensure that x, n and stdpop vectors are all ordered
 by the same standardisation category values as records will be matched by
 position. \cr \cr For total counts >= 10 Byar's method (1) is applied using
-the \code{\link{byars_lower}} and \code{\link{byars_upper}} functions.
+the internal byars_lower and byars_upper functions.
 When the total count is < 10 DSRs are not reliable and will therefore not
 be calculated.
 }
