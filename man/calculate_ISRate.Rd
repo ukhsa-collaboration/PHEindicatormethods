@@ -13,7 +13,9 @@ calculate_ISRate(
   refpoptype = "vector",
   type = "full",
   confidence = 0.95,
-  multiplier = 1e+05
+  multiplier = 1e+05,
+  x_lookup = NULL,
+  lookup_cols = NULL
 )
 }
 \arguments{
@@ -51,6 +53,12 @@ default 0.95}
 
 \item{multiplier}{the multiplier used to express the final values (eg 100,000
 = rate per 100,000); numeric; default 100,000}
+
+\item{x_lookup}{data.frame containing a lookup of summed observed events per
+demographic; default = NULL}
+
+\item{lookup_cols}{vector of the column names in both data and x_lookup to
+join on; default = NULL}
 }
 \value{
 When type = "full", returns a tibble of observed events, expected
@@ -98,6 +106,18 @@ df \%>\%
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
     calculate_ISRate(obs, pop, refdf$refcount, refdf$refpop, confidence = c(0.95, 0.998))
+
+## Calculate ISR using df group
+x_lookup <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 10),
+                       year = rep(rep(2006:2010, each = 2),4),
+                       sex = rep(rep(c("Male", "Female"), each = 1),20),
+                       observed = sample(1500:2500, 40))
+
+df \%>\%
+    group_by(indicatorid, year, sex) \%>\%
+    calculate_ISRate(observed, pop, refdf$refcount, refdf$refpop,
+    x_lookup = x_lookup, lookup_cols = c("indicatorid", "year", "sex"))
+
 
 }
 \references{
