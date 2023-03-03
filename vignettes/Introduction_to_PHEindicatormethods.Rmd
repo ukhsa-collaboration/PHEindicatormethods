@@ -236,9 +236,9 @@ The reference data can either be provided in a separate data frame/vectors or as
 
 * reference data provided as a data frame or as vectors - the data frame/vectors and the input data frame must both contain rows for the same standardisation categories, and both must be sorted, within each grouping set, by these standardisation categories in the same order.  
 
-* reference data provided as columns within the input data frame - the reference numerators and denominators can be appended to the input data frame prior to execution of the function - if the data is grouped to generate multiple smrs/isrs then the reference data will need to be repeated and appended to the data rows for every grouping set. 
+* reference data provided as columns within the input data frame - the reference numerators and denominators can be appended to the input data frame prior to execution of the function - if the data is grouped to generate multiple indirectly standardised rates or ratios then the reference data will need to be repeated and appended to the data rows for every grouping set. 
 
-**OUTPUT:** By default, the functions output one row per grouping set containing the grouping variable values, the observed and expected counts, the reference rate (isr only), the smr or isr, the lower 95% confidence limit, and the upper 95% confidence limit, the confidence level, the statistic name and the method.
+**OUTPUT:** By default, the functions output one row per grouping set containing the grouping variable values, the observed and expected counts, the reference rate (ISRate only), the indirectly standardised rate or ratio, the lower 95% confidence limit, and the upper 95% confidence limit, the confidence level, the statistic name and the method.
 
 **OPTIONS:** If reference data are being provided as columns within the input data frame then the user must specify this as the function expects vectors by default.  The function also accepts additional arguments to specify the level of confidence, the multiplier and a reduced level of detail to be output.
 
@@ -261,46 +261,38 @@ Here are some example code chunks to demonstrate the calculate_ISRatio function 
 
 ```{r Execute calculate_ISRatio}
 # calculate separate smrs for each area, year and sex
+# standardised against the all-year, all-sex, all-area reference data
 df_std %>%
     group_by(area, year, sex) %>%
     calculate_ISRatio(obs, pop, df_ref$obs, df_ref$pop)
 
 # calculate the same smrs by appending the reference data to the data frame
+# and drop metadata columns from output
 df_std %>%
     mutate(refobs = rep(df_ref$obs,40),
            refpop = rep(df_ref$pop,40)) %>%
     group_by(area, year, sex) %>%
-    calculate_ISRatio(obs, pop, refobs, refpop, refpoptype="field")
+    calculate_ISRatio(obs, pop, refobs, refpop, refpoptype="field",
+                      type = "standard")
 
-# calculate separate smrs for each year and drop metadata columns from output
-df_std %>%
-    group_by(year, ageband) %>%
-    summarise(obs = sum(obs),
-              pop = sum(pop),
-              .groups = "drop_last") %>%
-    calculate_ISRatio(obs, pop, df_ref$obs, df_ref$pop, type="standard")
 ```
 
 The calculate_ISRate function works exactly the same way but instead of expressing the result as a ratio of the observed and expected rates the result is expressed as a rate and the reference rate is also provided.  Here are some examples:
 
 ```{r Execute calculate_ISRate}
-# calculate separate isrs for each area, year and sex
+# calculate separate indirectly standardised rates for each area, year and sex
+# standardised against the all-year, all-sex, all-area reference data
 df_std %>%
     group_by(area, year, sex) %>%
     calculate_ISRate(obs, pop, df_ref$obs, df_ref$pop)
 
-# calculate the same isrs by appending the reference data to the data frame
+# calculate the same indirectly standardised rates by appending the reference data to the data frame
+# and drop metadata columns from output
 df_std %>%
     mutate(refobs = rep(df_ref$obs,40),
            refpop = rep(df_ref$pop,40)) %>%
     group_by(area, year, sex) %>%
-    calculate_ISRate(obs, pop, refobs, refpop, refpoptype="field")
+    calculate_ISRate(obs, pop, refobs, refpop, refpoptype="field",
+                     type = "standard")
 
-# calculate separate isrs for each year and drop metadata columns from output
-df_std %>%
-    group_by(year, ageband) %>%
-    summarise(obs = sum(obs),
-              pop = sum(pop),
-              .groups = "drop_last")  %>%
-    calculate_ISRate(obs, pop, df_ref$obs, df_ref$pop, type="standard")
 ```

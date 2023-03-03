@@ -64,5 +64,5 @@ major.minor.patch
 In-development versions of this package will have a fourth component,
 the development version number, which will increment from 9000.
 
-See <https://r-pkgs.org/lifecycle.html#version> for further information
-on package versioning
+See <https://r-pkgs.org/lifecycle.html> for further information on
+package versioning

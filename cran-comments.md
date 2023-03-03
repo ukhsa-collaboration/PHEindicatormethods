@@ -1,25 +1,38 @@
-## CRAN submission of PHEindicatormethods package version 1.4.2
+## CRAN submission of PHEindicatormethods package version 2.0.0
+
+**package was recently archived on CRAN due to tests failing following breaking 
+changes in dplyr v1.1.0**
 
 
-## Updates
+## Updates in this release
 
-* Updated for compatibility with tidyselect v1.2.0 and purrr release due December 2022
+* Updated for compatibility with dplyr v1.1.0 and purrr v1.0.1 - this fixes 
+previous issues that caused CRAN checks to fail and lead to package being 
+archived on CRAN
+* Removed `phe_isr` and `phe_smr` functions previously soft-deprecated and 
+replaced by `calculate_ISRate` and `calculate_ISRatio` respectively
+* Added functionality to `phe_proportion` function
 
 
 ## R CMD check results on local installation
 
 There were no ERRORs, WARNINGS or NOTES on the following local installation:
-* Windows 10 install using R 4.2.1 and RStudio 2022.07.1 Build 554
+* Windows 10 install using R 4.2.1 and RStudio 2022.07.2 Build 576
 
 
 ## Other Test Environments 
 
-devtools::check_win_* on the following R versions gave no ERRORS OR WARNINGS.  There was 1 NOTE in R oldrelease about possibly misspelled words in the DESCRIPTION, but these spellings are all confirmed OK. There was 1 NOTE in R release about 3 possibly invalid DOIs but the note stated that the service was unavailable to check them (These have been checked manually and also are not critical to functionality of package). There were no NOTES in the devel release:  
-* release:    R version 4.2.2 (2022-10-31) 
-* oldrelease: R version 1.4.3 (2022-03-10)
-* devel:      R Under development (unstable) (2022-11-28 r83388 ucrt)  
+devtools::check_win_* on the following R versions gave no ERRORS OR WARNINGS.  
+All 3 versions showed 1 NOTE about possibly misspelled words in the DESCRIPTION 
+or possible invalid DOIs, but these have all been checked manually and confirmed 
+OK:  
+* release:    R version 4.2.2 (2022-10-31 ucrt) 
+* oldrelease: R version 4.1.3 (2022-03-10) 
+* devel:      R Under development (unstable) (2023-03-02 r83926 ucrt)
+
 
 GitHub actions successfully ran R CMD Check on:  
+
 * Windows-latest (release)
 * ubuntu-latest (release)
 * ubuntu-latest (devel)
@@ -34,11 +47,15 @@ rhub::check() has been run on the following platforms with status OK.
 * Debian Linux, R-devel, clang, ISO-8859-15 locale (debian-clang-devel)
 
 
-## CRAN Checks for existing package release version v1.4.1
+## CRAN Checks for existing package release version v1.4.2
 
-All checks have status OK.
+The package was removed from CRAN on 01/03/2023 due to test failures caused by 
+updates to dplyr in v 1.1.0 (fixed in this release).
 
 
 ## Downstream dependencies
 
-revdepcheck::revdep_check() showed no downstream dependencies on CRAN
+revdepcheck::revdep_check() has previously shown no downstream dependencies on 
+CRAN. Unable to run currently due to package being archived on CRAN - 
+re-instating the package can only be helpful if there are any new downstream 
+dependencies since the previous release.
