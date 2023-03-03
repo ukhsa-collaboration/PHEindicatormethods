@@ -1,7 +1,7 @@
 ## CRAN submission of PHEindicatormethods package version 2.0.0
 
-## package was recently archived on CRAN due to tests failing following breaking 
-changes in dplyr v1.1.0
+**package was recently archived on CRAN due to tests failing following breaking 
+changes in dplyr v1.1.0**
 
 
 ## Updates in this release
