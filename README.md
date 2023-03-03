@@ -2,7 +2,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 [![codecov](https://codecov.io/gh/publichealthengland/PHEindicatormethods/branch/master/graph/badge.svg?token=C8U9EMHMGW)](https://app.codecov.io/gh/publichealthengland/PHEindicatormethods)
-[![R-CMD-check](https://github.com/publichealthengland/PHEindicatormethods/workflows/R-CMD-check/badge.svg)](https://github.com/publichealthengland/PHEindicatormethods/actions)
+[![R-CMD-check](https://github.com/publichealthengland/PHEindicatormethods/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/publichealthengland/PHEindicatormethods/actions/workflows/R-CMD-check.yaml)
 
 # PHEindicatormethods
 
@@ -64,5 +64,5 @@ major.minor.patch
 In-development versions of this package will have a fourth component,
 the development version number, which will increment from 9000.
 
-See <https://r-pkgs.org/lifecycle.html#version> for further information
-on package versioning
+See <https://r-pkgs.org/lifecycle.html> for further information on
+package versioning

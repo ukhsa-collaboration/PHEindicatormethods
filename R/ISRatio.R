@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' Calculate Standardised Mortality Ratios using calculate_ISRatio
+#' Calculate Indirectly standardised ratios using calculate_ISRatio
 #'
 #' Calculates standard mortality ratios (or indirectly standardised ratios) with
 #' confidence limits using Byar's (1) or exact (2) CI method.
@@ -19,6 +19,7 @@
 #' @inheritParams phe_dsr
 #'
 #' @import dplyr
+#' @importFrom stats qchisq
 #' @export
 #'
 #' @return When type = "full", returns a tibble of observed events, expected
@@ -49,12 +50,14 @@
 #'     group_by(indicatorid, year, sex) %>%
 #'     calculate_ISRatio(obs, pop, refdf$refcount, refdf$refpop, confidence=99.8, refvalue=100)
 #'
-#' @section Notes: User MUST ensure that x, n, x_ref and n_ref vectors are all ordered by
-#' the same standardisation category values as records will be matched by position. \cr \cr
-#' For numerators >= 10 Byar's method (1) is applied using the \code{\link{byars_lower}}
-#'  and \code{\link{byars_upper}} functions.  For small
-#'  numerators Byar's method is less accurate and so an exact method (2) based
-#'  on the Poisson distribution is used.
+#' @section Notes: User MUST ensure that x, n, x_ref and n_ref vectors are all
+#'   ordered by the same standardisation category values as records will be
+#'   matched by position. \cr \cr For numerators >= 10 Byar's method (1) is
+#'   applied using the internal byars_lower and byars_upper functions.  For
+#'   small numerators Byar's method is less accurate and so an exact method (2)
+#'   based on the Poisson distribution is used. \cr  \cr This function directly
+#'   replaced phe_smr which was fully deprecated in package version 2.0.0 due to
+#'   ambiguous naming
 #'
 #' @references
 #' (1) Breslow NE, Day NE. Statistical methods in cancer research,
@@ -85,9 +88,9 @@ calculate_ISRatio <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         stop("valid values for refpoptype are vector and field")
 
     } else if (refpoptype == "vector") {
-      if (pull(slice(select(ungroup(count(data)),n),1)) != length(x_ref)) {
+      if (pull(slice(select(ungroup(count(data)),"n"),1)) != length(x_ref)) {
           stop("x_ref length must equal number of rows in each group within data")
-      } else if (pull(slice(select(ungroup(count(data)),n),1)) != length(n_ref)) {
+      } else if (pull(slice(select(ungroup(count(data)),"n"),1)) != length(n_ref)) {
           stop("n_ref length must equal number of rows in each group within data")
       }
       data <- mutate(data,xrefpop_calc = x_ref,
@@ -130,36 +133,36 @@ calculate_ISRatio <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
 
         # calculate isr and CIs
         ISRatio <- data %>%
-          mutate(exp_x = na.zero(xrefpop_calc) / nrefpop_calc * na.zero({{ n }})) %>%
+          mutate(exp_x = na.zero(.data$xrefpop_calc) / .data$nrefpop_calc * na.zero({{ n }})) %>%
           summarise(observed  = sum({{ x }}, na.rm = TRUE),
-                    expected  = sum(exp_x),
+                    expected  = sum(.data$exp_x),
                     .groups = "keep") %>%
-          mutate(value     = observed / expected * refvalue,
-                 lower95_0cl = if_else(observed < 10, qchisq((1-conf1)/2,2*observed)/2/expected * refvalue,
-                                   byars_lower(observed,conf1)/expected * refvalue),
-                 upper95_0cl = if_else(observed < 10, qchisq(conf1+(1-conf1)/2,2*observed+2)/2/expected * refvalue,
-                                   byars_upper(observed,conf1)/expected * refvalue),
-                 lower99_8cl = if_else(observed < 10, qchisq((1-conf2)/2,2*observed)/2/expected * refvalue,
-                                   byars_lower(observed,conf2)/expected * refvalue),
-                 upper99_8cl = if_else(observed < 10, qchisq(conf2+(1-conf2)/2,2*observed+2)/2/expected * refvalue,
-                                   byars_upper(observed,conf2)/expected * refvalue),
+          mutate(value     = .data$observed / .data$expected * refvalue,
+                 lower95_0cl = if_else(.data$observed < 10, qchisq((1-conf1)/2,2*.data$observed)/2/.data$expected * refvalue,
+                                   byars_lower(.data$observed,conf1)/.data$expected * refvalue),
+                 upper95_0cl = if_else(.data$observed < 10, qchisq(conf1+(1-conf1)/2,2*.data$observed+2)/2/.data$expected * refvalue,
+                                   byars_upper(.data$observed,conf1)/.data$expected * refvalue),
+                 lower99_8cl = if_else(.data$observed < 10, qchisq((1-conf2)/2,2*.data$observed)/2/.data$expected * refvalue,
+                                   byars_lower(.data$observed,conf2)/.data$expected * refvalue),
+                 upper99_8cl = if_else(.data$observed < 10, qchisq(conf2+(1-conf2)/2,2*.data$observed+2)/2/.data$expected * refvalue,
+                                   byars_upper(.data$observed,conf2)/.data$expected * refvalue),
                  confidence = paste(conf1 * 100, "%, ", conf2 * 100, "%", sep=""),
                  statistic = paste("indirectly standardised ratio x ",format(refvalue, scientific=F), sep=""),
-                 method  = if_else(observed < 10, "Exact", "Byars"))
+                 method  = if_else(.data$observed < 10, "Exact", "Byars"))
 
         # drop fields not required based on type argument
         if (type == "lower") {
           ISRatio <- ISRatio %>%
-            select(-observed, -expected, -value, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
+            select(!c("observed", "expected", "value", "upper95_0cl", "upper99_8cl", "confidence", "statistic", "method"))
         } else if (type == "upper") {
           ISRatio <- ISRatio %>%
-            select(-observed, -expected, -value, -lower95_0cl, -lower99_8cl, -confidence, -statistic, -method)
+            select(!c("observed", "expected", "value", "lower95_0cl", "lower99_8cl", "confidence", "statistic", "method"))
         } else if (type == "value") {
           ISRatio <- ISRatio %>%
-            select(-observed, -expected, -lower95_0cl, -upper95_0cl, -lower99_8cl, -upper99_8cl, -confidence, -statistic, -method)
+            select(!c("observed", "expected", "lower95_0cl", "upper95_0cl", "lower99_8cl", "upper99_8cl", "confidence", "statistic", "method"))
         } else if (type == "standard") {
           ISRatio <- ISRatio %>%
-            select(-confidence, -statistic, -method)
+            select(!c("confidence", "statistic", "method"))
         }
 
     } else {
@@ -171,32 +174,32 @@ calculate_ISRatio <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
 
       # calculate ISR and a single CI
         ISRatio <- data %>%
-            mutate(exp_x = na.zero(xrefpop_calc) / nrefpop_calc * na.zero({{ n }})) %>%
+            mutate(exp_x = na.zero(.data$xrefpop_calc) / .data$nrefpop_calc * na.zero({{ n }})) %>%
             summarise(observed = sum({{ x }}, na.rm = TRUE),
-                  expected     = sum(exp_x),
+                  expected     = sum(.data$exp_x),
                   .groups = "keep") %>%
-            mutate(value      = observed / expected * refvalue,
-                   lowercl    = if_else(observed < 10, qchisq((1-confidence)/2,2*observed)/2/expected * refvalue,
-                                    byars_lower(observed,confidence)/expected * refvalue),
-                   uppercl    = if_else(observed < 10, qchisq(confidence+(1-confidence)/2,2*observed+2)/2/expected * refvalue,
-                                    byars_upper(observed,confidence)/expected * refvalue),
+            mutate(value      = .data$observed / .data$expected * refvalue,
+                   lowercl    = if_else(.data$observed < 10, qchisq((1-confidence)/2,2*.data$observed)/2/.data$expected * refvalue,
+                                    byars_lower(.data$observed,confidence)/.data$expected * refvalue),
+                   uppercl    = if_else(.data$observed < 10, qchisq(confidence+(1-confidence)/2,2*.data$observed+2)/2/.data$expected * refvalue,
+                                    byars_upper(.data$observed,confidence)/.data$expected * refvalue),
                    confidence = paste(confidence * 100, "%", sep=""),
                    statistic  = paste("indirectly standardised ratio x ",format(refvalue, scientific=F), sep=""),
-                   method     = if_else(observed < 10, "Exact", "Byars"))
+                   method     = if_else(.data$observed < 10, "Exact", "Byars"))
 
         # drop fields not required based on type argument
         if (type == "lower") {
           ISRatio <- ISRatio %>%
-            select(-observed, -expected, -value, -uppercl, -confidence, -statistic, -method)
+            select(!c("observed", "expected", "value", "uppercl", "confidence", "statistic", "method"))
         } else if (type == "upper") {
           ISRatio <- ISRatio %>%
-            select(-observed, -expected, -value, -lowercl, -confidence, -statistic, -method)
+            select(!c("observed", "expected", "value", "lowercl", "confidence", "statistic", "method"))
         } else if (type == "value") {
           ISRatio <- ISRatio %>%
-            select(-observed, -expected, -lowercl, -uppercl, -confidence, -statistic, -method)
+            select(!c("observed", "expected", "lowercl", "uppercl", "confidence", "statistic", "method"))
         } else if (type == "standard") {
           ISRatio <- ISRatio %>%
-            select(-confidence, -statistic, -method)
+            select(!c("confidence", "statistic", "method"))
         }
 
     }

@@ -83,6 +83,11 @@ test_that("proportions and CIs calculate correctly",{
                data.frame(confidence = rep("95%, 99.8%",8), stringsAsFactors = FALSE),
                check.attributes=FALSE, check.names=FALSE, info="test two CIs, metadata")
 
+  expect_equal(data.frame(phe_proportion(slice(test_Prop_g_results,1:8)[1:3], Numerator, Denominator,
+                                                confidence = NA)),
+               data.frame(select(slice(test_Prop_g_results_no_CI,1:8),1:4,8)),
+               check.attributes=FALSE, check.names=FALSE, info="test no CIs")
+
 })
 
 
@@ -118,17 +123,17 @@ test_that("proportions - errors are generated when invalid arguments are used",{
   expect_error(phe_proportion(data.frame(area=c("Area1","Area2","Area3"),
                                          obs =c(65,80,30),
                                          pop =c(100,100,100)), obs, pop, confidence = 0.8),
-               "confidence level must be between 90 and 100 or between 0.9 and 1", info="error conf < 0.9")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1", info="error conf < 0.9")
 
   expect_error(phe_proportion(data.frame(area=c("Area1","Area2","Area3"),
                                          obs =c(65,80,30),
                                          pop =c(100,100,100)), obs, pop, confidence = 50),
-               "confidence level must be between 90 and 100 or between 0.9 and 1", info="error conf between 1 and 90")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1", info="error conf between 1 and 90")
 
   expect_error(phe_proportion(data.frame(area=c("Area1","Area2","Area3"),
                                          obs =c(65,80,30),
                                          pop =c(100,100,100)), obs, pop, confidence = 130),
-               "confidence level must be between 90 and 100 or between 0.9 and 1", info="error conf >100")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1", info="error conf >100")
 
   expect_error(phe_proportion(data.frame(area=c("Area1","Area2","Area3"),
                                          obs =c(65,80,30),

@@ -115,6 +115,7 @@
 #' @importFrom purrr map
 #' @importFrom tidyr nest unnest spread
 #' @importFrom stats rnorm qnorm lm
+#' @importFrom tidyselect where
 #'
 #' @examples
 #' library(dplyr)
@@ -281,9 +282,11 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
             }
 
             # check for lower and upper CLs outside (0,1) range
-            if(rlang::quo_text(lower_cl) %in% names(data) & rlang::quo_text(upper_cl) %in% names(data)) {
+            if(rlang::quo_text(lower_cl) %in% names(data) &
+               rlang::quo_text(upper_cl) %in% names(data)) {
               invalid_prop_cl <- data %>%
-                filter({{ lower_cl }} < 0 | {{ lower_cl }} > 1 | {{ upper_cl }} < 0 | {{ upper_cl }} > 1)
+                filter({{ lower_cl }} < 0 | {{ lower_cl }} > 1 |
+                         {{ upper_cl }} < 0 | {{ upper_cl }} > 1)
 
               if (nrow(invalid_prop_cl) > 0) {
                 stop("confidence limit proportions are not all between 0 and 1")
@@ -291,7 +294,8 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
             }
 
             # check for zero or negative counts
-            if(!(rlang::quo_text(value) %in% names(data)) & rlang::quo_text(x) %in% names(data)) {
+            if(!(rlang::quo_text(value) %in% names(data)) &
+               rlang::quo_text(x) %in% names(data)) {
               negative_x <- data %>%
                 filter({{ x }} <= 0)
 
@@ -309,7 +313,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # Convert factors to character
         data <- data %>%
                  ungroup() %>%
-                 mutate_if(is.factor, as.character) %>%
+                 mutate(across(where(is.factor), as.character)) %>%
                  group_by(!!! syms(c(grouping_variables)))
 
         # Extract vector of quantiles and save the number to "no_quantiles"
@@ -329,7 +333,8 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         valid_complete <- data %>%
                              filter({{ population }} > 0,
                                     !is.na({{ se }}))
-        } else if (rlang::quo_text(lower_cl) %in% names(data) & rlang::quo_text(upper_cl) %in% names(data)) {
+        } else if (rlang::quo_text(lower_cl) %in% names(data) &
+                   rlang::quo_text(upper_cl) %in% names(data)) {
 
         valid_complete <- data %>%
                                 filter({{ population }} > 0,
@@ -371,12 +376,15 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
 
         # Transform value, lower and upper confidence limits if value is a rate or proportion
          pops_prep <- pops_prep %>%
-                mutate(value = ifelse(value_type == 1, log(value),
-                               ifelse(value_type == 2, log(value/(1-value)),
-                                      value)))
+                mutate(value = ifelse(value_type == 1,
+                                      log(.data$value),
+                               ifelse(value_type == 2,
+                                      log(.data$value / (1 - .data$value)),
+                                      .data$value)))
 
         # Transform lower and upper confidence limits in the case of a rate or proportion
-         if (rlang::quo_text(lower_cl) %in% names(pops_prep) & rlang::quo_text(upper_cl) %in% names(pops_prep)) {
+         if (rlang::quo_text(lower_cl) %in% names(pops_prep) &
+             rlang::quo_text(upper_cl) %in% names(pops_prep)) {
 
          pops_prep <- pops_prep %>%
                 mutate(lower_cl = ifelse(value_type == 0, {{ lower_cl }},
@@ -393,9 +401,11 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         z <- stats::qnorm(0.975) # hard-coded at 95% confidence
 
         if (rlang::quo_text(se) %in% names(pops_prep)) {
-                pops_prep <- mutate(pops_prep, se_calc = {{ se }})
+                pops_prep <- mutate(pops_prep,
+                                    se_calc = {{ se }})
         } else {
-                pops_prep <- mutate(pops_prep, se_calc = (upper_cl - lower_cl) / z / 2)
+                pops_prep <- mutate(pops_prep,
+                                    se_calc = (upper_cl - lower_cl) / z / 2)
         }
 
         # Calculate a and b vals
@@ -407,12 +417,13 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         # Calculate sqrt(a), bsqrt(a) and un-transformed y value for regression
         pops_prep_ab <- pops_prep_ab %>%
                 group_by(!!! syms(c(grouping_variables, rlang::quo_text(quantile)))) %>%
-                mutate(sqrt_a = sqrt(a_vals),
-                       b_sqrt_a = b_vals * sqrt_a,
-                       value_transform = ifelse(value_type == 1, exp(value),
-                                                ifelse(value_type == 2, exp(value)/(1+exp(value)),
-                                                       value)),
-                       yvals = sqrt_a * value_transform)
+                mutate(sqrt_a = sqrt(.data$a_vals),
+                       b_sqrt_a = .data$b_vals * .data$sqrt_a,
+                       value_transform = ifelse(value_type == 1, exp(.data$value),
+                                                ifelse(value_type == 2,
+                                                       exp(.data$value) / (1 + exp(.data$value)),
+                                                       .data$value)),
+                       yvals = .data$sqrt_a * .data$value_transform)
 
         # calculate confidence interval for SII via simulation
         # Repeat this 10 times to get a "variability" measure if requested
@@ -432,14 +443,14 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
             sim_CI <- pops_prep_ab %>%
                 tidyr::nest(data = everything()) %>%
                 mutate(CI_params = purrr::map(data, ~ SimulationFunc(data = .,
-                                                                     value,
+                                                                     .data$value,
                                                                      value_type,
-                                                                     se_calc,
+                                                                     .data$se_calc,
                                                                      repetitions,
                                                                      confidence,
                                                                      multiplier,
-                                                                     sqrt_a,
-                                                                     b_sqrt_a,
+                                                                     .data$sqrt_a,
+                                                                     .data$b_sqrt_a,
                                                                      rii,
                                                                      reliability_stat)))
         } else {
@@ -447,14 +458,14 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                 group_by(!!! syms(grouping_variables)) %>%
                 tidyr::nest() %>%
                 mutate(CI_params = purrr::map(data, ~ SimulationFunc(data = .,
-                                                                     value,
+                                                                     .data$value,
                                                                      value_type,
-                                                                     se_calc,
+                                                                     .data$se_calc,
                                                                      repetitions,
                                                                      confidence,
                                                                      multiplier,
-                                                                     sqrt_a,
-                                                                     b_sqrt_a,
+                                                                     .data$sqrt_a,
+                                                                     .data$b_sqrt_a,
                                                                      rii,
                                                                      reliability_stat)))
         }
@@ -463,28 +474,32 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
 
         # Unnest confidence limits and reliability measures in a data frame for joining
            sim_CI <- sim_CI %>%
-               select(-data) %>%
-               tidyr::unnest(CI_params)
+               select(!c("data")) %>%
+               tidyr::unnest("CI_params")
 
          # Perform regression to calculate SII and extract model parameters
 
         popsSII_model <- popsSII_model %>%
             # perform linear model
-            mutate(model = purrr::map(data, function(df) stats::lm(yvals ~ sqrt_a + b_sqrt_a - 1, data = df))) %>%
+            mutate(model = purrr::map(data, function(df)
+              stats::lm(yvals ~ sqrt_a + b_sqrt_a - 1, data = df))) %>%
             # extract model coefficients
-            mutate(model = purrr::map(model, broom::tidy)) %>%
-            tidyr::unnest(model) %>%
+            mutate(model = purrr::map(.data$model, broom::tidy)) %>%
+            tidyr::unnest("model") %>%
             # remove unecessary fields
-            select(-std.error, -statistic, -p.value) %>%
+            select(!c("std.error", "statistic", "p.value")) %>%
             # create columns for each parameter
-            tidyr::spread(key = term, value = estimate) %>%
+            tidyr::pivot_wider(names_from = "term",
+                               values_from = "estimate") %>%
             # Extract SII and RII values
-            mutate(sii = multiplier * b_sqrt_a,
-                   rii = (sqrt_a + b_sqrt_a)/sqrt_a) %>%
+            mutate(sii = multiplier * .data$b_sqrt_a,
+                   rii = (.data$sqrt_a + .data$b_sqrt_a)/.data$sqrt_a) %>%
             # Take inverse of RII if multiplier is negative
-            mutate(rii = ifelse(multiplier < 0, 1/rii, rii)) %>%
+            mutate(rii = ifelse(multiplier < 0,
+                                1/rii,
+                                rii)) %>%
             # Select fields to keep
-            select(grouping_variables, sii, rii)
+            select(all_of(grouping_variables), "sii", "rii")
 
 
                # join on dataset with confidence limits and reliability stats
@@ -510,7 +525,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
        # Remove RII columns (if not requested by user)
        if(rii == FALSE) {
            popsSII_model <- popsSII_model %>%
-               select(-contains("rii"))
+               select(!contains("rii"))
        }
 
        # Add metadata columns to output dataset (if requested by user)
@@ -519,9 +534,11 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
          popsSII_model  <- popsSII_model %>%
 
            mutate(indicator_type = ifelse(value_type == 0, "normal",
-                                          ifelse(value_type == 1, "rate", "proportion")),
+                                          ifelse(value_type == 1,
+                                                 "rate", "proportion")),
                   multiplier = multiplier,
-                  CI_confidence = paste0(confidence * 100, "%", collapse = ", "),
+                  CI_confidence = paste0(confidence * 100, "%",
+                                         collapse = ", "),
                   CI_method = paste0("simulation ", repetitions, " reps"))
 
        }

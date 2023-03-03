@@ -1,3 +1,12 @@
+## PHEindicatormethods v1.4.2.9000
+* GitHub repository moved to UKHSA - change bug report url and readme installation instructions.
+* `phe_smr` and `phe_isr` functions which were previously soft-deprecated have now been removed - see NEWS from release version 1.4.0 for replacements for these functions.
+* `phe_proportion` amended so option to request no confidence intervals is allowed.
+* `calculate_ISRate` updated so observed events can be passed as total without age breakdowns
+
+## PHEindicatormethods v1.4.2
+* updated for compatibility with tidyselect v1.2.0 and purrr releases due December 2022
+
 ## PHEindicatormethods v1.4.0
 
 * `calculate_funnel_limits()`, `assign_funnel_significance()` and `prepare_funnel_plot()` functions added. This provides ability to calculate funnel plot lines and significance for provided data in line with [Fingertips](https://fingertips.phe.org.uk/profile/guidance/supporting-information/PH-methods) published technical guidance.

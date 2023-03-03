@@ -15,14 +15,15 @@
 #'   data depending on value of refpoptype; no default
 #' @param refpoptype whether x_ref and n_ref have been specified as vectors or a
 #'   field name from data; quoted string "field" or "vector"; default = "vector"
-#' @param x_lookup data.frame containing a lookup of summed observed events per
-#' demographic; default = NULL
-#' @param lookup_cols vector of the column names in both data and x_lookup to
-#' join on; default = NULL
+#' @param observed_totals data.frame containing total observed events for each group,
+#'   if not provided in data with age-breakdowns; default = NULL
+#' @param obs_join_cols vector of the column names in both data and obs_totals to
+#' join on if observed events are provided as totals without age breakdowns; default = NULL
 #'
 #' @inheritParams phe_dsr
 #'
 #' @import dplyr
+#' @importFrom stats qchisq
 #' @export
 #'
 #' @return When type = "full", returns a tibble of observed events, expected
@@ -59,7 +60,7 @@
 #'     calculate_ISRate(obs, pop, refdf$refcount, refdf$refpop, confidence = c(0.95, 0.998))
 #'
 #' ## Calculate ISR using df group
-#' x_lookup <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 10),
+#' observed_totals <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 10),
 #'                        year = rep(rep(2006:2010, each = 2),4),
 #'                        sex = rep(rep(c("Male", "Female"), each = 1),20),
 #'                        observed = sample(1500:2500, 40))
@@ -67,15 +68,17 @@
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
 #'     calculate_ISRate(observed, pop, refdf$refcount, refdf$refpop,
-#'     x_lookup = x_lookup, lookup_cols = c("indicatorid", "year", "sex"))
+#'     observed_totals = observed_totals, lookup_cols = c("indicatorid", "year", "sex"))
 #'
 #'
 #' @section Notes: User MUST ensure that x, n, x_ref and n_ref vectors are all
 #'   ordered by the same standardisation category values as records will be
 #'   matched by position. \cr  \cr For numerators >= 10 Byar's method (1) is
-#'   applied using the \code{\link{byars_lower}} and \code{\link{byars_upper}}
-#'   functions.  For small numerators Byar's method is less accurate and so an
-#'   exact method (2) based on the Poisson distribution is used.
+#'   applied using the internal byars_lower and byars_upper functions.  For
+#'   small numerators Byar's method is less accurate and so an exact method (2)
+#'   based on the Poisson distribution is used. \cr  \cr This function directly
+#'   replaced phe_isr which was fully deprecated in package version 2.0.0 due to
+#'   ambiguous naming
 #'
 #' @references
 #' (1) Breslow NE, Day NE. Statistical methods in cancer research,
@@ -89,7 +92,7 @@
 
 calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
                     type = "full", confidence = 0.95, multiplier = 100000,
-                    x_lookup = NULL, lookup_cols = NULL) {
+                    observed_totals = NULL) { #, lookup_cols = NULL) {
 
     # check required arguments present
     if (missing(data)|missing(x)|missing(n)|missing(x_ref)|missing(n_ref)) {
@@ -105,9 +108,9 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
     }
 
     # check x is in data/lookup
-    if (!is.null(x_lookup)) {
-      if (!(deparse(substitute(x)) %in% colnames(x_lookup))) {
-        stop("x_lookup is provided but x is not a field name in it")
+    if (!is.null(observed_totals)) {
+      if (!(deparse(substitute(x)) %in% colnames(observed_totals))) {
+        stop("observed_totals is provided but x is not a field name in it")
       }
     } else {
       if (!(deparse(substitute(x)) %in% colnames(data))) {
@@ -115,20 +118,23 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
       }
     }
 
+    # Identify join columns if observed events provided as totals
+    lookup_cols <- base::intersect(colnames(data), colnames(observed_totals))
+
     # Check join cols
-    if (!is.null(x_lookup)) {
-      if (is.null(lookup_cols)) {
-        stop("x_lookup is provided but there are no lookup_cols")
-      } else {
-        for (col in lookup_cols) {
-          if (!(col %in% colnames(data))) {
-            stop("lookup_cols are not in data")
-        } else if (!(col %in% colnames(x_lookup))) {
-            stop("lookup_cols are not in x_lookup")
-          }
-        }
-      }
-    }
+    # if (!is.null(observed_totals)) {
+    #   if (is.null(lookup_cols)) {
+    #     stop("observed_totals is provided but there are no lookup_cols")
+    #   } else {
+    #     for (col in lookup_cols) {
+    #       if (!(col %in% colnames(data))) {
+    #         stop("lookup_cols are not in data")
+    #     } else if (!(col %in% colnames(observed_totals))) {
+    #         stop("lookup_cols are not in observed_totals")
+    #       }
+    #     }
+    #   }
+    # }
 
     # check ref pops are valid and append to data
     if (!(refpoptype %in% c("vector","field"))) {
@@ -154,7 +160,7 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
 
 
     # validate arguments
-    if (is.null(x_lookup)) {
+    if (is.null(observed_totals)) {
       if (any(pull(data, {{ x }}) < 0, na.rm=TRUE)) {
         stop("numerators must all be greater than or equal to zero")
       } else if (any(pull(data, {{ x }}) < 0, na.rm=TRUE)) {
@@ -187,50 +193,51 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         conf2 <- confidence[2]
 
         # calculate isr and CIs
-        if (!is.null(x_lookup)) {
+        if (!is.null(observed_totals)) {
           ISRate <- data %>%
-            mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
-            summarise(expected  = sum(exp_x),
-                      ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
+            mutate(exp_x = na.zero(.data$xrefpop_calc)/.data$nrefpop_calc * na.zero({{ n }})) %>%
+            summarise(expected  = sum(.data$exp_x),
+                      ref_rate = sum(.data$xrefpop_calc, na.rm=TRUE) / sum(.data$nrefpop_calc) * multiplier,
                       .groups = "keep") %>%
-            left_join(x_lookup, by=lookup_cols) %>%
+            left_join(observed_totals, by=lookup_cols) %>%
             rename("observed" = {{ x }}) %>%
             select("observed", "expected", "ref_rate")
         } else {
           ISRate <- data %>%
-            mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
+            mutate(exp_x = na.zero(.data$xrefpop_calc)/.data$nrefpop_calc * na.zero({{ n }})) %>%
             summarise(observed  = sum({{ x }}, na.rm=TRUE),
-                      expected  = sum(exp_x),
-                      ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
+                      expected  = sum(.data$exp_x),
+                      ref_rate = sum(.data$xrefpop_calc, na.rm=TRUE) / sum(.data$nrefpop_calc) * multiplier,
                       .groups = "keep")
         }
+
         ISRate <- ISRate %>%
-          mutate(value     = observed / expected * ref_rate,
-               lower95_0cl = if_else(observed<10, qchisq((1-conf1)/2,2*observed)/2/expected * ref_rate,
-                                 byars_lower(observed,conf1)/expected * ref_rate),
-               upper95_0cl = if_else(observed<10, qchisq(conf1+(1-conf1)/2,2*observed+2)/2/expected * ref_rate,
-                                 byars_upper(observed,conf1)/expected * ref_rate),
-               lower99_8cl = if_else(observed<10, qchisq((1-conf2)/2,2*observed)/2/expected * ref_rate,
-                                     byars_lower(observed,conf2)/expected * ref_rate),
-               upper99_8cl = if_else(observed<10, qchisq(conf2+(1-conf2)/2,2*observed+2)/2/expected * ref_rate,
-                                     byars_upper(observed,conf2)/expected * ref_rate),
+          mutate(value     = .data$observed / .data$expected * .data$ref_rate,
+               lower95_0cl = if_else(.data$observed<10, qchisq((1-conf1)/2,2*.data$observed)/2/.data$expected * .data$ref_rate,
+                                 byars_lower(.data$observed,conf1)/.data$expected * .data$ref_rate),
+               upper95_0cl = if_else(.data$observed<10, qchisq(conf1+(1-conf1)/2,2*.data$observed+2)/2/.data$expected * .data$ref_rate,
+                                 byars_upper(.data$observed,conf1)/.data$expected * .data$ref_rate),
+               lower99_8cl = if_else(.data$observed<10, qchisq((1-conf2)/2,2*.data$observed)/2/.data$expected * .data$ref_rate,
+                                     byars_lower(.data$observed,conf2)/.data$expected * .data$ref_rate),
+               upper99_8cl = if_else(.data$observed<10, qchisq(conf2+(1-conf2)/2,2*.data$observed+2)/2/.data$expected * .data$ref_rate,
+                                     byars_upper(.data$observed,conf2)/.data$expected * .data$ref_rate),
                confidence = "95%, 99.8%",
                statistic = paste("indirectly standardised rate per",format(multiplier,scientific=F)),
-               method  = if_else(observed<10,"Exact","Byars"))
+               method  = if_else(.data$observed<10,"Exact","Byars"))
 
         # drop fields not required based on value of type argument
         if (type == "lower") {
             ISRate <- ISRate %>%
-                select(-observed, -expected, -ref_rate, -value, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
+                select(!c("observed", "expected", "ref_rate", "value", "upper95_0cl", "upper99_8cl", "confidence", "statistic", "method"))
         } else if (type == "upper") {
             ISRate <- ISRate %>%
-                select(-observed, -expected, -ref_rate, -value, -lower95_0cl, -lower99_8cl, -confidence, -statistic, -method)
+                select(!c("observed", "expected", "ref_rate", "value", "lower95_0cl", "lower99_8cl", "confidence", "statistic", "method"))
         } else if (type == "value") {
             ISRate <- ISRate %>%
-                select(-observed, -expected, -ref_rate, -lower95_0cl, -lower99_8cl, -upper95_0cl, -upper99_8cl, -confidence, -statistic, -method)
+                select(!c("observed", "expected", "ref_rate", "lower95_0cl", "lower99_8cl", "upper95_0cl", "upper99_8cl", "confidence", "statistic", "method"))
         } else if (type == "standard") {
             ISRate <- ISRate %>%
-                select(-confidence, -statistic, -method)
+                select(!c("confidence", "statistic", "method"))
         }
 
     } else {
@@ -241,46 +248,46 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         }
 
         # calculate isr with a single CI
-      if (!is.null(x_lookup)) {
+      if (!is.null(observed_totals)) {
         ISRate <- data %>%
-          mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
-          summarise(expected  = sum(exp_x),
-                    ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
+          mutate(exp_x = na.zero(.data$xrefpop_calc)/.data$nrefpop_calc * na.zero({{ n }})) %>%
+          summarise(expected  = sum(.data$exp_x),
+                    ref_rate = sum(.data$xrefpop_calc, na.rm=TRUE) / sum(.data$nrefpop_calc) * multiplier,
                     .groups = "keep") %>%
-          left_join(x_lookup, by=lookup_cols) %>%
+          left_join(observed_totals, by=lookup_cols) %>%
           rename("observed" = {{ x }}) %>%
           select("observed", "expected", "ref_rate")
       } else {
         ISRate <- data %>%
-          mutate(exp_x = na.zero(xrefpop_calc)/nrefpop_calc * na.zero({{ n }})) %>%
+          mutate(exp_x = na.zero(.data$xrefpop_calc)/.data$nrefpop_calc * na.zero({{ n }})) %>%
           summarise(observed  = sum({{ x }}, na.rm=TRUE),
-                    expected  = sum(exp_x),
-                    ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
+                    expected  = sum(.data$exp_x),
+                    ref_rate = sum(.data$xrefpop_calc, na.rm=TRUE) / sum(.data$nrefpop_calc) * multiplier,
                     .groups = "keep")
       }
       ISRate <- ISRate %>%
-        mutate(value     = observed / expected * ref_rate,
-                   lowercl = if_else(observed<10, qchisq((1-confidence)/2,2*observed)/2/expected * ref_rate,
-                                     byars_lower(observed,confidence)/expected * ref_rate),
-                   uppercl = if_else(observed<10, qchisq(confidence+(1-confidence)/2,2*observed+2)/2/expected * ref_rate,
-                                     byars_upper(observed,confidence)/expected * ref_rate),
+        mutate(value     = .data$observed / .data$expected * .data$ref_rate,
+                   lowercl = if_else(.data$observed<10, qchisq((1-confidence)/2,2*.data$observed)/2/.data$expected * .data$ref_rate,
+                                     byars_lower(.data$observed,confidence)/.data$expected * .data$ref_rate),
+                   uppercl = if_else(.data$observed<10, qchisq(confidence+(1-confidence)/2,2*.data$observed+2)/2/expected * .data$ref_rate,
+                                     byars_upper(.data$observed,confidence)/.data$expected * .data$ref_rate),
                    confidence = paste(confidence*100,"%", sep=""),
                    statistic = paste("indirectly standardised rate per",format(multiplier,scientific=F)),
-                   method  = if_else(observed<10,"Exact","Byars"))
+                   method  = if_else(.data$observed<10,"Exact","Byars"))
 
         # drop fields not required based on value of type argument
         if (type == "lower") {
             ISRate <- ISRate %>%
-                select(-observed, -expected, -ref_rate, -value, -uppercl, -confidence, -statistic, -method)
+                select(!c("observed", "expected", "ref_rate", "value", "uppercl", "confidence", "statistic", "method"))
         } else if (type == "upper") {
             ISRate <- ISRate %>%
-                select(-observed, -expected, -ref_rate, -value, -lowercl, -confidence, -statistic, -method)
+                select(!c("observed", "expected", "ref_rate", "value", "lowercl", "confidence", "statistic", "method"))
         } else if (type == "value") {
             ISRate <- ISRate %>%
-                select(-observed, -expected, -ref_rate, -lowercl, -uppercl, -confidence, -statistic, -method)
+                select(!c("observed", "expected", "ref_rate", "lowercl", "uppercl", "confidence", "statistic", "method"))
         } else if (type == "standard") {
             ISRate <- ISRate %>%
-                select(-confidence, -statistic, -method)
+                select(!c("confidence", "statistic", "method"))
         }
 
     }

@@ -547,7 +547,7 @@ assign_funnel_significance <- function(data, numerator, denominator, rate,
         TRUE ~ "Not significant"
       )) %>%
       ungroup() %>%
-      select(-.data$denominator_derived)
+      select(!c("denominator_derived"))
     if (rate_type == "dsr") {
       significance <- significance %>%
         mutate(
