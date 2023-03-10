@@ -6,6 +6,9 @@
 #'
 #' @param data data.frame containing the data to be standardised, pre-grouped if
 #'   multiple ISRs required; unquoted string; no default
+#' @param x field name from data or observed_totals containing the observed
+#'   number of events for each standardisation category (eg ageband) within each
+#'   grouping set (eg area); unquoted string; no default
 #' @param x_ref the observed number of events in the reference population for
 #'   each standardisation category (eg age band); unquoted string referencing a
 #'   numeric vector or field name from data depending on value of refpoptype; no
@@ -15,10 +18,10 @@
 #'   data depending on value of refpoptype; no default
 #' @param refpoptype whether x_ref and n_ref have been specified as vectors or a
 #'   field name from data; quoted string "field" or "vector"; default = "vector"
-#' @param observed_totals data.frame containing total observed events for each group,
-#'   if not provided in data with age-breakdowns; default = NULL
-#' @param obs_join_cols vector of the column names in both data and obs_totals to
-#' join on if observed events are provided as totals without age breakdowns; default = NULL
+#' @param observed_totals data.frame containing total observed events for each
+#'   group, if not provided with age-breakdowns in data. Must only contain the
+#'   count field (x) plus columns required to join data using the same column
+#'   names; default = NULL
 #'
 #' @inheritParams phe_dsr
 #'
@@ -68,7 +71,7 @@
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
 #'     calculate_ISRate(observed, pop, refdf$refcount, refdf$refpop,
-#'     observed_totals = observed_totals, lookup_cols = c("indicatorid", "year", "sex"))
+#'     observed_totals = observed_totals)
 #'
 #'
 #' @section Notes: User MUST ensure that x, n, x_ref and n_ref vectors are all
@@ -92,7 +95,7 @@
 
 calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
                     type = "full", confidence = 0.95, multiplier = 100000,
-                    observed_totals = NULL) { #, lookup_cols = NULL) {
+                    observed_totals = NULL) {
 
     # check required arguments present
     if (missing(data)|missing(x)|missing(n)|missing(x_ref)|missing(n_ref)) {
@@ -107,7 +110,7 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
       }
     }
 
-    # check x is in data/lookup
+    # check x is in data/observed_totals
     if (!is.null(observed_totals)) {
       if (!(deparse(substitute(x)) %in% colnames(observed_totals))) {
         stop("observed_totals is provided but x is not a field name in it")
@@ -119,22 +122,10 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
     }
 
     # Identify join columns if observed events provided as totals
-    lookup_cols <- base::intersect(colnames(data), colnames(observed_totals))
-
-    # Check join cols
-    # if (!is.null(observed_totals)) {
-    #   if (is.null(lookup_cols)) {
-    #     stop("observed_totals is provided but there are no lookup_cols")
-    #   } else {
-    #     for (col in lookup_cols) {
-    #       if (!(col %in% colnames(data))) {
-    #         stop("lookup_cols are not in data")
-    #     } else if (!(col %in% colnames(observed_totals))) {
-    #         stop("lookup_cols are not in observed_totals")
-    #       }
-    #     }
-    #   }
-    # }
+    if (!is.null(observed_totals)) {
+      observed_total_join_cols <- base::intersect(colnames(data),
+                                                  colnames(observed_totals))
+    }
 
     # check ref pops are valid and append to data
     if (!(refpoptype %in% c("vector","field"))) {
@@ -195,20 +186,20 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         # calculate isr and CIs
         if (!is.null(observed_totals)) {
           ISRate <- data %>%
-            mutate(exp_x = na.zero(.data$xrefpop_calc)/.data$nrefpop_calc * na.zero({{ n }})) %>%
-            summarise(expected  = sum(.data$exp_x),
-                      ref_rate = sum(.data$xrefpop_calc, na.rm=TRUE) / sum(.data$nrefpop_calc) * multiplier,
-                      .groups = "keep") %>%
-            left_join(observed_totals, by=lookup_cols) %>%
+            mutate(exp_x = na.zero(.data$xrefpop_calc) / .data$nrefpop_calc * na.zero({{ n }})) %>%
+            summarise(expected = sum(.data$exp_x),
+                      ref_rate = sum(.data$xrefpop_calc, na.rm = TRUE) / sum(.data$nrefpop_calc) * multiplier,
+                      .groups  = "keep") %>%
+            left_join(observed_totals, by = observed_total_join_cols) %>%
             rename("observed" = {{ x }}) %>%
             select("observed", "expected", "ref_rate")
         } else {
           ISRate <- data %>%
             mutate(exp_x = na.zero(.data$xrefpop_calc)/.data$nrefpop_calc * na.zero({{ n }})) %>%
-            summarise(observed  = sum({{ x }}, na.rm=TRUE),
-                      expected  = sum(.data$exp_x),
+            summarise(observed = sum({{ x }}, na.rm=TRUE),
+                      expected = sum(.data$exp_x),
                       ref_rate = sum(.data$xrefpop_calc, na.rm=TRUE) / sum(.data$nrefpop_calc) * multiplier,
-                      .groups = "keep")
+                      .groups  = "keep")
         }
 
         ISRate <- ISRate %>%
@@ -251,10 +242,10 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
       if (!is.null(observed_totals)) {
         ISRate <- data %>%
           mutate(exp_x = na.zero(.data$xrefpop_calc)/.data$nrefpop_calc * na.zero({{ n }})) %>%
-          summarise(expected  = sum(.data$exp_x),
+          summarise(expected = sum(.data$exp_x),
                     ref_rate = sum(.data$xrefpop_calc, na.rm=TRUE) / sum(.data$nrefpop_calc) * multiplier,
                     .groups = "keep") %>%
-          left_join(observed_totals, by=lookup_cols) %>%
+          left_join(observed_totals, by=observed_total_join_cols) %>%
           rename("observed" = {{ x }}) %>%
           select("observed", "expected", "ref_rate")
       } else {
@@ -269,7 +260,7 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         mutate(value     = .data$observed / .data$expected * .data$ref_rate,
                    lowercl = if_else(.data$observed<10, qchisq((1-confidence)/2,2*.data$observed)/2/.data$expected * .data$ref_rate,
                                      byars_lower(.data$observed,confidence)/.data$expected * .data$ref_rate),
-                   uppercl = if_else(.data$observed<10, qchisq(confidence+(1-confidence)/2,2*.data$observed+2)/2/expected * .data$ref_rate,
+                   uppercl = if_else(.data$observed<10, qchisq(confidence+(1-confidence)/2,2*.data$observed+2)/2/.data$expected * .data$ref_rate,
                                      byars_upper(.data$observed,confidence)/.data$expected * .data$ref_rate),
                    confidence = paste(confidence*100,"%", sep=""),
                    statistic = paste("indirectly standardised rate per",format(multiplier,scientific=F)),

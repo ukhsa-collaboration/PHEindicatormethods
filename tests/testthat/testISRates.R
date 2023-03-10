@@ -7,9 +7,8 @@ test_that("isrates and CIs calculate correctly",{
                check.attributes=FALSE, check.names=FALSE,info="test default")
 
   expect_equal(data.frame(select(calculate_ISRate(select(test_ISR_ownref,-refcount,-refpop), total_count, pop,
-                                                  x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop,
-                                                  observed_totals = test_ISR_lookup, #lookup_cols = "area"
-                                                  ), 1:7,9:10)),
+                                   x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop,
+                                   observed_totals = test_ISR_lookup), 1:7,9:10)),
                data.frame(select(slice(test_ISR_results,1:3),1:7,10:11)),
                check.attributes=FALSE, check.names=FALSE,info="test default with observed_totals")
 
@@ -116,9 +115,6 @@ test_that("isrates - errors are generated when invalid arguments are used",{
   expect_error(calculate_ISRate(test_multiarea, count, pop),
                "function calculate_ISRate requires at least 5 arguments: data, x, n, x_ref and n_ref",info="error invalid number of arguments")
 
-  # expect_error(calculate_ISRate(test_ISR_ownref, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),
-  #              "numerators must all be greater than or equal to zero",info="error numerators < 0")
-
   expect_error(calculate_ISRate(test_err3, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),
                "denominators must all be greater than or equal to zero",info="error denominator < 0")
 
@@ -166,15 +162,6 @@ test_that("isrates - errors are generated when invalid arguments are used",{
                        n_ref = test_ISR_refdata$refpop, confidence = c(0.95, 0.98)),
                "two confidence levels can only be produced if they are specified as 0.95 and 0.998",
                info="error invalid number of arguments")
-
-  expect_error(calculate_ISRate(test_ISR_ownref, total_count, pop, x_ref = test_ISR_refdata$refcount,
-                                n_ref = test_ISR_refdata$refpop, observed_totals = test_ISR_lookup, lookup_cols="areas"),
-               "lookup_cols are not in data",info="wrong column names for data")
-
-  expect_error(calculate_ISRate(test_ISR_ownref, total_count, pop, x_ref = test_ISR_refdata$refcount,
-                                n_ref = test_ISR_refdata$refpop, observed_totals = test_ISR_lookup, lookup_cols="ageband"),
-               "lookup_cols are not in observed_totals",info="wrong column names for x lookup")
-
 
 })
 

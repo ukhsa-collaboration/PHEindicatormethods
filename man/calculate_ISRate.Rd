@@ -14,17 +14,16 @@ calculate_ISRate(
   type = "full",
   confidence = 0.95,
   multiplier = 1e+05,
-  x_lookup = NULL,
-  lookup_cols = NULL
+  observed_totals = NULL
 )
 }
 \arguments{
 \item{data}{data.frame containing the data to be standardised, pre-grouped if
 multiple ISRs required; unquoted string; no default}
 
-\item{x}{field name from data containing the observed number of events for
-each standardisation category (eg ageband) within each grouping set (eg
-area); unquoted string; no default}
+\item{x}{field name from data or observed_totals containing the observed
+number of events for each standardisation category (eg ageband) within each
+grouping set (eg area); unquoted string; no default}
 
 \item{n}{field name from data containing the populations for each
 standardisation category (eg ageband) within each grouping set (eg area);
@@ -54,11 +53,10 @@ default 0.95}
 \item{multiplier}{the multiplier used to express the final values (eg 100,000
 = rate per 100,000); numeric; default 100,000}
 
-\item{x_lookup}{data.frame containing a lookup of summed observed events per
-demographic; default = NULL}
-
-\item{lookup_cols}{vector of the column names in both data and x_lookup to
-join on; default = NULL}
+\item{observed_totals}{data.frame containing total observed events for each
+group, if not provided with age-breakdowns in data. Must only contain the
+count field (x) plus columns required to join data using the same column
+names; default = NULL}
 }
 \value{
 When type = "full", returns a tibble of observed events, expected
@@ -110,7 +108,7 @@ df \%>\%
     calculate_ISRate(obs, pop, refdf$refcount, refdf$refpop, confidence = c(0.95, 0.998))
 
 ## Calculate ISR using df group
-x_lookup <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 10),
+observed_totals <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 10),
                        year = rep(rep(2006:2010, each = 2),4),
                        sex = rep(rep(c("Male", "Female"), each = 1),20),
                        observed = sample(1500:2500, 40))
@@ -118,7 +116,7 @@ x_lookup <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 10
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
     calculate_ISRate(observed, pop, refdf$refcount, refdf$refpop,
-    x_lookup = x_lookup, lookup_cols = c("indicatorid", "year", "sex"))
+    observed_totals = observed_totals)
 
 
 }
