@@ -115,6 +115,9 @@ test_that("isrates - errors are generated when invalid arguments are used",{
   expect_error(calculate_ISRate(test_multiarea, count, pop),
                "function calculate_ISRate requires at least 5 arguments: data, x, n, x_ref and n_ref",info="error invalid number of arguments")
 
+  expect_error(calculate_ISRate(test_err1, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),
+               "numerators must all be greater than or equal to zero",info="error numerators < 0")
+
   expect_error(calculate_ISRate(test_err3, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),
                "denominators must all be greater than or equal to zero",info="error denominator < 0")
 

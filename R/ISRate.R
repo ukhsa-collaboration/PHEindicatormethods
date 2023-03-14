@@ -6,9 +6,11 @@
 #'
 #' @param data data.frame containing the data to be standardised, pre-grouped if
 #'   multiple ISRs required; unquoted string; no default
-#' @param x field name from data or observed_totals containing the observed
-#'   number of events for each standardisation category (eg ageband) within each
-#'   grouping set (eg area); unquoted string; no default
+#' @param x field name from data containing the observed number of events for
+#'   each standardisation category (eg ageband) within each grouping set (eg
+#'   area). Alternatively, if not providing age breakdowns for observed events,
+#'   field name from observed_totals containing the observed number of events
+#'   within each grouping set ; unquoted string; no default
 #' @param x_ref the observed number of events in the reference population for
 #'   each standardisation category (eg age band); unquoted string referencing a
 #'   numeric vector or field name from data depending on value of refpoptype; no
@@ -20,8 +22,8 @@
 #'   field name from data; quoted string "field" or "vector"; default = "vector"
 #' @param observed_totals data.frame containing total observed events for each
 #'   group, if not provided with age-breakdowns in data. Must only contain the
-#'   count field (x) plus columns required to join data using the same column
-#'   names; default = NULL
+#'   count field (x) plus grouping columns required to join to data using the
+#'   same grouping column names; default = NULL
 #'
 #' @inheritParams phe_dsr
 #'
@@ -62,7 +64,7 @@
 #'     group_by(indicatorid, year, sex) %>%
 #'     calculate_ISRate(obs, pop, refdf$refcount, refdf$refpop, confidence = c(0.95, 0.998))
 #'
-#' ## Calculate ISR using df group
+#' ## Calculate ISR when observed totals aren't available with age-breakdowns
 #' observed_totals <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 10),
 #'                        year = rep(rep(2006:2010, each = 2),4),
 #'                        sex = rep(rep(c("Male", "Female"), each = 1),20),
@@ -121,12 +123,6 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
       }
     }
 
-    # Identify join columns if observed events provided as totals
-    if (!is.null(observed_totals)) {
-      observed_total_join_cols <- base::intersect(colnames(data),
-                                                  colnames(observed_totals))
-    }
-
     # check ref pops are valid and append to data
     if (!(refpoptype %in% c("vector","field"))) {
         stop("valid values for refpoptype are vector and field")
@@ -154,7 +150,9 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
     if (is.null(observed_totals)) {
       if (any(pull(data, {{ x }}) < 0, na.rm=TRUE)) {
         stop("numerators must all be greater than or equal to zero")
-      } else if (any(pull(data, {{ x }}) < 0, na.rm=TRUE)) {
+      }
+    } else {
+      if (any(pull(observed_totals, {{ x }}) < 0, na.rm=TRUE)) {
         stop("numerators must all be greater than or equal to zero")
       }
     }
@@ -174,7 +172,11 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     }
 
-
+    # Identify join columns if observed events provided as totals
+    if (!is.null(observed_totals)) {
+      observed_total_join_cols <- base::intersect(colnames(data),
+                                                  colnames(observed_totals))
+    }
 
     # calculate the isr and populate metadata fields
     if (length(confidence) == 2) {
