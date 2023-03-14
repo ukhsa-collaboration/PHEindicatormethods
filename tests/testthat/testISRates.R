@@ -6,7 +6,7 @@ test_that("isrates and CIs calculate correctly",{
                data.frame(select(slice(test_ISR_results,1:3),1:7,10:11)),
                check.attributes=FALSE, check.names=FALSE,info="test default")
 
-  expect_equal(data.frame(select(calculate_ISRate(select(test_ISR_ownref,-refcount,-refpop), total_count, pop,
+  expect_equal(data.frame(select(calculate_ISRate(select(test_ISR_ownref,-count, -refcount,-refpop), total_count, pop,
                                    x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop,
                                    observed_totals = test_ISR_lookup), 1:7,9:10)),
                data.frame(select(slice(test_ISR_results,1:3),1:7,10:11)),
