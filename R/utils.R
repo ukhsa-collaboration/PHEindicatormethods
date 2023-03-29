@@ -337,6 +337,7 @@ SimulationFunc <- function(data,
                            sqrt_a,
                            b_sqrt_a,
                            rii = FALSE,
+                           transform = FALSE,
                            reliability_stat = FALSE) {
 
   # Use NSE on input fields - apply quotes
@@ -357,13 +358,13 @@ SimulationFunc <- function(data,
   yvals <- matrix(stats::rnorm(no_reps*length(pull(data, !!value)), pull(data, !!value), pull(data, !!se)), ncol = no_reps)
 
   # Retransform y values for rates (1) and proportions (2)
-  if (value_type == 1) {
+  if (value_type == 1 & transform == FALSE) {
     yvals_transformed <- exp(yvals)
-  } else if (value_type == 2){
+  } else if (value_type == 2 & transform == FALSE){
     yvals_transformed <- exp(yvals)/(1+exp(yvals))
   } else {
-    yvals_transformed <- yvals
-  }
+  yvals_transformed <- yvals
+   }
 
   # Combine explanatory variables sqrta and bsqrta into a matrix
   # (This is the transpose of matrix X in the regression formula)
@@ -395,25 +396,26 @@ SimulationFunc <- function(data,
   # RII only calculations
   if (rii == TRUE) {
 
-      # Calculate the RII
-      RII_results <- (params_bsqrta + params_sqrta)/params_sqrta
+    # Calculate the RII
+    RII_results <- (params_bsqrta + params_sqrta)/params_sqrta
 
-      # Split simulated SII/RIIs into 10 samples if reliability stats requested
-      if (reliability_stat == TRUE) {
-        SII_results <- matrix(params_bsqrta, ncol = 10)
-        RII_results <- matrix(RII_results, ncol = 10)
-      } else {
-        SII_results <- matrix(params_bsqrta, ncol = 1)
-        RII_results <- matrix(RII_results, ncol = 1)
-      }
+    # Split simulated SII/RIIs into 10 samples if reliability stats requested
+    if (reliability_stat == TRUE) {
+      SII_results <- matrix(params_bsqrta, ncol = 10)
+      RII_results <- matrix(RII_results, ncol = 10)
+    } else {
+      SII_results <- matrix(params_bsqrta, ncol = 1)
+      RII_results <- matrix(RII_results, ncol = 1)
+    }
 
-      # Apply multiplicative factor to RII
-      if(multiplier < 0) {
-        RII_results <- 1/RII_results
-      }
+    # Apply multiplicative factor to RII
+    # No longer required - CF change
+    # if(multiplier < 0) {
+    #   RII_results <- 1/RII_results
+    # }
 
-      # Order simulated RIIs from lowest to highest
-      sortresults_RII <- apply(RII_results, 2, sort, decreasing = FALSE)
+    # Order simulated RIIs from lowest to highest
+    sortresults_RII <- apply(RII_results, 2, sort, decreasing = FALSE)
 
   } else {
 
@@ -426,7 +428,8 @@ SimulationFunc <- function(data,
   }
 
   # Apply multiplicative factor to SII
-  SII_results <- multiplier * SII_results
+  # No longer required - CF change
+  # SII_results <- multiplier * SII_results
 
   # Order simulated SIIs from lowest to highest
   sortresults_SII <- apply(SII_results, 2, sort, decreasing = FALSE)
@@ -448,11 +451,11 @@ SimulationFunc <- function(data,
 
   # Define column names (adding in confidence level)
   names(SII_lower_cls) <- paste0("sii_lower",
-                             gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)),
-                             "cl")
+                                 gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)),
+                                 "cl")
   names(SII_upper_cls) <- paste0("sii_upper",
-                             gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)),
-                             "cl")
+                                 gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)),
+                                 "cl")
 
   # Combine lower and upper SII CLs
   SII_cls <- t(c(SII_lower_cls, SII_upper_cls))
@@ -511,7 +514,7 @@ SimulationFunc <- function(data,
       results <- cbind(SII_cls, RII_cls)
     }
 
-  # CASE 2 - Return SII stats only
+    # CASE 2 - Return SII stats only
   } else {
 
     if (reliability_stat == TRUE) {
@@ -520,15 +523,15 @@ SimulationFunc <- function(data,
       # limits in the additional 9 sample sets and the initial lower/upper limits
       SII_diffs <- apply(pos, 2, function(x) { # run function over each column of "pos" (i.e. for each confidence)
 
-                       diffs_sample_original <- t(apply(sortresults_SII[c(x[1], x[2]),], 1, function(y) abs(y - y[1])))
+        diffs_sample_original <- t(apply(sortresults_SII[c(x[1], x[2]),], 1, function(y) abs(y - y[1])))
 
-                       # Calculate mean absolute difference over all 18 differences
-                       sii_MAD <- mean(diffs_sample_original[, 2:10])
-                    })
+        # Calculate mean absolute difference over all 18 differences
+        sii_MAD <- mean(diffs_sample_original[, 2:10])
+      })
 
       # Define column names (adding in confidence level)
       names(SII_diffs) <- paste0("sii_mad",
-                                     gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)))
+                                 gsub("\\.", "_", formatC(confidence * 100, format = "f", digits = 1)))
 
       # Return SII confidence limits from first of the 10 samples, plus the
       # reliability measures
@@ -543,6 +546,8 @@ SimulationFunc <- function(data,
   return(data.frame(results))
 
 }
+
+
 
 
 # ------------------------------------------------------------------------------
