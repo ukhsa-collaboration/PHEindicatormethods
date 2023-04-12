@@ -1,3 +1,7 @@
+## PHEindicatormethods v2.0.0.9000
+* `phe_sii` amended to allow data to be transformed prior to calculation of the 
+SII, and to allow the intercept value to be output.
+
 ## PHEindicatormethods v2.0.0
 * `phe_smr` and `phe_isr` functions which were previously soft-deprecated have now been removed - see NEWS from release version 1.4.0 for replacements for these functions.
 * `phe_proportion` amended so option to request no confidence intervals is allowed.
