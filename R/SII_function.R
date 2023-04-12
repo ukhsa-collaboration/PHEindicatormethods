@@ -43,18 +43,23 @@
 #'
 #' @section Function arguments:
 #'
-#' The indicator type can be specified via the \code{value_type} parameter.
-#' Transformations can be applied to the indicator value and its confidence
-#' limits before calculating the standard error in cases where the confidence
-#' interval around the indicator value is likely to be non-symmetric. This is a
-#' log transformation for rates, and logit for proportions. If the standard
-#' error is supplied directly to the function from the input dataset, this is
-#' used instead of calculating one from the indicator confidence limits.
+#' The indicator type can be specified via the \code{value_type} parameter. It
+#' is recommended that rate and proportion indicators are transformed for
+#' calculation of the SII using the \code{transform} parameter set to TRUE. This
+#' will perform a log transformation for rates, and logit for proportions, and
+#' return outputs transformed back to the original units of the indicator.
+#' Where the \code{transform} parameter is set to FALSE transformations are
+#' applied to the indicator value and its confidence limits before calculating
+#' the standard error in cases where the confidence interval around the indicator
+#' value is likely to be non-symmetric. If the standard error is supplied directly
+#' to the function from the input dataset, this is used instead of calculating
+#' one from the indicator confidence limits.
 #'
 #' @section Warning:
 #'
 #' The SII calculation assumes a linear relationship between indicator value and
-#' quantile, and small populations within quantiles can make it unstable. This
+#' quantile. Where this is not the case the transform option should be considered.
+#' Small populations within quantiles can make the SII unstable. This
 #' function does not include checks for linearity or stability; it is the user's
 #' responsibility to ensure the input data is suitable for the SII calculation.
 #'
@@ -97,6 +102,10 @@
 #'        for example, to output both 95 percent and 99.8 percent CIs; numeric; default 0.95
 #' @param rii option to return the Relative Index of Inequality (RII) with associated confidence limits
 #'        as well as the SII; logical; default FALSE
+#' @param intercept option to return the intercept value of the regression line (y value where x=0);
+#'        logical; default FALSE
+#' @param transform option to transform input data prior to calculation of the SII, where there is not
+#'        a linear relationship between the indicator values and the quantile; logical; default FALSE
 #' @param reliability_stat option to carry out the SII confidence interval simulation 10 times instead
 #'        of once and return the Mean Average Difference between the first and subsequent samples (as a
 #'        measure of the amount of variation). Warning: this will significantly increase run time of the
