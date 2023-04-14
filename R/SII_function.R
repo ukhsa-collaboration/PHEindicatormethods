@@ -556,15 +556,25 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                 cbind(sim_CI)
             }
 
+            #adjust results according to multiplier and swap lower and upper CIs around if multiplier <0
+            if (multiplier < 0){
             popsSII_model <- popsSII_model %>%
-                mutate(sii_lower95_0cl2 = ifelse(multiplier < 0, multiplier * sii_upper95_0cl, multiplier * sii_lower95_0cl),
-                       sii_upper95_0cl = ifelse(multiplier < 0, multiplier * sii_lower95_0cl, multiplier * sii_upper95_0cl),
-                       rii_lower95_0cl2 = ifelse(multiplier < 0, 1/rii_upper95_0cl, rii_lower95_0cl),
-                       rii_upper95_0cl = ifelse(multiplier < 0, 1/rii_lower95_0cl, rii_upper95_0cl),
-                       sii_lower95_0cl = sii_lower95_0cl2,
-                       rii_lower95_0cl = rii_lower95_0cl2,
-                       intercept = intercept * abs(multiplier)) %>%
-                select(-sii_lower95_0cl2, -rii_lower95_0cl2)
+                             mutate(across(starts_with("sii_"), ~ .x * multiplier),
+                                    across(starts_with("rii_"), ~ 1/ .x),
+                                    intercept = intercept * abs(multiplier))
+
+            colnames(popsSII_model) <- gsub('upper', 'temp', colnames(popsSII_model))
+            colnames(popsSII_model) <- gsub('lower', 'upper', colnames(popsSII_model))
+            colnames(popsSII_model) <- gsub('temp', 'lower', colnames(popsSII_model))
+
+            popsSII_model <- popsSII_model %>%
+                            select(all_of(grouping_variables), sii, rii, matches("sii_lower"), matches("sii_upper"), matches("rii_lower"), matches("rii_upper"), everything())
+
+            } else {
+            popsSII_model <- popsSII_model %>%
+                             mutate(across(starts_with("sii_"), ~ .x * multiplier),
+                                    intercept = intercept * abs(multiplier))
+            }
 
             } else if (value_type == 1) { #anti-log needed
 

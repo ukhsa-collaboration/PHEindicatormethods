@@ -603,7 +603,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  repetitions = 1000,
                                  reliability_stat = TRUE,
                                  type = "full")),
-                     c(2,11))
+                     c(2,12))
 
         # check dimensions with default type = "full" WITHOUT reliability stats
         expect_equal(dim(phe_sii(SII_test_grouped[1:20, 3:13],
@@ -615,7 +615,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  repetitions = 1000,
                                  reliability_stat = FALSE,
                                  type = "full")),
-                     c(2,10))
+                     c(2,11))
 
 
         # Tests WITH RII
@@ -685,7 +685,7 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  rii = TRUE,
                                  reliability_stat = TRUE,
                                  type = "full")),
-                     c(2,15))
+                     c(2,16))
 
         # check dimensions with default type = "full" WITHOUT reliability stats
         expect_equal(dim(phe_sii(SII_test_grouped[1:20, 3:13],
@@ -698,6 +698,6 @@ test_that("dimensions are correct when reliaibility stats requested",{
                                  rii = TRUE,
                                  reliability_stat = FALSE,
                                  type = "full")),
-                     c(2,13))
+                     c(2,14))
 
 })
