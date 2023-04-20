@@ -1,17 +1,10 @@
-## CRAN submission of PHEindicatormethods package version 2.0.0
-
-**package was recently archived on CRAN due to tests failing following breaking 
-changes in dplyr v1.1.0**
-
+## CRAN submission of PHEindicatormethods package version 2.0.1
 
 ## Updates in this release
 
-* Updated for compatibility with dplyr v1.1.0 and purrr v1.0.1 - this fixes 
-previous issues that caused CRAN checks to fail and lead to package being 
-archived on CRAN
-* Removed `phe_isr` and `phe_smr` functions previously soft-deprecated and 
-replaced by `calculate_ISRate` and `calculate_ISRatio` respectively
-* Added functionality to `phe_proportion` function
+* Updated ISRate and ISRatio functions to offer greater flexibility of inputs
+* amended all GitHub url references for bug reporting and GitHub Action badges as 
+code hosting transferred from PublicHealthEngland to UKHSA
 
 
 ## R CMD check results on local installation

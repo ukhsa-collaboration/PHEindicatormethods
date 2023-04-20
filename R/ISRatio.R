@@ -99,11 +99,11 @@ calculate_ISRatio <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
   }
 
   # check same number of rows per group - if data is used ### NOT SURE WHY THIS IS ADDED?
-  if (!is.null(data)) {
+ # if (!is.null(data)) {
     if (n_distinct(select(ungroup(count(data)),n)) != 1) {
       stop("data must contain the same number of rows for each group")
     }
-  }
+#  }
 
   # check x is in data/observed_totals
   if (!is.null(observed_totals)) {
@@ -195,7 +195,7 @@ calculate_ISRatio <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         mutate(exp_x = na.zero(.data$xrefpop_calc) / .data$nrefpop_calc * na.zero({{ n }})) %>%
         summarise(observed  = sum({{ x }}, na.rm = TRUE),
                   expected  = sum(.data$exp_x),
-                  .groups = "keep")
+                  .groups   = "keep")
     }
 
     ISRatio <- ISRatio %>%
@@ -208,9 +208,9 @@ calculate_ISRatio <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
                                    byars_lower(.data$observed,conf2)/.data$expected * refvalue),
              upper99_8cl = if_else(.data$observed < 10, qchisq(conf2+(1-conf2)/2,2*.data$observed+2)/2/.data$expected * refvalue,
                                    byars_upper(.data$observed,conf2)/.data$expected * refvalue),
-             confidence = paste(conf1 * 100, "%, ", conf2 * 100, "%", sep=""),
-             statistic = paste("indirectly standardised ratio x ",format(refvalue, scientific=F), sep=""),
-             method  = if_else(.data$observed < 10, "Exact", "Byars"))
+             confidence  = paste(conf1 * 100, "%, ", conf2 * 100, "%", sep=""),
+             statistic   = paste("indirectly standardised ratio x ",format(refvalue, scientific=F), sep=""),
+             method      = if_else(.data$observed < 10, "Exact", "Byars"))
 
     # drop fields not required based on type argument
     if (type == "lower") {
@@ -247,8 +247,8 @@ calculate_ISRatio <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
       ISRatio <- data %>%
         mutate(exp_x = na.zero(.data$xrefpop_calc) / .data$nrefpop_calc * na.zero({{ n }})) %>%
         summarise(observed = sum({{ x }}, na.rm = TRUE),
-                  expected     = sum(.data$exp_x),
-                  .groups = "keep")
+                  expected = sum(.data$exp_x),
+                  .groups  = "keep")
     }
 
     ISRatio <- ISRatio %>%

@@ -106,11 +106,11 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
 
 
     # check same number of rows per group - if data is used
-    if (!is.null(data)) {
+ #   if (!is.null(data)) {
       if (n_distinct(select(ungroup(count(data)),n)) != 1) {
         stop("data must contain the same number of rows for each group")
       }
-    }
+  #  }
 
     # check x is in data/observed_totals
     if (!is.null(observed_totals)) {
@@ -214,9 +214,9 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
                                      byars_lower(.data$observed,conf2)/.data$expected * .data$ref_rate),
                upper99_8cl = if_else(.data$observed<10, qchisq(conf2+(1-conf2)/2,2*.data$observed+2)/2/.data$expected * .data$ref_rate,
                                      byars_upper(.data$observed,conf2)/.data$expected * .data$ref_rate),
-               confidence = "95%, 99.8%",
-               statistic = paste("indirectly standardised rate per",format(multiplier,scientific=F)),
-               method  = if_else(.data$observed<10,"Exact","Byars"))
+               confidence  = "95%, 99.8%",
+               statistic   = paste("indirectly standardised rate per",format(multiplier,scientific=F)),
+               method      = if_else(.data$observed<10,"Exact","Byars"))
 
         # drop fields not required based on value of type argument
         if (type == "lower") {
@@ -255,19 +255,18 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
           mutate(exp_x = na.zero(.data$xrefpop_calc)/.data$nrefpop_calc * na.zero({{ n }})) %>%
           summarise(observed  = sum({{ x }}, na.rm=TRUE),
                     expected  = sum(.data$exp_x),
-                    ref_rate = sum(.data$xrefpop_calc, na.rm=TRUE) / sum(.data$nrefpop_calc) * multiplier,
-                    .groups = "keep")
+                    ref_rate  = sum(.data$xrefpop_calc, na.rm=TRUE) / sum(.data$nrefpop_calc) * multiplier,
+                    .groups   = "keep")
       }
       ISRate <- ISRate %>%
-        mutate(value     = .data$observed / .data$expected * .data$ref_rate,
-                   lowercl = if_else(.data$observed<10, qchisq((1-confidence)/2,2*.data$observed)/2/.data$expected * .data$ref_rate,
-                                     byars_lower(.data$observed,confidence)/.data$expected * .data$ref_rate),
-                   uppercl = if_else(.data$observed<10, qchisq(confidence+(1-confidence)/2,2*.data$observed+2)/2/.data$expected * .data$ref_rate,
-                                     byars_upper(.data$observed,confidence)/.data$expected * .data$ref_rate),
-                   confidence = paste(confidence*100,"%", sep=""),
-                   statistic = paste("indirectly standardised rate per",format(multiplier,scientific=F)),
-                   method  = if_else(.data$observed<10,"Exact","Byars"))
-
+        mutate(value      = .data$observed / .data$expected * .data$ref_rate,
+               lowercl    = if_else(.data$observed<10, qchisq((1-confidence)/2,2*.data$observed)/2/.data$expected * .data$ref_rate,
+                                 byars_lower(.data$observed,confidence)/.data$expected * .data$ref_rate),
+               uppercl    = if_else(.data$observed<10, qchisq(confidence+(1-confidence)/2,2*.data$observed+2)/2/.data$expected * .data$ref_rate,
+                                 byars_upper(.data$observed,confidence)/.data$expected * .data$ref_rate),
+               confidence = paste(confidence*100,"%", sep=""),
+               statistic  = paste("indirectly standardised rate per",format(multiplier,scientific=F)),
+               method     = if_else(.data$observed<10,"Exact","Byars"))
         # drop fields not required based on value of type argument
         if (type == "lower") {
             ISRate <- ISRate %>%
