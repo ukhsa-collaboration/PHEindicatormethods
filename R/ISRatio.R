@@ -99,11 +99,9 @@ calculate_ISRatio <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
   }
 
   # check same number of rows per group - if data is used ### NOT SURE WHY THIS IS ADDED?
- # if (!is.null(data)) {
-    if (n_distinct(select(ungroup(count(data)),n)) != 1) {
-      stop("data must contain the same number of rows for each group")
-    }
-#  }
+  if (n_distinct(select(ungroup(count(data)),n)) != 1) {
+    stop("data must contain the same number of rows for each group")
+  }
 
   # check x is in data/observed_totals
   if (!is.null(observed_totals)) {
