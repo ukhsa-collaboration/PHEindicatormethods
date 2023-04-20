@@ -2,15 +2,15 @@
 
 ## Updates in this release
 
-* Updated ISRate and ISRatio functions to offer greater flexibility of inputs
+* Updated `calculate_ISRate` and `calculate_ISRatio` functions to offer greater flexibility of inputs
 * amended all GitHub url references for bug reporting and GitHub Action badges as 
-code hosting transferred from PublicHealthEngland to UKHSA
+code hosting transferred from PublicHealthEngland to UKHSA-collaboration
 
 
 ## R CMD check results on local installation
 
 There were no ERRORs, WARNINGS or NOTES on the following local installation:
-* Windows 10 install using R 4.2.1 and RStudio 2022.07.2 Build 576
+* Windows 10 install using R 4.2.1 and RStudio 2022.07.1 Build 554
 
 
 ## Other Test Environments 
