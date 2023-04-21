@@ -98,7 +98,7 @@ calculate_ISRatio <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
     stop("function calculate_ISRatio requires at least 5 arguments: data, x, n, x_ref and n_ref")
   }
 
-  # check same number of rows per group - if data is used ### NOT SURE WHY THIS IS ADDED?
+  # check same number of rows per group
   if (n_distinct(select(ungroup(count(data)),n)) != 1) {
     stop("data must contain the same number of rows for each group")
   }

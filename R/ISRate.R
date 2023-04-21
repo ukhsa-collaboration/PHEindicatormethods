@@ -105,7 +105,7 @@ calculate_ISRate <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
     }
 
 
-    # check same number of rows per group - if data is used
+    # check same number of rows per group
     if (n_distinct(select(ungroup(count(data)),n)) != 1) {
       stop("data must contain the same number of rows for each group")
     }
