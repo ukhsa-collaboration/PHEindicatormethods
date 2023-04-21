@@ -1,6 +1,6 @@
 Package: PHEindicatormethods
 Type: Package
-Version: 2.0.0
+Version: 2.0.1
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate commonly used public health statistics and 
     their confidence intervals using methods approved for use in the production  
@@ -20,27 +20,28 @@ Description: Functions to calculate commonly used public health statistics and
     Eayres DP, Williams ES (2004) <doi:10.1136/jech.2003.009654>.
     Silcocks PBS et al (2001) <doi:10.1136/jech.55.1.38>.
     Low and Low (2004) <doi:10.1093/pubmed/fdh175>.
-Authors@R: c(person("Anderson", "Georgina", , "georgina.anderson@dhsc.gov.uk", c("aut", "cre")),
-             person("Fox", "Sebastian", , "sebastian.fox@dhsc.gov.uk", c("ctb")),
-             person("Francis", "Matthew", , "", c("ctb")),
-             person("Fryers", "Paul", , "paul.fryers@dhsc.gov.uk", c("ctb")),
-             person("Clegg", "Emma", , "", c("ctb")),
-             person("Woolner", "Joshua", , "", c("ctb"))
+Authors@R: c(person("Anderson",   "Georgina",  email = "georgina.anderson@dhsc.gov.uk",  role = c("aut", "cre")),
+             person("Fox",        "Sebastian", email = "sebastian.fox@dhsc.gov.uk",     role = c("ctb")),
+             person("Francis",    "Matthew",                                             role = c("ctb")),
+             person("Fryers",     "Paul",      email = "paul.fryers@dhsc.gov.uk",        role = c("ctb")),
+             person("Clegg",      "Emma",                                                role = c("ctb")),
+             person("Westermann", "Annabel",   email = "annabel.westermann@dhsc.gov.uk", role = c("ctb")),
+             person("Woolner",    "Joshua",                                              role = c("ctb"))
              )
-BugReports: https://github.com/PublicHealthEngland/PHEindicatormethods/issues
+BugReports: https://github.com/ukhsa-collaboration/PHEindicatormethods/issues
 Depends: R (>= 3.1.0)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports: 
     broom,
-    dplyr (>= 1.0.0),
-    purrr,
+    dplyr (>= 1.1.0),
+    purrr (>= 1.0.0),
     rlang (>= 0.4.0),
     stats,
     tibble,
-    tidyselect,
-    tidyr
+    tidyselect (>= 1.2.0),
+    tidyr (>= 1.3.0)
 Suggests: 
     knitr,
     readxl,
