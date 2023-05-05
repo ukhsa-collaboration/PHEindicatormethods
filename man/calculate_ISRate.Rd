@@ -13,7 +13,8 @@ calculate_ISRate(
   refpoptype = "vector",
   type = "full",
   confidence = 0.95,
-  multiplier = 1e+05
+  multiplier = 1e+05,
+  observed_totals = NULL
 )
 }
 \arguments{
@@ -22,7 +23,9 @@ multiple ISRs required; unquoted string; no default}
 
 \item{x}{field name from data containing the observed number of events for
 each standardisation category (eg ageband) within each grouping set (eg
-area); unquoted string; no default}
+area). Alternatively, if not providing age breakdowns for observed events,
+field name from observed_totals containing the observed number of events
+within each grouping set ; unquoted string; no default}
 
 \item{n}{field name from data containing the populations for each
 standardisation category (eg ageband) within each grouping set (eg area);
@@ -51,6 +54,11 @@ default 0.95}
 
 \item{multiplier}{the multiplier used to express the final values (eg 100,000
 = rate per 100,000); numeric; default 100,000}
+
+\item{observed_totals}{data.frame containing total observed events for each
+group, if not provided with age-breakdowns in data. Must only contain the
+count field (x) plus grouping columns required to join to data using the
+same grouping column names; default = NULL}
 }
 \value{
 When type = "full", returns a tibble of observed events, expected
@@ -100,6 +108,18 @@ df \%>\%
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
     calculate_ISRate(obs, pop, refdf$refcount, refdf$refpop, confidence = c(0.95, 0.998))
+
+## Calculate ISR when observed totals aren't available with age-breakdowns
+observed_totals <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314), each = 10),
+                       year = rep(rep(2006:2010, each = 2),4),
+                       sex = rep(rep(c("Male", "Female"), each = 1),20),
+                       observed = sample(1500:2500, 40))
+
+df \%>\%
+    group_by(indicatorid, year, sex) \%>\%
+    calculate_ISRate(observed, pop, refdf$refcount, refdf$refpop,
+    observed_totals = observed_totals)
+
 
 }
 \references{

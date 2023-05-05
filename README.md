@@ -1,8 +1,8 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-[![codecov](https://codecov.io/gh/publichealthengland/PHEindicatormethods/branch/master/graph/badge.svg?token=C8U9EMHMGW)](https://app.codecov.io/gh/publichealthengland/PHEindicatormethods)
-[![R-CMD-check](https://github.com/publichealthengland/PHEindicatormethods/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/publichealthengland/PHEindicatormethods/actions/workflows/R-CMD-check.yaml)
+[![test-coverage](https://github.com/ukhsa-collaboration/PHEindicatormethods/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/ukhsa-collaboration/PHEindicatormethods/actions/workflows/test-coverage.yaml)
+[![R-CMD-check](https://github.com/ukhsa-collaboration/PHEindicatormethods/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ukhsa-collaboration/PHEindicatormethods/actions/workflows/R-CMD-check.yaml)
 
 # PHEindicatormethods
 
@@ -14,9 +14,8 @@ Index of Inequality including confidence intervals for these statistics,
 and a function for assigning data to quantiles.
 
 Any feedback would be appreciated and can be provided using the Issues
-section of the GitHub repository
-<https://github.com/PublicHealthEngland/PHEindicatormethods>, or by
-emailing <PHDS@phe.gov.uk>
+section of the [PHEindicatormethods GitHub
+repository](https://github.com/ukhsa-collaboration/PHEindicatormethods).
 
 <br/> <br/>
 
@@ -41,7 +40,7 @@ with:
 ``` r
 if (!require(remotes)) install.packages("remotes")
 
-remotes::install_github("PublicHealthEngland/PHEindicatormethods",
+remotes::install_github("ukhsa-collaboration/PHEindicatormethods",
                          build_vignettes = TRUE,
                          dependencies = TRUE,
                          build_opts = c("--no-resave-data"))

@@ -6,6 +6,12 @@ test_that("isratios and CIs calculate correctly",{
                data.frame(select(slice(test_ISR_results,7:9),1:3,5:7,10:11)),
                check.attributes=FALSE, check.names=FALSE,info="test default")
 
+  expect_equal(data.frame(select(calculate_ISRatio(select(test_ISR_ownref,-count, -refcount,-refpop), total_count, pop,
+                                                  x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop,
+                                                  observed_totals = test_ISR_lookup), 1:6,8:9)),
+               data.frame(select(slice(test_ISR_results,7:9),1:3,5:7,10:11)),
+               check.attributes=FALSE, check.names=FALSE,info="test default with observed_totals")
+
   expect_equal(data.frame(select(calculate_ISRatio(select(test_ISR_ownref,-refcount,-refpop), count, pop,
                                          confidence = c(0.95,0.998), x_ref = test_ISR_refdata$refcount,
                                          n_ref = test_ISR_refdata$refpop),1:8,10:11)),
@@ -167,6 +173,14 @@ test_that("isratios - errors are generated when invalid arguments are used",{
                        n_ref = test_ISR_refdata$refpop, confidence = c(0.95, 0.98)),
                "two confidence levels can only be produced if they are specified as 0.95 and 0.998",
                info="error invalid number of arguments")
+
+  expect_error(calculate_ISRatio(test_multiarea, num, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),
+               "x is not in data",info="incorrect x value")
+
+  expect_error(calculate_ISRatio(test_multiarea, num, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop,
+                                 observed_totals = test_ISR_lookup),
+               "observed_totals is provided but x is not a field name in it",info="incorrect x value in lookup")
+
 })
 
 
