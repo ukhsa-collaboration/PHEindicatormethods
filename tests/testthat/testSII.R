@@ -145,7 +145,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   repetitions = no_reps,
                                   rii = TRUE,
                                   type = "standard")), # SII confidence changed
-               data.frame(SII_test_grouped[c(226,236), c(3:5,16:18,22,19,23,20,24,21,25)]),
+               data.frame(SII_test_grouped[c(226,236), c(3:5,16:18,22,19,23,20,24,21,26)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test at 95 and 99% confidence (%)", tolerance = tol)
 
