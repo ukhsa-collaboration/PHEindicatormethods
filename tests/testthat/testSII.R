@@ -75,6 +75,21 @@ test_that("SII and confidence limits calculate correctly",{
                      check.attributes=FALSE, check.names=FALSE,
                      info="test default with CLs provided", tolerance = tol)
 
+     # test same calculation, outputting intercept value
+  expect_equal(data.frame(phe_sii(SII_test_grouped[1:20, 3:13],
+                                        Quantile, Population,
+                                        value_type = 0,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        rii = TRUE,
+                                        intercept = TRUE, # Intercept set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(246,256), c(3:5,16:21,26)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test default with intercept", tolerance = tol)
+
    # test function on ungrouped dataset
   SII_test_data <- ungroup(SII_test_grouped)
 
@@ -192,6 +207,104 @@ test_that("SII and confidence limits calculate correctly",{
                check.attributes=FALSE, check.names=FALSE,
                info="test rate with CLs provided", tolerance = tol)
 
+# test same calculation, outputting intercept value
+  expect_equal(data.frame(phe_sii(SII_test_grouped[71:90, 3:13],
+                                        Quantile, Population,
+                                        value_type = 1,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        rii = TRUE,
+                                        intercept = TRUE, # Intercept set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(266,276), c(3:5,16:21,26)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test rate with intercept", tolerance = tol)
+
+  # test calculation with log transformation of values,
+  expect_equal(data.frame(phe_sii(SII_test_grouped[306:325, 3:13],
+                                        Quantile, Population,
+                                        value_type = 1,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        rii = TRUE,
+                                        intercept = TRUE, # Intercept set to true
+                                        transform = TRUE, # Log transformation set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(306,316), c(3:5,16:21,26)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test rate with transformation", tolerance = tol)
+
+  # test calculation with log transformation of values and negative multiplier,
+  expect_equal(data.frame(phe_sii(SII_test_grouped[386:405, 3:13],
+                                        Quantile, Population,
+                                        value_type = 1,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        multiplier = -1, # Negative multiplier
+                                        rii = TRUE,
+                                        intercept = TRUE, # Intercept set to true
+                                        transform = TRUE, # Log transformation set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(386,396), c(3:5,16:21,26)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test rate with transformation and negative multiplier", tolerance = tol)
+
+  # test calculation with log transformation of values and 98% confidence intervals,
+  expect_equal(data.frame(phe_sii(SII_test_grouped[406:425, 3:13],
+                                        Quantile, Population,
+                                        value_type = 1,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        rii = TRUE,
+                                        confidence = 98, #98% CIs
+                                        intercept = TRUE, # Intercept set to true
+                                        transform = TRUE, # Log transformation set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(406,416), c(3:5,16:21,26)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test rate with transformation and 98% cis", tolerance = tol)
+
+    # test calculation with log transformation of values and multiple confidence intervals,
+    expect_equal(data.frame(phe_sii(SII_test_grouped[366:385, 3:13],
+                                        Quantile, Population,
+                                        value_type = 1,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        rii = TRUE,
+                                        confidence = c(95, 98), #95 and 98% CIs
+                                        intercept = TRUE, # Intercept set to true
+                                        transform = TRUE, # Log transformation set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(366,376), c(3:5,16:26)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test rate with transformation and multiple cis", tolerance = tol)
+
+    # test calculation with log transformation of values without RII,
+    expect_equal(data.frame(phe_sii(SII_test_grouped[426:445, 3:13],
+                                        Quantile, Population,
+                                        value_type = 1,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        rii = FALSE,
+                                        intercept = FALSE,
+                                        transform = TRUE, # Log transformation set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(426,436), c(3:5,16, 18:19)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test rate with transformation without rii", tolerance = tol)
+
 
   # ***********************************
   # *** PROPORTION (value_type = 2) ***
@@ -238,6 +351,21 @@ test_that("SII and confidence limits calculate correctly",{
                data.frame(SII_test_grouped[c(91,101), c(3:5,16:21)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test proportion with count provided", tolerance = tol)
+
+  # test same calculation, outputting intercept value
+  expect_equal(data.frame(phe_sii(SII_test_grouped[91:110, 3:13],
+                                        Quantile, Population,
+                                        value_type = 1,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        rii = TRUE,
+                                        intercept = TRUE, # Intercept set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(286,296), c(3:5,16:21,26)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test proportion with intercept", tolerance = tol)
 
   # test SII calculation with POSITIVE multiplier and RII
   expect_equal(data.frame(phe_sii(SII_test_grouped[111:130, 3:13],
@@ -298,6 +426,89 @@ test_that("SII and confidence limits calculate correctly",{
                data.frame(SII_test_grouped[c(131,141), c(3:5,16,18,19)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test proportion with negative multiplier without RII", tolerance = tol)
+
+  # test calculation with logit transformation of values,
+  expect_equal(data.frame(phe_sii(SII_test_grouped[326:345, 3:13],
+                                        Quantile, Population,
+                                        value_type = 2,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        rii = TRUE,
+                                        intercept = TRUE, # Intercept set to true
+                                        transform = TRUE, # Log transformation set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(326,336), c(3:5,16:21,26)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test proportion with transformation", tolerance = tol)
+
+  # test calculation with logit transformation of values and negative multiplier,
+  expect_equal(data.frame(phe_sii(SII_test_grouped[346:365, 3:13],
+                                        Quantile, Population,
+                                        value_type = 2,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        multiplier = -1, # Multiplier set to -1
+                                        rii = TRUE,
+                                        intercept = TRUE, # Intercept set to true
+                                        transform = TRUE, # Log transformation set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(346,356), c(3:5,16:21,26)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test proportion with transformation and negative multiplier", tolerance = tol)
+
+  # test calculation with logit transformation of values and 98% ci,
+  expect_equal(data.frame(phe_sii(SII_test_grouped[466:485, 3:13],
+                                        Quantile, Population,
+                                        value_type = 2,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        confidence = 98,
+                                        rii = TRUE,
+                                        intercept = TRUE, # Intercept set to true
+                                        transform = TRUE, # Log transformation set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(466,476), c(3:5,16:21,26)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test proportion with transformation and 98% cis", tolerance = tol)
+
+  # test calculation with logit transformation of values and 95% and 98% ci,
+  expect_equal(data.frame(phe_sii(SII_test_grouped[486:505, 3:13],
+                                        Quantile, Population,
+                                        value_type = 2,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        confidence = c(95, 98),
+                                        rii = TRUE,
+                                        intercept = TRUE, # Intercept set to true
+                                        transform = TRUE, # Log transformation set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(486,496), c(3:5,16:26)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test proportion with transformation and 95% and 98% cis", tolerance = tol)
+
+  # test calculation with logit transformation of values and 95% and 98% ci,
+  expect_equal(data.frame(phe_sii(SII_test_grouped[446:465, 3:13],
+                                        Quantile, Population,
+                                        value_type = 2,
+                                        value = Value,
+                                        lower_cl = LowerCL, # CLs supplied
+                                        upper_cl = UpperCL,
+                                        repetitions = no_reps,
+                                        rii = FALSE,
+                                        transform = TRUE, # Log transformation set to true
+                                  type = "standard")),
+                     data.frame(SII_test_grouped[c(446,456), c(3:5,16, 18:19)]),
+                     check.attributes=FALSE, check.names=FALSE,
+                     info="test proportion with transformation and no rii", tolerance = tol)
+
 })
 
 
@@ -423,6 +634,39 @@ test_that("errors are generated when invalid parameters are entered",{
                        confidence = 135),
                "all confidence levels must be between 90 and 100 or between 0.9 and 1",
                info = "invalid confidence limit pc - too high")
+        # transform set to true with indicator type =0
+  expect_error(phe_sii(SII_test_grouped[1:20, 3:13],
+                       Quantile,
+                       Population,
+                       value = Value,
+                       lower_cl = LowerCL, # CLs supplied
+                       upper_cl = UpperCL,
+                       transform = TRUE,
+                       value_type = 0),
+               "value_type should be 1 or 2 when transform is true",
+               info = "value_type should be 1 or 2 when transform is true")
+          # transform set to true and se provided
+  expect_error(phe_sii(SII_test_grouped[1:20, 3:13],
+                       Quantile,
+                       Population,
+                       value = Value,
+                       se = StandardError,
+                       transform = TRUE,
+                       value_type = 1),
+               "se to be missing when transform is true",
+               info = "se to be missing when transform is true")
+          # transform set to true and reliability stat requested
+  expect_error(phe_sii(SII_test_grouped[1:20, 3:13],
+                       Quantile,
+                       Population,
+                       value = Value,
+                       lower_cl = LowerCL, # CLs supplied
+                       upper_cl = UpperCL,
+                       transform = TRUE,
+                       value_type = 1,
+                       reliability_stat = TRUE),
+               "reliability_stat should be set to false when transform is true",
+               info = "reliability_stat should be set to false when transform is true")
 
 })
 

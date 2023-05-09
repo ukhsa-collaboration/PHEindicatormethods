@@ -408,6 +408,13 @@ SimulationFunc <- function(data,
       RII_results <- matrix(RII_results, ncol = 1)
     }
 
+    # Apply multiplicative factor to RII if transform = FALSE
+     if(multiplier < 0 & transform == FALSE) {
+       RII_results <- 1/RII_results
+     } else {
+       RII_results <- RII_results
+     }
+
     # Order simulated RIIs from lowest to highest
     sortresults_RII <- apply(RII_results, 2, sort, decreasing = FALSE)
 
@@ -420,6 +427,13 @@ SimulationFunc <- function(data,
       SII_results <- matrix(params_bsqrta, ncol = 1)
     }
   }
+
+    # Apply multiplicative factor to SII if transform = FALSE
+     if(transform == FALSE) {
+       SII_results <- SII_results * multiplier
+     } else {
+       SII_results <- SII_results
+     }
 
   # Order simulated SIIs from lowest to highest
   sortresults_SII <- apply(SII_results, 2, sort, decreasing = FALSE)
