@@ -6,6 +6,12 @@ test_that("isrates and CIs calculate correctly",{
                data.frame(select(slice(test_ISR_results,1:3),1:7,10:11)),
                check.attributes=FALSE, check.names=FALSE,info="test default")
 
+  expect_equal(data.frame(select(calculate_ISRate(select(test_ISR_ownref,-count, -refcount,-refpop), total_count, pop,
+                                   x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop,
+                                   observed_totals = test_ISR_lookup), 1:7,9:10)),
+               data.frame(select(slice(test_ISR_results,1:3),1:7,10:11)),
+               check.attributes=FALSE, check.names=FALSE,info="test default with observed_totals")
+
   expect_equal(data.frame(select(calculate_ISRate(select(test_ISR_ownref,-refcount,-refpop), count, pop, confidence = c(0.95,0.998),
                                          x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),1:9,11:12)),
                data.frame(slice(test_ISR_results,1:3)),
@@ -97,7 +103,6 @@ test_that("isrates and CIs calculate correctly",{
                data.frame(confidence = rep("95%, 99.8%",3), stringsAsFactors=FALSE),
                check.attributes=FALSE, check.names=FALSE,info="test two CIS metadata")
 
-
 })
 
 
@@ -147,7 +152,7 @@ test_that("isrates - errors are generated when invalid arguments are used",{
                "valid values for refpoptype are vector and field",info="error invalid refpoptype")
 
   expect_error(calculate_ISRate(test_ISR_ownref, count, pop, ref_count, refpop, refpoptype = "field"),
-               "x_ref is not a field name from data",info="error x_ref not a fiel name")
+               "x_ref is not a field name from data",info="error x_ref not a field name")
 
   expect_error(calculate_ISRate(test_ISR_ownref, count, pop, refcount, ref_pop, refpoptype = "field"),
                "n_ref is not a field name from data",info="error n_ref not a field name")
