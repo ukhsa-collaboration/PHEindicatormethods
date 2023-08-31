@@ -227,10 +227,6 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         if (transform == TRUE & value_type == 0) {
           stop("value_type should be 1 or 2 when transform is true")
         }
-        # if transform is true then reliability stat cannot be provided
-        if (transform == TRUE & reliability_stat == TRUE) {
-          stop("reliability_stat should be set to false when transform is true")
-        }
         # if transform is true then se cannot be provided
         if (transform == TRUE & !(missing(se))) {
           stop("function phe_sii requires se to be missing when transform is true")
