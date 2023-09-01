@@ -350,7 +350,11 @@ SimulationFunc <- function(data,
   confidence_value <- confidence + ((1 - confidence) / 2)
 
   # Set 10x no. of reps if reliability stats requested
-  no_reps <- ifelse(reliability_stat == TRUE, 10*repeats, repeats)
+  no_reps <- if (reliability_stat == TRUE) {
+    10 * repeats
+  } else {
+    repeats
+  }
 
   # Take random samples from a normal distribution with mean as the indicator value
   # sd. as the associated standard error. Store results in a
@@ -530,10 +534,6 @@ calc_reliability <- function(CI_data,
     unnest(reliabity_stats_data)
 
 }
-
-
-
-
 
 # ------------------------------------------------------------------------------
 #' Poisson Function for funnel plots for ratios and rates
