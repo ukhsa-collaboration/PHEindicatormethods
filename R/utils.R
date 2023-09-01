@@ -474,6 +474,65 @@ SimulationFunc <- function(data,
 }
 
 
+# ------------------------------------------------------------------------------
+#' SII reliability stats
+#' @param CI_data A nested dataframe containing the SII and RII CIs for each rep
+#' @param confidence Confidence level used to calculate the lower and upper confidence limits of SII;
+#'        numeric between 0.5 and 0.9999 or 50 and 99.99; default 0.95
+#' @param rii Option to return the Relative Index of Inequality (RII) with
+#'   associated confidence limits
+#'
+#' @return a data frame
+#'
+#' @noRd
+# ------------------------------------------------------------------------------
+
+calc_reliability <- function(CI_data,
+                             confidence,
+                             rii) {
+
+  groups <- group_vars(CI_data)
+
+  reliabity_stats <- CI_data %>%
+    mutate(
+      reliabity_stats_data = purrr::map(CI_calcs, function(x){
+        # Calculate mean average difference in SII and RII from first rep
+        diffs_sample_original <- x |>
+          mutate(across(everything(), function(y) {abs(y - y[1])})) |>
+          slice(-1)
+
+        map(confidence, function(conf) {
+          conf_formatted <-
+            gsub("\\.", "_", formatC(conf * 100, format = "f", digits = 1))
+
+          if (isTRUE(rii)) {
+            diffs_sample_original |>
+              select(contains(conf_formatted)) |>
+              summarise(
+                "sii_mad{conf_formatted}" := mean(c_across(contains("sii"))),
+                "rii_mad{conf_formatted}" := mean(c_across(contains("rii")))
+              )
+          } else {
+            diffs_sample_original |>
+              select(contains(conf_formatted)) |>
+              summarise(
+                "sii_mad{conf_formatted}" := mean(c_across(contains("sii")))
+              )
+          }
+
+        }) |>
+          bind_cols()
+
+      }
+      )
+    ) |>
+    select(groups, reliabity_stats_data) |>
+    unnest(reliabity_stats_data)
+
+}
+
+
+
 
 
 # ------------------------------------------------------------------------------
