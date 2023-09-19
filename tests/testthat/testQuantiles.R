@@ -20,11 +20,12 @@ df5 <- df4 %>% group_by(GroupSet)
 
 #test calculations
 test_that("quantiles calculate correctly",{
+  # within-region deciles for multiple indicators
   expect_equal(data.frame(phe_quantile(df1,Value,
                             invert = Polarity, inverttype = "field")[15]),
                rename(df1,quantile = QuantileInGrp)[14],
                check.attributes=FALSE, check.names=FALSE,info="test grouped df field")
-
+  # within-region deciles for multiple indicators
   expect_equal(data.frame(phe_quantile(df2,Value,
                             invert = FALSE))[15:18],
                data.frame(tibble(quantile = df2$QuantileInGrp,

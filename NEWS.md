@@ -1,3 +1,6 @@
+## PHEindicatormethods vWIP
+* Amended phe_quantile function so it will not produce quantiles when the number of small areas within a group is less than the number of quantiles requested.
+
 ## PHEindicatormethods v2.0.1
 * `calculate_ISRate` and `calculate_ISRatio` updated so observed events can be passed as total without age breakdowns
 * amended GitHub referencing as code repository now owned and hosted by UKHSA-collaboration not PublicHealthEngland
