@@ -43,18 +43,23 @@
 #'
 #' @section Function arguments:
 #'
-#' The indicator type can be specified via the \code{value_type} parameter.
-#' Transformations can be applied to the indicator value and its confidence
-#' limits before calculating the standard error in cases where the confidence
-#' interval around the indicator value is likely to be non-symmetric. This is a
-#' log transformation for rates, and logit for proportions. If the standard
-#' error is supplied directly to the function from the input dataset, this is
-#' used instead of calculating one from the indicator confidence limits.
+#' The indicator type can be specified via the \code{value_type} parameter. It
+#' is recommended that rate and proportion indicators are transformed for
+#' calculation of the SII using the \code{transform} parameter set to TRUE. This
+#' will perform a log transformation for rates, and logit for proportions, and
+#' return outputs transformed back to the original units of the indicator.
+#' Where the \code{transform} parameter is set to FALSE transformations are
+#' applied to the indicator value and its confidence limits before calculating
+#' the standard error in cases where the confidence interval around the indicator
+#' value is likely to be non-symmetric. If the standard error is supplied directly
+#' to the function from the input dataset, this is used instead of calculating
+#' one from the indicator confidence limits.
 #'
 #' @section Warning:
 #'
 #' The SII calculation assumes a linear relationship between indicator value and
-#' quantile, and small populations within quantiles can make it unstable. This
+#' quantile. Where this is not the case the transform option should be considered.
+#' Small populations within quantiles can make the SII unstable. This
 #' function does not include checks for linearity or stability; it is the user's
 #' responsibility to ensure the input data is suitable for the SII calculation.
 #'
@@ -97,6 +102,10 @@
 #'        for example, to output both 95 percent and 99.8 percent CIs; numeric; default 0.95
 #' @param rii option to return the Relative Index of Inequality (RII) with associated confidence limits
 #'        as well as the SII; logical; default FALSE
+#' @param intercept option to return the intercept value of the regression line (y value where x=0);
+#'        logical; default FALSE
+#' @param transform option to transform input data prior to calculation of the SII, where there is not
+#'        a linear relationship between the indicator values and the quantile; logical; default FALSE
 #' @param reliability_stat option to carry out the SII confidence interval simulation 10 times instead
 #'        of once and return the Mean Average Difference between the first and subsequent samples (as a
 #'        measure of the amount of variation). Warning: this will significantly increase run time of the
@@ -189,6 +198,8 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                     repetitions = 100000,
                     confidence = 0.95,
                     rii = FALSE,
+                    intercept = FALSE,
+                    transform = FALSE,
                     reliability_stat = FALSE,
                     type = "full") {
 
@@ -212,7 +223,18 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         if (repetitions < 1000) {
           stop("number of repetitions must be 1000 or greater. Default is 100,000")
         }
-
+        # if transform is true then value type must be rate or proportion
+        if (transform == TRUE & value_type == 0) {
+          stop("value_type should be 1 or 2 when transform is true")
+        }
+        # if transform is true then se cannot be provided
+        if (transform == TRUE & !(missing(se))) {
+          stop("function phe_sii requires se to be missing when transform is true")
+        }
+        # if transform is true then upper and lower cls must be provided
+        if (transform == TRUE & (missing(upper_cl) | missing(lower_cl))) {
+          stop("function phe_sii requires lower_cl and upper_cl fields when transform is true")
+        }
         # check on confidence limit requirements
         if (any(confidence < 0.9) | (any(confidence > 1) & any(confidence < 90)) | any(confidence > 100)) {
             stop("all confidence levels must be between 90 and 100 or between 0.9 and 1")
@@ -374,7 +396,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                 pops_prep <- mutate(pops_prep, value = {{ x }} / {{ population }})
         }
 
-        # Transform value, lower and upper confidence limits if value is a rate or proportion
+        # Transform value if value is a rate or proportion
          pops_prep <- pops_prep %>%
                 mutate(value = ifelse(value_type == 1,
                                       log(.data$value),
@@ -389,11 +411,11 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
          pops_prep <- pops_prep %>%
                 mutate(lower_cl = ifelse(value_type == 0, {{ lower_cl }},
                                       ifelse(value_type == 1, log({{ lower_cl }}),
-                                         ifelse(value_type == 2, log({{ lower_cl }}/(1-{{ lower_cl }})),
+                                         ifelse(value_type == 2, log({{ lower_cl }} / (1 - {{ lower_cl }})),
                                                 NA))),
                        upper_cl = ifelse(value_type == 0, {{ upper_cl }},
                                         ifelse(value_type == 1, log({{ upper_cl }}),
-                                                ifelse(value_type == 2, log({{ upper_cl }}/(1-{{ upper_cl }})),
+                                                ifelse(value_type == 2, log({{ upper_cl }} / (1 - {{ upper_cl }})),
                                          NA))))
          }
 
@@ -415,7 +437,8 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                        b_vals = FindXValues({{ population }}, no_quantiles))
 
         # Calculate sqrt(a), bsqrt(a) and un-transformed y value for regression
-        pops_prep_ab <- pops_prep_ab %>%
+        if(transform == FALSE) {
+          pops_prep_ab <- pops_prep_ab %>%
                 group_by(!!! syms(c(grouping_variables, rlang::quo_text(quantile)))) %>%
                 mutate(sqrt_a = sqrt(.data$a_vals),
                        b_sqrt_a = .data$b_vals * .data$sqrt_a,
@@ -424,6 +447,14 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                                                        exp(.data$value) / (1 + exp(.data$value)),
                                                        .data$value)),
                        yvals = .data$sqrt_a * .data$value_transform)
+        } else {
+          pops_prep_ab <- pops_prep_ab %>%
+          group_by(!!! syms(c(grouping_variables, rlang::quo_text(quantile)))) %>%
+          mutate(sqrt_a = sqrt(.data$a_vals),
+                  b_sqrt_a = .data$b_vals * .data$sqrt_a,
+                  value_transform = .data$value,
+                  yvals = .data$sqrt_a * .data$value_transform)
+        }
 
         # calculate confidence interval for SII via simulation
         # Repeat this 10 times to get a "variability" measure if requested
@@ -452,98 +483,348 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                                                                      .data$sqrt_a,
                                                                      .data$b_sqrt_a,
                                                                      rii,
+                                                                     transform,
                                                                      reliability_stat)))
         } else {
             sim_CI <- pops_prep_ab %>%
                 group_by(!!! syms(grouping_variables)) %>%
-                tidyr::nest() %>%
-                mutate(CI_params = purrr::map(data, ~ SimulationFunc(data = .,
-                                                                     .data$value,
-                                                                     value_type,
-                                                                     .data$se_calc,
-                                                                     repetitions,
-                                                                     confidence,
-                                                                     multiplier,
-                                                                     .data$sqrt_a,
-                                                                     .data$b_sqrt_a,
-                                                                     rii,
-                                                                     reliability_stat)))
+              tidyr::nest() %>%
+              mutate(CI_params = purrr::map(data, ~ SimulationFunc(data = .,
+                                                                   .data$value,
+                                                                   value_type,
+                                                                   .data$se_calc,
+                                                                   repetitions,
+                                                                   confidence,
+                                                                   multiplier,
+                                                                   .data$sqrt_a,
+                                                                   .data$b_sqrt_a,
+                                                                   rii,
+                                                                   transform,
+                                                                   reliability_stat)))
         }
 
 
 
-        # Unnest confidence limits and reliability measures in a data frame for joining
-           sim_CI <- sim_CI %>%
-               select(!c("data")) %>%
-               tidyr::unnest("CI_params")
-
-         # Perform regression to calculate SII and extract model parameters
+        # Perform regression to calculate SII and extract model parameters
 
         popsSII_model <- popsSII_model %>%
-            # perform linear model
-            mutate(model = purrr::map(data, function(df)
-              stats::lm(yvals ~ sqrt_a + b_sqrt_a - 1, data = df))) %>%
-            # extract model coefficients
-            mutate(model = purrr::map(.data$model, broom::tidy)) %>%
-            tidyr::unnest("model") %>%
-            # remove unecessary fields
-            select(!c("std.error", "statistic", "p.value")) %>%
-            # create columns for each parameter
-            tidyr::pivot_wider(names_from = "term",
-                               values_from = "estimate") %>%
-            # Extract SII and RII values
+          # perform linear model
+          mutate(model = purrr::map(data, function(df)
+            stats::lm(yvals ~ sqrt_a + b_sqrt_a - 1, data = df))) %>%
+          # extract model coefficients
+          mutate(model = purrr::map(.data$model, broom::tidy)) %>%
+          tidyr::unnest("model") %>%
+          # remove unecessary fields
+          select(!c("std.error", "statistic", "p.value")) %>%
+          # create columns for each parameter
+          tidyr::pivot_wider(names_from = "term",
+                             values_from = "estimate")
+
+
+        # Format results according to whether transform = T/F
+
+        if(transform == FALSE) { #no anti-transform needed
+          # Extract SII and RII values
+          popsSII_model <- popsSII_model %>%
             mutate(sii = multiplier * .data$b_sqrt_a,
-                   rii = (.data$sqrt_a + .data$b_sqrt_a)/.data$sqrt_a) %>%
+                   rii = (.data$sqrt_a + .data$b_sqrt_a)/.data$sqrt_a,
+                   intercept = .data$sqrt_a) %>%
             # Take inverse of RII if multiplier is negative
-            mutate(rii = ifelse(multiplier < 0,
-                                1/rii,
-                                rii)) %>%
+            mutate(rii = ifelse(multiplier < 0, 1 / rii, rii)) %>%
             # Select fields to keep
-            select(all_of(grouping_variables), "sii", "rii")
+            select(all_of(grouping_variables), "sii", "rii", "intercept")
+
+          # join on dataset with SII/ RII confidence limits
+          # Get CIs from first round of reps
+          # Unnest confidence limits in a data frame for joining
+
+          sim_CI_rep1 <- sim_CI %>%
+            select(!c("data")) %>%
+            tidyr::unnest("CI_params") |>
+            slice_head(n = 1)
+
+          if (length(grouping_variables) > 0) {
+            # (grouped dataset)
+            popsSII_model <- popsSII_model %>%
+              left_join(sim_CI_rep1, by = grouping_variables)
+          } else {
+            # ungrouped dataset
+            popsSII_model <- popsSII_model %>%
+              cbind(sim_CI_rep1)
+          }
+
+          # Add reliability stats
+
+          if (isTRUE(reliability_stat)) {
+
+            sim_CI <- rename(sim_CI, "CI_calcs" = "CI_params")
+
+            reliabity_stats <- calc_reliability(
+              CI_data = sim_CI,
+              confidence = confidence,
+              rii = rii
+            )
+
+            if (length(grouping_variables) > 0) {
+              # (grouped dataset)
+              popsSII_model <- popsSII_model %>%
+                left_join(reliabity_stats, by = grouping_variables)
+            } else {
+              # ungrouped dataset
+              popsSII_model <- popsSII_model %>%
+                cbind(reliabity_stats)
+            }
+
+          }
+
+        } else {
+
+          popsSII_model <- popsSII_model %>%
+            mutate(sii = .data$b_sqrt_a,
+                   intercept = .data$sqrt_a) %>%
+            # Select fields to keep
+            select(all_of(grouping_variables), "sii", "intercept")
+
+          #Do calculations that can be done outside of loop as they don't need the CI fields
+          if (value_type == 1) {#anti-log needed
+
+            popsSII_model <- popsSII_model %>%
+              mutate(xequals1 = intercept + sii,
+                     xequalshalf = (intercept + xequals1) / 2,
+                     antilogintercept = exp(intercept),
+                     antilogxequals1 = exp(xequals1),
+                     multiplier = multiplier,
+                     sii = (antilogxequals1 - antilogintercept) * multiplier,
+                     rii = if_else(
+                       multiplier < 0,
+                       1 / (antilogxequals1 / antilogintercept),
+                       antilogxequals1 / antilogintercept
+                     ),
+                     intercept = antilogintercept * abs(multiplier))
+
+          } else if (value_type == 2) {#anti-logit needed
+
+            popsSII_model <- popsSII_model %>%
+              mutate(xequals1 = intercept + sii,
+                     xequalshalf = (intercept + xequals1) / 2,
+                     antilogintercept = exp(intercept) / (1 + exp(intercept)),
+                     antilogxequals1 = exp(xequals1) / (1 + exp(xequals1)),
+                     multiplier = multiplier,
+                     sii = (antilogxequals1 - antilogintercept) * multiplier,
+                     rii = if_else(
+                       multiplier < 0,
+                       1 / (antilogxequals1 / antilogintercept),
+                       antilogxequals1 / antilogintercept
+                     ),
+                     intercept = antilogintercept * abs(multiplier))
+          }
 
 
-               # join on dataset with confidence limits and reliability stats
-       if (length(grouping_variables) > 0) {
-                 # (grouped dataset)
-               popsSII_model <- popsSII_model %>%
-                       left_join(sim_CI, by = grouping_variables)
-       } else {
-               # ungrouped dataset
-               popsSII_model <- popsSII_model %>%
-                       cbind(sim_CI)
-       }
+          popsSII_model_CIs <- popsSII_model |>
+            select(all_of(grouping_variables), xequalshalf)
 
+          popsSII_model <- popsSII_model |>
+            select(all_of(grouping_variables), sii, rii, intercept)
 
-       # Part 3 - Choose and format output fields --------------------------------
+          # join on dataset with confidence limits
+          if (length(grouping_variables) > 0) {
+            # (grouped dataset)
+            popsSII_model_CIs <- popsSII_model_CIs %>%
+              left_join(sim_CI, by = grouping_variables)
+          } else {
+            # ungrouped dataset
+            popsSII_model_CIs <- popsSII_model_CIs %>%
+              cbind(sim_CI)
+          }
 
-       # Remove reliability stat columns (if not requested by user)
-       if (reliability_stat == FALSE) {
-           popsSII_model <- popsSII_model %>%
-               select(-contains("MAD"))
-       }
+          # Calculate SII and RII for each rep
 
-       # Remove RII columns (if not requested by user)
-       if(rii == FALSE) {
-           popsSII_model <- popsSII_model %>%
-               select(!contains("rii"))
-       }
+          popsSII_model_CIs <- popsSII_model_CIs |>
+            mutate(
+              CI_calcs = purrr::map2(CI_params, xequalshalf, function(data, xequalshalf) {
 
-       # Add metadata columns to output dataset (if requested by user)
-       if(type == "full") {
+                map(confidence, function(conf) {
 
-         popsSII_model  <- popsSII_model %>%
+                  conf_formatted <-
+                    gsub("\\.", "_", formatC(conf * 100, format = "f", digits = 1))
 
-           mutate(indicator_type = ifelse(value_type == 0, "normal",
-                                          ifelse(value_type == 1,
-                                                 "rate", "proportion")),
-                  multiplier = multiplier,
-                  CI_confidence = paste0(confidence * 100, "%",
-                                         collapse = ", "),
-                  CI_method = paste0("simulation ", repetitions, " reps"))
+                  selected_data <- data %>%
+                    select(contains(conf_formatted)) |>
+                    select(contains("sii")) |>
+                    rename(
+                      "sii_lower" = contains("sii_lower"),
+                      "sii_upper" = contains("sii_upper")
+                    )
 
-       }
+                  if (value_type == 1) {
+
+                    SII_calculations <- selected_data %>%
+                      mutate(interceptlcl = xequalshalf - (sii_lower/2),
+                             interceptucl = xequalshalf - (sii_upper/2),
+                             xequals1lcl = xequalshalf + (sii_lower/2),
+                             xequals1ucl = xequalshalf + (sii_upper/2),
+                             multiplier = multiplier,
+                             sii_lower = if_else(multiplier < 1, (exp(xequals1ucl) - exp(interceptucl)) * multiplier,
+                                                 (exp(xequals1lcl) - exp(interceptlcl)) * multiplier),
+                             sii_upper = if_else(multiplier < 1, (exp(xequals1lcl) - exp(interceptlcl)) * multiplier,
+                                                 (exp(xequals1ucl) - exp(interceptucl)) * multiplier)
+                      )
+
+                    if (isTRUE(rii)) {
+                      SII_calculations <- SII_calculations |>
+                        mutate(
+                          rii_lower = if_else(
+                            multiplier < 1,
+                            1 / (exp(xequals1ucl) / exp(interceptucl)
+                            ),
+                            exp(xequals1lcl) / exp(interceptlcl)),
+                          rii_upper = if_else(
+                            multiplier < 1,
+                            1 / (exp(xequals1lcl) / exp(interceptlcl)),
+                            exp(xequals1ucl) / exp(interceptucl)
+                          )
+                        )
+                    }
+
+                  } else if (value_type == 2) {
+
+                    SII_calculations <- selected_data %>%
+                      mutate(interceptlcl = xequalshalf - (sii_lower / 2),
+                             interceptucl = xequalshalf - (sii_upper / 2),
+                             xequals1lcl = xequalshalf + (sii_lower / 2),
+                             xequals1ucl = xequalshalf + (sii_upper / 2),
+                             multiplier = multiplier,
+                             sii_lower = if_else(
+                               multiplier < 0,
+                               ((exp(xequals1ucl) / (1 + exp(xequals1ucl))) - (exp(interceptucl) / (1 + exp(interceptucl)))) * multiplier,
+                               ((exp(xequals1lcl) / (1 + exp(xequals1lcl))) - (exp(interceptlcl) / (1 + exp(interceptlcl)))) * multiplier
+                             ),
+                             sii_upper = if_else(
+                               multiplier < 0,
+                               ((exp(xequals1lcl) / (1 + exp(xequals1lcl))) - (exp(interceptlcl) / (1 + exp(interceptlcl)))) * multiplier,
+                               ((exp(xequals1ucl) / (1 + exp(xequals1ucl))) - (exp(interceptucl)/(1 + exp(interceptucl)))) * multiplier
+                             )
+                      )
+
+                    if (isTRUE(rii)) {
+
+                      SII_calculations <- SII_calculations %>%
+                        mutate(
+                          rii_lower = if_else(
+                            multiplier < 0,
+                            1 / ((exp(xequals1ucl) / (1 + exp(xequals1ucl))) / (exp(interceptucl) / (1 + exp(interceptucl)))),
+                            ((exp(xequals1lcl)/(1 + exp(xequals1lcl))) / (exp(interceptlcl)/(1 + exp(interceptlcl))))),
+                          rii_upper = if_else(
+                            multiplier < 0,
+                            1 / ((exp(xequals1lcl) / (1 + exp(xequals1lcl))) / (exp(interceptlcl)/(1 + exp(interceptlcl)))),
+                            ((exp(xequals1ucl) / (1 + exp(xequals1ucl))) / (exp(interceptucl)/(1 + exp(interceptucl))))
+                          )
+                        )
+                    }
+
+                  }
+
+                  SII_calculations <- SII_calculations |>
+                    select(any_of(contains(c("sii_lower", "sii_upper",
+                                             "rii_lower", "rii_upper")))) |>
+                    rename_with(.fn = \(x) paste0(x, conf_formatted))
+
+                }
+                ) |>
+                  bind_cols()
+              }
+              )
+            ) |>
+            select(grouping_variables, CI_calcs)
+
+          # Add CIs to model
+          # join on dataset with SII/ RII confidence limits
+          # Get CIs from first round of reps
+          # Unnest confidence limits in a data frame for joining
+
+          CI_rep1 <- popsSII_model_CIs %>%
+            select(grouping_variables, CI_calcs) %>%
+            tidyr::unnest("CI_calcs") |>
+            slice_head(n = 1)
+
+          if (length(grouping_variables) > 0) {
+            # (grouped dataset)
+            popsSII_model <- popsSII_model %>%
+              left_join(CI_rep1, by = grouping_variables)
+          } else {
+            # ungrouped dataset
+            popsSII_model <- popsSII_model %>%
+              cbind(CI_rep1)
+          }
+
+          # Add reliability stats
+          if (isTRUE(reliability_stat)) {
+
+            reliabity_stats <- calc_reliability(
+              CI_data = popsSII_model_CIs,
+              confidence = confidence,
+              rii = rii
+            )
+
+            if (length(grouping_variables) > 0) {
+              # (grouped dataset)
+              popsSII_model <- popsSII_model %>%
+                left_join(reliabity_stats, by = grouping_variables)
+            } else {
+              # ungrouped dataset
+              popsSII_model <- popsSII_model %>%
+                cbind(reliabity_stats)
+            }
+
+          }
+
+        }
+
+        # Part 3 - Choose and format output fields --------------------------------
+
+        # Remove reliability stat columns (if not requested by user)
+        if (reliability_stat == FALSE) {
+          popsSII_model <- popsSII_model %>%
+            select(-contains("mad"))
+        }
+
+        # Remove RII columns (if not requested by user)
+        if(rii == FALSE) {
+          popsSII_model <- popsSII_model %>%
+            select(!contains("rii"))
+        }
+
+        # Remove intercept columns (if not requested by user)
+        if(intercept == FALSE) {
+          popsSII_model <- popsSII_model %>%
+            select(-intercept)
+        }
+
+        # Move intercept to last column of dataframe
+        if(intercept == TRUE) {
+          popsSII_model <- popsSII_model %>%
+            select(-intercept, intercept)
+        }
+
+        # Add metadata columns to output dataset (if requested by user)
+        if(type == "full") {
+
+          popsSII_model  <- popsSII_model %>%
+
+            mutate(indicator_type = if_else(value_type == 0, "normal",
+                                            if_else(value_type == 1,
+                                                  "rate", "proportion")),
+                   multiplier = multiplier,
+                   transform = if_else(transform == TRUE & value_type == 1, "log",
+                                       if_else(transform == TRUE & value_type == 2, "logit",
+                                             "none")),
+                   CI_confidence = paste0(confidence * 100, "%",
+                                          collapse = ", "),
+                   CI_method = paste0("simulation ", repetitions, " reps"))
+
+        }
 
         # return output dataset
-    return(popsSII_model)
+        return(popsSII_model)
 
 }
