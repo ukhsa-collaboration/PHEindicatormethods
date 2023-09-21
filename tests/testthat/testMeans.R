@@ -1,5 +1,3 @@
-context("test_phe_mean")
-
 #test calculations
 test_that("means and CIs calculate correctly",{
   expect_equal(data.frame(select(phe_mean(test_Mean,values),1:6,8:9)),
