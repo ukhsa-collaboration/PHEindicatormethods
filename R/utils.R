@@ -499,7 +499,7 @@ calc_reliability <- function(CI_data,
 
   reliabity_stats <- CI_data %>%
     mutate(
-      reliabity_stats_data = purrr::map(CI_calcs, function(x){
+      reliabity_stats_data = purrr::map(.data$CI_calcs, function(x){
         # Calculate mean average difference in SII and RII from first rep
         diffs_sample_original <- x |>
           mutate(across(everything(), function(y) {abs(y - y[1])})) |>
@@ -530,8 +530,8 @@ calc_reliability <- function(CI_data,
       }
       )
     ) |>
-    select(groups, reliabity_stats_data) |>
-    unnest(reliabity_stats_data)
+    select(all_of(groups), "reliabity_stats_data") |>
+    unnest("reliabity_stats_data")
 
 }
 
