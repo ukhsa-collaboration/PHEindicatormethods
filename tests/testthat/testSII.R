@@ -1,5 +1,3 @@
-context("test_phe_SII")
-
 # 1) Test calculations ----------------------------------------------------
 # Expect SII value to match exactly, and confidence limits to be within
 # given tolerance

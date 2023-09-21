@@ -365,7 +365,7 @@ SimulationFunc <- function(data,
   if (value_type == 1 & transform == FALSE) {
     yvals_transformed <- exp(yvals)
   } else if (value_type == 2 & transform == FALSE) {
-    yvals_transformed <- exp(yvals)/(1+exp(yvals))
+    yvals_transformed <- exp(yvals)/(1 + exp(yvals))
   } else {
     yvals_transformed <- yvals
   }
@@ -377,7 +377,7 @@ SimulationFunc <- function(data,
   # Calculate inverse of (m*transpose (m))*m to use in calculation
   # of least squares estimate of regression parameters
   # Ref: https://onlinecourses.science.psu.edu/stat501/node/38
-  invm_m <- solve((m)%*%t(m))%*%m
+  invm_m <- solve((m) %*% t(m)) %*% m
 
   # Multiply transformed yvals matrix element-wise by sqrta - this weights the sampled
   # yvals by a measure of population
@@ -410,7 +410,7 @@ SimulationFunc <- function(data,
     }
 
     # Apply multiplicative factor to RII if transform = FALSE
-     if(multiplier < 0 & transform == FALSE) {
+     if (multiplier < 0 & transform == FALSE) {
        RII_results <- 1/RII_results
      } else {
        RII_results <- RII_results
@@ -430,7 +430,7 @@ SimulationFunc <- function(data,
   }
 
     # Apply multiplicative factor to SII if transform = FALSE
-     if(transform == FALSE) {
+     if (transform == FALSE) {
        SII_results <- SII_results * multiplier
      } else {
        SII_results <- SII_results
@@ -443,9 +443,9 @@ SimulationFunc <- function(data,
   # as confidence limits
 
   # position of lower percentile
-  pos_lower <- round(repeats*(1-confidence_value), digits=0)
+  pos_lower <- round(repeats * (1 - confidence_value), digits = 0)
   # position of upper percentile
-  pos_upper <- round(repeats*confidence_value, digits=0)
+  pos_upper <- round(repeats * confidence_value, digits = 0)
 
   # Combine position indexes for SII CLs
   pos <- rbind(pos_lower, pos_upper)

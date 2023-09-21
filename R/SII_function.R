@@ -125,6 +125,7 @@
 #' @importFrom tidyr nest unnest spread
 #' @importFrom stats rnorm qnorm lm
 #' @importFrom tidyselect where
+#' @importFrom rlang := .data .env
 #'
 #' @examples
 #' library(dplyr)
@@ -589,34 +590,34 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
           if (value_type == 1) {#anti-log needed
 
             popsSII_model <- popsSII_model %>%
-              mutate(xequals1 = intercept + .data$sii,
-                     xequalshalf = (intercept + .data$xequals1) / 2,
-                     antilogintercept = exp(intercept),
+              mutate(xequals1 = .data$intercept + .data$sii,
+                     xequalshalf = (.data$intercept + .data$xequals1) / 2,
+                     antilogintercept = exp(.data$intercept),
                      antilogxequals1 = exp(.data$xequals1),
-                     multiplier = multiplier,
-                     sii = (.data$antilogxequals1 - .data$antilogintercept) * multiplier,
+                     multiplier = .env$multiplier,
+                     sii = (.data$antilogxequals1 - .data$antilogintercept) * .data$multiplier,
                      rii = if_else(
-                       multiplier < 0,
+                       .data$multiplier < 0,
                        1 / (.data$antilogxequals1 / .data$antilogintercept),
                        .data$antilogxequals1 / .data$antilogintercept
                      ),
-                     intercept = .data$antilogintercept * abs(multiplier))
+                     intercept = .data$antilogintercept * abs(.data$multiplier))
 
           } else if (value_type == 2) {#anti-logit needed
 
             popsSII_model <- popsSII_model %>%
-              mutate(xequals1 = intercept + .data$sii,
-                     xequalshalf = (intercept + .data$xequals1) / 2,
-                     antilogintercept = exp(intercept) / (1 + exp(intercept)),
+              mutate(xequals1 = .data$intercept + .data$sii,
+                     xequalshalf = (.data$intercept + .data$xequals1) / 2,
+                     antilogintercept = exp(.data$intercept) / (1 + exp(.data$intercept)),
                      antilogxequals1 = exp(.data$xequals1) / (1 + exp(.data$xequals1)),
-                     multiplier = multiplier,
-                     sii = (.data$antilogxequals1 - .data$antilogintercept) * multiplier,
+                     multiplier = .env$multiplier,
+                     sii = (.data$antilogxequals1 - .data$antilogintercept) * .data$multiplier,
                      rii = if_else(
                        multiplier < 0,
                        1 / (.data$antilogxequals1 / .data$antilogintercept),
                        .data$antilogxequals1 / .data$antilogintercept
                      ),
-                     intercept = .data$antilogintercept * abs(multiplier))
+                     intercept = .data$antilogintercept * abs(.data$multiplier))
           }
 
 
@@ -641,7 +642,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
 
           popsSII_model_CIs <- popsSII_model_CIs |>
             mutate(
-              CI_calcs = purrr::map2(CI_params, xequalshalf, function(data, xequalshalf) {
+              CI_calcs = purrr::map2(.data$CI_params, .data$xequalshalf, function(data, xequalshalf) {
 
                 map(confidence, function(conf) {
 
@@ -659,27 +660,27 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                   if (value_type == 1) {
 
                     SII_calculations <- selected_data %>%
-                      mutate(interceptlcl = .data$xequalshalf - (.data$sii_lower/2),
-                             interceptucl = .data$xequalshalf - (.data$sii_upper/2),
-                             xequals1lcl = .data$xequalshalf + (.data$sii_lower/2),
-                             xequals1ucl = .data$xequalshalf + (.data$sii_upper/2),
-                             multiplier = multiplier,
-                             sii_lower = if_else(multiplier < 1, (exp(.data$xequals1ucl) - exp(.data$interceptucl)) * multiplier,
-                                                 (exp(.data$xequals1lcl) - exp(.data$interceptlcl)) * multiplier),
-                             sii_upper = if_else(multiplier < 1, (exp(.data$xequals1lcl) - exp(.data$interceptlcl)) * multiplier,
-                                                 (exp(.data$xequals1ucl) - exp(.data$interceptucl)) * multiplier)
+                      mutate(interceptlcl = .data$xequalshalf - (.data$sii_lower / 2),
+                             interceptucl = .data$xequalshalf - (.data$sii_upper / 2),
+                             xequals1lcl = .data$xequalshalf + (.data$sii_lower / 2),
+                             xequals1ucl = .data$xequalshalf + (.data$sii_upper / 2),
+                             multiplier = .env$multiplier,
+                             sii_lower = if_else(.data$multiplier < 1, (exp(.data$xequals1ucl) - exp(.data$interceptucl)) * .data$multiplier,
+                                                 (exp(.data$xequals1lcl) - exp(.data$interceptlcl)) * .data$multiplier),
+                             sii_upper = if_else(.data$multiplier < 1, (exp(.data$xequals1lcl) - exp(.data$interceptlcl)) * .data$multiplier,
+                                                 (exp(.data$xequals1ucl) - exp(.data$interceptucl)) * .data$multiplier)
                       )
 
                     if (isTRUE(rii)) {
                       SII_calculations <- SII_calculations |>
                         mutate(
                           rii_lower = if_else(
-                            multiplier < 1,
+                            .data$multiplier < 1,
                             1 / (exp(.data$xequals1ucl) / exp(.data$interceptucl)
                             ),
                             exp(.data$xequals1lcl) / exp(.data$interceptlcl)),
                           rii_upper = if_else(
-                            multiplier < 1,
+                            .data$multiplier < 1,
                             1 / (exp(.data$xequals1lcl) / exp(.data$interceptlcl)),
                             exp(.data$xequals1ucl) / exp(.data$interceptucl)
                           )
@@ -693,16 +694,16 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                              interceptucl = .data$xequalshalf - (.data$sii_upper / 2),
                              xequals1lcl = .data$xequalshalf + (.data$sii_lower / 2),
                              xequals1ucl = .data$xequalshalf + (.data$sii_upper / 2),
-                             multiplier = multiplier,
+                             multiplier = .env$multiplier,
                              sii_lower = if_else(
-                               multiplier < 0,
-                               ((exp(.data$xequals1ucl) / (1 + exp(.data$xequals1ucl))) - (exp(.data$interceptucl) / (1 + exp(.data$interceptucl)))) * multiplier,
-                               ((exp(.data$xequals1lcl) / (1 + exp(.data$xequals1lcl))) - (exp(.data$interceptlcl) / (1 + exp(.data$interceptlcl)))) * multiplier
+                               .data$multiplier < 0,
+                               ((exp(.data$xequals1ucl) / (1 + exp(.data$xequals1ucl))) - (exp(.data$interceptucl) / (1 + exp(.data$interceptucl)))) * .data$multiplier,
+                               ((exp(.data$xequals1lcl) / (1 + exp(.data$xequals1lcl))) - (exp(.data$interceptlcl) / (1 + exp(.data$interceptlcl)))) * .data$multiplier
                              ),
                              sii_upper = if_else(
-                               multiplier < 0,
-                               ((exp(.data$xequals1lcl) / (1 + exp(.data$xequals1lcl))) - (exp(.data$interceptlcl) / (1 + exp(.data$interceptlcl)))) * multiplier,
-                               ((exp(.data$xequals1ucl) / (1 + exp(.data$xequals1ucl))) - (exp(.data$interceptucl)/(1 + exp(.data$interceptucl)))) * multiplier
+                               .data$multiplier < 0,
+                               ((exp(.data$xequals1lcl) / (1 + exp(.data$xequals1lcl))) - (exp(.data$interceptlcl) / (1 + exp(.data$interceptlcl)))) * .data$multiplier,
+                               ((exp(.data$xequals1ucl) / (1 + exp(.data$xequals1ucl))) - (exp(.data$interceptucl)/(1 + exp(.data$interceptucl)))) * .data$multiplier
                              )
                       )
 
@@ -715,7 +716,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                             1 / ((exp(.data$xequals1ucl) / (1 + exp(.data$xequals1ucl))) / (exp(.data$interceptucl) / (1 + exp(.data$interceptucl)))),
                             ((exp(.data$xequals1lcl)/(1 + exp(.data$xequals1lcl))) / (exp(.data$interceptlcl)/(1 + exp(.data$interceptlcl))))),
                           rii_upper = if_else(
-                            multiplier < 0,
+                            .data$multiplier < 0,
                             1 / ((exp(.data$xequals1lcl) / (1 + exp(.data$xequals1lcl))) / (exp(.data$interceptlcl)/(1 + exp(.data$interceptlcl)))),
                             ((exp(.data$xequals1ucl) / (1 + exp(.data$xequals1ucl))) / (exp(.data$interceptucl)/(1 + exp(.data$interceptucl))))
                           )
@@ -807,7 +808,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
         }
 
         # Add metadata columns to output dataset (if requested by user)
-        if(type == "full") {
+        if (type == "full") {
 
           popsSII_model  <- popsSII_model %>%
 

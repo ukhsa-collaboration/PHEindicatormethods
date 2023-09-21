@@ -1,5 +1,3 @@
-context("test_phe_life_expectancy")
-
 # dps to test to
 n <- 4
 

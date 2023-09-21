@@ -1,5 +1,3 @@
-context("test_phe_quantiles")
-
 # test grouped df field
 df1 <- test_quantiles_g %>% filter(GroupSet == "IndSexReg") %>%
   group_by(IndSexRef, ParentCode)
