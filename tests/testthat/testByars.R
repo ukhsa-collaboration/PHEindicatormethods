@@ -1,5 +1,3 @@
-context("test_byars")
-
 #test calculations
 test_that("byars_lower calculate correctly",{
 

@@ -1,5 +1,3 @@
-context("test_wilson")
-
 #test calculations
 test_that("wilson_lower calculate correctly",{
 

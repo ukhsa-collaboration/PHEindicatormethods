@@ -1,5 +1,3 @@
-context("test_phe_dsr")
-
 #test calculations
 test_that("dsrs and CIs calculate correctly",{
 

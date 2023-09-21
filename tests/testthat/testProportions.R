@@ -1,6 +1,3 @@
-context("test_phe_proportion")
-
-
 # test calculations
 test_that("proportions and CIs calculate correctly",{
 

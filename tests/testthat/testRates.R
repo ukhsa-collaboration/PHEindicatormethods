@@ -1,6 +1,3 @@
-context("test_phe_rate")
-
-
 #test calculations
 test_that("rates and CIs calculate correctly",{
 
