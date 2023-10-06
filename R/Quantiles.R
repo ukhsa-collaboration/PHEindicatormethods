@@ -119,6 +119,10 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
                                    "lowest quantile represents highest values",
                                    "lowest quantile represents lowest values"))
 
+    # generate warning if any groups could not have quantiles assigned due to too few small areas
+    if (nrow(filter(phe_quantile, !is.na({{ values}}) & is.na(.data$quantile)) > 0)){
+      warning("One or more groups had too few small areas to allow quantiles to be assigned")
+    }
 
     # remove columns if not required based on value of type argument
     if (type == "standard") {
