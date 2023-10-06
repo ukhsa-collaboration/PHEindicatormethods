@@ -56,7 +56,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")),
                data.frame(SII_test_grouped[c(1,11), c(3:5,16:21)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test default with SE provided", tolerance = tol)
 
    # test same calculation, supplying upper and lower CLs rather than SE
@@ -70,7 +70,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         rii = TRUE,
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(1,11), c(3:5,16:21)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test default with CLs provided", tolerance = tol)
 
      # test same calculation, outputting intercept value
@@ -85,7 +85,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         intercept = TRUE, # Intercept set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(246,256), c(3:5,16:21,26)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test default with intercept", tolerance = tol)
 
    # test function on ungrouped dataset
@@ -101,7 +101,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")),
                data.frame(SII_test_grouped[1, c(16:21)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test on ungrouped data", tolerance = tol)
 
     # test SII calculation at 99% confidence (inputted as decimal)
@@ -116,7 +116,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")), # SII confidence changed
                data.frame(SII_test_grouped[c(21,31), c(3:5,16:21)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test at 99% confidence (decimal)", tolerance = tol)
 
     # test SII calculation at 99% confidence (inputted as %)
@@ -130,7 +130,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")), # SII confidence changed
                data.frame(SII_test_grouped[c(21,31), c(3:5,16:21)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test at 99% confidence (%)", tolerance = tol)
 
   # test SII calculation on multiple confidence intervals (inputted as %)
@@ -144,7 +144,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")), # SII confidence changed
                data.frame(SII_test_grouped[c(226,236), c(3:5,16:18,19,22,23,20,21,24,25)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test at 95 and 99% confidence (%)", tolerance = tol)
 
     # test SII calculation on 100,000 repetitions
@@ -157,7 +157,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")), # No. repetitions changed
                data.frame(SII_test_grouped[c(41,51), c(3:5,16:21)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test on 10000 repetitions", tolerance = tol)
 
   # test SII calculation on quintiles instead of deciles
@@ -170,7 +170,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard"))[, 1:4], # only have SII available from Excel tool
                data.frame(SII_test_grouped[c(61,66), c(3:5,16)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test on quintiles", tolerance = tol)
 
   # *****************************
@@ -187,7 +187,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")),
                data.frame(SII_test_grouped[c(71,81), c(3:5,16:21)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test rate with SE provided", tolerance = tol)
 
   # test same calculation, supplying upper and lower CLs (before transformation)
@@ -202,7 +202,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")),
                data.frame(SII_test_grouped[c(71,81), c(3:5,16:21)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test rate with CLs provided", tolerance = tol)
 
 # test same calculation, outputting intercept value
@@ -217,7 +217,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         intercept = TRUE, # Intercept set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(266,276), c(3:5,16:21,26)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test rate with intercept", tolerance = tol)
 
   # test calculation with log transformation of values,
@@ -233,7 +233,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         transform = TRUE, # Log transformation set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(306,316), c(3:5,16:21,26)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test rate with transformation", tolerance = tol)
 
   # test calculation with log transformation of values and negative multiplier,
@@ -250,7 +250,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         transform = TRUE, # Log transformation set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(386,396), c(3:5,16:21,26)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test rate with transformation and negative multiplier", tolerance = tol)
 
   # test calculation with log transformation of values and 98% confidence intervals,
@@ -267,7 +267,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         transform = TRUE, # Log transformation set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(406,416), c(3:5,16:21,26)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test rate with transformation and 98% cis", tolerance = tol)
 
     # test calculation with log transformation of values and multiple confidence intervals,
@@ -284,7 +284,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         transform = TRUE, # Log transformation set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(366,376), c(3:5,16:26)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test rate with transformation and multiple cis", tolerance = tol)
 
     # test calculation with log transformation of values without RII,
@@ -300,7 +300,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         transform = TRUE, # Log transformation set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(426,436), c(3:5,16, 18:19)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test rate with transformation without rii", tolerance = tol)
 
 
@@ -318,7 +318,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")),
                data.frame(SII_test_grouped[c(91,101), c(3:5,16:21)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test proportion with SE provided", tolerance = tol)
 
   # test same calculation, supplying upper and lower CLs (before transformation)
@@ -333,7 +333,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")),
                data.frame(SII_test_grouped[c(91,101), c(3:5,16:21)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test proportion with CLs provided", tolerance = tol)
 
   # test same calculation, supplying count instead of value
@@ -347,7 +347,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")),
                data.frame(SII_test_grouped[c(91,101), c(3:5,16:21)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test proportion with count provided", tolerance = tol)
 
   # test same calculation, outputting intercept value
@@ -362,7 +362,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         intercept = TRUE, # Intercept set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(286,296), c(3:5,16:21,26)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test proportion with intercept", tolerance = tol)
 
   # test SII calculation with POSITIVE multiplier and RII
@@ -377,7 +377,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")),
                data.frame(SII_test_grouped[c(111,121), c(3:5,16:21)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test proportion with positive multiplier and RII", tolerance = tol)
 
   # test SII calculation with POSITIVE multiplier without RII
@@ -392,7 +392,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = FALSE,
                                   type = "standard")),
                data.frame(SII_test_grouped[c(111,121), c(3:5,16,18,19)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test proportion with positive multiplier without RII", tolerance = tol)
 
   # test SII calculation with NEGATIVE multiplier and RII
@@ -407,7 +407,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = TRUE,
                                   type = "standard")),
                data.frame(SII_test_grouped[c(131,141), c(3:5,16:21)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test proportion with negative multiplier and RII", tolerance = tol)
 
   # test SII calculation with NEGATIVE multiplier without RII
@@ -422,7 +422,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   rii = FALSE,
                                   type = "standard")),
                data.frame(SII_test_grouped[c(131,141), c(3:5,16,18,19)]),
-               check.attributes=FALSE, check.names=FALSE,
+               ignore_attr = TRUE,
                info="test proportion with negative multiplier without RII", tolerance = tol)
 
   # test calculation with logit transformation of values,
@@ -438,7 +438,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         transform = TRUE, # Log transformation set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(326,336), c(3:5,16:21,26)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test proportion with transformation", tolerance = tol)
 
   # test calculation with logit transformation of values and negative multiplier,
@@ -455,7 +455,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         transform = TRUE, # Log transformation set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(346,356), c(3:5,16:21,26)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test proportion with transformation and negative multiplier", tolerance = tol)
 
   # test calculation with logit transformation of values and 98% ci,
@@ -472,7 +472,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         transform = TRUE, # Log transformation set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(466,476), c(3:5,16:21,26)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test proportion with transformation and 98% cis", tolerance = tol)
 
   # test calculation with logit transformation of values and 95% and 98% ci,
@@ -489,7 +489,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         transform = TRUE, # Log transformation set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(486,496), c(3:5,16:26)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test proportion with transformation and 95% and 98% cis", tolerance = tol)
 
   # test calculation with logit transformation of values and 95% and 98% ci,
@@ -504,7 +504,7 @@ test_that("SII and confidence limits calculate correctly",{
                                         transform = TRUE, # Log transformation set to true
                                   type = "standard")),
                      data.frame(SII_test_grouped[c(446,456), c(3:5,16, 18:19)]),
-                     check.attributes=FALSE, check.names=FALSE,
+                     ignore_attr = TRUE,
                      info="test proportion with transformation and no rii", tolerance = tol)
 
 })
