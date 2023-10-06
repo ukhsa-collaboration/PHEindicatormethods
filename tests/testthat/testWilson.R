@@ -1,28 +1,26 @@
-context("test_wilson")
-
 #test calculations
 test_that("wilson_lower calculate correctly",{
 
   expect_equal(data.frame(lowercl = wilson_lower(c(65,1045,0.445),c(100,5000,1))),
-               data.frame(slice(test_BW,7:9)[3]),check.attributes=FALSE, check.names=FALSE, info="test default")
+               data.frame(slice(test_BW,7:9)[3]),ignore_attr = TRUE, info="test default")
 
   expect_equal(data.frame(lowercl = wilson_lower(c(65,1045,0.445),c(100,5000,1),confidence=99.8)),
-               data.frame(slice(test_BW,10:12)[3]),check.attributes=FALSE, check.names=FALSE, info="test default")
+               data.frame(slice(test_BW,10:12)[3]),ignore_attr = TRUE, info="test default")
 
   expect_equal(data.frame(lowercl = wilson_lower(c(65,1045,0.445),c(100,5000,1),confidence=1)),
-               data.frame(uppercl = 0),check.attributes=FALSE, check.names=FALSE, info="test default")
+               data.frame(uppercl = 0),ignore_attr = TRUE, info="test default")
 
   expect_equal(data.frame(uppercl = wilson_upper(c(65,1045,0.445),c(100,5000,1))),
-               data.frame(slice(test_BW,7:9)[4]),check.attributes=FALSE, check.names=FALSE, info="test default")
+               data.frame(slice(test_BW,7:9)[4]),ignore_attr = TRUE, info="test default")
 
   expect_equal(data.frame(uppercl = wilson_upper(c(65,1045,0.445),c(100,5000,1),confidence=0.998)),
-               data.frame(slice(test_BW,10:12)[4]),check.attributes=FALSE, check.names=FALSE, info="test default")
+               data.frame(slice(test_BW,10:12)[4]),ignore_attr = TRUE, info="test default")
 
   expect_equal(data.frame(uppercl = wilson_upper(c(65,1045,0.445),c(100,5000,1),confidence=1)),
-               data.frame(uppercl = 1),check.attributes=FALSE, check.names=FALSE, info="test default")
+               data.frame(uppercl = 1),ignore_attr = TRUE, info="test default")
 
   expect_equal(data.frame(uppercl = wilson_upper(c(65,1045,0.445),c(100,5000,1),confidence=99.8)),
-               data.frame(slice(test_BW,10:12)[4]),check.attributes=FALSE, check.names=FALSE, info="test default")
+               data.frame(slice(test_BW,10:12)[4]),ignore_attr = TRUE, info="test default")
 })
 
 

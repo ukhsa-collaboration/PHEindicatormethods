@@ -153,7 +153,7 @@ phe_proportion <- function(data, x, n, type="full", confidence=0.95, multiplier=
                  uppercl = wilson_upper(({{ x }}),({{ n }}),confidence) * multiplier,
                  confidence = paste(confidence*100,"%",sep=""),
                  method = "Wilson") |>
-          relocate(.data$statistic, .after = confidence)
+          relocate("statistic", .after = "confidence")
         }
 
 

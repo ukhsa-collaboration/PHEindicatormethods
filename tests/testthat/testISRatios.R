@@ -4,33 +4,33 @@ test_that("isratios and CIs calculate correctly",{
   expect_equal(data.frame(select(calculate_ISRatio(select(test_ISR_ownref,-refcount,-refpop), count, pop,
                                   x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),1:6,8:9)),
                data.frame(select(slice(test_ISR_results,7:9),1:3,5:7,10:11)),
-               check.attributes=FALSE, check.names=FALSE,info="test default")
+               ignore_attr = TRUE,info="test default")
 
   expect_equal(data.frame(select(calculate_ISRatio(select(test_ISR_ownref,-count, -refcount,-refpop), total_count, pop,
                                                   x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop,
                                                   observed_totals = test_ISR_lookup), 1:6,8:9)),
                data.frame(select(slice(test_ISR_results,7:9),1:3,5:7,10:11)),
-               check.attributes=FALSE, check.names=FALSE,info="test default with observed_totals")
+               ignore_attr = TRUE,info="test default with observed_totals")
 
   expect_equal(data.frame(select(calculate_ISRatio(select(test_ISR_ownref,-refcount,-refpop), count, pop,
                                          confidence = c(0.95,0.998), x_ref = test_ISR_refdata$refcount,
                                          n_ref = test_ISR_refdata$refpop),1:8,10:11)),
                data.frame(select(slice(test_ISR_results,7:9),1:3,5:11)),
-               check.attributes=FALSE, check.names=FALSE,info="test full output 2 CIs")
+               ignore_attr = TRUE,info="test full output 2 CIs")
 
   expect_equal(data.frame(select(calculate_ISRatio(test_ISR_ownref, count, pop, refcount, refpop, refpoptype="field"), 1:6,8:9)),
                data.frame(select(slice(test_ISR_results,7:9),1:3,5:7,10:11)),
-               check.attributes=FALSE, check.names=FALSE,info="test default with own ref data by col name")
+               ignore_attr = TRUE,info="test default with own ref data by col name")
 
   expect_equal(data.frame(select(calculate_ISRatio(select(test_ISR_ownref,-refcount,-refpop), count, pop,
                                   test_ISR_ownref$refcount[1:19], test_ISR_ownref$refpop[1:19]),1:6,8:9)),
                data.frame(select(slice(test_ISR_results,7:9),1:3,5:7,10:11)),
-               check.attributes=FALSE, check.names=FALSE,info="test default with own ref data as vector")
+               ignore_attr = TRUE,info="test default with own ref data as vector")
 
   expect_equal(data.frame(calculate_ISRatio(test_err2, count, pop, type="standard", x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, refvalue=100)),
                data.frame(select(slice(test_ISR_results,15:16),1:3,5:7)),
-               check.attributes=FALSE, check.names=FALSE,info="test n = 0")
+               ignore_attr = TRUE,info="test n = 0")
 
   expect_equal(data.frame(calculate_ISRatio(select(test_ISR_ownref,-refcount,-refpop), count, pop, type="standard",
                                   x_ref = c(10303,2824,NA,3615,3641,3490,3789,3213,3031,2771,
@@ -38,78 +38,78 @@ test_that("isratios and CIs calculate correctly",{
                                   n_ref = c(50520,57173,60213,54659,44345,50128,62163,67423,
                                             62899,55463,60479,49974,44140,40888,37239,30819,18136,15325,13918))),
                data.frame(select(slice(test_ISR_results,7:9),1:3,5:7)),
-               check.attributes=FALSE, check.names=FALSE,info="test ref as specified vector")
+               ignore_attr = TRUE,info="test ref as specified vector")
 
   expect_equal(data.frame(calculate_ISRatio(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, type="standard")),
                data.frame(select(slice(test_ISR_results,7:9),1:3,5:7)),
-               check.attributes=FALSE, check.names=FALSE,info="test standard")
+               ignore_attr = TRUE,info="test standard")
 
   expect_equal(data.frame(calculate_ISRatio(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop,
                                   confidence = c(0.95, 0.998), type="standard")),
                data.frame(select(slice(test_ISR_results,7:9),1:3,5:9)),
-               check.attributes=FALSE, check.names=FALSE,info="test standard 2 CIs")
+               ignore_attr = TRUE,info="test standard 2 CIs")
 
   expect_equal(data.frame(calculate_ISRatio(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, type="value")),
                data.frame(select(slice(test_ISR_results,7:9),1,5)),
-               check.attributes=FALSE, check.names=FALSE,info="test value")
+               ignore_attr = TRUE,info="test value")
 
   expect_equal(data.frame(calculate_ISRatio(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop,
                                   confidence = c(0.95, 0.998), type="value")),
                data.frame(select(slice(test_ISR_results,7:9),1,5)),
-               check.attributes=FALSE, check.names=FALSE,info="test value 2 CIs")
+               ignore_attr = TRUE,info="test value 2 CIs")
 
   expect_equal(data.frame(calculate_ISRatio(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, type="lower")),
                data.frame(select(slice(test_ISR_results,7:9),1,6)),
-               check.attributes=FALSE, check.names=FALSE,info="test lower")
+               ignore_attr = TRUE,info="test lower")
 
   expect_equal(data.frame(calculate_ISRatio(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop,
                                   confidence = c(0.95, 0.998), type="lower")),
                data.frame(select(slice(test_ISR_results,7:9),1,6,8)),
-               check.attributes=FALSE, check.names=FALSE,info="test lower 2 CIs")
+               ignore_attr = TRUE,info="test lower 2 CIs")
 
   expect_equal(data.frame(calculate_ISRatio(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop,type="upper")),
                data.frame(select(slice(test_ISR_results,7:9),1,7)),
-               check.attributes=FALSE, check.names=FALSE,info="test upper")
+               ignore_attr = TRUE,info="test upper")
 
   expect_equal(data.frame(calculate_ISRatio(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop,
                                   confidence = c(0.95, 0.998),type="upper")),
                data.frame(select(slice(test_ISR_results,7:9),1,7,9)),
-               check.attributes=FALSE, check.names=FALSE,info="test upper 2 CIs")
+               ignore_attr = TRUE,info="test upper 2 CIs")
 
   expect_equal(data.frame(calculate_ISRatio(test_multiarea, count, pop, type="standard",
                                   x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop,confidence = 99.8)),
                data.frame(select(slice(test_ISR_results,7:9),1:3,5,8:9)),
-               check.attributes=FALSE, check.names=FALSE,info="test confidence")
+               ignore_attr = TRUE,info="test confidence")
 
   expect_equal(data.frame(calculate_ISRatio(test_multiarea, count, pop, type="standard",
                                   x_ref = test_ISR_refdata$refcount,
                                   n_ref = test_ISR_refdata$refpop, refvalue=100)),
                data.frame(select(slice(test_ISR_results,10:12),1:3,5:7)),
-               check.attributes=FALSE, check.names=FALSE,info="test refvalue")
+               ignore_attr = TRUE,info="test refvalue")
 
   expect_equal(data.frame(select(calculate_ISRatio(select(test_ISR_ownref,-refcount,-refpop), count, pop, confidence = c(0.95,0.998),
                                          x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop),1:6)),
                data.frame(select(slice(test_ISR_results,7:9),1:3,5:7)),
-               check.attributes=FALSE, check.names=FALSE,info="test two CIS 95%")
+               ignore_attr = TRUE,info="test two CIS 95%")
 
   expect_equal(data.frame(select(calculate_ISRatio(test_multiarea, count, pop, type="standard", x_ref = test_ISR_refdata$refcount,
                                          n_ref = test_ISR_refdata$refpop,confidence = c(0.95, 0.998)),1:4,7,8)),
                data.frame(select(slice(test_ISR_results,7:9),1:3,5,8:9)),
-               check.attributes=FALSE, check.names=FALSE,info="test two CIs 99.8")
+               ignore_attr = TRUE,info="test two CIs 99.8")
 
   expect_equal(data.frame(select(ungroup(calculate_ISRatio(select(test_ISR_ownref,-refcount,-refpop), count, pop, confidence = c(0.95,0.998),
                                          x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop)),9)),
                data.frame(confidence = rep("95%, 99.8%",3), stringsAsFactors=FALSE),
-               check.attributes=FALSE, check.names=FALSE,info="test two CIS metadata")
+               ignore_attr = TRUE,info="test two CIS metadata")
 
 })
 

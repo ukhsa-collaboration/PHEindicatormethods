@@ -1,3 +1,7 @@
+## PHEindicatormethods DEVELOPMENT
+* `phe_sii` amended to allow data to be transformed prior to calculation of the 
+SII, and to allow the intercept value to be output.
+
 ## PHEindicatormethods v2.0.1
 * `calculate_ISRate` and `calculate_ISRatio` updated so observed events can be passed as total without age breakdowns
 * amended GitHub referencing as code repository now owned and hosted by UKHSA-collaboration not PublicHealthEngland

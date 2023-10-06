@@ -1,86 +1,83 @@
-context("test_phe_rate")
-
-
 #test calculations
 test_that("rates and CIs calculate correctly",{
 
   expect_equal(data.frame(select(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator),1:6,8:9)),
                data.frame(select(slice(test_Rate,9:16),1:6,9:10)),
-               check.attributes=FALSE, check.names=FALSE, info="test default")
+               ignore_attr = TRUE, info="test default")
 
   expect_equal(data.frame(select(phe_rate(slice(test_Rate,9:16)[1:3],
                                           Numerator,Denominator, confidence = c(0.95,0.998)),1:8,10:11)),
                data.frame(select(slice(test_Rate,9:16),1:10)),
-               check.attributes=FALSE, check.names=FALSE, info="test full output 2 CIs")
+               ignore_attr = TRUE, info="test full output 2 CIs")
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="standard")),
                data.frame(select(slice(test_Rate,9:16),1:6)),
-               check.attributes=FALSE, check.names=FALSE, info="test standard")
+               ignore_attr = TRUE, info="test standard")
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator,
                                    confidence = c(0.95,0.998), type="standard")),
                data.frame(select(slice(test_Rate,9:16),1:8)),
-               check.attributes=FALSE, check.names=FALSE, info="test standard 2 CIs")
+               ignore_attr = TRUE, info="test standard 2 CIs")
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,20)[1:3],Numerator,Denominator, type="standard")),
                data.frame(select(slice(test_Rate,20),1:6)),
-               check.attributes=FALSE, check.names=FALSE, info="test num > denom")
+               ignore_attr = TRUE, info="test num > denom")
 
   expect_equal(data.frame(select(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, confidence=99.8),1:6,8:9)),
                data.frame(select(slice(test_Rate,9:16),1:4,7:10)),
-               check.attributes=FALSE, check.names=FALSE, info="test confidence")
+               ignore_attr = TRUE, info="test confidence")
 
   expect_equal(data.frame(select(phe_rate(slice(test_Rate,1:8)[1:3],Numerator,Denominator, multiplier=100),1:6,8:9)),
                data.frame(select(slice(test_Rate,1:8),1:6,9:10)),
-               check.attributes=FALSE, check.names=FALSE, info="test multiplier")
+               ignore_attr = TRUE, info="test multiplier")
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="value")),
                data.frame(select(slice(test_Rate,9:16),1:4)),
-               check.attributes=FALSE, check.names=FALSE, info="test value")
+               ignore_attr = TRUE, info="test value")
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator,
                                    confidence = c(0.95,0.998), type="value")),
                data.frame(select(slice(test_Rate,9:16),1:4)),
-               check.attributes=FALSE, check.names=FALSE, info="test value 2 CIs")
+               ignore_attr = TRUE, info="test value 2 CIs")
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="lower")),
                data.frame(select(slice(test_Rate,9:16),1:3,5)),
-               check.attributes=FALSE, check.names=FALSE, info="test lower")
+               ignore_attr = TRUE, info="test lower")
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator,
                                    confidence = c(0.95,0.998), type="lower")),
                data.frame(select(slice(test_Rate,9:16),1:3,5,7)),
-               check.attributes=FALSE, check.names=FALSE, info="test lower 2 CIs")
+               ignore_attr = TRUE, info="test lower 2 CIs")
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, type="upper")),
                data.frame(select(slice(test_Rate,9:16),1:3,6)),
-               check.attributes=FALSE, check.names=FALSE, info="test upper")
+               ignore_attr = TRUE, info="test upper")
 
   expect_equal(data.frame(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator,
                                    confidence = c(0.95,0.998), type="upper")),
                data.frame(select(slice(test_Rate,9:16),1:3,6,8)),
-               check.attributes=FALSE, check.names=FALSE, info="test upper 2 CIs")
+               ignore_attr = TRUE, info="test upper 2 CIs")
 
   expect_equal(data.frame(select(phe_rate(slice(test_Rate,17:19)[1:3],
                                           Numerator,Denominator, type="full"),1:6,8:9)),
                data.frame(select(slice(test_Rate,17:19),1:6,9:10)),
-               check.attributes=FALSE, check.names=FALSE, info="test NAs")
+               ignore_attr = TRUE, info="test NAs")
 
   expect_equal(arrange(data.frame(phe_rate(slice(test_Rate_g,1:8)[1:3], Numerator, Denominator)),Area),
                arrange(data.frame(select(test_Rate_g_results,1:9)),Area),
-               check.attributes=FALSE, check.names=FALSE, info="test grouped")
+               ignore_attr = TRUE, info="test grouped")
 
   expect_equal(data.frame(select(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, confidence = c(0.95, 0.998)),1:6)),
                data.frame(select(slice(test_Rate,9:16),1:6)),
-               check.attributes=FALSE, check.names=FALSE, info="test two CIs 95%")
+               ignore_attr = TRUE, info="test two CIs 95%")
 
   expect_equal(data.frame(select(phe_rate(slice(test_Rate,25:32)[1:3],Numerator,Denominator, confidence = c(0.95, 0.998)),1:4,7,8)),
                data.frame(select(slice(test_Rate,25:32),1:6)),
-               check.attributes=FALSE, check.names=FALSE, info="test two CIs 99.8%")
+               ignore_attr = TRUE, info="test two CIs 99.8%")
 
   expect_equal(data.frame(select(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, confidence = c(0.95, 0.998)),9)),
                data.frame(confidence = rep("95%, 99.8%",8), stringsAsFactors = FALSE),
-               check.attributes=FALSE, check.names=FALSE, info="test two CIs metadata")
+               ignore_attr = TRUE, info="test two CIs metadata")
 })
 
 
