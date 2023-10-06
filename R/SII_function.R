@@ -660,10 +660,10 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                   if (value_type == 1) {
 
                     SII_calculations <- selected_data %>%
-                      mutate(interceptlcl = .data$xequalshalf - (.data$sii_lower / 2),
-                             interceptucl = .data$xequalshalf - (.data$sii_upper / 2),
-                             xequals1lcl = .data$xequalshalf + (.data$sii_lower / 2),
-                             xequals1ucl = .data$xequalshalf + (.data$sii_upper / 2),
+                      mutate(interceptlcl = xequalshalf - (.data$sii_lower / 2),
+                             interceptucl = xequalshalf - (.data$sii_upper / 2),
+                             xequals1lcl = xequalshalf + (.data$sii_lower / 2),
+                             xequals1ucl = xequalshalf + (.data$sii_upper / 2),
                              multiplier = .env$multiplier,
                              sii_lower = if_else(.data$multiplier < 1, (exp(.data$xequals1ucl) - exp(.data$interceptucl)) * .data$multiplier,
                                                  (exp(.data$xequals1lcl) - exp(.data$interceptlcl)) * .data$multiplier),
@@ -690,10 +690,10 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                   } else if (value_type == 2) {
 
                     SII_calculations <- selected_data %>%
-                      mutate(interceptlcl = .data$xequalshalf - (.data$sii_lower / 2),
-                             interceptucl = .data$xequalshalf - (.data$sii_upper / 2),
-                             xequals1lcl = .data$xequalshalf + (.data$sii_lower / 2),
-                             xequals1ucl = .data$xequalshalf + (.data$sii_upper / 2),
+                      mutate(interceptlcl = xequalshalf - (.data$sii_lower / 2),
+                             interceptucl = xequalshalf - (.data$sii_upper / 2),
+                             xequals1lcl = xequalshalf + (.data$sii_lower / 2),
+                             xequals1ucl = xequalshalf + (.data$sii_upper / 2),
                              multiplier = .env$multiplier,
                              sii_lower = if_else(
                                .data$multiplier < 0,

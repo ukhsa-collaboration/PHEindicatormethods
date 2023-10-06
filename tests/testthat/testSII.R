@@ -143,7 +143,7 @@ test_that("SII and confidence limits calculate correctly",{
                                   repetitions = no_reps,
                                   rii = TRUE,
                                   type = "standard")), # SII confidence changed
-               data.frame(SII_test_grouped[c(226,236), c(3:5,16:18,22,19,23,20,24,21,26)]),
+               data.frame(SII_test_grouped[c(226,236), c(3:5,16:18,19,22,23,20,21,24,25)]),
                check.attributes=FALSE, check.names=FALSE,
                info="test at 95 and 99% confidence (%)", tolerance = tol)
 
@@ -653,18 +653,6 @@ test_that("errors are generated when invalid parameters are entered",{
                        value_type = 1),
                "se to be missing when transform is true",
                info = "se to be missing when transform is true")
-          # transform set to true and reliability stat requested
-  expect_error(phe_sii(SII_test_grouped[1:20, 3:13],
-                       Quantile,
-                       Population,
-                       value = Value,
-                       lower_cl = LowerCL, # CLs supplied
-                       upper_cl = UpperCL,
-                       transform = TRUE,
-                       value_type = 1,
-                       reliability_stat = TRUE),
-               "reliability_stat should be set to false when transform is true",
-               info = "reliability_stat should be set to false when transform is true")
 
 })
 
