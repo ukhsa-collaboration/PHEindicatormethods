@@ -98,21 +98,23 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
     }
 
 
-    # assign quantiles
+    # assign quantiles - unless number of small areas within a  group is less
+    # than number of quantiles requested
     phe_quantile <- data %>%
         mutate(naflag = if_else(is.na({{ values }}),0,1)) %>%
         add_count(name = "na_flag", wt = .data$naflag) %>%
-        mutate(adj_value = if_else(.data$invert_calc == TRUE, max({{ values }}, na.rm=TRUE)-{{ values }},{{ values }}),
-               rank      = rank(.data$adj_value, ties.method="min", na.last = "keep")) %>%
-        add_count() %>%
-        # assign quantiles - unless number of small areas with values is less than number of quantiles requested
-        mutate(quantile  = if_else(.data$na_flag < nquantiles,
+        mutate(adj_value = if_else(.data$invert_calc == TRUE,
+                                   max({{ values }}, na.rm=TRUE)-{{ values }},
+                                   {{ values }}),
+               rank      = rank(.data$adj_value, ties.method="min",
+                                na.last = "keep"),
+               quantile  = if_else(.data$na_flag < nquantiles,
                                      NA_real_,
                                      floor((nquantiles+1)-ceiling(((.data$na_flag+1)-rank)/(.data$na_flag/nquantiles)))
                                    ),
                quantile  = if_else(.data$quantile == 0, 1, .data$quantile)
     ) %>%
-        select(!c("naflag", "na_flag", "adj_value", "rank", "n")) %>%
+        select(!c("naflag", "na_flag", "adj_value", "rank")) %>%
         mutate(nquantiles= nquantiles,
                groupvars = paste0(group_vars(data),collapse = ", "),
                qinverted = if_else(.data$invert_calc == TRUE,
