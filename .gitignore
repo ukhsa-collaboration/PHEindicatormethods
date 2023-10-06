@@ -33,4 +33,3 @@ vignettes/*.R
 inst/doc
 data-raw
 README.Rmd
-data-raw/LoadTestdata.R
