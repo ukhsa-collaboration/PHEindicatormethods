@@ -7,7 +7,6 @@
 phe_quantile(
   data,
   values,
-  highergeog = NULL,
   nquantiles = 10L,
   invert = TRUE,
   inverttype = "logical",
@@ -15,26 +14,29 @@ phe_quantile(
 )
 }
 \arguments{
-\item{data}{a data frame containing the quantitative data to be assigned to quantiles.
-If pre-grouped, separate sets of quantiles will be assigned for each grouping set;
-unquoted string; no default}
+\item{data}{a data frame containing the quantitative data to be assigned to
+quantiles. If pre-grouped, separate sets of quantiles will be assigned for
+each grouping set; unquoted string; no default}
 
-\item{values}{field name from data containing the numeric values to rank data by and assign quantiles from;
-unquoted string; no default}
+\item{values}{field name from data containing the numeric values to rank data
+by and assign quantiles from; unquoted string; no default}
 
-\item{highergeog}{deprecated - functionality replaced by pre-grouping the input data frame}
+\item{nquantiles}{the number of quantiles to separate each grouping set into;
+numeric; default=10L}
 
-\item{nquantiles}{the number of quantiles to separate each grouping set into; numeric; default=10L}
+\item{invert}{whether the quantiles should be directly (FALSE) or inversely
+(TRUE) related to the numerical value order; logical (to apply same value
+to all grouping sets) OR unquoted string referencing field name from data
+that stores logical values for each grouping set; default = TRUE (ie
+highest values assigned to quantile 1)}
 
-\item{invert}{whether the quantiles should be directly (FALSE) or inversely (TRUE) related to the numerical value order;
-logical (to apply same value to all grouping sets) OR unquoted string referencing field name from data
-that stores logical values for each grouping set; default = TRUE (ie highest values assigned to quantile 1)}
+\item{inverttype}{whether the invert argument has been specified as a logical
+value or a field name from data; quoted string "field" or "logical";
+default = "logical"}
 
-\item{inverttype}{whether the invert argument has been specified as a logical value or a field name from data;
-quoted string "field" or "logical"; default = "logical"}
-
-\item{type}{defines whether to include metadata columns in output to reference the arguments passed;
-can be "standard" or "full"; quoted string; default = "full"}
+\item{type}{defines whether to include metadata columns in output to
+reference the arguments passed; can be "standard" or "full"; quoted string;
+default = "full"}
 }
 \value{
 When type = "full", returns the original data.frame with quantile (quantile value),

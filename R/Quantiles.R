@@ -3,20 +3,24 @@
 #'
 #' Assigns data to quantiles based on numeric data rankings.
 #'
-#' @param data a data frame containing the quantitative data to be assigned to quantiles.
-#'             If pre-grouped, separate sets of quantiles will be assigned for each grouping set;
-#'             unquoted string; no default
-#' @param values field name from data containing the numeric values to rank data by and assign quantiles from;
-#'             unquoted string; no default
-#' @param highergeog deprecated - functionality replaced by pre-grouping the input data frame
-#' @param nquantiles the number of quantiles to separate each grouping set into; numeric; default=10L
-#' @param invert whether the quantiles should be directly (FALSE) or inversely (TRUE) related to the numerical value order;
-#'               logical (to apply same value to all grouping sets) OR unquoted string referencing field name from data
-#'               that stores logical values for each grouping set; default = TRUE (ie highest values assigned to quantile 1)
-#' @param inverttype whether the invert argument has been specified as a logical value or a field name from data;
-#'                   quoted string "field" or "logical"; default = "logical"
-#' @param type defines whether to include metadata columns in output to reference the arguments passed;
-#'             can be "standard" or "full"; quoted string; default = "full"
+#' @param data a data frame containing the quantitative data to be assigned to
+#'   quantiles. If pre-grouped, separate sets of quantiles will be assigned for
+#'   each grouping set; unquoted string; no default
+#' @param values field name from data containing the numeric values to rank data
+#'   by and assign quantiles from; unquoted string; no default
+#' @param nquantiles the number of quantiles to separate each grouping set into;
+#'   numeric; default=10L
+#' @param invert whether the quantiles should be directly (FALSE) or inversely
+#'   (TRUE) related to the numerical value order; logical (to apply same value
+#'   to all grouping sets) OR unquoted string referencing field name from data
+#'   that stores logical values for each grouping set; default = TRUE (ie
+#'   highest values assigned to quantile 1)
+#' @param inverttype whether the invert argument has been specified as a logical
+#'   value or a field name from data; quoted string "field" or "logical";
+#'   default = "logical"
+#' @param type defines whether to include metadata columns in output to
+#'   reference the arguments passed; can be "standard" or "full"; quoted string;
+#'   default = "full"
 #'
 #' @import dplyr
 #' @importFrom rlang sym quo_name
@@ -27,10 +31,11 @@
 #'         and invert (indicating direction of quantile assignment) fields appended.
 #'
 #'
-#' @section Notes: See [PHE Technical Guide - Assigning Deprivation Quintiles](https://fingertips.phe.org.uk/profile/guidance/supporting-information/PH-methods) for methodology.
-#'          In particular, note that this function strictly applies the algorithm defined but some manual
-#'          review, and potentially adjustment, is advised in some cases where multiple small areas with equal rank
-#'          fall across a natural quantile boundary.
+#' @section Notes: See [OHID Technical Guide - Assigning Deprivation Categories](https://fingertips.phe.org.uk/profile/guidance/supporting-information/PH-methods)
+#'   for methodology. In particular, note that this function strictly applies
+#'   the algorithm defined but some manual review, and potentially adjustment,
+#'   is advised in some cases where multiple small areas with equal rank fall
+#'   across a natural quantile boundary.
 #'
 #' @examples
 #'
@@ -55,20 +60,18 @@
 
 
 # create phe_quantile function using PHE method
-phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
-                         invert=TRUE, inverttype = "logical", type = "full") {
+phe_quantile <- function(data,
+                         values,
+                         nquantiles = 10L,
+                         invert = TRUE,
+                         inverttype = "logical",
+                         type = "full") {
 
 
     # check required arguments present
     if (missing(data)|missing(values)) {
         stop("function phe_quantile requires at least 2 arguments: data and values")
     }
-
-    # give useful error if deprecated highergeog argument used
-    if (!missing(highergeog)) {
-      stop("highergeog argument is deprecated - pregroup input dataframe to replace this functionality")
-    }
-
 
     # check invert is valid and append to data
     if (!(inverttype %in% c("logical","field"))) {
@@ -101,20 +104,22 @@ phe_quantile <- function(data, values, highergeog = NULL, nquantiles=10L,
     # assign quantiles - unless number of small areas within a  group is less
     # than number of quantiles requested
     phe_quantile <- data %>%
-        mutate(naflag = if_else(is.na({{ values }}),0,1)) %>%
-        add_count(name = "na_flag", wt = .data$naflag) %>%
+        # flag records with values, as NA values can't be assigned to quantiles
+        mutate(hasvalue = if_else(is.na({{ values }}), 0, 1)) %>%
+        # count records per group
+        add_count(name = "num_small_areas", wt = .data$hasvalue) %>%
         mutate(adj_value = if_else(.data$invert_calc == TRUE,
                                    max({{ values }}, na.rm=TRUE)-{{ values }},
                                    {{ values }}),
                rank      = rank(.data$adj_value, ties.method="min",
                                 na.last = "keep"),
-               quantile  = if_else(.data$na_flag < nquantiles,
+               quantile  = if_else(.data$num_small_areas < nquantiles,
                                      NA_real_,
-                                     floor((nquantiles+1)-ceiling(((.data$na_flag+1)-rank)/(.data$na_flag/nquantiles)))
+                                     floor((nquantiles+1)-ceiling(((.data$num_small_areas+1)-rank)/(.data$num_small_areas/nquantiles)))
                                    ),
                quantile  = if_else(.data$quantile == 0, 1, .data$quantile)
     ) %>%
-        select(!c("naflag", "na_flag", "adj_value", "rank")) %>%
+        select(!c("hasvalue", "num_small_areas", "adj_value", "rank")) %>%
         mutate(nquantiles= nquantiles,
                groupvars = paste0(group_vars(data),collapse = ", "),
                qinverted = if_else(.data$invert_calc == TRUE,
