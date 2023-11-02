@@ -57,7 +57,7 @@ test_that("quantiles calculate correctly",{
 #test warnings
 test_that("quantiles - warnings are generated when too few small areas for number of quantiles",{
   expect_warning(data.frame(phe_quantile(df2, Value, invert = FALSE)),
-               "One or more groups had too few small areas to allow quantiles to be assigned",
+               "One or more groups had too few small areas with values to allow quantiles to be assigned",
                info="warning too few small areas")
 })
 
