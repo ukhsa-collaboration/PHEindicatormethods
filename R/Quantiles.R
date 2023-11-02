@@ -39,7 +39,8 @@
 #'
 #' @examples
 #' df <- data.frame(
-#'   region    = as.character(rep(c("Region1","Region2","Region3","Region4"), each=250)),
+#'   region    = as.character(rep(c("Region1","Region2","Region3","Region4"),
+#'                                each=250)),
 #'   smallarea = as.character(paste0("Area",seq_along(1:1000))),
 #'   vals      = as.numeric(sample(200, 1000, replace = TRUE)),
 #'   stringsAsFactors = FALSE)
@@ -68,24 +69,24 @@ phe_quantile <- function(data,
 
 
     # check required arguments present
-    if (missing(data)|missing(values)) {
+    if (missing(data) | missing(values)) {
         stop(paste0("function phe_quantile requires at least 2 arguments: ",
                     "data and values"))
     }
 
     # check invert is valid and append to data
-    if (!(inverttype %in% c("logical","field"))) {
+    if (!(inverttype %in% c("logical", "field"))) {
       stop("valid values for inverttype are logical and field")
 
     } else if (inverttype == "logical") {
-      if (!(invert %in% c(TRUE,FALSE))) {
+      if (!(invert %in% c(TRUE, FALSE))) {
         stop("invert expressed as a logical must equal TRUE or FALSE")
       }
-      data <- mutate(data,invert_calc = invert)
+      data <- mutate(data, invert_calc = invert)
 
     } else if (inverttype == "field") {
       if (deparse(substitute(invert)) %in% colnames(data)) {
-          data <- mutate(data,invert_calc = {{ invert }})
+          data <- mutate(data, invert_calc = {{ invert }})
       } else stop("invert is not a field name from data")
     }
 
@@ -96,7 +97,7 @@ phe_quantile <- function(data,
     }
 
     #check all invert values are identical within groups
-    if (!n_groups(data) == nrow(unique(select(data,"invert_calc")))) {
+    if (!n_groups(data) == nrow(unique(select(data, "invert_calc")))) {
         stop(paste0("invert field values must take the same logical value for ",
                     "each data grouping set"))
     }
@@ -119,8 +120,8 @@ phe_quantile <- function(data,
                       ),
                quantile  = if_else(.data$num_small_areas < nquantiles,
                                      NA_real_,
-                                     floor((nquantiles + 1) - ceiling(((.data$num_small_areas+1)-rank) /
-                                                                      (.data$num_small_areas/nquantiles)
+                                     floor((nquantiles + 1) - ceiling(((.data$num_small_areas + 1)-rank) /
+                                                                      (.data$num_small_areas / nquantiles)
                                                                       )
                                            )
                                    ),
@@ -128,15 +129,13 @@ phe_quantile <- function(data,
     ) %>%
         select(!c("hasvalue", "num_small_areas", "rank")) %>%
         mutate(nquantiles= nquantiles,
-               groupvars = paste0(group_vars(data),collapse = ", "),
+               groupvars = paste0(group_vars(data), collapse = ", "),
                qinverted = if_else(.data$invert_calc == TRUE,
                                    "lowest quantile represents highest values",
                                    "lowest quantile represents lowest values"))
 
     # warn if any groups had too few snall areas with values to assign quantiles
-    if (#nrow(filter(phe_quantile, !is.na({{ values}}) &
-        #                           is.na(.data$quantile))) > 0 |
-        nrow(filter(phe_quantile, all(is.na({{ values }})) |
+    if (nrow(filter(phe_quantile, #all(is.na({{ values }})) |
                                   all(is.na(.data$quantile)))) > 0
         ) {
     warning(paste0("One or more groups had too few small areas with values to ",
@@ -146,11 +145,10 @@ phe_quantile <- function(data,
     # remove columns if not required based on value of type argument
     if (type == "standard") {
         phe_quantile <- phe_quantile %>%
-                            select(!c("nquantiles", "groupvars",
-                                      "qinverted", "invert_calc"))
+          select(!c("nquantiles", "groupvars", "qinverted", "invert_calc"))
     } else {
         phe_quantile <- phe_quantile %>%
-                            select(!c("invert_calc"))
+          select(!c("invert_calc"))
     }
 
 

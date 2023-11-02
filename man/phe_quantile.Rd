@@ -39,31 +39,34 @@ reference the arguments passed; can be "standard" or "full"; quoted string;
 default = "full"}
 }
 \value{
-When type = "full", returns the original data.frame with quantile (quantile value),
-nquantiles (number of quantiles requested), groupvars (grouping sets quantiles assigned within)
-and invert (indicating direction of quantile assignment) fields appended.
+When type = "full", returns the original data.frame with quantile
+(quantile value), nquantiles (number of quantiles requested), groupvars
+(grouping sets quantiles assigned within) and invert (indicating direction
+of quantile assignment) fields appended.
 }
 \description{
 Assigns data to quantiles based on numeric data rankings.
 }
 \section{Notes}{
- See \href{https://fingertips.phe.org.uk/profile/guidance/supporting-information/PH-methods}{PHE Technical Guide - Assigning Deprivation Quintiles} for methodology.
-In particular, note that this function strictly applies the algorithm defined but some manual
-review, and potentially adjustment, is advised in some cases where multiple small areas with equal rank
-fall across a natural quantile boundary.
+ See \href{https://fingertips.phe.org.uk/profile/guidance/supporting-information/PH-methods}{OHID Technical Guide - Assigning Deprivation Categories}
+for methodology. In particular, note that this function strictly applies
+the algorithm defined but some manual review, and potentially adjustment,
+is advised in some cases where multiple small areas with equal rank fall
+across a natural quantile boundary.
 }
 
 \examples{
-
-df <- data.frame(region = as.character(rep(c("Region1","Region2","Region3","Region4"), each=250)),
-                   smallarea = as.character(paste0("Area",seq_along(1:1000))),
-                   vals = as.numeric(sample(200, 1000, replace = TRUE)),
-                   stringsAsFactors=FALSE)
+df <- data.frame(
+  region    = as.character(rep(c("Region1","Region2","Region3","Region4"),
+                               each=250)),
+  smallarea = as.character(paste0("Area",seq_along(1:1000))),
+  vals      = as.numeric(sample(200, 1000, replace = TRUE)),
+  stringsAsFactors = FALSE)
 
 # assign small areas to deciles across whole data frame
 phe_quantile(df, vals)
 
-# assign small area to deciles within regions by pre-grouping the input data frame
+# assign small areas to deciles within regions by pre-grouping the data frame
 library(dplyr)
 df_grp <- df \%>\% group_by(region)
 phe_quantile(df_grp, vals)

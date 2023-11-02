@@ -17,6 +17,10 @@ df4 <- test_quantiles_ug %>% filter(GroupSet == "None")
 # test grouped
 df5 <- df4 %>% group_by(GroupSet)
 
+# test data where all values are NA
+df6 <- df2 |> filter(!AreaCode %in% c("E06000053", "E09000001"))|>
+  mutate(Value = case_when(ParentCode == "E12000004" ~ NA_real_,
+                           TRUE ~ Value))
 
 #test calculations
 test_that("quantiles calculate correctly",{
@@ -59,6 +63,9 @@ test_that("quantiles - warnings are generated when too few small areas for numbe
   expect_warning(data.frame(phe_quantile(df2, Value, invert = FALSE)),
                "One or more groups had too few small areas with values to allow quantiles to be assigned",
                info="warning too few small areas")
+  expect_warning(data.frame(phe_quantile(df6, Value, invert = FALSE)),
+                 "One or more groups had too few small areas with values to allow quantiles to be assigned",
+                 info="warning too few small areas")
 })
 
 #test error handling
