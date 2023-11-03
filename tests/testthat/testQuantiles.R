@@ -19,7 +19,7 @@ df5 <- df4 %>% group_by(GroupSet)
 
 # test data where all values are NA
 df6 <- df2 |> filter(!AreaCode %in% c("E06000053", "E09000001"))|>
-  mutate(Value = case_when(ParentCode == "E12000004" ~ NA_real_,
+  mutate(Value = case_when(ParentCode == "E12000006" ~ NA_real_,
                            TRUE ~ Value))
 
 #test calculations

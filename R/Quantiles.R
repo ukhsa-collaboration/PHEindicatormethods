@@ -104,30 +104,27 @@ phe_quantile <- function(data,
 
 
     # assign quantiles - unless number of small areas within a  group is less
-    # than number of quantiles requested
+    # than number of quantiles requested. Ignore areas with no value present
     phe_quantile <- data %>%
-        # flag records with values, as NA values can't be assigned to quantiles
-        mutate(hasvalue = if_else(is.na({{ values }}), 0, 1)) %>%
-        # count records per group
-        add_count(name = "num_small_areas", wt = .data$hasvalue) %>%
-        mutate(rank = case_when(
+        mutate(num_small_areas = sum(!is.na({{ values }})),
+               rank = case_when(
                         .data$invert_calc == TRUE ~ rank(- {{ values }},
                                                          ties.method = "min",
                                                          na.last = "keep"),
-                        TRUE ~ rank({{ values }},
-                                    ties.method = "min",
-                                    na.last = "keep")
+                        .default = rank({{ values }},
+                                   ties.method = "min",
+                                   na.last = "keep")
                       ),
                quantile  = if_else(.data$num_small_areas < nquantiles,
                                      NA_real_,
-                                     floor((nquantiles + 1) - ceiling(((.data$num_small_areas + 1)-rank) /
+                                     floor((nquantiles + 1) - ceiling(((.data$num_small_areas + 1) - rank) /
                                                                       (.data$num_small_areas / nquantiles)
                                                                       )
                                            )
                                    ),
                quantile  = if_else(.data$quantile == 0, 1, .data$quantile)
     ) %>%
-        select(!c("hasvalue", "num_small_areas", "rank")) %>%
+        select(!c("num_small_areas", "rank")) %>%
         mutate(nquantiles= nquantiles,
                groupvars = paste0(group_vars(data), collapse = ", "),
                qinverted = if_else(.data$invert_calc == TRUE,
@@ -135,8 +132,7 @@ phe_quantile <- function(data,
                                    "lowest quantile represents lowest values"))
 
     # warn if any groups had too few snall areas with values to assign quantiles
-    if (nrow(filter(phe_quantile, #all(is.na({{ values }})) |
-                                  all(is.na(.data$quantile)))) > 0
+    if (nrow(filter(phe_quantile, all(is.na(.data$quantile)))) > 0
         ) {
     warning(paste0("One or more groups had too few small areas with values to ",
                    "allow quantiles to be assigned"))
