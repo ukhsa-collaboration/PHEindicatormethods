@@ -1,5 +1,3 @@
-context("test_phe_quantiles")
-
 # test grouped df field
 df1 <- test_quantiles_g %>% filter(GroupSet == "IndSexReg") %>%
   group_by(IndSexRef, ParentCode)
@@ -24,12 +22,13 @@ df6 <- df2 |> filter(!AreaCode %in% c("E06000053", "E09000001"))|>
 
 #test calculations
 test_that("quantiles calculate correctly",{
+
   suppressWarnings({
     # within-region deciles for multiple indicators
     expect_equal(data.frame(phe_quantile(df1,Value,
                                          invert = Polarity, inverttype = "field")[15]),
                  rename(df1,quantile = QuantileInGrp)[14],
-                 check.attributes=FALSE, check.names=FALSE,info="test grouped df field")
+                 ignore_attr = TRUE,info="test grouped df field")
     # within-region deciles for multiple indicators
     expect_equal(data.frame(phe_quantile(df2,Value,
                                          invert = FALSE))[15:18],
@@ -37,24 +36,25 @@ test_that("quantiles calculate correctly",{
                                    nquantiles = 10L,
                                    groupvars = "IndSexRef, ParentCode",
                                    qinverted = "lowest quantile represents lowest values")),
-                 check.attributes=FALSE, check.names=FALSE,info="test grouped df logical")
+                 ignore_attr = TRUE,info="test grouped df logical")
 
     expect_equal(phe_quantile(df3, Value,
                               invert = Polarity, inverttype = "field", nquantiles = 7L)[15],
-                 rename(df3,quantile = QuantileInGrp)[14],check.attributes=FALSE,
-                 check.names=FALSE,info="test ungrouped df field")
+                 rename(df3,quantile = QuantileInGrp)[14],
+                 ignore_attr = TRUE,info="test ungrouped df field")
 
     expect_equal(phe_quantile(df5, Value, nquantiles = 4L)[15],
                  rename(df4,quantile = QuantileInGrp)[14],
-                 check.attributes=FALSE, check.names=FALSE,info="test nquantiles")
+                 ignore_attr = TRUE,info="test nquantiles")
 
     expect_equal(phe_quantile(df4, Value, nquantiles = 4L)[15],
                  rename(df4,quantile = QuantileInGrp)[14],
-                 check.attributes=FALSE, check.names=FALSE,info="test ungrouped df logical nohighergeog")
+                 ignore_attr = TRUE,info="test ungrouped df logical nohighergeog")
 
     expect_equal(phe_quantile(df4, Value, nquantiles = 4L, type="standard")[15],
-                 rename(df4,quantile = QuantileInGrp)[14],
-                 check.attributes=FALSE, check.names=FALSE,info="test ungrouped df logical nohighergeog")
+               rename(df4,quantile = QuantileInGrp)[14],
+               ignore_attr = TRUE,info="test ungrouped df logical nohighergeog")
+
   })
 })
 
@@ -63,6 +63,7 @@ test_that("quantiles - warnings are generated when too few small areas for numbe
   expect_warning(data.frame(phe_quantile(df2, Value, invert = FALSE)),
                "One or more groups had too few small areas with values to allow quantiles to be assigned",
                info="warning too few small areas")
+
   expect_warning(data.frame(phe_quantile(df6, Value, invert = FALSE)),
                  "One or more groups had too few small areas with values to allow quantiles to be assigned",
                  info="warning too few small areas")
