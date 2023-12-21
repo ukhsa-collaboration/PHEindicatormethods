@@ -736,7 +736,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
               }
               )
             ) |>
-            select(grouping_variables, "CI_calcs")
+            select(all_of(grouping_variables), "CI_calcs")
 
           # Add CIs to model
           # join on dataset with SII/ RII confidence limits
@@ -744,7 +744,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
           # Unnest confidence limits in a data frame for joining
 
           CI_rep1 <- popsSII_model_CIs %>%
-            select(grouping_variables, "CI_calcs") %>%
+            select(all_of(grouping_variables), "CI_calcs") %>%
             tidyr::unnest("CI_calcs") |>
             slice_head(n = 1)
 
