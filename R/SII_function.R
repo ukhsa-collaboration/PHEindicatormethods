@@ -80,8 +80,12 @@
 #'        (if value field is not provided); unquoted string; no default
 #' @param value field name within data that contains the indicator value (this does not need to be supplied
 #'        for proportions if count and population are given); unquoted string; no default
-#' @param value_type indicates the indicator type (1 = rate, 2 = proportion, 0 = other);
-#'        integer; default 0
+#' @param value_type indicates the indicator type (1 = rate, 2 = proportion, 0 =
+#'   other). This is used to determine whether a transformation is required when
+#'   calculating standard error from confidence intervals. Rate applies a log
+#'   transformation, proportion applies a logit transformation and other assumes
+#'   that confidence intervals are symmetrical around each data point and
+#'   applies no transformation; integer; default 0
 #' @param lower_cl field name within data that contains 95 percent lower confidence limit
 #'        of indicator value (to calculate standard error of indicator value). This field is needed
 #'        if the se field is not supplied; unquoted string; no default
@@ -104,8 +108,11 @@
 #'        as well as the SII; logical; default FALSE
 #' @param intercept option to return the intercept value of the regression line (y value where x=0);
 #'        logical; default FALSE
-#' @param transform option to transform input data prior to calculation of the SII, where there is not
-#'        a linear relationship between the indicator values and the quantile; logical; default FALSE
+#' @param transform option to transform input data prior to calculation of the
+#'   SII when there is not a linear relationship between the indicator values
+#'   and the quantile. Can only be used when value_type = 1 (rate) or 2
+#'   (proportion). A log transform is applied to rates and a logit transform is
+#'   applied to proportions; logical; default FALSE
 #' @param reliability_stat option to carry out the SII confidence interval simulation 10 times instead
 #'        of once and return the Mean Average Difference between the first and subsequent samples (as a
 #'        measure of the amount of variation). Warning: this will significantly increase run time of the
@@ -169,14 +176,15 @@
 #'         rii = TRUE,
 #'         type = "standard")
 #'
-#' # multiple confidence intervals
+#' # multiple confidence intervals, log transforming the data if they are rates
 #' phe_sii(group_by(data, area),
 #'         decile,
 #'         population,
-#'         value_type = 0,
+#'         value_type = 1,
 #'         value = value,
 #'         se = StandardError,
 #'         confidence = c(0.95, 0.998),
+#'         transform = TRUE,
 #'         repetitions = 10000,
 #'         rii = TRUE,
 #'         type = "standard")
