@@ -41,7 +41,7 @@ The user can also specify the indicator type from "0 - default", "1 - rate" or "
 
 The example below calculates the SII on some life expectancy data. This is assumed to have symmetric confidence intervals around the indicator values, so default standard error calculations would be done (involving no prior transformations).
 
-The relevant fields in the input dataset are specified for the arguments `quantile`, `population` and `value`. `value_type` is kept equal to 0 (default), and the number of repetitions set to 100 for faster running of the function as a demonstration.
+The relevant fields in the input dataset are specified for the arguments `quantile`, `population` and `value`. `value_type` is kept equal to 0 (default), and the number of repetitions set to 1000 for faster running of the function as a demonstration.
 
 The standard error (`se`) has been provided here in the input dataset, meaning this will be used directly and lower/upper 95% confidence limits of the indicator values are not needed.  
 
