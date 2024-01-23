@@ -49,23 +49,25 @@
 #' method.
 #'
 #' Use in conjunction with the \code{transform} parameter in calculation of the
-#' SII: It is recommended that rates and proportions, and their confidence
-#' limits, are transformed prior to calculation of the SII by setting the
-#' \code{transform} parameter to TRUE for these indicator types. This will
-#' perform a log transformation for rates, or logit for proportions, and return
-#' outputs transformed back to the original units of the indicator. These
-#' transformations are recommended to improve the linearity between the
-#' indicator values and the quantile, which is an assumption of the method. A
-#' user-provided standard error will not be accepted when the \code{transform]
-#' parameter is set to TRUE as the confidence limits are required for this
-#' transformation.
+#' SII: It is recommended that rates and proportions are transformed prior to
+#' calculation of the SII by setting the \code{transform} parameter to TRUE for
+#' these indicator types. This will perform a log transformation for rates, or
+#' logit for proportions, and return outputs transformed back to the original
+#' units of the indicator. These transformations are recommended to improve the
+#' linearity between the indicator values and the quantile, which is an
+#' assumption of the method. A user-provided standard error will not be accepted
+#' when the \code{transform} parameter is set to TRUE as the confidence limits
+#' are required for this transformation.
 #'
-#' Use in calculation of the standard error: Rates and proportions,
-#' and their confidence limits, are transformed prior to calculation of the
-#' standard error. This is because it is assumed that the confidence interval
+#' Use in calculation of the standard error: Rates and proportions, and their
+#' confidence limits, are transformed prior to calculation of the standard error
+#' for each quantile. This is because it is assumed that the confidence interval
 #' around the indicator value is non-symmetric for these indicator types. Note
 #' that this transformation is not controlled by the \code{transform} parameter
-#' and is applied based on the value of the \code{value_type} parameter only.
+#' and is applied based on the value of the \code{value_type} parameter only. A
+#' user-provided standard error will not be accepted when the \code{transform}
+#' parameter is set to TRUE as the confidence limits are required for this
+#' transformation.
 #'
 #' @section Warning:
 #'
@@ -92,7 +94,7 @@
 #'   does not need to be supplied for proportions if count and population are
 #'   given); unquoted string; no default
 #' @param value_type indicates the indicator type (1 = rate, 2 = proportion, 0 =
-#'   other). The `value_type` argument is used to determine whether data should
+#'   other). The \code{value_type} argument is used to determine whether data should
 #'   be transformed prior to calculation of the standard error and/or SII. See
 #'   the \code{Tansformations} section for full details; integer; default 0
 #' @param transform option to transform input rates or proportions prior to
@@ -196,10 +198,11 @@
 #'         decile,
 #'         population,
 #'         value_type = 1,
-#'         value = value,
-#'         se = StandardError,
-#'         confidence = c(0.95, 0.998),
 #'         transform = TRUE,
+#'         value = value,
+#'         lower_cl = lowerCL,
+#'         upper_cl = upperCL,
+#'         confidence = c(0.95, 0.998),
 #'         repetitions = 10000,
 #'         rii = TRUE,
 #'         type = "standard")
@@ -210,6 +213,7 @@
 #'   the inputted data.frame.
 #'
 #' @family PHEindicatormethods package functions
+# -------------------------------------------------------------------------------------------------
 
 phe_sii <- function(data, quantile, population,  # compulsory fields
                     x = NULL,                    # optional fields
