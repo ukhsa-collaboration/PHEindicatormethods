@@ -1,6 +1,6 @@
 ---
 title: "Worked examples for phe_sii function"
-author: "Emma Clegg"
+author: "Emma Clegg and Georgina Anderson"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
@@ -41,7 +41,7 @@ The user can also specify the indicator type from "0 - default", "1 - rate" or "
 
 The example below calculates the SII on some life expectancy data. This is assumed to have symmetric confidence intervals around the indicator values, so default standard error calculations would be done (involving no prior transformations).
 
-The relevant fields in the input dataset are specified for the arguments `quantile`, `population` and `value`. `value_type` is kept equal to 0 (default), and the number of repetitions set to 100 for faster running of the function as a demonstration.
+The relevant fields in the input dataset are specified for the arguments `quantile`, `population` and `value`. `value_type` is kept equal to 0 (default), and the number of repetitions set to 1000 for faster running of the function as a demonstration.
 
 The standard error (`se`) has been provided here in the input dataset, meaning this will be used directly and lower/upper 95% confidence limits of the indicator values are not needed.  
 
@@ -75,7 +75,7 @@ Note that some areas are missing quantiles in the dataset, and these are subsequ
 
 ## Example 2 - rate
 
-The example below calculates both the SII and RII on Directly Standardised Rate (DSR) data. The `value_type` argument is set to 1 to specify this indicator is a rate; this means a log transformation will be applied to the `value`, `lower_cl` and `upper_cl` fields before calculating the standard error.
+The example below calculates both the SII and RII on Directly Standardised Rate (DSR) data. The `value_type` argument is set to 1 to specify this indicator is a rate; this means a log transformation will be applied to the `value`, `lower_cl` and `upper_cl` fields before calculating the standard error. The `transform` argument is set to TRUE because rates do not show a linear relationship across the quantiles so a log transformation will be applied before calculating the SII and then reverted once the SII has been calculated to ensure the SII is given in the original units.
 
 As the number of repetitions is not specified, the function will run on the default 100,000. To return the RII, the `rii` argument is set to TRUE.
 
@@ -94,6 +94,7 @@ DSR_data_SII <- DSR_data %>%
                 value_type = 1, # specifies indicator is a rate
                 lower_cl = lowercl,
                 upper_cl = uppercl,
+                transform = TRUE,
                 rii = TRUE, # returns RII as well as SII (default is FALSE)
                 reliability_stat = TRUE) # returns reliability stats (default is FALSE)
 
@@ -107,7 +108,7 @@ knitr::kable(DSR_data_SII)
 
 This example calculates the SII for a prevalence indicator. Proportions need to be between 0 and 1 - this formatting is done in the `mutate` command below, before passing the grouped dataset to the `phe_sii` function.
 
-The `value_type` argument is set to 2 to specify the indicator is a proportion, and a logit transformation is applied to the `value`, `lower_cl` and `upper_cl` fields.
+The `value_type` argument is set to 2 to specify the indicator is a proportion, and a logit transformation is applied to the `value`, `lower_cl` and `upper_cl` fields before calculating the standard error. The `transform` argument is set to TRUE because proportions do not show a linear relationship across the quantiles so a logit transformation will be applied before calculating the SII and then reverted once the SII has been calculated to ensure the SII is given in the original units.
 
 The function will again run on the default 100,000 reps, and neither the RII or MAD values will be returned.
 
@@ -132,6 +133,7 @@ prevalence_SII <- prevalence_data %>%
                         value_type = 2, # specifies indicator is a proportion
                         lower_cl = LCL,
                         upper_cl = UCL,
+                        transform = TRUE,
                         multiplier = -100) # negative multiplier to scale SII outputs
 
 # View first 10 rows of results
