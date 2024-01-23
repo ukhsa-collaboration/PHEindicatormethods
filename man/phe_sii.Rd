@@ -157,23 +157,25 @@ transformations that will be applied in the following two parts of the
 method.
 
 Use in conjunction with the \code{transform} parameter in calculation of the
-SII: It is recommended that rates and proportions, and their confidence
-limits, are transformed prior to calculation of the SII by setting the
-\code{transform} parameter to TRUE for these indicator types. This will
-perform a log transformation for rates, or logit for proportions, and return
-outputs transformed back to the original units of the indicator. These
-transformations are recommended to improve the linearity between the
-indicator values and the quantile, which is an assumption of the method. A
+SII: It is recommended that rates and proportions are transformed prior to
+calculation of the SII by setting the \code{transform} parameter to TRUE for
+these indicator types. This will perform a log transformation for rates, or
+logit for proportions, and return outputs transformed back to the original
+units of the indicator. These transformations are recommended to improve the
+linearity between the indicator values and the quantile, which is an
+assumption of the method. A user-provided standard error will not be accepted
+when the \code{transform} parameter is set to TRUE as the confidence limits
+are required for this transformation.
+
+Use in calculation of the standard error: Rates and proportions, and their
+confidence limits, are transformed prior to calculation of the standard error
+for each quantile. This is because it is assumed that the confidence interval
+around the indicator value is non-symmetric for these indicator types. Note
+that this transformation is not controlled by the \code{transform} parameter
+and is applied based on the value of the \code{value_type} parameter only. A
 user-provided standard error will not be accepted when the \code{transform}
 parameter is set to TRUE as the confidence limits are required for this
 transformation.
-
-Use in calculation of the standard error: Rates and proportions,
-and their confidence limits, are transformed prior to calculation of the
-standard error. This is because it is assumed that the confidence interval
-around the indicator value is non-symmetric for these indicator types. Note
-that this transformation is not controlled by the \code{transform} parameter
-and is applied based on the value of the \code{value_type} parameter only.
 }
 
 \section{Warning}{
