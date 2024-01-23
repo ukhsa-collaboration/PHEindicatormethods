@@ -41,19 +41,31 @@
 #' of the fitted value at  \code{x=1,Y1} and the fitted value at \code{x=0,Y0}.
 #' which can be calculated as:  \code{RII = (Y0 + SII)/Y0}
 #'
-#' @section Function arguments:
+#' @section Transformations:
 #'
-#' The indicator type can be specified via the \code{value_type} parameter. It
-#' is recommended that rate and proportion indicators are transformed for
-#' calculation of the SII using the \code{transform} parameter set to TRUE. This
-#' will perform a log transformation for rates, and logit for proportions, and
-#' return outputs transformed back to the original units of the indicator.
-#' Where the \code{transform} parameter is set to FALSE transformations are
-#' applied to the indicator value and its confidence limits before calculating
-#' the standard error in cases where the confidence interval around the indicator
-#' value is likely to be non-symmetric. If the standard error is supplied directly
-#' to the function from the input dataset, this is used instead of calculating
-#' one from the indicator confidence limits.
+#' The indicator type can be specified as 1 (rate), 2 (proportion) or 0 (other),
+#' using the \code{value_type} parameter. This setting determines the data
+#' transformations that will be applied in the following two parts of the
+#' method.
+#'
+#' Use in conjunction with the \code{transform} parameter in calculation of the
+#' SII: It is recommended that rates and proportions, and their confidence
+#' limits, are transformed prior to calculation of the SII by setting the
+#' \code{transform} parameter to TRUE for these indicator types. This will
+#' perform a log transformation for rates, or logit for proportions, and return
+#' outputs transformed back to the original units of the indicator. These
+#' transformations are recommended to improve the linearity between the
+#' indicator values and the quantile, which is an assumption of the method. A
+#' user-provided standard error will not be accepted when the \code{transform]
+#' parameter is set to TRUE as the confidence limits are required for this
+#' transformation.
+#'
+#' Use in calculation of the standard error: Rates and proportions,
+#' and their confidence limits, are transformed prior to calculation of the
+#' standard error. This is because it is assumed that the confidence interval
+#' around the indicator value is non-symmetric for these indicator types. Note
+#' that this transformation is not controlled by the \code{transform} parameter
+#' and is applied based on the value of the \code{value_type} parameter only.
 #'
 #' @section Warning:
 #'
@@ -63,63 +75,66 @@
 #' function does not include checks for linearity or stability; it is the user's
 #' responsibility to ensure the input data is suitable for the SII calculation.
 #'
-#' @section Notes:
-#'
-#' This function is using nest and unnest functions from tidyr version 1.0.0.
-#'
-#' @param data data.frame containing the required input fields, pre-grouped if an SII is required for
-#'        each subgroup; unquoted string; no default
-#' @param quantile field name within data that contains the quantile label (e.g. decile). The number
-#'        of quantiles should be between 5 and 100; unquoted string; no default
-#' @param population field name within data that contains the quantile populations (ie, denominator).
-#'        Non-zero populations are required for all quantiles to calculate SII for an area;
-#'        unquoted string; no default
-#' @param x (for indicators that are proportions) field name within data that contains
-#'        the members of the population with the attribute of interest (ie, numerator). This will be
-#'        divided by population to calculate a proportion as the indicator value
-#'        (if value field is not provided); unquoted string; no default
-#' @param value field name within data that contains the indicator value (this does not need to be supplied
-#'        for proportions if count and population are given); unquoted string; no default
+#' @param data data.frame containing the required input fields, pre-grouped if
+#'   an SII is required for each subgroup; unquoted string; no default
+#' @param quantile field name within data that contains the quantile label (e.g.
+#'   decile). The number of quantiles should be between 5 and 100; unquoted
+#'   string; no default
+#' @param population field name within data that contains the quantile
+#'   populations (ie, denominator). Non-zero populations are required for all
+#'   quantiles to calculate SII for an area; unquoted string; no default
+#' @param x (for indicators that are proportions) field name within data that
+#'   contains the members of the population with the attribute of interest (ie,
+#'   numerator). This will be divided by population to calculate a proportion as
+#'   the indicator value (if value field is not provided); unquoted string; no
+#'   default
+#' @param value field name within data that contains the indicator value (this
+#'   does not need to be supplied for proportions if count and population are
+#'   given); unquoted string; no default
 #' @param value_type indicates the indicator type (1 = rate, 2 = proportion, 0 =
-#'   other). This is used to determine whether a transformation is required when
-#'   calculating standard error from confidence intervals. Rate applies a log
-#'   transformation, proportion applies a logit transformation and other assumes
-#'   that confidence intervals are symmetrical around each data point and
-#'   applies no transformation; integer; default 0
-#' @param lower_cl field name within data that contains 95 percent lower confidence limit
-#'        of indicator value (to calculate standard error of indicator value). This field is needed
-#'        if the se field is not supplied; unquoted string; no default
-#' @param upper_cl field name within data that contains 95 percent upper confidence limit
-#'        of indicator value (to calculate standard error of indicator value). This field is needed
-#'        if the se field is not supplied; unquoted string; no default
-#' @param se field name within data that contains the standard error of the indicator
-#'        value. If not supplied, this will be calculated from the 95 percent lower and upper confidence
-#'        limits (i.e. one or the other of these fields must be supplied); unquoted string; no default
-#' @param multiplier factor to multiply the SII and SII confidence limits by (e.g. set to 100 to return
-#'        prevalences on a percentage scale between 0 and 100). If the multiplier is negative, the
-#'        inverse of the RII is taken to account for the change in polarity; numeric; default 1;
-#' @param repetitions number of random samples to perform to return confidence interval of SII (and RII).
-#'        Minimum is 1000, no maximum (though the more repetitions, the longer the run time);
-#'        numeric; default 100,000
-#' @param confidence confidence level used to calculate the lower and upper confidence limits of SII,
-#'        expressed as a number between 0.9 and 1, or 90 and 100. It can be a vector of 0.95 and 0.998,
-#'        for example, to output both 95 percent and 99.8 percent CIs; numeric; default 0.95
-#' @param rii option to return the Relative Index of Inequality (RII) with associated confidence limits
-#'        as well as the SII; logical; default FALSE
-#' @param intercept option to return the intercept value of the regression line (y value where x=0);
-#'        logical; default FALSE
-#' @param transform option to transform input data prior to calculation of the
-#'   SII when there is not a linear relationship between the indicator values
-#'   and the quantile. Can only be used when value_type = 1 (rate) or 2
-#'   (proportion). A log transform is applied to rates and a logit transform is
-#'   applied to proportions; logical; default FALSE
-#' @param reliability_stat option to carry out the SII confidence interval simulation 10 times instead
-#'        of once and return the Mean Average Difference between the first and subsequent samples (as a
-#'        measure of the amount of variation). Warning: this will significantly increase run time of the
-#'        function and should first be tested on a small number of repetitions; logical; default FALSE
-#' @param type "full" output includes columns in the output dataset specifying the parameters the user
-#'        has input to the function (value_type, multiplier, CI_confidence, CI_method); character string
-#'        either "full" or "standard"; default "full"
+#'   other). The `value_type` argument is used to determine whether data should
+#'   be transformed prior to calculation of the standard error and/or SII. See
+#'   the \code{Tansformations} section for full details; integer; default 0
+#' @param transform option to transform input rates or proportions prior to
+#'   calculation of the SII. See the \code{Transformations} section for full
+#'   details; logical; default FALSE
+#' @param lower_cl field name within data that contains 95 percent lower
+#'   confidence limit of indicator value (to calculate standard error of
+#'   indicator value). This field is needed if the se field is not supplied;
+#'   unquoted string; no default
+#' @param upper_cl field name within data that contains 95 percent upper
+#'   confidence limit of indicator value (to calculate standard error of
+#'   indicator value). This field is needed if the se field is not supplied;
+#'   unquoted string; no default
+#' @param se field name within data that contains the standard error of the
+#'   indicator value. If not supplied, this will be calculated from the 95
+#'   percent lower and upper confidence limits (i.e. one or the other of these
+#'   fields must be supplied); unquoted string; no default
+#' @param multiplier factor to multiply the SII and SII confidence limits by
+#'   (e.g. set to 100 to return prevalences on a percentage scale between 0 and
+#'   100). If the multiplier is negative, the inverse of the RII is taken to
+#'   account for the change in polarity; numeric; default 1;
+#' @param repetitions number of random samples to perform to return confidence
+#'   interval of SII (and RII). Minimum is 1000, no maximum (though the more
+#'   repetitions, the longer the run time); numeric; default 100,000
+#' @param confidence confidence level used to calculate the lower and upper
+#'   confidence limits of SII, expressed as a number between 0.9 and 1, or 90
+#'   and 100. It can be a vector of 0.95 and 0.998, for example, to output both
+#'   95 percent and 99.8 percent CIs; numeric; default 0.95
+#' @param rii option to return the Relative Index of Inequality (RII) with
+#'   associated confidence limits as well as the SII; logical; default FALSE
+#' @param intercept option to return the intercept value of the regression line
+#'   (y value where x=0); logical; default FALSE
+#' @param reliability_stat option to carry out the SII confidence interval
+#'   simulation 10 times instead of once and return the Mean Average Difference
+#'   between the first and subsequent samples (as a measure of the amount of
+#'   variation). Warning: this will significantly increase run time of the
+#'   function and should first be tested on a small number of repetitions;
+#'   logical; default FALSE
+#' @param type "full" output includes columns in the output dataset specifying
+#'   the parameters the user has input to the function (value_type, multiplier,
+#'   CI_confidence, CI_method); character string either "full" or "standard";
+#'   default "full"
 #'
 #' @references
 #' (1) Low A & Low A. Measuring the gap: quantifying and comparing local health inequalities.
@@ -200,6 +215,7 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                     x = NULL,                    # optional fields
                     value = NULL,
                     value_type = 0,
+                    transform = FALSE,
                     lower_cl = NULL,
                     upper_cl = NULL,
                     se = NULL,
@@ -208,7 +224,6 @@ phe_sii <- function(data, quantile, population,  # compulsory fields
                     confidence = 0.95,
                     rii = FALSE,
                     intercept = FALSE,
-                    transform = FALSE,
                     reliability_stat = FALSE,
                     type = "full") {
 
