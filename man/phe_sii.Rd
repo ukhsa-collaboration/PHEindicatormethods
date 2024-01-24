@@ -11,6 +11,7 @@ phe_sii(
   x = NULL,
   value = NULL,
   value_type = 0,
+  transform = FALSE,
   lower_cl = NULL,
   upper_cl = NULL,
   se = NULL,
@@ -18,67 +19,88 @@ phe_sii(
   repetitions = 1e+05,
   confidence = 0.95,
   rii = FALSE,
+  intercept = FALSE,
   reliability_stat = FALSE,
   type = "full"
 )
 }
 \arguments{
-\item{data}{data.frame containing the required input fields, pre-grouped if an SII is required for
-each subgroup; unquoted string; no default}
+\item{data}{data.frame containing the required input fields, pre-grouped if
+an SII is required for each subgroup; unquoted string; no default}
 
-\item{quantile}{field name within data that contains the quantile label (e.g. decile). The number
-of quantiles should be between 5 and 100; unquoted string; no default}
+\item{quantile}{field name within data that contains the quantile label (e.g.
+decile). The number of quantiles should be between 5 and 100; unquoted
+string; no default}
 
-\item{population}{field name within data that contains the quantile populations (ie, denominator).
-Non-zero populations are required for all quantiles to calculate SII for an area;
+\item{population}{field name within data that contains the quantile
+populations (ie, denominator). Non-zero populations are required for all
+quantiles to calculate SII for an area; unquoted string; no default}
+
+\item{x}{(for indicators that are proportions) field name within data that
+contains the members of the population with the attribute of interest (ie,
+numerator). This will be divided by population to calculate a proportion as
+the indicator value (if value field is not provided); unquoted string; no
+default}
+
+\item{value}{field name within data that contains the indicator value (this
+does not need to be supplied for proportions if count and population are
+given); unquoted string; no default}
+
+\item{value_type}{indicates the indicator type (1 = rate, 2 = proportion, 0 =
+other). The \code{value_type} argument is used to determine whether data should
+be transformed prior to calculation of the standard error and/or SII. See
+the \code{Tansformations} section for full details; integer; default 0}
+
+\item{transform}{option to transform input rates or proportions prior to
+calculation of the SII. See the \code{Transformations} section for full
+details; logical; default FALSE}
+
+\item{lower_cl}{field name within data that contains 95 percent lower
+confidence limit of indicator value (to calculate standard error of
+indicator value). This field is needed if the se field is not supplied;
 unquoted string; no default}
 
-\item{x}{(for indicators that are proportions) field name within data that contains
-the members of the population with the attribute of interest (ie, numerator). This will be
-divided by population to calculate a proportion as the indicator value
-(if value field is not provided); unquoted string; no default}
+\item{upper_cl}{field name within data that contains 95 percent upper
+confidence limit of indicator value (to calculate standard error of
+indicator value). This field is needed if the se field is not supplied;
+unquoted string; no default}
 
-\item{value}{field name within data that contains the indicator value (this does not need to be supplied
-for proportions if count and population are given); unquoted string; no default}
+\item{se}{field name within data that contains the standard error of the
+indicator value. If not supplied, this will be calculated from the 95
+percent lower and upper confidence limits (i.e. one or the other of these
+fields must be supplied); unquoted string; no default}
 
-\item{value_type}{indicates the indicator type (1 = rate, 2 = proportion, 0 = other);
-integer; default 0}
+\item{multiplier}{factor to multiply the SII and SII confidence limits by
+(e.g. set to 100 to return prevalences on a percentage scale between 0 and
+100). If the multiplier is negative, the inverse of the RII is taken to
+account for the change in polarity; numeric; default 1;}
 
-\item{lower_cl}{field name within data that contains 95 percent lower confidence limit
-of indicator value (to calculate standard error of indicator value). This field is needed
-if the se field is not supplied; unquoted string; no default}
+\item{repetitions}{number of random samples to perform to return confidence
+interval of SII (and RII). Minimum is 1000, no maximum (though the more
+repetitions, the longer the run time); numeric; default 100,000}
 
-\item{upper_cl}{field name within data that contains 95 percent upper confidence limit
-of indicator value (to calculate standard error of indicator value). This field is needed
-if the se field is not supplied; unquoted string; no default}
+\item{confidence}{confidence level used to calculate the lower and upper
+confidence limits of SII, expressed as a number between 0.9 and 1, or 90
+and 100. It can be a vector of 0.95 and 0.998, for example, to output both
+95 percent and 99.8 percent CIs; numeric; default 0.95}
 
-\item{se}{field name within data that contains the standard error of the indicator
-value. If not supplied, this will be calculated from the 95 percent lower and upper confidence
-limits (i.e. one or the other of these fields must be supplied); unquoted string; no default}
+\item{rii}{option to return the Relative Index of Inequality (RII) with
+associated confidence limits as well as the SII; logical; default FALSE}
 
-\item{multiplier}{factor to multiply the SII and SII confidence limits by (e.g. set to 100 to return
-prevalences on a percentage scale between 0 and 100). If the multiplier is negative, the
-inverse of the RII is taken to account for the change in polarity; numeric; default 1;}
+\item{intercept}{option to return the intercept value of the regression line
+(y value where x=0); logical; default FALSE}
 
-\item{repetitions}{number of random samples to perform to return confidence interval of SII (and RII).
-Minimum is 1000, no maximum (though the more repetitions, the longer the run time);
-numeric; default 100,000}
+\item{reliability_stat}{option to carry out the SII confidence interval
+simulation 10 times instead of once and return the Mean Average Difference
+between the first and subsequent samples (as a measure of the amount of
+variation). Warning: this will significantly increase run time of the
+function and should first be tested on a small number of repetitions;
+logical; default FALSE}
 
-\item{confidence}{confidence level used to calculate the lower and upper confidence limits of SII,
-expressed as a number between 0.9 and 1, or 90 and 100. It can be a vector of 0.95 and 0.998,
-for example, to output both 95 percent and 99.8 percent CIs; numeric; default 0.95}
-
-\item{rii}{option to return the Relative Index of Inequality (RII) with associated confidence limits
-as well as the SII; logical; default FALSE}
-
-\item{reliability_stat}{option to carry out the SII confidence interval simulation 10 times instead
-of once and return the Mean Average Difference between the first and subsequent samples (as a
-measure of the amount of variation). Warning: this will significantly increase run time of the
-function and should first be tested on a small number of repetitions; logical; default FALSE}
-
-\item{type}{"full" output includes columns in the output dataset specifying the parameters the user
-has input to the function (value_type, multiplier, CI_confidence, CI_method); character string
-either "full" or "standard"; default "full"}
+\item{type}{"full" output includes columns in the output dataset specifying
+the parameters the user has input to the function (value_type, multiplier,
+CI_confidence, CI_method); character string either "full" or "standard";
+default "full"}
 }
 \value{
 The SII with lower and upper confidence limits for each subgroup of
@@ -126,31 +148,44 @@ of the fitted value at  \code{x=1,Y1} and the fitted value at \code{x=0,Y0}.
 which can be calculated as:  \code{RII = (Y0 + SII)/Y0}
 }
 
-\section{Function arguments}{
+\section{Transformations}{
 
 
-The indicator type can be specified via the \code{value_type} parameter.
-Transformations can be applied to the indicator value and its confidence
-limits before calculating the standard error in cases where the confidence
-interval around the indicator value is likely to be non-symmetric. This is a
-log transformation for rates, and logit for proportions. If the standard
-error is supplied directly to the function from the input dataset, this is
-used instead of calculating one from the indicator confidence limits.
+The indicator type can be specified as 1 (rate), 2 (proportion) or 0 (other),
+using the \code{value_type} parameter. This setting determines the data
+transformations that will be applied in the following two parts of the
+method.
+
+Use in conjunction with the \code{transform} parameter in calculation of the
+SII: It is recommended that rates and proportions are transformed prior to
+calculation of the SII by setting the \code{transform} parameter to TRUE for
+these indicator types. This will perform a log transformation for rates, or
+logit for proportions, and return outputs transformed back to the original
+units of the indicator. These transformations are recommended to improve the
+linearity between the indicator values and the quantile, which is an
+assumption of the method. A user-provided standard error will not be accepted
+when the \code{transform} parameter is set to TRUE as the confidence limits
+are required for this transformation.
+
+Use in calculation of the standard error: Rates and proportions, and their
+confidence limits, are transformed prior to calculation of the standard error
+for each quantile. This is because it is assumed that the confidence interval
+around the indicator value is non-symmetric for these indicator types. Note
+that this transformation is not controlled by the \code{transform} parameter
+and is applied based on the value of the \code{value_type} parameter only. A
+user-provided standard error will not be accepted when the \code{transform}
+parameter is set to TRUE as the confidence limits are required for this
+transformation.
 }
 
 \section{Warning}{
 
 
 The SII calculation assumes a linear relationship between indicator value and
-quantile, and small populations within quantiles can make it unstable. This
+quantile. Where this is not the case the transform option should be considered.
+Small populations within quantiles can make the SII unstable. This
 function does not include checks for linearity or stability; it is the user's
 responsibility to ensure the input data is suitable for the SII calculation.
-}
-
-\section{Notes}{
-
-
-This function is using nest and unnest functions from tidyr version 1.0.0.
 }
 
 \examples{
@@ -195,13 +230,15 @@ phe_sii(group_by(data, area),
         rii = TRUE,
         type = "standard")
 
-# multiple confidence intervals
+# multiple confidence intervals, log transforming the data if they are rates
 phe_sii(group_by(data, area),
         decile,
         population,
-        value_type = 0,
+        value_type = 1,
+        transform = TRUE,
         value = value,
-        se = StandardError,
+        lower_cl = lowerCL,
+        upper_cl = upperCL,
         confidence = c(0.95, 0.998),
         repetitions = 10000,
         rii = TRUE,

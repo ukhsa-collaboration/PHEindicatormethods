@@ -1,3 +1,8 @@
+## PHEindicatormethods v2.0.2
+* Amended phe_quantile function so it will not produce quantiles when the number of small areas within a group is less than the number of quantiles requested. A warning will be generated when quantiles cannot be produced for this reason.
+* removed the highergeog argument from phe_quantile function, previously soft-deprecated in v1.2.0.
+* `phe_sii` amended to allow data to be transformed prior to calculation of the SII, and to allow the intercept value to be output.
+
 ## PHEindicatormethods v2.0.1
 * `calculate_ISRate` and `calculate_ISRatio` updated so observed events can be passed as total without age breakdowns
 * amended GitHub referencing as code repository now owned and hosted by UKHSA-collaboration not PublicHealthEngland

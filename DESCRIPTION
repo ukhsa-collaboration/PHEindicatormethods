@@ -1,6 +1,6 @@
 Package: PHEindicatormethods
 Type: Package
-Version: 2.0.1
+Version: 2.0.2
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate commonly used public health statistics and 
     their confidence intervals using methods approved for use in the production  
@@ -21,12 +21,13 @@ Description: Functions to calculate commonly used public health statistics and
     Silcocks PBS et al (2001) <doi:10.1136/jech.55.1.38>.
     Low and Low (2004) <doi:10.1093/pubmed/fdh175>.
 Authors@R: c(person("Anderson",   "Georgina",  email = "georgina.anderson@dhsc.gov.uk",  role = c("aut", "cre")),
-             person("Fox",        "Sebastian", email = "sebastian.fox@dhsc.gov.uk",     role = c("ctb")),
+             person("Fox",        "Sebastian",                                           role = c("ctb")),
              person("Francis",    "Matthew",                                             role = c("ctb")),
              person("Fryers",     "Paul",      email = "paul.fryers@dhsc.gov.uk",        role = c("ctb")),
              person("Clegg",      "Emma",                                                role = c("ctb")),
              person("Westermann", "Annabel",   email = "annabel.westermann@dhsc.gov.uk", role = c("ctb")),
-             person("Woolner",    "Joshua",                                              role = c("ctb"))
+             person("Woolner",    "Joshua",                                              role = c("ctb")),
+             person("Fellows",    "Charlotte", email = "charlotte.fellows@dhsc.gov.uk",  role = c("ctb"))
              )
 BugReports: https://github.com/ukhsa-collaboration/PHEindicatormethods/issues
 Depends: R (>= 3.1.0)
@@ -46,8 +47,9 @@ Suggests:
     knitr,
     readxl,
     rmarkdown,
-    testthat,
+    testthat (>= 3.0.0),
     withr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
+Config/testthat/edition: 3
