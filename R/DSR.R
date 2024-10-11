@@ -84,7 +84,7 @@
 phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
                     type = "full", confidence = 0.95, multiplier = 100000,
                     nonindependentbreakdowns = FALSE,
-                    nonindependentvariance = NULL) {
+                    nonindependentvariance = NA_real_) {
 
     # check required arguments present
     if (missing(data)|missing(x)|missing(n)) {
@@ -145,7 +145,7 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
             summarise(total_count = sum({{ x }}, na.rm=TRUE),
                       total_pop = sum({{ n }}),
                       value = sum(.data$wt_rate) / sum(.data$stdpop_calc) * multiplier,
-                      vardsr = case_when(!is.null(nonindependentvariance) ~
+                      vardsr = case_when(!is.na(nonindependentvariance) ~
                                            nonindependentvariance,
                                          .default = 1/sum(.data$stdpop_calc)^2 * sum(.data$sq_rate)
                                          ),
@@ -210,7 +210,7 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
             summarise(total_count = sum({{ x }},na.rm=TRUE),
                       total_pop = sum({{ n }}),
                       value = sum(.data$wt_rate) / sum(.data$stdpop_calc) * multiplier,
-                      vardsr = case_when(!is.null(nonindependentvariance) ~
+                      vardsr = case_when(!is.na(nonindependentvariance) ~
                                            nonindependentvariance,
                                          .default = 1/sum(.data$stdpop_calc)^2 * sum(.data$sq_rate)
                                          ),
