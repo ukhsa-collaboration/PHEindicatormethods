@@ -1,3 +1,6 @@
+## PHEindicatormethods v2.0.WIP
+* Adds alternative CI method to DSR function for non-independent events
+
 ## PHEindicatormethods v2.0.2
 * Amended phe_quantile function so it will not produce quantiles when the number of small areas within a group is less than the number of quantiles requested. A warning will be generated when quantiles cannot be produced for this reason.
 * removed the highergeog argument from phe_quantile function, previously soft-deprecated in v1.2.0.
