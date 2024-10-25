@@ -18,14 +18,18 @@
 #' @param stdpoptype whether the stdpop has been specified as a vector or a
 #'   field name from data; quoted string "field" or "vector"; default = "vector"
 #' @param type defines the data and metadata columns to be included in output;
-#'   can be "value", "lower", "upper", "standard" (for all data) or "full" (for
-#'   all data and metadata); quoted string; default = "full"
+#'   can be "value", "lower", "upper", "standard" (for all data), "full" (for
+#'   all data and metadata) or "nonindependentvariance" (for use when called via
+#'   the calculate_nonindependent_dsr function); quoted string; default = "full"
 #' @param confidence the required level of confidence expressed as a number
 #'   between 0.9 and 1 or a number between 90 and 100 or can be a vector of 0.95
 #'   and 0.998, for example, to output both 95 percent and 99.8 percent percent CIs; numeric;
 #'   default 0.95
 #' @param multiplier the multiplier used to express the final values (eg 100,000
 #'   = rate per 100,000); numeric; default 100,000
+#' @param custom_vardsr field name from data containing the sums of the
+#'   person-frequency dsr variance values to be passed into the function to
+#'   generate confidence intervals for non-independent events
 #'
 #' @return When type = "full", returns a tibble of total counts, total
 #'   populations, directly standardised rates, lower confidence limits, upper
@@ -83,8 +87,7 @@
 # define the DSR function using Dobson method
 phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
                     type = "full", confidence = 0.95, multiplier = 100000,
-                    nonindependentbreakdowns = FALSE,
-                    nonindependentvariance = NA_real_) {
+                    custom_vardsr = NA_character_) {
 
     # check required arguments present
     if (missing(data)|missing(x)|missing(n)) {
@@ -118,7 +121,8 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
         stop("numerators must all be greater than or equal to zero")
     } else if (any(pull(data, {{ n }}) <= 0)) {
         stop("denominators must all be greater than zero")
-    } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
+    } else if (!(type %in% c("value", "lower", "upper", "standard", "full",
+                             "nonindependentvariance"))) {
         stop("type must be one of value, lower, upper, standard or full")
     } else if (length(confidence) >2) {
         stop("a maximum of two confidence levels can be provided")
@@ -131,131 +135,86 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
     }
 
 
+    # scale and extract confidence values
+    confidence[confidence >= 90] <- confidence[confidence >= 90] / 100
+    conf1 <- confidence[1]
+    conf2 <- confidence[2]
+
     # calculate DSR and CIs
-    if (length(confidence) == 2) {
+    phe_dsr <- data %>%
+        mutate(wt_rate = na.zero({{ x }}) *  .data$stdpop_calc / ({{ n }}),
+               sq_rate = na.zero({{ x }}) * (.data$stdpop_calc / ({{ n }}))^2, na.rm=TRUE) %>%
+        summarise(total_count = sum({{ x }}, na.rm=TRUE),
+                  total_pop = sum({{ n }}),
+                  value = sum(.data$wt_rate) / sum(.data$stdpop_calc) * multiplier,
+                  #vardsr = 1/sum(.data$stdpop_calc)^2 * sum(.data$sq_rate), # original
+                  #vardsr = custom_vardsr, # works 1 ind at a time if pass a numeric vardsr in
+                  vardsr = unique({{ custom_vardsr }}),# works for multiple indicators but need case_when to alter vardsr based on whether custom_vardsr passed
+                  #vardsr = case_when(!is.na(custom_vardsr) ~ unique({{ custom_vardsr }}),
+                  #                   .default = 1/sum(.data$stdpop_calc)^2 * sum(.data$sq_rate)), # would work but can't evaluate custom_vardsr on 1 st loop through when it's NA
+                  lowercl = .data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
+                      (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
+                  uppercl = .data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
+                      (byars_upper(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
+                  lower99_8cl = case_when(
+                      is.na(conf2) ~ NA_real_,
+                      .default = (.data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
+                      (byars_lower(sum({{ x }}, na.rm=TRUE), min(conf2, 1, na.rm = TRUE)) - sum({{ x }}, na.rm=TRUE)) * multiplier)
+                    ),
+                  upper99_8cl = case_when(
+                      is.na(conf2) ~ NA_real_,
+                      .default = (.data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
+                      (byars_upper(sum({{ x }}, na.rm=TRUE), min(conf2, 1, na.rm = TRUE)) - sum({{ x }}, na.rm=TRUE)) * multiplier)
+                   ),
+                  .groups = "keep") %>%
+        mutate(confidence = paste0(confidence * 100, "%", collapse = ", "),
+               statistic = paste("dsr per",format(multiplier, scientific=F)),
+               method = "Dobson")
 
-        # if two confidence levels requested
-        conf1 <- confidence[1]
-        conf2 <- confidence[2]
-
-        # calculate DSR and CIs
-        phe_dsr <- data %>%
-            mutate(wt_rate = na.zero({{ x }}) *  .data$stdpop_calc / ({{ n }}),
-                   sq_rate = na.zero({{ x }}) * (.data$stdpop_calc / ({{ n }}))^2, na.rm=TRUE) %>%
-            summarise(total_count = sum({{ x }}, na.rm=TRUE),
-                      total_pop = sum({{ n }}),
-                      value = sum(.data$wt_rate) / sum(.data$stdpop_calc) * multiplier,
-                      vardsr = case_when(!is.na(nonindependentvariance) ~
-                                           nonindependentvariance,
-                                         .default = 1/sum(.data$stdpop_calc)^2 * sum(.data$sq_rate)
-                                         ),
-                      lower95_0cl = .data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
-                          (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-                      upper95_0cl = .data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
-                          (byars_upper(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-                      lower99_8cl = .data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
-                          (byars_lower(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-                      upper99_8cl = .data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
-                          (byars_upper(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)) * multiplier,
-                      .groups = "keep") %>%
-          #  select(!c("vardsr")) %>%
-            mutate(confidence = "95%, 99.8%",
-                   statistic = paste("dsr per",format(multiplier, scientific=F)),
-                   method = "Dobson")
-
-        # remove DSR calculation for total counts < 10 unless doing non-independent event CIs
-        if (nonindependentbreakdowns == FALSE) {
-          phe_dsr <- phe_dsr %>%
-            mutate(across(c("value", "upper95_0cl", "lower95_0cl",
-                            "upper99_8cl", "lower99_8cl"),
-                          function(x) if_else(.data$total_count < 10, NA_real_, x)),
-                   statistic = if_else(.data$total_count < 10,
-                                       "dsr NA for total count < 10",
-                                       .data$statistic))
-        }
-
-        # drop fields not required based on values of nonindependentbreakdown and type arguments
-        if (nonindependentbreakdowns == TRUE) {
-          phe_dsr <- phe_dsr %>%
-            select("vardsr")
-        } else if (type == "lower") {
-            phe_dsr <- phe_dsr %>%
-                select(!c("total_count", "total_pop", "value", "upper95_0cl", "upper99_8cl",
-                       "confidence", "statistic", "method"))
-        } else if (type == "upper") {
-            phe_dsr <- phe_dsr %>%
-                select(!c("total_count", "total_pop", "value", "lower95_0cl", "lower99_8cl",
-                       "confidence", "statistic", "method"))
-        } else if (type == "value") {
-            phe_dsr <- phe_dsr %>%
-                select(!c("total_count", "total_pop", "lower95_0cl", "lower99_8cl", "upper95_0cl", "upper99_8cl",
-                       "confidence", "statistic", "method"))
-        } else if (type == "standard") {
-            phe_dsr <- phe_dsr %>%
-                select(!c("confidence", "statistic", "method"))
-        }
-
+    # rename or drop confidence limits depending whether 1 or 2 CIs requested
+    if (!is.na(conf2)) {
+      names(phe_dsr)[names(phe_dsr) == "lowercl"] <- "lower95_0cl"
+      names(phe_dsr)[names(phe_dsr) == "uppercl"] <- "upper95_0cl"
     } else {
-
-        # scale confidence level if single value specified
-        if (confidence >= 90) {
-            confidence <- confidence/100
-        }
-
-
-        # calculate DSR with a single CI
-        phe_dsr <- data %>%
-            mutate(wt_rate = na.zero({{ x }}) *  .data$stdpop_calc / ({{ n }}),
-                   sq_rate = na.zero({{ x }}) * (.data$stdpop_calc / ({{ n }}))^2, na.rm=TRUE) %>%
-            summarise(total_count = sum({{ x }},na.rm=TRUE),
-                      total_pop = sum({{ n }}),
-                      value = sum(.data$wt_rate) / sum(.data$stdpop_calc) * multiplier,
-                      vardsr = case_when(!is.na(nonindependentvariance) ~
-                                           nonindependentvariance,
-                                         .default = 1/sum(.data$stdpop_calc)^2 * sum(.data$sq_rate)
-                                         ),
-                      lowercl = .data$value +
-                        sqrt((.data$vardsr / sum({{ x }},na.rm=TRUE))) *
-                        (byars_lower(sum({{ x }},na.rm=TRUE),
-                                     confidence) - sum({{ x }},na.rm=TRUE)) * multiplier,
-                      uppercl = .data$value + sqrt((.data$vardsr / sum({{ x }}, na.rm=TRUE))) *
-                        (byars_upper(sum({{ x }},na.rm=TRUE),
-                                     confidence) - sum({{ x }},na.rm=TRUE)) * multiplier,
-                      .groups = "keep") %>%
-           # select(!c("vardsr")) %>%
-            mutate(confidence = paste(confidence*100,"%",sep=""),
-                   statistic = paste("dsr per",format(multiplier,scientific=F)),
-                   method = "Dobson")
-
-        # remove DSR calculation for total counts < 10 unless doing non-independent event CIs
-        if (nonindependentbreakdowns == FALSE) {
-          phe_dsr <- phe_dsr %>%
-          mutate(across(c("value", "uppercl", "lowercl"),
-                        function(x) if_else(.data$total_count < 10, NA_real_, x)),
-                 statistic = if_else(.data$total_count < 10,
-                                     "dsr NA for total count < 10",
-                                     .data$statistic))
-        }
-
-        # drop fields not required based on values of nonindependent_breakdowns and type arguments
-        if (nonindependentbreakdowns == TRUE) {
-          phe_dsr <- phe_dsr %>%
-            select("vardsr")
-        } else if (type == "lower") {
-         phe_dsr <- phe_dsr %>%
-            select(!c("total_count", "total_pop", "value", "uppercl", "confidence", "statistic", "method"))
-        } else if (type == "upper") {
-            phe_dsr <- phe_dsr %>%
-            select(!c("total_count", "total_pop", "value", "lowercl", "confidence", "statistic", "method"))
-        } else if (type == "value") {
-            phe_dsr <- phe_dsr %>%
-            select(!c("total_count", "total_pop", "lowercl", "uppercl", "confidence", "statistic", "method"))
-        } else if (type == "standard") {
-            phe_dsr <- phe_dsr %>%
-            select(!c("confidence", "statistic", "method"))
-        }
-
+     phe_dsr <- phe_dsr %>%
+       select(!c("lower99_8cl", "upper99_8cl"))
     }
+
+
+    # remove DSR calculation for total counts < 10 unless doing non-independent event CIs
+    if (type != "nonindependentvariance") {
+      phe_dsr <- phe_dsr %>%
+        mutate(across(c("value", starts_with("upper"), starts_with("lower")),
+                    function(x) if_else(.data$total_count < 10, NA_real_, x)),
+               statistic = if_else(.data$total_count < 10,
+                                   "dsr NA for total count < 10",
+                                   .data$statistic))
+    }
+
+    # drop fields not required based on values of nonindependent_breakdowns and type arguments
+    if (type == "nonindependentvariance") {
+      phe_dsr <- phe_dsr %>%
+        select("vardsr")
+    } else if (type == "lower") {
+     phe_dsr <- phe_dsr %>%
+        select(!c("total_count", "total_pop", "value", starts_with("upper"),
+                  "vardsr", "confidence", "statistic", "method"))
+    } else if (type == "upper") {
+        phe_dsr <- phe_dsr %>%
+        select(!c("total_count", "total_pop", "value", starts_with("lower"),
+                  "vardsr", "confidence", "statistic", "method"))
+    } else if (type == "value") {
+        phe_dsr <- phe_dsr %>%
+        select(!c("total_count", "total_pop", starts_with("lower"), starts_with("upper"),
+                  "vardsr", "confidence", "statistic", "method"))
+    } else if (type == "standard") {
+        phe_dsr <- phe_dsr %>%
+        select(!c("vardsr", "confidence", "statistic", "method"))
+    } else if (type == "full") {
+      phe_dsr <- phe_dsr %>%
+        select(!c("vardsr"))
+    }
+
     return(phe_dsr)
 
 }
