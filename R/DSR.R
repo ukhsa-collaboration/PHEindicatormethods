@@ -87,7 +87,7 @@
 # define the DSR function using Dobson method
 phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
                     type = "full", confidence = 0.95, multiplier = 100000,
-                    custom_vardsr = NA_character_) {
+                    custom_vardsr = NA_real_) {
 
     # check required arguments present
     if (missing(data)|missing(x)|missing(n)) {
@@ -134,11 +134,15 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
         stop("confidence level must be between 90 and 100 or between 0.9 and 1")
     }
 
-
     # scale and extract confidence values
     confidence[confidence >= 90] <- confidence[confidence >= 90] / 100
     conf1 <- confidence[1]
     conf2 <- confidence[2]
+
+    if (!"c_vardsr" %in% names(data)) {
+      data <- data %>%
+        mutate(c_vardsr = NA_real_)
+    }
 
     # calculate DSR and CIs
     phe_dsr <- data %>%
@@ -147,11 +151,9 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
         summarise(total_count = sum({{ x }}, na.rm=TRUE),
                   total_pop = sum({{ n }}),
                   value = sum(.data$wt_rate) / sum(.data$stdpop_calc) * multiplier,
-                  #vardsr = 1/sum(.data$stdpop_calc)^2 * sum(.data$sq_rate), # original
-                  #vardsr = custom_vardsr, # works 1 ind at a time if pass a numeric vardsr in
-                  vardsr = unique({{ custom_vardsr }}),# works for multiple indicators but need case_when to alter vardsr based on whether custom_vardsr passed
-                  #vardsr = case_when(!is.na(custom_vardsr) ~ unique({{ custom_vardsr }}),
-                  #                   .default = 1/sum(.data$stdpop_calc)^2 * sum(.data$sq_rate)), # would work but can't evaluate custom_vardsr on 1 st loop through when it's NA
+                  vardsr = case_when(
+                    !is.na(unique(.data$c_vardsr)) ~ unique(.data$c_vardsr),
+                    .default = 1/sum(.data$stdpop_calc)^2 * sum(.data$sq_rate)),
                   lowercl = .data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
                       (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)) * multiplier,
                   uppercl = .data$value + sqrt((.data$vardsr/sum({{ x }}, na.rm=TRUE)))*
@@ -171,6 +173,7 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
                statistic = paste("dsr per",format(multiplier, scientific=F)),
                method = "Dobson")
 
+
     # rename or drop confidence limits depending whether 1 or 2 CIs requested
     if (!is.na(conf2)) {
       names(phe_dsr)[names(phe_dsr) == "lowercl"] <- "lower95_0cl"
@@ -182,7 +185,7 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
 
 
     # remove DSR calculation for total counts < 10 unless doing non-independent event CIs
-    if (type != "nonindependentvariance") {
+    if (!type == "nonindependentvariance") {
       phe_dsr <- phe_dsr %>%
         mutate(across(c("value", starts_with("upper"), starts_with("lower")),
                     function(x) if_else(.data$total_count < 10, NA_real_, x)),
