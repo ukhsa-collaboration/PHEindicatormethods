@@ -133,6 +133,7 @@ Oxford: Blackwell; 2002.
 Other PHEindicatormethods package functions: 
 \code{\link{assign_funnel_significance}()},
 \code{\link{calculate_ISRatio}()},
+\code{\link{calculate_dsr}()},
 \code{\link{calculate_funnel_limits}()},
 \code{\link{calculate_funnel_points}()},
 \code{\link{phe_dsr}()},

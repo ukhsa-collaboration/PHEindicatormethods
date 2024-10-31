@@ -42,7 +42,7 @@ This vignette covers the following functions available within the first release 
 |                   |                           |                                             |
 | phe_mean          | Aggregate                 | Performs a calculation on each grouping set |
 |                   |                           |                                             |
-| phe_dsr           | Aggregate, standardised   | Performs a calculation on each grouping set and requires additional reference inputs |
+| calculate_dsr     | Aggregate, standardised   | Performs a calculation on each grouping set and requires additional reference inputs |
 | calculate_ISRatio | Aggregate, standardised   | Performs a calculation on each grouping set and requires additional reference inputs |
 | calculate_ISRate  | Aggregate, standardised   | Performs a calculation on each grouping set and requires additional reference inputs |
 
@@ -169,8 +169,8 @@ head(df_std)
 
 
 
-#### Execute phe_dsr
-**INPUT:** The minimum input requirement for the phe_dsr function is a single data frame with columns representing the numerators and denominators for each standardisation category. This is sufficient if the data is:  
+#### Execute calculate_dsr
+**INPUT:** The minimum input requirement for the calculate_dsr function is a single data frame with columns representing the numerators and denominators for each standardisation category. This is sufficient if the data is:  
 
 * broken down into 19 standardisation categories per grouping set representing the 19 x 5-year age bands from 00-04 to 90+
 * sorted, within each grouping set, by these 19 age bands in ascending order 
@@ -188,35 +188,35 @@ The function can also accept standard populations provided as a column within th
 
 **OPTIONS:** If standard populations are being provided as a column within the input data frame then the user must specify this using the stdpoptype argument as the function expects a vector by default.  The function also accepts additional arguments to specify the standard populations, the level of confidence, the multiplier and a reduced level of detail to be output.
 
-Here are some example code chunks to demonstrate the phe_dsr function and the arguments that can optionally be specified
+Here are some example code chunks to demonstrate the calculate_dsr function and the arguments that can optionally be specified
 
-```{r Execute phe_dsr}
+```{r Execute calculate_dsr}
 # calculate separate dsrs for each area, year and sex
 df_std %>%
     group_by(area, year, sex) %>%
-    phe_dsr(obs, pop)
+    calculate_dsr(obs, pop)
 
 # calculate separate dsrs for each area, year and sex and drop metadata fields from output
 df_std %>%
     group_by(area, year, sex) %>%
-    phe_dsr(obs, pop, type="standard")
+    calculate_dsr(obs, pop, type="standard")
 
 # calculate same specifying standard population in vector form
 df_std %>%
     group_by(area, year, sex) %>%
-    phe_dsr(obs, pop, stdpop = esp2013)
+    calculate_dsr(obs, pop, stdpop = esp2013)
 
 # calculate the same dsrs by appending the standard populations to the data frame
 df_std %>%
     mutate(refpop = rep(esp2013,40)) %>%
     group_by(area, year, sex) %>%
-    phe_dsr(obs,pop, stdpop=refpop, stdpoptype="field")
+    calculate_dsr(obs,pop, stdpop=refpop, stdpoptype="field")
 
 # calculate for under 75s by filtering out records for 75+ from input data frame and standard population
 df_std %>%
     filter(ageband <= 70) %>%
     group_by(area, year, sex) %>%
-    phe_dsr(obs, pop, stdpop = esp2013[1:15])
+    calculate_dsr(obs, pop, stdpop = esp2013[1:15])
     
 # calculate separate dsrs for persons for each area and year)
 df_std %>%
@@ -224,13 +224,13 @@ df_std %>%
     summarise(obs = sum(obs),
               pop = sum(pop),
               .groups = "drop_last") %>%
-    phe_dsr(obs,pop)
+    calculate_dsr(obs,pop)
 ```
 
 
 
 #### Execute calculate_ISRatio and calculate_ISRate
-**INPUT:** Unlike the phe_dsr function, there is no default standard or reference data for the calculate_ISRatio and calculate_ISRate functions.  These functions take a single data frame as input, with columns representing the numerators and denominators for each standardisation category, plus reference numerators and denominators for each standardisation category.  
+**INPUT:** Unlike the calculate_dsr function, there is no default standard or reference data for the calculate_ISRatio and calculate_ISRate functions.  These functions take a single data frame as input, with columns representing the numerators and denominators for each standardisation category, plus reference numerators and denominators for each standardisation category.  
 
 The reference data can either be provided in a separate data frame/vectors or as columns within the input data frame:  
 
