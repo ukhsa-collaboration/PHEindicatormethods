@@ -9,11 +9,12 @@ calculate_dsr(
   x,
   n,
   stdpop = esp2013,
-  stdpoptype = "vector",
   type = "full",
   confidence = 0.95,
   multiplier = 1e+05,
-  independent_events = TRUE
+  independent_events = TRUE,
+  eventfreq = NULL,
+  ageband = NULL
 )
 }
 \arguments{
@@ -28,12 +29,8 @@ area); unquoted string; no default}
 standardisation category (eg ageband) within each grouping set (eg area);
 unquoted string; no default}
 
-\item{stdpop}{the standard populations for each standardisation category (eg
-age band); unquoted string referencing a numeric vector or field name from
-data depending on value of stdpoptype; default = esp2013}
-
-\item{stdpoptype}{whether the stdpop has been specified as a vector or a
-field name from data; quoted string "field" or "vector"; default = "vector"}
+\item{stdpop}{field name from data containing the standard populations for
+each age band; unquoted string; default = esp2013}
 
 \item{type}{defines the data and metadata columns to be included in output;
 can be "value", "lower", "upper", "standard" (for all data) or "full" (for
@@ -50,13 +47,20 @@ CIs; numeric; default 0.95}
 \item{independent_events}{whether events are independent. Set to TRUE for
 independent events. When set to FALSE an adjustment is made to the
 confidence intervals - to do this, the dataset provided must include event
-frequency breakdowns in a column named 'eventfrequency' and column x is
+frequency breakdowns and column x is
 redefined as the number of unique people who experienced each frequency of
 event, rather than the total number of events. The function will then call
 the dsr_inner function twice - the first iteration will calculate and sum
 the variances for each event frequency, the second iteration will override
-the dsr variance calculation with the value obtained from the first
+the dsr variance calculation with the variance value obtained from the first
 iteration.}
+
+\item{eventfreq}{field name from data containing the event frequencies. Only
+required when independentevents = FALSE; unquoted string; default NULL}
+
+\item{ageband}{field name from data containing the age bands for
+standardisation. Only required when independentevents = FALSE; unquoted
+string; default NULL}
 }
 \value{
 When type = "full", returns a tibble of total counts, total

@@ -20,9 +20,9 @@
 #'
 #' @section Notes: This is an internal package function that is called by
 #'   calculate_dsr.  It will run through once when events are independent. When
-#'   events are non-independent, it will run through twice, passing the
-#'   calculated custom variance for event frequencies in on the second
-#'   iteration.
+#'   events are non-independent, it will run through twice, calculating the
+#'   variance for event frequencies on the first iteration and passing this
+#'   value in to the function on the second iteration.
 #'
 #' @noRd
 #'
@@ -32,7 +32,6 @@ dsr_inner <- function(data,
                       x,
                       n,
                       stdpop,
-                      stdpoptype,
                       type,
                       confidence,
                       multiplier,
@@ -148,11 +147,8 @@ dsr_inner <- function(data,
 #' @param n field name from data containing the populations for each
 #'   standardisation category (eg ageband) within each grouping set (eg area);
 #'   unquoted string; no default
-#' @param stdpop the standard populations for each standardisation category (eg
-#'   age band); unquoted string referencing a numeric vector or field name from
-#'   data depending on value of stdpoptype; default = esp2013
-#' @param stdpoptype whether the stdpop has been specified as a vector or a
-#'   field name from data; quoted string "field" or "vector"; default = "vector"
+#' @param stdpop field name from data containing the standard populations for
+#'   each age band; unquoted string; default = esp2013
 #' @param type defines the data and metadata columns to be included in output;
 #'   can be "value", "lower", "upper", "standard" (for all data) or "full" (for
 #'   all data and metadata); quoted string; default = "full"
@@ -165,13 +161,18 @@ dsr_inner <- function(data,
 #' @param independent_events whether events are independent. Set to TRUE for
 #'   independent events. When set to FALSE an adjustment is made to the
 #'   confidence intervals - to do this, the dataset provided must include event
-#'   frequency breakdowns in a column named 'eventfrequency' and column x is
+#'   frequency breakdowns and column x is
 #'   redefined as the number of unique people who experienced each frequency of
 #'   event, rather than the total number of events. The function will then call
 #'   the dsr_inner function twice - the first iteration will calculate and sum
 #'   the variances for each event frequency, the second iteration will override
-#'   the dsr variance calculation with the value obtained from the first
+#'   the dsr variance calculation with the variance value obtained from the first
 #'   iteration.
+#' @param eventfreq field name from data containing the event frequencies. Only
+#'   required when independentevents = FALSE; unquoted string; default NULL
+#' @param ageband field name from data containing the age bands for
+#'   standardisation. Only required when independentevents = FALSE; unquoted
+#'   string; default NULL
 #'
 #' @return When type = "full", returns a tibble of total counts, total
 #'   populations, directly standardised rates, lower confidence limits, upper
@@ -230,11 +231,12 @@ calculate_dsr <- function(data,
                           x,
                           n,
                           stdpop = esp2013,
-                          stdpoptype = "vector",
                           type = "full",
                           confidence = 0.95,
                           multiplier = 100000,
-                          independent_events = TRUE) {
+                          independent_events = TRUE,
+                          eventfreq = NULL,
+                          ageband = NULL) {
 
   # check required arguments present
   if (missing(data)|missing(x)|missing(n)) {
@@ -247,29 +249,16 @@ calculate_dsr <- function(data,
   }
 
   # check stdpop is valid and appended to data
-  if (!(stdpoptype %in% c("vector","field"))) {
-      stop("valid values for stdpoptype are vector and field")
-
-  } else if (stdpoptype == "vector") {
-      if (pull(slice(select(ungroup(count(data)),n),1)) != length(stdpop)) {
-          stop("stdpop length must equal number of rows in each group within data")
-      }
-  data <- mutate(data, stdpop = stdpop)
-
-  } else if (stdpoptype == "field") {
-      if (deparse(substitute(stdpop)) %in% colnames(data)) {
-        data <- data %>%
-          rename(stdpop = {{ stdpop }})
-      } else {
-        stop("stdpop is not a field name from data")
-      }
+  if (!deparse(substitute(stdpop)) %in% colnames(data)) {
+      stop("stdpop is not a field name from data")
   }
 
 
   # hard-code field names
   data <- data %>%
     rename(x = {{ x }},
-           n = {{ n }})
+           n = {{ n }},
+           stdpop = {{ stdpop }})
 
 
   # validate arguments
@@ -296,7 +285,6 @@ calculate_dsr <- function(data,
                       x          = x,
                       n          = n,
                       stdpop     = stdpop,
-                      stdpoptype = stdpoptype,
                       type       = type,
                       confidence = confidence,
                       multiplier = multiplier)
@@ -304,26 +292,39 @@ calculate_dsr <- function(data,
   } else {
     # perform dsr using CI calculation for non independent events
 
-    # check grouping variables and remove eventfrequency
-    grps <- group_vars(freq_data)[!group_vars(freq_data) %in% "eventfrequency"]
+    # check that eventfrequency column is specified, exists
+    if (missing(eventfreq)) {
+      stop("function calculate_dsr requires an eventfreq column to be specified
+            when independentevents is FALSE")
+    } else if (!deparse(substitute(eventfreq)) %in% colnames(data)) {
+      stop("eventfreq is not a field name from data")
+    }
+
+    # hard code eventfreq and ageband column names
+    data <- data %>%
+      rename(eventfreq = {{ eventfreq }},
+             ageband = {{ ageband }})
+
+
+    # check grouping variables and remove eventfrequency for use later
+    grps <- group_vars(data)[!group_vars(data) %in% "eventfreq"]
 
     # get vardsrs for each event frequency and sum up
     freq_var <- data %>%
       dsr_inner(x          = x,
                 n          = n,
                 stdpop     = stdpop,
-                stdpoptype = stdpoptype,
                 type       = type,
                 confidence = confidence,
                 multiplier = multiplier,
                 get_nonindependent_vardsr = TRUE) %>%
-      mutate(freqvars = vardsr * eventfrequency^2) %>%
+      mutate(freqvars = .data$vardsr * .data$eventfreq^2) %>%
       group_by(across(all_of(grps))) %>%
-      summarise(custom_vardsr = sum(freqvars))
+      summarise(custom_vardsr = sum(.data$freqvars))
 
     # summarise total events
     event_data <- data %>%
-      mutate(events = eventfrequency * x) %>%
+      mutate(events = .data$eventfreq * x) %>%
       group_by(across(all_of(grps)), ageband, n, stdpop) %>%
       summarise(x = sum(events), .groups = "drop")
 
@@ -334,7 +335,6 @@ calculate_dsr <- function(data,
       dsr_inner(x          = x,
                 n          = n,
                 stdpop     = stdpop,
-                stdpoptype = stdpoptype,
                 type       = type,
                 confidence = confidence,
                 multiplier = multiplier,
