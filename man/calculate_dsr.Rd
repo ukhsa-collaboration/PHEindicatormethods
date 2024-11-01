@@ -47,12 +47,12 @@ CIs; numeric; default 0.95}
 \item{independent_events}{whether events are independent. Set to TRUE for
 independent events. When set to FALSE an adjustment is made to the
 confidence intervals - to do this, the dataset provided must include event
-frequency breakdowns and column x is
-redefined as the number of unique people who experienced each frequency of
-event, rather than the total number of events. The function will then call
-the dsr_inner function twice - the first iteration will calculate and sum
-the variances for each event frequency, the second iteration will override
-the dsr variance calculation with the variance value obtained from the first
+frequency breakdowns and column x is redefined as the number of unique
+people who experienced each frequency of event, rather than the total
+number of events. The function will then call the internal dsr_inner
+function twice - the first iteration will calculate and sum the variances
+for each event frequency, the second iteration will override the dsr
+variance calculation with the variance value obtained from the first
 iteration.}
 
 \item{eventfreq}{field name from data containing the event frequencies. Only
@@ -71,15 +71,12 @@ set. Use the type argument to limit the columns output.
 \description{
 Calculates directly standardised rates with confidence limits using Byar's
 method (1) with Dobson method adjustment (2) including option to further
-adjust confidence for non-independent events.
+adjust confidence limits for non-independent events.
 }
 \section{Notes}{
- User MUST ensure that x, n and stdpop vectors are all ordered
-by the same standardisation category values as records will be matched by
-position. \cr \cr For total counts >= 10 Byar's method (1) is applied using
+ For total counts >= 10 Byar's method (1) is applied using
 the internal byars_lower and byars_upper functions. When the total count is
-< 10 DSRs are not reliable and will therefore not be calculated except when
-calculating event frequency variance for non-independent events.
+< 10 DSRs are not reliable and will therefore be suppressed in the output.
 }
 
 \examples{
@@ -91,23 +88,48 @@ df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314),
                  ageband = rep(c(0,5,10,15,20,25,30,35,40,45,
                                  50,55,60,65,70,75,80,85,90), times = 10),
                  obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
-                 pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE))
+                 pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE),
+                 esp2013 = rep(esp2013, 40))
 
 ## default execution
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(obs, pop)
+    calculate_dsr(obs, pop)
 
 ## calculate both 95\% and 99.8\% CIs in single execution
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(obs, pop, confidence = c(0.95, 0.998))
+    calculate_dsr(obs, pop, confidence = c(0.95, 0.998))
 
 ## calculate DSRs for multiple grouping sets in single execution
-
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(obs, pop, type = "standard")
+    calculate_dsr(obs, pop, type = "standard")
+
+## calculate DSRs for non-independent events
+
+# breakdown data to show event frequencies and to count unique people
+df_person_freq <- df \%>\%
+  mutate(f3 = floor((obs * 0.1)/3),            # 10 \% of events in persons with 3 events
+         f2 = floor((obs * 0.2)/2),            # 20 \% of events in persons with 2 events
+         f1 = (obs - (3 * f3) - (2 * f2))) \%>\%  # 70\% of events in persons with 1 event
+  select(!"obs") \%>\%
+  pivot_longer(cols = c("f1", "f2", "f3"),
+               names_to = "eventfrequency",
+               values_to = "uniquepeople",
+               names_prefix = "f") \%>\%
+               mutate(eventfrequency = as.integer(eventfrequency))
+
+# calculate the dsrs - notice that output DSRs values match those in
+# example 1 but the confidence intervals are wider
+ df_person_freq \%>\%
+   group_by(indicatorid, year, sex, eventfrequency) \%>\%
+   calculate_dsr(x = uniquepeople,
+                 n = pop,
+                 independent_events = FALSE,
+                 eventfreq = eventfrequency,
+                 ageband = ageband)
+
 
 }
 \references{

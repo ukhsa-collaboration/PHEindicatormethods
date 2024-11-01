@@ -53,8 +53,11 @@ confidence limits, confidence level, statistic and method for each grouping
 set
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
 Calculates directly standardised rates with confidence limits using Byar's
-method (1) with Dobson method adjustment (2).
+method (1) with Dobson method adjustment (2). This function is
+soft-deprecated, please use calculate_dsr() instead.
 }
 \section{Notes}{
  User MUST ensure that x, n and stdpop vectors are all ordered
@@ -78,19 +81,35 @@ df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314),
 
 ## default execution
 df \%>\%
-    group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(obs, pop)
+  group_by(indicatorid, year, sex) \%>\%
+  phe_dsr(obs, pop)
+# ->
+df \%>\%
+  mutate(esp2013 = esp2013) \%>\%
+  group_by(indicatorid, year, sex) \%>\%
+  calculate_dsr(obs, pop)
+
 
 ## calculate both 95\% and 99.8\% CIs in single execution
 df \%>\%
-    group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(obs, pop, confidence = c(0.95, 0.998))
+  group_by(indicatorid, year, sex) \%>\%
+  phe_dsr(obs, pop, confidence = c(0.95, 0.998))
+# ->
+df \%>\%
+  mutate(esp2013 = esp2013) \%>\%
+  group_by(indicatorid, year, sex) \%>\%
+  calculate_dsr(obs, pop, confidence = c(0.95, 0.998))
 
 ## calculate DSRs for multiple grouping sets in single execution
 
 df \%>\%
-    group_by(indicatorid, year, sex) \%>\%
-    phe_dsr(obs, pop, type = "standard")
+  group_by(indicatorid, year, sex) \%>\%
+  phe_dsr(obs, pop, type = "standard")
+# ->
+df \%>\%
+  mutate(esp2013 = esp2013) \%>\%
+  group_by(indicatorid, year, sex) \%>\%
+  calculate_dsr(obs, pop, type = "standard")
 
 }
 \references{
@@ -115,3 +134,4 @@ Other PHEindicatormethods package functions:
 \code{\link{phe_sii}()}
 }
 \concept{PHEindicatormethods package functions}
+\keyword{internal}

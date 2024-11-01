@@ -1,8 +1,12 @@
 # -------------------------------------------------------------------------------------------------
 #' Calculate Directly Standardised Rates using phe_dsr
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
 #' Calculates directly standardised rates with confidence limits using Byar's
-#' method (1) with Dobson method adjustment (2).
+#' method (1) with Dobson method adjustment (2). This function is
+#' soft-deprecated, please use calculate_dsr() instead.
 #'
 #' @param data data.frame containing the data to be standardised, pre-grouped if
 #'   multiple DSRs required; unquoted string; no default
@@ -49,19 +53,35 @@
 #'
 #' ## default execution
 #' df %>%
-#'     group_by(indicatorid, year, sex) %>%
-#'     phe_dsr(obs, pop)
+#'   group_by(indicatorid, year, sex) %>%
+#'   phe_dsr(obs, pop)
+#' # ->
+#' df %>%
+#'   mutate(esp2013 = esp2013) %>%
+#'   group_by(indicatorid, year, sex) %>%
+#'   calculate_dsr(obs, pop)
+#'
 #'
 #' ## calculate both 95% and 99.8% CIs in single execution
 #' df %>%
-#'     group_by(indicatorid, year, sex) %>%
-#'     phe_dsr(obs, pop, confidence = c(0.95, 0.998))
+#'   group_by(indicatorid, year, sex) %>%
+#'   phe_dsr(obs, pop, confidence = c(0.95, 0.998))
+#' # ->
+#' df %>%
+#'   mutate(esp2013 = esp2013) %>%
+#'   group_by(indicatorid, year, sex) %>%
+#'   calculate_dsr(obs, pop, confidence = c(0.95, 0.998))
 #'
 #' ## calculate DSRs for multiple grouping sets in single execution
 #'
 #' df %>%
-#'     group_by(indicatorid, year, sex) %>%
-#'     phe_dsr(obs, pop, type = "standard")
+#'   group_by(indicatorid, year, sex) %>%
+#'   phe_dsr(obs, pop, type = "standard")
+#' # ->
+#' df %>%
+#'   mutate(esp2013 = esp2013) %>%
+#'   group_by(indicatorid, year, sex) %>%
+#'   calculate_dsr(obs, pop, type = "standard")
 #'
 #' @section Notes: User MUST ensure that x, n and stdpop vectors are all ordered
 #'   by the same standardisation category values as records will be matched by
@@ -69,6 +89,8 @@
 #'   the internal byars_lower and byars_upper functions.
 #'   When the total count is < 10 DSRs are not reliable and will therefore not
 #'   be calculated.
+#'
+#' @keywords internal
 #'
 #' @references
 #' (1) Breslow NE, Day NE. Statistical methods in cancer research,
@@ -83,6 +105,9 @@
 # define the DSR function using Dobson method
 phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
                     type = "full", confidence = 0.95, multiplier = 100000) {
+
+  # call lifecycle warning
+  lifecycle::deprecate_soft("2.0.3", "phe_dsr()", "calculate_dsr()")
 
   # check required arguments present
   if (missing(data)|missing(x)|missing(n)) {
