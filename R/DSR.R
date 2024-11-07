@@ -50,8 +50,11 @@ dsr_inner <- function(data,
 
   # create dummy custom_vardsr column when not in use to prevent errors evaluating vardsr code
   if (!"custom_vardsr" %in% names(data)) {
+    method = "Dobson"
     data <- data %>%
       mutate(custom_vardsr = NA_real_)
+  } else {
+    method = "Dobson, with confidence adjusted for non-independent events"
   }
 
   # calculate DSR and CIs
@@ -81,7 +84,7 @@ dsr_inner <- function(data,
                 .groups = "keep") %>%
       mutate(confidence = paste0(confidence * 100, "%", collapse = ", "),
              statistic = paste("dsr per",format(multiplier, scientific=F)),
-             method = "Dobson")
+             method = method)
 
 
   # rename or drop confidence limits depending whether 1 or 2 CIs requested
