@@ -22,14 +22,16 @@ knitr::opts_chunk$set(
 ```
 
 
-## Introduction This vignette documents the method for calculating DSRs using
-the PHEindicatormethods::calculate_dsr function which calculates DSRs and their
+## Introduction  
+
+This vignette documents the method for calculating DSRs using
+the PHEindicatormethods::calculate_dsr() function which calculates DSRs and their
 confidence limits using the Dobson method with an option to adjust confidence
 intervals for non-independent events.
 
 The function can be used to calculate DSRs for grouping single or multiple
-geographic areas/ genders/ timeperiods/ indicators in a single execution and
-takes the following arguments as inputs:
+geographic areas, genders, time periods and/or indicators in a single execution
+and takes the following arguments as inputs:
 
 <br/>
 <br/>
@@ -133,11 +135,9 @@ n_distinct(select(summarise(df, numrecs = n(), .groups = "drop"), "numrecs")) ==
 
 
 ## Now let's calculate some DSRs
- 
-Now we're ready to calculate the DSRs using our correctly ordered df data frame.  
 
-By default the function will apply 95% confidence, a 100,000 multiplier and will
-output 3 data fields against each grouping set:
+By default the function will apply 95% confidence intervals, a 100,000
+multiplier and will output 3 data fields against each grouping set:
 
 * the dsr value  
 * the lower confidence limit
@@ -147,7 +147,7 @@ It will also output 3 metadata fields as an audit showing which argument
 parameters were passed:
 
 * confidence - the confidence level(s) returned
-* multiplier - the multiplier applied
+* statistic - the statistic including the multiplier applied
 * method - the DSR method applied
  
 ``` {r calculate DSRs}
@@ -160,8 +160,8 @@ calculate_dsr(data = df,
 </br>
 </br>
 
-Alternatively, we can just output the data fields by specifying the 'type'
-argument value as 'standard':
+Alternatively, we can drop metadata fields by specifying the 'type' argument
+value as 'standard', and adjust the multiplier applied to the DSR:
 
 ``` {r alternative dsr}
 calculate_dsr(data = df, 
@@ -183,13 +183,14 @@ default esp2013 one provided - such as the 1976 European Standard Population or
 an age and sex standardised population.  This can be done by appending the
 required standard populations to your data frame before executing the function.
 
-In the example below the data are duplicated for males and females and then
-different standard populations are applied to each gender. For the purposes of
-the example, dummy standard populations have been used which very crudely
-represent more women living to the oldest age groups than men - these are not
-from any official source and should not be used in real analysis. Notice that
-despite the data counts and populations being the same for males and females the
-different standard populations used result in different DSRs being produced.
+In the example below the data we have used previously are duplicated for males
+and females and then different standard populations are applied to each gender.
+For the purposes of the example, dummy standard populations have been used which
+very crudely represent more women living to the oldest age groups than men -
+these are not from any official source and should not be used in real analysis.
+Notice that despite the data counts and populations being the same for males and
+females the different standard populations used result in different DSRs being
+produced.
 
 
 ``` {r specify stdpop as field name}
@@ -223,14 +224,14 @@ head(dsrs_mf)
 ## Calculating DSRs when the events are non-independent
 
 Methodological advice on calculating directly standardised rates when observed
-events are not independent can be found in the [Fingertips Public Health Technical Guidance on DSRs](https://fingertips.phe.org.uk/static-reports/public-health-technical-guidance/Standardisation/DSRs.html#calculation of-confidence-intervals-when-observed-events-are-not-independent).  
+events are not independent can be found in the [Fingertips Public Health Technical Guidance on DSRs](https://fingertips.phe.org.uk/static-reports/public-health-technical-guidance/Standardisation/DSRs.html).  
 
 This method adjusts the confidence intervals around the DSR by considering the
 frequency of events per individual. In the example below, event frequency data
-is added to the input dataframe and the calculate_dsr function is then applied
+is added to the input data frame and the calculate_dsr function is then applied
 with the independent_events argument set to FALSE. The event frequency and age
 band column names are additionally passed into the function. Note that the DSRs
-output are identical to those produced for the df dataframe at the beginning of
+output are identical to those produced for the df data frame at the beginning of
 this vignette, but the 95% confidence intervals are wider.
 
 ``` {r}
@@ -262,9 +263,9 @@ df_person_freq %>%
 
 ## Calculating DSRs when there are zero deaths in some age bands
 
-This would be a fairly common scenario - maybe you have Local Authority data and there are no deaths in some of the younger age groups for some of the smaller areas. From PHEindicatormethods version 1.1.0 onwards, the calculate_dsr function can handle this scenario and will automatically assign a zero death count where a death count is missing or recorded as NA.  
+This is a fairly common scenario, especially when working with small populations where there may be no deaths in some of the younger age groups. From PHEindicatormethods version 1.1.0 onwards, the calculate_dsr function can handle this scenario and will assume a zero death count where it is missing or recorded as NA.  
 
-Let's fudge a couple of data frames to represent this.  In this example, there are no deaths in the 10-14, 15-20 and 20-14 age bands:
+Let's create a couple of data frames to demonstrate this.  In this example, there are no deaths in the 10-14, 15-20 and 20-14 age bands:
 
 ``` {r test data}
 pops2   <- data.frame(ageband = c( 0, 5, 10, 15, 20, 25, 30, 35, 40, 45,
