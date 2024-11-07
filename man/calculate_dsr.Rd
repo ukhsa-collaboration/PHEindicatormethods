@@ -56,10 +56,10 @@ variance calculation with the variance value obtained from the first
 iteration.}
 
 \item{eventfreq}{field name from data containing the event frequencies. Only
-required when independentevents = FALSE; unquoted string; default NULL}
+required when independent_events = FALSE; unquoted string; default NULL}
 
 \item{ageband}{field name from data containing the age bands for
-standardisation. Only required when independentevents = FALSE; unquoted
+standardisation. Only required when independent_events = FALSE; unquoted
 string; default NULL}
 }
 \value{
@@ -107,6 +107,8 @@ df \%>\%
     calculate_dsr(obs, pop, type = "standard")
 
 ## calculate DSRs for non-independent events
+
+library(tidyr)
 
 # breakdown data to show event frequencies and to count unique people
 df_person_freq <- df \%>\%
