@@ -1,3 +1,5 @@
+library(tidyr)
+
 # append esp to test datasets as must now be provided as a column on the input dataframe
 test_multiarea_esp <- test_multiarea %>%
   mutate(esp2013 = esp2013)
@@ -5,36 +7,54 @@ test_multiarea_esp <- test_multiarea %>%
 test_err2_esp <- test_err2 %>%
   mutate(esp2013 = esp2013)
 
+# pivot DSR person-frequency testdata
+test_nonindependent <- test_DSR_nonindepe %>%
+  select(!"count") %>%
+  pivot_longer(cols = starts_with("f"),
+               names_to = "freq",
+               values_to = "persons",
+               names_prefix = "f") %>%
+  filter(!(area %in% c("testdata_nonind_dummy", "testdata_nonind_small") & freq == 4)) %>%
+  mutate(freq = as.integer(freq)) %>%
+  arrange(freq, ageband) %>%
+  group_by(area, freq) %>%
+  mutate(esp2013 = esp2013)
+
+
 # test calculations
 test_that("dsrs and CIs calculate correctly",{
 
-  expect_equal(data.frame(select(calculate_dsr(test_multiarea_esp, count, pop),1:6)),
-               data.frame(test_DSR_results[5:7,1:6]),
-               ignore_attr = TRUE,info="test default")
+  expect_equal(select(calculate_dsr(
+                        test_multiarea_esp, count, pop
+                      ), 1:6),
+               test_DSR_results[5:7, 1:6],
+               ignore_attr = TRUE, info = "test default")
 
-  expect_equal(data.frame(select(calculate_dsr(test_multiarea_esp, count, pop, confidence = c(0.95,0.998)),1:8,10:11)),
-               data.frame(test_DSR_results[5:7,]),
-               ignore_attr = TRUE,info="test full output with 2 CIs")
+  expect_equal(select(calculate_dsr(
+                        test_multiarea_esp, count, pop, confidence = c(0.95,0.998)
+                      ), 1:8, 10:11),
+               test_DSR_results[5:7,],
+               ignore_attr = TRUE, info = "test full output with 2 CIs")
 
-  expect_equal(data.frame(calculate_dsr(test_DSR_1976, count, pop, stdpop = esp1976, type="standard")),
-               data.frame(select(slice(test_DSR_results,8),2:6)),
-               ignore_attr = TRUE,info="test with user specified stdpop by col name")
+  expect_equal(calculate_dsr(test_DSR_1976, count, pop, stdpop = esp1976, type = "standard"),
+               select(slice(test_DSR_results, 8), 2:6),
+               ignore_attr = TRUE, info = "test with user specified stdpop by col name")
 
-  expect_equal(data.frame(calculate_dsr(test_multiarea_esp, count, pop, stdpop = esp2013, type="standard")),
-               data.frame(select(slice(test_DSR_results,5:7),1:6)),
-               ignore_attr = TRUE,info="test standard")
+  expect_equal(calculate_dsr(test_multiarea_esp, count, pop, stdpop = esp2013, type = "standard"),
+               select(slice(test_DSR_results, 5:7), 1:6),
+               ignore_attr = TRUE, info = "test standard")
 
-  expect_equal(data.frame(calculate_dsr(test_multiarea_esp, count, pop, confidence = c(0.95,0.998), type="standard")),
-               data.frame(select(slice(test_DSR_results,5:7),1:8)),
-               ignore_attr = TRUE,info="test standard 2CIs")
+  expect_equal(calculate_dsr(test_multiarea_esp, count, pop, confidence = c(0.95,0.998), type = "standard"),
+               select(slice(test_DSR_results, 5:7), 1:8),
+               ignore_attr = TRUE, info = "test standard 2CIs")
 
-  expect_equal(data.frame(calculate_dsr(test_multiarea_esp, count, pop, type="value")),
-               data.frame(select(slice(test_DSR_results,5:7),1,4)),
-               ignore_attr = TRUE,info="test value")
+  expect_equal(calculate_dsr(test_multiarea_esp, count, pop, type = "value"),
+               select(slice(test_DSR_results, 5:7), 1, 4),
+               ignore_attr = TRUE, info = "test value")
 
-  expect_equal(data.frame(calculate_dsr(test_multiarea_esp, count, pop, confidence = c(0.95,0.998), type="value")),
-               data.frame(select(slice(test_DSR_results,5:7),1,4)),
-               ignore_attr = TRUE,info="test value 2CIs")
+  expect_equal(calculate_dsr(test_multiarea_esp, count, pop, confidence = c(0.95,0.998), type = "value"),
+               select(slice(test_DSR_results, 5:7), 1, 4),
+               ignore_attr = TRUE, info = "test value 2CIs")
 
   expect_equal(data.frame(calculate_dsr(test_multiarea_esp, count, pop, type="lower")),
                data.frame(select(slice(test_DSR_results,5:7),1,5)),
@@ -71,6 +91,13 @@ test_that("dsrs and CIs calculate correctly",{
   expect_equal(data.frame(select(ungroup(calculate_dsr(test_multiarea_esp, count, pop, confidence = 0.998)),7)),
                data.frame(confidence = c("99.8%", "99.8%", "99.8%"), stringsAsFactors=FALSE),
                ignore_attr = TRUE,info="test 99.8% CI metadata")
+
+  expect_equal(select(ungroup(
+    calculate_dsr(test_nonindependent, persons, pop, confidence = c(0.95, 0.998),
+                                                independent_events = FALSE, eventfreq = freq, ageband = ageband)
+    ), 1:8, 10:11),
+    test_DSR_results[9:11,],
+    ignore_attr = TRUE, info = "test nonindependent events")
 
 })
 

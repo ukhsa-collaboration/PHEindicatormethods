@@ -353,7 +353,7 @@ calculate_dsr <- function(data,
     event_data <- data %>%
       mutate(events = .data$eventfreq * x) %>%
       group_by(across(all_of(grps)), ageband, n, stdpop) %>%
-      summarise(x = sum(events), .groups = "drop")
+      summarise(x = sum(.data$events, na.rm = TRUE), .groups = "drop")
 
     # calculate overall DSR passing in nonindependent variance
     dsrs <- event_data %>%
