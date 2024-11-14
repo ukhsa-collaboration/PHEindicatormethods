@@ -6,4 +6,5 @@
 ## usethis namespace: end
 NULL
 
-globalVariables(c("esp2013"))
+globalVariables(c("esp2013",
+                  "custom_vardsr"))

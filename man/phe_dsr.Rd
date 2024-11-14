@@ -85,8 +85,8 @@ df \%>\%
   phe_dsr(obs, pop)
 # ->
 df \%>\%
-  mutate(esp2013 = esp2013) \%>\%
   group_by(indicatorid, year, sex) \%>\%
+  mutate(esp2013 = esp2013) \%>\%
   calculate_dsr(obs, pop)
 
 
@@ -96,8 +96,8 @@ df \%>\%
   phe_dsr(obs, pop, confidence = c(0.95, 0.998))
 # ->
 df \%>\%
-  mutate(esp2013 = esp2013) \%>\%
   group_by(indicatorid, year, sex) \%>\%
+  mutate(esp2013 = esp2013) \%>\%
   calculate_dsr(obs, pop, confidence = c(0.95, 0.998))
 
 ## calculate DSRs for multiple grouping sets in single execution
@@ -107,8 +107,8 @@ df \%>\%
   phe_dsr(obs, pop, type = "standard")
 # ->
 df \%>\%
-  mutate(esp2013 = esp2013) \%>\%
   group_by(indicatorid, year, sex) \%>\%
+  mutate(esp2013 = esp2013) \%>\%
   calculate_dsr(obs, pop, type = "standard")
 
 }

@@ -166,11 +166,8 @@ dsr_inner <- function(data,
 #'   confidence intervals - to do this, the dataset provided must include event
 #'   frequency breakdowns and column x is redefined as the number of unique
 #'   people who experienced each frequency of event, rather than the total
-#'   number of events. The function will then call the internal dsr_inner
-#'   function twice - the first iteration will calculate and sum the variances
-#'   for each event frequency, the second iteration will override the dsr
-#'   variance calculation with the variance value obtained from the first
-#'   iteration.
+#'   number of events. The function will then calculate the variance to pass
+#'   into the DSR calculation from the separate person-frequency data.
 #' @param eventfreq field name from data containing the event frequencies. Only
 #'   required when independent_events = FALSE; unquoted string; default NULL
 #' @param ageband field name from data containing the age bands for
