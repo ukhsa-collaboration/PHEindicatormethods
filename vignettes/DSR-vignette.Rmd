@@ -1,10 +1,7 @@
 ---
 title: "PHEindicatormethods DSR function"
 author: "Georgina Anderson"
-date: "`r Sys.Date()`"
-output: 
-  rmarkdown::html_vignette:
-    css: style.css
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Vignette for calculating DSRs for multiple geographies and time periods}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,8 +11,6 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  error = TRUE,
-  purl=FALSE,
   comment = "#>"
 )
 
@@ -24,10 +19,7 @@ knitr::opts_chunk$set(
 
 ## Introduction  
 
-This vignette documents the method for calculating DSRs using
-the PHEindicatormethods::calculate_dsr() function which calculates DSRs and their
-confidence limits using the Dobson method with an option to adjust confidence
-intervals for non-independent events.
+This vignette documents the method for calculating DSRs and their confidence limits using the `PHEindicatormethods::calculate_dsr()` function. The function calculate confidence limits using the Dobson method, with an option to adjust confidence intervals for non-independent events.
 
 The function can be used to calculate DSRs for grouping single or multiple
 geographic areas, genders, time periods and/or indicators in a single execution
@@ -42,7 +34,7 @@ and takes the following arguments as inputs:
 | data               | data frame       | data.frame containing the data to be standardised                      | none          |
 | x                  | unquoted string  | field name from data containing the observed number of events for each standardisation category (eg ageband) within each grouping set (eg area or indicator)    | none          |
 | n                  | unquoted string  | field name from data containing the populations for each standardisation category (eg ageband) within each grouping set (eg area or indicator)| none          |
-| stdpop             | unquoted string  | field name from data containing the standard populations for each age group    | esp2013   | 
+| stdpop             | unquoted string  | field name from data containing the standard populations for each age group    | none          | 
 | type               | quoted string    | defines the data and metadata columns to include in output. Can by 'value', 'lower', 'upper', 'standard' or 'full' | "full"      | 
 | confidence         | numeric value    | the required level of confidence expressed as a number between 0.9 and 1 or 90 and 100  | 0.95          |
 | multiplier         | numeric value    | the multiplier used to express the final values (eg 100,000 = rate per 100,000 | 100,000       |
@@ -55,10 +47,10 @@ and takes the following arguments as inputs:
 
 Note that the European Standard Population 2013 divided into 19 five-year
 agebands (0-4, 5-9, 10-14, .....90+) is provided in vector format within the
-package and will be used as the default for the stdpop argument
+package. You can join this to your dataset to create a standard population column prior to calling `calculate_dsr`.
 
 If multiple DSRs are required from a single data frame then the data frame must
-be grouped prior to inputting to the function - this is demonstrated below
+be grouped prior to inputting to the function - this is demonstrated below.
 
 
 #### The following packages must be installed and loaded if not already available
@@ -97,14 +89,12 @@ head(deaths)
 
 ```
 
-## Then let's prepare and validate our data
 
 Our data contains records for 4 different indicators, 5 time periods and 2
 geographies so let's calculate a DSR for each combination - that's 40 separate
 DSRs from a single execution of the calculate_dsr function......
 
-
-#### Prepare the data frame
+## Prepare the data frame
 
 First we'll need to join our datasets to create the input data frame for the
 function. We also need to specify our grouping sets:
@@ -117,22 +107,6 @@ df <- left_join(pops,
 
 ```
  
-
-#### Check the data meets the function requirements
-
-Each grouping set within your data must contain an equal number of records in
-order for the calculate_dsr function to work. The calculate_dsr function has
-built in error handling to check this requirement, or you can check your data
-manually using code like this:
-
-``` {r check number of records }
-# check equal number of records in each grouping set - eyeball check
-summarise(df, numrecs = n(), .groups = "drop")
-# or alternatively the following should return TRUE
-n_distinct(select(summarise(df, numrecs = n(), .groups = "drop"), "numrecs")) == 1
-
-```
-
 
 ## Now let's calculate some DSRs
 
@@ -151,9 +125,12 @@ parameters were passed:
 * method - the DSR method applied
  
 ``` {r calculate DSRs}
-calculate_dsr(data = df, 
-              x = dths, 
-              n = pop)
+calculate_dsr(
+  data = df, 
+  x = dths, # name of field with count of events
+  n = pop, # name of field with populations denominator
+  stdpop = esp2013 # name of field with standard populations
+)
 
 ```
 
@@ -164,12 +141,15 @@ Alternatively, we can drop metadata fields by specifying the 'type' argument
 value as 'standard', and adjust the multiplier applied to the DSR:
 
 ``` {r alternative dsr}
-calculate_dsr(data = df, 
-              x = dths, 
-              n = pop, 
-              type = "standard", 
-              confidence = 99.8, 
-              multiplier = 10000)
+calculate_dsr(
+  data = df, 
+  x = dths, 
+  n = pop, 
+  stdpop = esp2013, 
+  type = "standard", 
+  confidence = 99.8, 
+  multiplier = 10000
+)
 
 ```
 
@@ -197,22 +177,30 @@ produced.
 # duplicate data for males and females and apply different standard populations
 # to each sex
 df_f <- df %>%
-  mutate(sex = "F",
-         esp_dummy = c(5000, 5500, 5500, 5500, 6000, 6000, 6500, 7000, 7000, 7000,
-                       7000, 6500, 5500, 5000, 4500, 4000, 3000, 2000, 1500))
-df_m <- df %>%
-  mutate(sex = "M",
-         esp_dummy = c(5000, 5500, 5500, 5500, 6000, 6000, 6500, 7000, 7000, 7000,
-                       7000, 6500, 6500, 6000, 5500, 4000, 2000, 1000, 500))
+  mutate(
+    sex = "F",
+    esp_dummy = c(5000, 5500, 5500, 5500, 6000, 6000, 6500, 7000, 7000, 7000,
+                  7000, 6500, 5500, 5000, 4500, 4000, 3000, 2000, 1500)
+  )
 
-df_mf <- df_f %>% bind_rows(df_m) %>%
+df_m <- df %>%
+  mutate(
+    sex = "M",
+    esp_dummy = c(5000, 5500, 5500, 5500, 6000, 6000, 6500, 7000, 7000, 7000,
+                  7000, 6500, 6500, 6000, 5500, 4000, 2000, 1000, 500)
+  )
+
+df_mf <- df_f %>%
+  bind_rows(df_m) %>%
   group_by(sex, .add = TRUE)
 
 # add sex to the grouping variables then calculate the DSRs
-dsrs_mf <- calculate_dsr(data = df_mf, 
-              x = dths, 
-              n = pop, 
-              stdpop = esp_dummy)
+dsrs_mf <- calculate_dsr(
+  df_mf, 
+  x = dths, 
+  n = pop, 
+  stdpop = esp_dummy
+)
 
 head(dsrs_mf)
 
@@ -235,10 +223,11 @@ output are identical to those produced for the df data frame at the beginning of
 this vignette, but the 95% confidence intervals are wider.
 
 ``` {r}
+# Generate some dummy data
 # breakdown data to show event frequencies and to count unique people
 df_person_freq <- df %>%
- mutate(f3 = floor((dths * 0.1)/3),             # 10 % of events in persons with 3 events
-        f2 = floor((dths * 0.2)/2),             # 20 % of events in persons with 2 events
+ mutate(f3 = floor((dths * 0.1) / 3),             # 10 % of events in persons with 3 events
+        f2 = floor((dths * 0.2) / 2),             # 20 % of events in persons with 2 events
         f1 = (dths - (3 * f3) - (2 * f2))) %>%  # 70% of events in persons with 1 event
  select(!"dths") %>%
  pivot_longer(cols = c("f1", "f2", "f3"),
@@ -251,11 +240,13 @@ df_person_freq <- df %>%
 # earlier for the same data frame but confidence intervals are wider
 df_person_freq %>%
   group_by(eventfrequency, .add = TRUE) %>%
-  calculate_dsr(x = uniquepeople,
-                n = pop,
-                independent_events = FALSE,
-                eventfreq = eventfrequency,
-                ageband = ageband)
+  calculate_dsr(
+    x = uniquepeople, # count of number of people with eventfreq number of events
+    n = pop,
+    independent_events = FALSE, # calculate CIs assuming events are not independent
+    eventfreq = eventfrequency, # name of column with the number of events (e.g. 1, 2, ...)
+    ageband = ageband # name of column with  age band
+  )
 
 ```
 </br>
@@ -263,29 +254,35 @@ df_person_freq %>%
 
 ## Calculating DSRs when there are zero deaths in some age bands
 
-This is a fairly common scenario, especially when working with small populations where there may be no deaths in some of the younger age groups. From PHEindicatormethods version 1.1.0 onwards, the calculate_dsr function can handle this scenario and will assume a zero death count where it is missing or recorded as NA.  
+This is a fairly common scenario, especially when working with small populations where there may be no deaths in some of the younger age groups. The calculate_dsr function can handle this scenario and will assume a zero death count where it is missing or recorded as NA.  
 
-Let's create a couple of data frames to demonstrate this.  In this example, there are no deaths in the 10-14, 15-20 and 20-14 age bands:
+Let's create a couple of data frames to demonstrate this.  In this example, there are no deaths in the 10-14, 15-20 and 20-14 age bands. If we join these data frames to produce the input data frame required for the calculate_dsr function then we get NA values in the Deaths column.
 
 ``` {r test data}
-pops2   <- data.frame(ageband = c( 0, 5, 10, 15, 20, 25, 30, 35, 40, 45,
-                                  50, 55, 60, 65, 70, 75, 80, 85, 90),
-                      pop     = c(30, 35, 35, 35, 40, 40, 45, 50, 50, 50,
-                                  60, 60, 70, 75, 70, 60, 20, 20, 15),
-                      esp2013 = esp2013)
+pops2   <- data.frame(
+  ageband = c( 0, 5, 10, 15, 20, 25, 30, 35, 40, 45,
+               50, 55, 60, 65, 70, 75, 80, 85, 90),
+  pop     = c(30, 35, 35, 35, 40, 40, 45, 50, 50, 50,
+              60, 60, 70, 75, 70, 60, 20, 20, 15),
+  esp2013 = esp2013
+)
 
-deaths2 <- data.frame(ageband = c(0, 5, 25, 30, 35, 40, 45, 50, 55, 
-                                  60, 65, 70, 75, 80, 85, 90),
-                      dths    = c(1, 1, 1, 1, 3, 3, 3, 3, 10, 
-                                  10, 10, 10, 8, 8, 8, 8))
-```
+deaths2 <- data.frame(
+  ageband = c(0, 5, 25, 30, 35, 40, 45, 50, 55, 
+              60, 65, 70, 75, 80, 85, 90),
+  dths    = c(1, 1, 1, 1, 3, 3, 3, 3, 10, 
+              10, 10, 10, 8, 8, 8, 8)
+)
 
-If we join these data frames to produce the input data frame required for the calculate_dsr function then we get NA values in the Deaths column.  The calculate_dsr function will return the correct DSR, assuming zero deaths in the age groups with no deaths recorded.  Note that if you are using a version of PHEindicatormethods prior to v1.1.0 then an error will be returned.  
 
-``` {r error test}
 df2 <- left_join(pops2, deaths2, by = "ageband")
-calculate_dsr(df2, dths, pop)
 
+head(df2)
+
+calculate_dsr(
+  df2,
+  x = dths,
+  n = pop,
+  stdpop = esp2013
+)
 ```
-
-
