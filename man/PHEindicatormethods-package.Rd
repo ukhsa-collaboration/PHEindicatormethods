@@ -16,17 +16,18 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Anderson Georgina \email{georgina.anderson@dhsc.gov.uk}
+\strong{Maintainer}: Georgina Anderson \email{georgina.anderson@dhsc.gov.uk}
 
 Other contributors:
 \itemize{
-  \item Fox Sebastian [contributor]
-  \item Francis Matthew [contributor]
-  \item Fryers Paul \email{paul.fryers@dhsc.gov.uk} [contributor]
-  \item Clegg Emma [contributor]
-  \item Westermann Annabel [contributor]
-  \item Woolner Joshua [contributor]
-  \item Fellows Charlotte \email{charlotte.fellows@dhsc.gov.uk} [contributor]
+  \item Sebastian Fox [contributor]
+  \item Matthew Francis [contributor]
+  \item Paul Fryers \email{paul.fryers@dhsc.gov.uk} [contributor]
+  \item Emma Clegg [contributor]
+  \item Annabel Westermann [contributor]
+  \item Joshua Woolner [contributor]
+  \item Charlotte Fellows \email{charlotte.fellows@dhsc.gov.uk} [contributor]
+  \item Olivia Box Power \email{Olivia.BoxPower@dhsc.gov.uk} [contributor]
 }
 
 }
