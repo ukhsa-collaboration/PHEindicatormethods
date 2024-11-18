@@ -72,16 +72,6 @@
 #'   mutate(esp2013 = esp2013) %>%
 #'   calculate_dsr(obs, pop, confidence = c(0.95, 0.998))
 #'
-#' ## calculate DSRs for multiple grouping sets in single execution
-#'
-#' df %>%
-#'   group_by(indicatorid, year, sex) %>%
-#'   phe_dsr(obs, pop, type = "standard")
-#' # ->
-#' df %>%
-#'   group_by(indicatorid, year, sex) %>%
-#'   mutate(esp2013 = esp2013) %>%
-#'   calculate_dsr(obs, pop, type = "standard")
 #'
 #' @section Notes: User MUST ensure that x, n and stdpop vectors are all ordered
 #'   by the same standardisation category values as records will be matched by
