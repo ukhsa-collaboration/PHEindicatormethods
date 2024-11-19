@@ -18,6 +18,10 @@ library(usethis)
 # esp2013
 esp2013 <- c(5000,5500,5500,5500,6000,6000,6500,7000,7000,7000,7000,6500,6000,5500,5000,4000,2500,1500,1000)
 
+#le_2022
+le2022 <- data.frame(le = c(78.85,78.19,74.23,69.26,64.29,59.38,54.52,49.68,44.88,40.15,35.5,30.98,26.60,22.38,18.38,14.66,11.23,8.20,5.75,3.89,
+                             82.82, 82.11,78.14,73.17,68.19,63.24,58.30,53.38,48.49,43.66,38.89,34.21,29.64,25.18,20.91,16.84,13.03,9.59,6.73,4.50),
+                    sexid = c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2), stringsAsFactors = FALSE)
 
 ##############
 ## INTERNAL ##
@@ -174,7 +178,7 @@ SII_test_grouped <- SII_test_data %>%
 ########################################
 
 # SAVE EXTERNALLY AVAILABLE DATA IN data\XXXXXX.rda - data available to user
-usethis::use_data(esp2013, LE_data, DSR_data, prevalence_data,
+usethis::use_data(esp2013, LE_data, DSR_data, prevalence_data,le2022,
                   internal=FALSE, overwrite=TRUE)
 
 

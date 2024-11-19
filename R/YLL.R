@@ -1,17 +1,17 @@
 # -------------------------------------------------------------------------------------------------
-#' Calculate potential years of life lost using phe_pyll
+#' Calculate years of life lost using calculate_yll
 #'
-#' Calculates potential years of life lost rates with confidence limits using Dobson & Byar's (PYLL variation) method.
+#' Calculates  years of life lost rates with confidence limits using Dobson & Byar's (YLL variation) method.
 #'
 #' @param data data.frame containing the data to be standardised, pre-grouped if
-#'   multiple PYLL required; unquoted string; no default
+#'   multiple YLL required; unquoted string; no default
 #' @param x field name from data containing the observed number of events for
 #'   each standardisation category (eg ageband) within each grouping set (eg
 #'   area); unquoted string; no default
 #' @param n field name from data containing the populations for each
 #'   standardisation category (eg ageband) within each grouping set (eg area);
 #'   unquoted string; no default
-#'  @param leadj the weight or average age-specific period life expectancy for
+#'  @param le2022 the weight or average age-specific period life expectancy for
 #'  each standardisation category (eg ageband) within each grouping set (eg area)
 #'  unquoted string; no default
 #' @param stdpop the standard populations for each standardisation category (eg
@@ -40,11 +40,11 @@
 #'
 #' @examples
 #'
-#' @section Notes: User MUST ensure that x, n leadj and stdpop vectors are all ordered
+#' @section Notes: User MUST ensure that x, n, le2022 and stdpop vectors are all ordered
 #'   by the same standardisation category values as records will be matched by
 #'   position. \cr \cr For total counts >= 10 Byar's method (1) is applied using
 #'   the \code{\link{byars_lower}} and \code{\link{byars_upper}} functions.
-#'   When the total count is < 10 pyll are not reliable and will therefore not
+#'   When the total count is < 10 YLL are not reliable and will therefore not
 #'   be calculated.- because numerator is years not deaths disclosure not applied REMOVE
 #'
 #' @references
@@ -57,13 +57,13 @@
 #' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
-# define the pyll function using Dobson method
-phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
+# define the YLL function using Dobson method
+calculate_yll <- function(data, x, n, le = le2022, stdpop = esp2013, stdpoptype = "vector",
                     type = "full", confidence = 0.95, multiplier = 100000) {
 
   # check required arguments present
-  if (missing(data)|missing(x)|missing(n)|missing(leadj)) {
-    stop("function phe_pyll requires at least 4 arguments: data, x, n, leadj")
+  if (missing(data)|missing(x)|missing(n)) {
+    stop("function calculate_yll requires at least 4 arguments: data, x, n, le2022")
   }
 
   # check same number of rows per group
@@ -106,29 +106,29 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
   }
 
 
-  # calculate PYLL and CIs
+  # calculate YLL and CIs
   if (length(confidence) == 2) {
 
     # if two confidence levels requested
     conf1 <- confidence[1]
     conf2 <- confidence[2]
 
-    # calculate PYLL and CIs
-    phe_pyll <- data %>%
-      mutate(yll=({{leadj}}*{{x}}*(stdpop_calc/{{n}})),
-             yll_numerator=({{leadj}}*{{x}}),
-             err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{leadj}})^2)) %>%
+    # calculate YLL and CIs
+    calculate_yll <- data %>%
+      mutate(yll=({{le2022}}*{{x}}*(stdpop_calc/{{n}})),
+             yll_numerator=({{le2022}}*{{x}}),
+             err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{le2022}})^2)) %>%
       summarise(total_count = sum(yll_numerator),
                 total_pop = sum({{ n }}),
                 value = sum(yll),
                 err_frac = sum(err_frac),
-                pyll_lower95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+                yll_lower95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
                   (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)),
-                pyll_upper95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+                yll_upper95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
                   (byars_upper(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)),
-                pyll_lower99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+                yll_lower99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
                   (byars_lower(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)),
-                pyll_upper99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+                yll_upper99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
                   (byars_upper(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)),
                 .groups = "keep") %>%
       select(-err_frac) %>%
@@ -136,7 +136,7 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
              statistic = paste("dsr per",format(multiplier,scientific=F)),
              method = " variation")
 
-    # remove DSR calculation for total counts < 10 - because numerator is years not deaths disclosure not applied
+    # remove DSR calculation for total counts < 10 - because numerator is years not deaths disclosure not applied keep
 #    phe_dsr$value[phe_dsr$total_count             < 10] <- NA
 #    phe_dsr$upper95_0cl[phe_dsr$total_count       < 10] <- NA
 #    phe_dsr$lower95_0cl[phe_dsr$total_count       < 10] <- NA
@@ -147,19 +147,19 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
 
     # drop fields not required based on value of type argument
     if (type == "lower") {
-      phe_pyll <- phe_pyll %>%
+      calculate_yll <- calculate_yll %>%
         select(-total_count, -total_pop, -value, -upper95_0cl, -upper99_8cl,
                -confidence, -statistic, -method)
     } else if (type == "upper") {
-      phe_pyll <- phe_pyll %>%
+      calculate_yll <- calculate_yll %>%
         select(-total_count, -total_pop, -value, -lower95_0cl, -lower99_8cl,
                -confidence, -statistic, -method)
     } else if (type == "value") {
-      phe_pyll <- phe_pyll %>%
+      calculate_yll <- calculate_yll %>%
         select(-total_count, -total_pop, -lower95_0cl, -lower99_8cl, -upper95_0cl, -upper99_8cl,
                -confidence, -statistic, -method)
     } else if (type == "standard") {
-      phe_pyll <- phe_pyll %>%
+      calculate_yll <- calculate_yll %>%
         select(-confidence, -statistic, -method)
     }
 
@@ -171,10 +171,10 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
     }
 
 
-    # calculate pyll with a single CI
-    phe_pyll <- data %>%
-      mutate(yll=({{leadj}}*{{x}}*(stdpop_calc/{{n}})),
-             yll_numerator=({{leadj}}*{{x}}),
+    # calculate yll with a single CI
+    calculate_yll <- data %>%
+      mutate(yll=({{le2022}}*{{x}}*(stdpop_calc/{{n}})),
+             yll_numerator=({{le2022}}*{{x}}),
              err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{leadj}})^2)) %>%
             summarise(total_count = sum(yll_numerator),
                       total_pop = sum({{ n }}),
@@ -188,7 +188,7 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
       select(-err_frac) %>%
       mutate(confidence = paste(confidence*100,"%",sep=""),
              statistic = paste("dsr per",format(multiplier,scientific=F)),
-             method = "Dobson PYLL variation")
+             method = "Dobson YLL variation")
 
     # remove DSR calculation for total counts < 10
  #   phe_dsr$value[phe_dsr$total_count            < 10] <- NA
@@ -198,20 +198,20 @@ phe_pyll <- function(data, x, n, leadj, stdpop = esp2013, stdpoptype = "vector",
 
     # drop fields not required based on value of type argument
     if (type == "lower") {
-      phe_pyll <- phe_pyll %>%
+      calculate_yll <- calculate_yll %>%
         select(-total_count, -total_pop, -value, -uppercl, -confidence, -statistic, -method)
     } else if (type == "upper") {
-      phe_pyll <- phe_pyll %>%
+      calculate_yll <- calculate_yll %>%
         select(-total_count, -total_pop, -value, -lowercl, -confidence, -statistic, -method)
     } else if (type == "value") {
-      phe_pyll <- phe_pyll %>%
+      calculate_yll <- calculate_yll %>%
         select(-total_count, -total_pop, -lowercl, -uppercl, -confidence, -statistic, -method)
     } else if (type == "standard") {
-      phe_pyll <- phe_pyll %>%
+      calculate_yll <- calculate_yll %>%
         select(-confidence, -statistic, -method)
     }
 
   }
-  return(phe_pyll)
+  return(calculate_yll)
 
 }
