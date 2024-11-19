@@ -175,7 +175,7 @@ calculate_yll <- function(data, x, n, le = le2022, stdpop = esp2013, stdpoptype 
     calculate_yll <- data %>%
       mutate(yll=({{le2022}}*{{x}}*(stdpop_calc/{{n}})),
              yll_numerator=({{le2022}}*{{x}}),
-             err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{leadj}})^2)) %>%
+             err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{le2022}})^2)) %>%
             summarise(total_count = sum(yll_numerator),
                       total_pop = sum({{ n }}),
                       value = sum(yll),
