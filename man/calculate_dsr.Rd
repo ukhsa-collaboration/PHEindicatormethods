@@ -8,7 +8,7 @@ calculate_dsr(
   data,
   x,
   n,
-  stdpop = esp2013,
+  stdpop = NULL,
   type = "full",
   confidence = 0.95,
   multiplier = 1e+05,
@@ -30,7 +30,7 @@ standardisation category (eg ageband) within each grouping set (eg area);
 unquoted string; no default}
 
 \item{stdpop}{field name from data containing the standard populations for
-each age band; unquoted string; default = esp2013}
+each age band; unquoted string; no default}
 
 \item{type}{defines the data and metadata columns to be included in output;
 can be "value", "lower", "upper", "standard" (for all data) or "full" (for
@@ -48,9 +48,10 @@ CIs; numeric; default 0.95}
 independent events. When set to FALSE an adjustment is made to the
 confidence intervals - to do this, the dataset provided must include event
 frequency breakdowns and column x is redefined as the number of unique
-people who experienced each frequency of event, rather than the total
+individuals who experienced each frequency of event, rather than the total
 number of events. The function will then calculate the variance to pass
-into the DSR calculation from the separate person-frequency data.}
+into the final DSR calculation by first calculating the variance for the
+separate person-frequency data.}
 
 \item{eventfreq}{field name from data containing the event frequencies. Only
 required when independent_events = FALSE; unquoted string; default NULL}
@@ -68,7 +69,7 @@ set. Use the type argument to limit the columns output.
 \description{
 Calculates directly standardised rates with confidence limits using Byar's
 method (1) with Dobson method adjustment (2) including option to further
-adjust confidence limits for non-independent events.
+adjust confidence limits for non-independent events (3).
 }
 \section{Notes}{
  For total counts >= 10 Byar's method (1) is applied using
@@ -88,29 +89,33 @@ df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314),
                  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE),
                  esp2013 = rep(esp2013, 40))
 
-## default execution
+## Default execution
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    calculate_dsr(obs, pop)
+    calculate_dsr(obs, pop, stdpop = esp2013)
 
-## calculate both 95\% and 99.8\% CIs in single execution
+## Calculate both 95\% and 99.8\% CIs in single execution
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    calculate_dsr(obs, pop, confidence = c(0.95, 0.998))
+    calculate_dsr(obs, pop, stdpop = esp2013, confidence = c(0.95, 0.998))
 
-## calculate DSRs for multiple grouping sets in single execution
+## Drop metadata columns from the output
 df \%>\%
     group_by(indicatorid, year, sex) \%>\%
-    calculate_dsr(obs, pop, type = "standard")
+    calculate_dsr(obs, pop, stdpop = esp2013, type = "standard")
 
-## calculate DSRs for non-independent events
+## Calculate DSRs for non-independent events
 
 library(tidyr)
 
-# breakdown data to show event frequencies and to count unique people
+# For non-independent events an input data frame is needed that includes
+# counts of unique people by event frequency. This example uses the data
+# frame from example one and assumes that 10\% of events occurred in people
+# who experienced 3 events, 20\% occurred in people who experienced 2 events
+# and 70\% occurred in people who experienced a single event.
 df_person_freq <- df \%>\%
-  mutate(f3 = floor((obs * 0.1)/3),            # 10 \% of events in persons with 3 events
-         f2 = floor((obs * 0.2)/2),            # 20 \% of events in persons with 2 events
+  mutate(f3 = floor((obs * 0.1)/3),             # 10 \% of events in persons with 3 events
+         f2 = floor((obs * 0.2)/2),             # 20 \% of events in persons with 2 events
          f1 = (obs - (3 * f3) - (2 * f2))) \%>\%  # 70\% of events in persons with 1 event
   select(!"obs") \%>\%
   pivot_longer(cols = c("f1", "f2", "f3"),
@@ -119,12 +124,13 @@ df_person_freq <- df \%>\%
                names_prefix = "f") \%>\%
                mutate(eventfrequency = as.integer(eventfrequency))
 
-# calculate the dsrs - notice that output DSRs values match those in
+# Calculate the dsrs - notice that output DSR values match those in
 # example 1 but the confidence intervals are wider
  df_person_freq \%>\%
-   group_by(indicatorid, year, sex, eventfrequency) \%>\%
+   group_by(indicatorid, year, sex) \%>\%
    calculate_dsr(x = uniquepeople,
                  n = pop,
+                 stdpop = esp2013,
                  independent_events = FALSE,
                  eventfreq = eventfrequency,
                  ageband = ageband)
@@ -135,8 +141,8 @@ df_person_freq <- df \%>\%
 (1) Breslow NE, Day NE. Statistical methods in cancer research,
 volume II: The design and analysis of cohort studies. Lyon: International
 Agency for Research on Cancer, World Health Organisation; 1987. \cr \cr (2)
-Dobson A et al. Confidence intervals for weighted sums of Poisson parameters.
-Stat Med 1991;10:457-62.
+Dobson A et al. Confidence intervals for weighted sums of Poisson
+parameters. Stat Med 1991;10:457-62. \cr \cr (3) \href{https://fingertips.phe.org.uk/static-reports/public-health-technical-guidance/Standardisation/DSRs.html}{Public Health Technical Guidance}
 }
 \seealso{
 Other PHEindicatormethods package functions: 

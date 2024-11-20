@@ -87,7 +87,7 @@ df \%>\%
 df \%>\%
   group_by(indicatorid, year, sex) \%>\%
   mutate(esp2013 = esp2013) \%>\%
-  calculate_dsr(obs, pop)
+  calculate_dsr(obs, pop, stdpop = esp2013)
 
 
 ## calculate both 95\% and 99.8\% CIs in single execution
@@ -98,18 +98,18 @@ df \%>\%
 df \%>\%
   group_by(indicatorid, year, sex) \%>\%
   mutate(esp2013 = esp2013) \%>\%
-  calculate_dsr(obs, pop, confidence = c(0.95, 0.998))
+  calculate_dsr(obs, pop, stdpop = esp2013, confidence = c(0.95, 0.998))
 
-## calculate DSRs for multiple grouping sets in single execution
-
+## alternatively, append the standard populations to your input dataframe
 df \%>\%
   group_by(indicatorid, year, sex) \%>\%
-  phe_dsr(obs, pop, type = "standard")
+  mutate(esp2013 = esp2013) \%>\%
+  phe_dsr(obs, pop, stdpoptype = "field")
 # ->
 df \%>\%
   group_by(indicatorid, year, sex) \%>\%
   mutate(esp2013 = esp2013) \%>\%
-  calculate_dsr(obs, pop, type = "standard")
+  calculate_dsr(obs, pop, stdpop = esp2013)
 
 }
 \references{

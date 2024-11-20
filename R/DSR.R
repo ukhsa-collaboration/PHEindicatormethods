@@ -4,7 +4,7 @@
 #' Generates dsrs. All arguments are passed from the calculate_dsr wrapper
 #' function with the exception of those defined below
 #'
-#' @param get_nonindependent_vardsr keep defaults for independent events. For
+#' @param rtn_nonindependent_vardsr keep defaults for independent events. For
 #'   non-independent events, set to TRUE on the first iteration through the
 #'   function to output the variance to pass in to the second iteration.
 #' @param use_nonindependent_vardsr keep defaults for independent events. For
@@ -35,11 +35,11 @@ dsr_inner <- function(data,
                       type,
                       confidence,
                       multiplier,
-                      get_nonindependent_vardsr = FALSE,
+                      rtn_nonindependent_vardsr = FALSE,
                       use_nonindependent_vardsr = NA_real_) {
 
   # validate arguments specific to dsr_inner function
-  if (get_nonindependent_vardsr == TRUE & "custom_vardsr" %in% names(data)) {
+  if (rtn_nonindependent_vardsr == TRUE & "custom_vardsr" %in% names(data)) {
     stop("cannot get nonindependent vardsr and use nonindependent vardsr in the same execution")
   }
 
@@ -98,7 +98,7 @@ dsr_inner <- function(data,
 
 
   # remove DSR calculation for total counts < 10 unless doing non-independent event CIs
-  if (!get_nonindependent_vardsr) {
+  if (!rtn_nonindependent_vardsr) {
     dsrs <- dsrs %>%
       mutate(across(c("value", starts_with("upper"), starts_with("lower")),
                   function(x) if_else(.data$total_count < 10, NA_real_, x)),
@@ -108,7 +108,7 @@ dsr_inner <- function(data,
   }
 
   # drop fields not required based on values of nonindependent_breakdowns and type arguments
-  if (get_nonindependent_vardsr) {
+  if (rtn_nonindependent_vardsr) {
     dsrs <- dsrs %>%
       select("vardsr")
   } else if (type == "lower") {
@@ -140,7 +140,7 @@ dsr_inner <- function(data,
 #'
 #' Calculates directly standardised rates with confidence limits using Byar's
 #' method (1) with Dobson method adjustment (2) including option to further
-#' adjust confidence limits for non-independent events.
+#' adjust confidence limits for non-independent events (3).
 #'
 #' @param data data.frame containing the data to be standardised, pre-grouped if
 #'   multiple DSRs required; unquoted string; no default
@@ -151,7 +151,7 @@ dsr_inner <- function(data,
 #'   standardisation category (eg ageband) within each grouping set (eg area);
 #'   unquoted string; no default
 #' @param stdpop field name from data containing the standard populations for
-#'   each age band; unquoted string; default = esp2013
+#'   each age band; unquoted string; no default
 #' @param type defines the data and metadata columns to be included in output;
 #'   can be "value", "lower", "upper", "standard" (for all data) or "full" (for
 #'   all data and metadata); quoted string; default = "full"
@@ -165,9 +165,10 @@ dsr_inner <- function(data,
 #'   independent events. When set to FALSE an adjustment is made to the
 #'   confidence intervals - to do this, the dataset provided must include event
 #'   frequency breakdowns and column x is redefined as the number of unique
-#'   people who experienced each frequency of event, rather than the total
+#'   individuals who experienced each frequency of event, rather than the total
 #'   number of events. The function will then calculate the variance to pass
-#'   into the DSR calculation from the separate person-frequency data.
+#'   into the final DSR calculation by first calculating the variance for the
+#'   separate person-frequency data.
 #' @param eventfreq field name from data containing the event frequencies. Only
 #'   required when independent_events = FALSE; unquoted string; default NULL
 #' @param ageband field name from data containing the age bands for
@@ -195,29 +196,33 @@ dsr_inner <- function(data,
 #'                  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE),
 #'                  esp2013 = rep(esp2013, 40))
 #'
-#' ## default execution
+#' ## Default execution
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     calculate_dsr(obs, pop)
+#'     calculate_dsr(obs, pop, stdpop = esp2013)
 #'
-#' ## calculate both 95% and 99.8% CIs in single execution
+#' ## Calculate both 95% and 99.8% CIs in single execution
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     calculate_dsr(obs, pop, confidence = c(0.95, 0.998))
+#'     calculate_dsr(obs, pop, stdpop = esp2013, confidence = c(0.95, 0.998))
 #'
-#' ## calculate DSRs for multiple grouping sets in single execution
+#' ## Drop metadata columns from the output
 #' df %>%
 #'     group_by(indicatorid, year, sex) %>%
-#'     calculate_dsr(obs, pop, type = "standard")
+#'     calculate_dsr(obs, pop, stdpop = esp2013, type = "standard")
 #'
-#' ## calculate DSRs for non-independent events
+#' ## Calculate DSRs for non-independent events
 #'
 #' library(tidyr)
 #'
-#' # breakdown data to show event frequencies and to count unique people
+#' # For non-independent events an input data frame is needed that includes
+#' # counts of unique people by event frequency. This example uses the data
+#' # frame from example one and assumes that 10% of events occurred in people
+#' # who experienced 3 events, 20% occurred in people who experienced 2 events
+#' # and 70% occurred in people who experienced a single event.
 #' df_person_freq <- df %>%
-#'   mutate(f3 = floor((obs * 0.1)/3),            # 10 % of events in persons with 3 events
-#'          f2 = floor((obs * 0.2)/2),            # 20 % of events in persons with 2 events
+#'   mutate(f3 = floor((obs * 0.1)/3),             # 10 % of events in persons with 3 events
+#'          f2 = floor((obs * 0.2)/2),             # 20 % of events in persons with 2 events
 #'          f1 = (obs - (3 * f3) - (2 * f2))) %>%  # 70% of events in persons with 1 event
 #'   select(!"obs") %>%
 #'   pivot_longer(cols = c("f1", "f2", "f3"),
@@ -226,12 +231,13 @@ dsr_inner <- function(data,
 #'                names_prefix = "f") %>%
 #'                mutate(eventfrequency = as.integer(eventfrequency))
 #'
-#' # calculate the dsrs - notice that output DSRs values match those in
+#' # Calculate the dsrs - notice that output DSR values match those in
 #' # example 1 but the confidence intervals are wider
 #'  df_person_freq %>%
-#'    group_by(indicatorid, year, sex, eventfrequency) %>%
+#'    group_by(indicatorid, year, sex) %>%
 #'    calculate_dsr(x = uniquepeople,
 #'                  n = pop,
+#'                  stdpop = esp2013,
 #'                  independent_events = FALSE,
 #'                  eventfreq = eventfrequency,
 #'                  ageband = ageband)
@@ -242,10 +248,11 @@ dsr_inner <- function(data,
 #'   < 10 DSRs are not reliable and will therefore be suppressed in the output.
 #'
 #' @references (1) Breslow NE, Day NE. Statistical methods in cancer research,
-#' volume II: The design and analysis of cohort studies. Lyon: International
-#' Agency for Research on Cancer, World Health Organisation; 1987. \cr \cr (2)
-#' Dobson A et al. Confidence intervals for weighted sums of Poisson parameters.
-#' Stat Med 1991;10:457-62.
+#'   volume II: The design and analysis of cohort studies. Lyon: International
+#'   Agency for Research on Cancer, World Health Organisation; 1987. \cr \cr (2)
+#'   Dobson A et al. Confidence intervals for weighted sums of Poisson
+#'   parameters. Stat Med 1991;10:457-62. \cr \cr (3) [Public Health Technical
+#'   Guidance](https://fingertips.phe.org.uk/static-reports/public-health-technical-guidance/Standardisation/DSRs.html)
 #'
 #'
 #' @family PHEindicatormethods package functions
@@ -254,7 +261,7 @@ dsr_inner <- function(data,
 calculate_dsr <- function(data,
                           x,
                           n,
-                          stdpop = esp2013,
+                          stdpop = NULL,
                           type = "full",
                           confidence = 0.95,
                           multiplier = 100000,
@@ -263,13 +270,8 @@ calculate_dsr <- function(data,
                           ageband = NULL) {
 
   # check required arguments present
-  if (missing(data)|missing(x)|missing(n)) {
-      stop("function calculate_dsr requires at least 3 arguments: data, x, n")
-  }
-
-  # check same number of rows per group
-  if (n_distinct(select(ungroup(count(data)),n)) != 1) {
-      stop("data must contain the same number of rows for each group")
+  if (missing(data) | missing(x) | missing(n) | missing(stdpop)) {
+      stop("function calculate_dsr requires at least 4 arguments: data, x, n, stdpop")
   }
 
   # check stdpop is valid and appended to data
@@ -316,18 +318,27 @@ calculate_dsr <- function(data,
   } else {
     # perform dsr using CI calculation for non independent events
 
-    # check that eventfrequency column is specified, exists
+    # check that eventfrequency & ageband columns are specified & exist
     if (missing(eventfreq)) {
-      stop("function calculate_dsr requires an eventfreq column to be specified
-            when independent_events is FALSE")
+      stop(paste0("function calculate_dsr requires an eventfreq column ",
+                  "to be specified when independent_events is FALSE"))
     } else if (!deparse(substitute(eventfreq)) %in% colnames(data)) {
       stop("eventfreq is not a field name from data")
     }
 
-    # hard code eventfreq and ageband column names
+    if (missing(ageband)) {
+      stop(paste0("function calculate_dsr requires an ageband column ",
+                  "to be specified when independent_events is FALSE"))
+    } else if (!deparse(substitute(ageband)) %in% colnames(data)) {
+      stop("ageband is not a field name from data")
+    }
+
+    # hard code eventfreq and ageband column names,
+    # and make sure data grouped by enet freq
     data <- data %>%
       rename(eventfreq = {{ eventfreq }},
-             ageband = {{ ageband }})
+             ageband = {{ ageband }}) %>%
+      group_by(eventfreq, .add = TRUE)
 
 
     # check grouping variables and remove eventfrequency for use later
@@ -341,7 +352,7 @@ calculate_dsr <- function(data,
                 type       = type,
                 confidence = confidence,
                 multiplier = multiplier,
-                get_nonindependent_vardsr = TRUE) %>%
+                rtn_nonindependent_vardsr = TRUE) %>%
       mutate(freqvars = .data$vardsr * .data$eventfreq^2) %>%
       group_by(across(all_of(grps))) %>%
       summarise(custom_vardsr = sum(.data$freqvars))

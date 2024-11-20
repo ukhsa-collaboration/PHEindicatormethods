@@ -59,7 +59,7 @@
 #' df %>%
 #'   group_by(indicatorid, year, sex) %>%
 #'   mutate(esp2013 = esp2013) %>%
-#'   calculate_dsr(obs, pop)
+#'   calculate_dsr(obs, pop, stdpop = esp2013)
 #'
 #'
 #' ## calculate both 95% and 99.8% CIs in single execution
@@ -70,18 +70,18 @@
 #' df %>%
 #'   group_by(indicatorid, year, sex) %>%
 #'   mutate(esp2013 = esp2013) %>%
-#'   calculate_dsr(obs, pop, confidence = c(0.95, 0.998))
+#'   calculate_dsr(obs, pop, stdpop = esp2013, confidence = c(0.95, 0.998))
 #'
-#' ## calculate DSRs for multiple grouping sets in single execution
-#'
+#' ## alternatively, append the standard populations to your input dataframe
 #' df %>%
 #'   group_by(indicatorid, year, sex) %>%
-#'   phe_dsr(obs, pop, type = "standard")
+#'   mutate(esp2013 = esp2013) %>%
+#'   phe_dsr(obs, pop, stdpoptype = "field")
 #' # ->
 #' df %>%
 #'   group_by(indicatorid, year, sex) %>%
 #'   mutate(esp2013 = esp2013) %>%
-#'   calculate_dsr(obs, pop, type = "standard")
+#'   calculate_dsr(obs, pop, stdpop = esp2013)
 #'
 #' @section Notes: User MUST ensure that x, n and stdpop vectors are all ordered
 #'   by the same standardisation category values as records will be matched by
@@ -107,7 +107,7 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
                     type = "full", confidence = 0.95, multiplier = 100000) {
 
   # call lifecycle warning
-  lifecycle::deprecate_soft("2.0.3", "phe_dsr()", "calculate_dsr()")
+  lifecycle::deprecate_soft("2.1.0", "phe_dsr()", "calculate_dsr()")
 
   # check required arguments present
   if (missing(data)|missing(x)|missing(n)) {
