@@ -11,14 +11,11 @@
 #' @param n field name from data containing the populations for each
 #'   standardisation category (eg ageband) within each grouping set (eg area);
 #'   unquoted string; no default
-#'  @param le2022 the weight or average age-specific period life expectancy for
+#'  @param le field name from data containing  the life expectancy for
 #'  each standardisation category (eg ageband) within each grouping set (eg area)
 #'  unquoted string; no default
-#' @param stdpop the standard populations for each standardisation category (eg
-#'   age band); unquoted string referencing a numeric vector or field name from
-#'   data depending on value of stdpoptype; default = esp2013
-#' @param stdpoptype whether the stdpop has been specified as a vector or a
-#'   field name from data; quoted string "field" or "vector"; default = "vector"
+#' @param stdpop field name from data containing the standard populations for
+#'   each age band; unquoted string; no default
 #' @param type defines the data and metadata columns to be included in output;
 #'   can be "value", "lower", "upper", "standard" (for all data) or "full" (for
 #'   all data and metadata); quoted string; default = "full"
@@ -40,12 +37,10 @@
 #'
 #' @examples
 #'
-#' @section Notes: User MUST ensure that x, n, le2022 and stdpop vectors are all ordered
-#'   by the same standardisation category values as records will be matched by
-#'   position. \cr \cr For total counts >= 10 Byar's method (1) is applied using
+#' @section Notes: For total counts >= 10 Byar's method (1) is applied using
 #'   the \code{\link{byars_lower}} and \code{\link{byars_upper}} functions.
 #'   When the total count is < 10 YLL are not reliable and will therefore not
-#'   be calculated.- because numerator is years not deaths disclosure not applied REMOVE
+#'   be calculated.
 #'
 #' @references
 #' (1) Breslow NE, Day NE. Statistical methods in cancer research,
@@ -58,35 +53,18 @@
 # -------------------------------------------------------------------------------------------------
 
 # define the YLL function using Dobson method
-calculate_yll <- function(data, x, n, le = le2022, stdpop = esp2013, stdpoptype = "vector",
+calculate_yll <- function(data, x, n, le = NULL, stdpop = NULL,
                     type = "full", confidence = 0.95, multiplier = 100000) {
 
   # check required arguments present
   if (missing(data)|missing(x)|missing(n)) {
-    stop("function calculate_yll requires at least 4 arguments: data, x, n, le2022")
+    stop("function calculate_yll requires at least 5 arguments: data, x, n, le,stdpop")
   }
 
   # check same number of rows per group
   if (n_distinct(select(ungroup(count(data)),n)) != 1) {
     stop("data must contain the same number of rows for each group")
   }
-
-  # check stdpop is valid and append to data
-  if (!(stdpoptype %in% c("vector","field"))) {
-    stop("valid values for stdpoptype are vector and field")
-
-  } else if (stdpoptype == "vector") {
-    if (pull(slice(select(ungroup(count(data)),n),1)) != length(stdpop)) {
-      stop("stdpop length must equal number of rows in each group within data")
-    }
-    data <- mutate(data,stdpop_calc = stdpop)
-
-  } else if (stdpoptype == "field") {
-    if (deparse(substitute(stdpop)) %in% colnames(data)) {
-      data <- mutate(data,stdpop_calc = {{ stdpop }} )
-    } else stop("stdpop is not a field name from data")
-  }
-
 
   # validate arguments
   if (any(pull(data, {{ x }}) < 0, na.rm=TRUE)) {
@@ -106,112 +84,77 @@ calculate_yll <- function(data, x, n, le = le2022, stdpop = esp2013, stdpoptype 
   }
 
 
-  # calculate YLL and CIs
-  if (length(confidence) == 2) {
-
-    # if two confidence levels requested
-    conf1 <- confidence[1]
-    conf2 <- confidence[2]
+  # scale and extract confidence values
+  confidence[confidence >= 90] <- confidence[confidence >= 90] / 100
+  conf1 <- confidence[1]
+  conf2 <- confidence[2]
 
     # calculate YLL and CIs
-    calculate_yll <- data %>%
-      mutate(yll=({{le2022}}*{{x}}*(stdpop_calc/{{n}})),
-             yll_numerator=({{le2022}}*{{x}}),
-             err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{le2022}})^2)) %>%
-      summarise(total_count = sum(yll_numerator),
+    ylls <- data %>%
+      mutate(yll=({{le2022_calc}}*{{x}}*(stdpop_calc/{{n}})),
+             numerator=({{le2022_calc}}*{{x}}),
+             err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{le2022_calc}})^2)) %>%
+      summarise(total_count = sum(numerator),
                 total_pop = sum({{ n }}),
                 value = sum(yll),
                 err_frac = sum(err_frac),
-                yll_lower95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-                  (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)),
-                yll_upper95_0cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+                lowercl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+                  (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)), #CHECK IF NEED TO * MULTIPLIER
+                uppercl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
                   (byars_upper(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)),
-                yll_lower99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-                  (byars_lower(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)),
-                yll_upper99_8cl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-                  (byars_upper(sum({{ x }}, na.rm=TRUE), conf2) - sum({{ x }}, na.rm=TRUE)),
+                lower99_8cl = case_when(
+                  is.na(conf2) ~ NA_real_,
+                  .default = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+                  (byars_lower(sum({{ x }}, na.rm=TRUE), min(conf2, 1, na.rm = TRUE)) - sum({{ x }}, na.rm=TRUE))
+                  ),
+                upper99_8cl = case_when(
+                  is.na(conf2) ~ NA_real_,
+                  .default = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
+                  (byars_upper(sum({{ x }}, na.rm=TRUE), min(conf2, 1, na.rm = TRUE)) - sum({{ x }}, na.rm=TRUE))
+                  ),
                 .groups = "keep") %>%
       select(-err_frac) %>%
-      mutate(confidence = "95%, 99.8%",
+      mutate(confidence = paste0(confidence * 100, "%", collapse = ", "),
              statistic = paste("dsr per",format(multiplier,scientific=F)),
              method = " variation")
 
-    # remove DSR calculation for total counts < 10 - because numerator is years not deaths disclosure not applied keep
-#    phe_dsr$value[phe_dsr$total_count             < 10] <- NA
-#    phe_dsr$upper95_0cl[phe_dsr$total_count       < 10] <- NA
-#    phe_dsr$lower95_0cl[phe_dsr$total_count       < 10] <- NA
-#    phe_dsr$upper99_8cl[phe_dsr$total_count       < 10] <- NA
-#    phe_dsr$lower99_8cl[phe_dsr$total_count       < 10] <- NA
-#    phe_dsr$statistic[phe_dsr$total_count         < 10] <- "dsr NA for total count < 10"
+    # rename or drop confidence limits depending whether 1 or 2 CIs requested
+    if (!is.na(conf2)) {
+      names(ylls)[names(dsrs) == "lowercl"] <- "lower95_0cl"
+      names(ylls)[names(dsrs) == "uppercl"] <- "upper95_0cl"
+    } else {
+      ylls <- ylls %>%
+        select(!c("lower99_8cl", "upper99_8cl"))
+    }
+
+    ylls <- ylls %>%
+      mutate(across(c("value", starts_with("upper"), starts_with("lower")),
+                    function(x) if_else(.data$total_count < 10, NA_real_, x)),
+             statistic = if_else(.data$total_count < 10,
+                                 "yll NA for total count < 10",
+                                 .data$statistic))
 
 
     # drop fields not required based on value of type argument
     if (type == "lower") {
-      calculate_yll <- calculate_yll %>%
-        select(-total_count, -total_pop, -value, -upper95_0cl, -upper99_8cl,
-               -confidence, -statistic, -method)
+      ylls <- ylls %>%
+        select(!c("total_count", "total_pop", "value", starts_with("upper"),
+               "confidence", "statistic", "method"))
     } else if (type == "upper") {
-      calculate_yll <- calculate_yll %>%
-        select(-total_count, -total_pop, -value, -lower95_0cl, -lower99_8cl,
-               -confidence, -statistic, -method)
+      ylls <- ylls %>%
+        select(!c("total_count", "total_pop", "value", starts_with("lower"),
+                  "confidence", "statistic", "method"))
     } else if (type == "value") {
-      calculate_yll <- calculate_yll %>%
-        select(-total_count, -total_pop, -lower95_0cl, -lower99_8cl, -upper95_0cl, -upper99_8cl,
-               -confidence, -statistic, -method)
+      ylls <- ylls %>%
+        select(!c("total_count", "total_pop", "value", starts_with("lower"),starts_with("upper"),
+                  "confidence", "statistic", "method"))
     } else if (type == "standard") {
-      calculate_yll <- calculate_yll %>%
-        select(-confidence, -statistic, -method)
-    }
-
-  } else {
-
-    # scale confidence level if single value specified
-    if (confidence >= 90) {
-      confidence <- confidence/100
+      ylls<- ylls %>%
+        select(!c("confidence", "statistic", "method"))
     }
 
 
-    # calculate yll with a single CI
-    calculate_yll <- data %>%
-      mutate(yll=({{le2022}}*{{x}}*(stdpop_calc/{{n}})),
-             yll_numerator=({{le2022}}*{{x}}),
-             err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{le2022}})^2)) %>%
-            summarise(total_count = sum(yll_numerator),
-                      total_pop = sum({{ n }}),
-                      value = sum(yll),
-                      err_frac = sum(err_frac),
-                lowercl = value + sqrt((err_frac/sum({{ x }},na.rm=TRUE)))*(byars_lower(sum({{ x }},na.rm=TRUE),
-                                                                                      confidence)-sum({{ x }},na.rm=TRUE)),
-                uppercl = value + sqrt((err_frac/sum({{ x }},na.rm=TRUE)))*(byars_upper(sum({{ x }},na.rm=TRUE),
-                                                                                     confidence)-sum({{ x }},na.rm=TRUE)),
-               .groups = "keep") %>%
-      select(-err_frac) %>%
-      mutate(confidence = paste(confidence*100,"%",sep=""),
-             statistic = paste("dsr per",format(multiplier,scientific=F)),
-             method = "Dobson YLL variation")
-
-    # remove DSR calculation for total counts < 10
- #   phe_dsr$value[phe_dsr$total_count            < 10] <- NA
- #   phe_dsr$uppercl[phe_dsr$total_count          < 10] <- NA
- #   phe_dsr$lowercl[phe_dsr$total_count          < 10] <- NA
- #   phe_dsr$statistic[phe_dsr$total_count        < 10] <- "dsr NA for total count < 10"
-
-    # drop fields not required based on value of type argument
-    if (type == "lower") {
-      calculate_yll <- calculate_yll %>%
-        select(-total_count, -total_pop, -value, -uppercl, -confidence, -statistic, -method)
-    } else if (type == "upper") {
-      calculate_yll <- calculate_yll %>%
-        select(-total_count, -total_pop, -value, -lowercl, -confidence, -statistic, -method)
-    } else if (type == "value") {
-      calculate_yll <- calculate_yll %>%
-        select(-total_count, -total_pop, -lowercl, -uppercl, -confidence, -statistic, -method)
-    } else if (type == "standard") {
-      calculate_yll <- calculate_yll %>%
-        select(-confidence, -statistic, -method)
-    }
-
-  }
-  return(calculate_yll)
+  return(ylls)
 
 }
+
