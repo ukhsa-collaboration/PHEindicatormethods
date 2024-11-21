@@ -251,8 +251,8 @@ dsr_inner <- function(data,
 #'   volume II: The design and analysis of cohort studies. Lyon: International
 #'   Agency for Research on Cancer, World Health Organisation; 1987. \cr \cr (2)
 #'   Dobson A et al. Confidence intervals for weighted sums of Poisson
-#'   parameters. Stat Med 1991;10:457-62. \cr \cr (3) [Public Health Technical
-#'   Guidance](https://fingertips.phe.org.uk/static-reports/public-health-technical-guidance/Standardisation/DSRs.html)
+#'   parameters. Stat Med 1991;10:457-62. \cr \cr (3) See the DSR chapter of the
+#'   [Fingertips Public Health Technical Guidance](https://fingertips.phe.org.uk/static-reports/public-health-technical-guidance/index.html)
 #'
 #'
 #' @family PHEindicatormethods package functions

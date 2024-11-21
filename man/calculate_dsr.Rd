@@ -142,7 +142,8 @@ df_person_freq <- df \%>\%
 volume II: The design and analysis of cohort studies. Lyon: International
 Agency for Research on Cancer, World Health Organisation; 1987. \cr \cr (2)
 Dobson A et al. Confidence intervals for weighted sums of Poisson
-parameters. Stat Med 1991;10:457-62. \cr \cr (3) \href{https://fingertips.phe.org.uk/static-reports/public-health-technical-guidance/Standardisation/DSRs.html}{Public Health Technical Guidance}
+parameters. Stat Med 1991;10:457-62. \cr \cr (3) See the DSR chapter of the
+\href{https://fingertips.phe.org.uk/static-reports/public-health-technical-guidance/index.html}{Fingertips Public Health Technical Guidance}
 }
 \seealso{
 Other PHEindicatormethods package functions: 
