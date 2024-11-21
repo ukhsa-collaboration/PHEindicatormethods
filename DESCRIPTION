@@ -20,7 +20,7 @@ Description: Functions to calculate commonly used public health statistics and
     Eayres DP, Williams ES (2004) <doi:10.1136/jech.2003.009654>.
     Silcocks PBS et al (2001) <doi:10.1136/jech.55.1.38>.
     Low and Low (2004) <doi:10.1093/pubmed/fdh175>.
-    Fingertips Public Health Technical Guide: <https://fingertips.phe.org.uk/static-reports/public-health-technical-guidance/>
+    Fingertips Public Health Technical Guide: <https://fingertips.phe.org.uk/static-reports/public-health-technical-guidance/>.
 Authors@R: c(person("Georgina", "Anderson", email = "georgina.anderson@dhsc.gov.uk", role = c("aut", "cre")),
              person("Sebastian", "Fox ", role = c("ctb")),
              person("Matthew", "Francis ", role = c("ctb")),
