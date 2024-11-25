@@ -4,19 +4,21 @@
 #' Generates dsrs. All arguments are passed from the calculate_dsr wrapper
 #' function with the exception of those defined below
 #'
-#' @param rtn_nonindependent_vardsr keep defaults for independent events. For
-#'   non-independent events, set to TRUE on the first iteration through the
-#'   function to output the variance to pass in to the second iteration.
+#' @param rtn_nonindependent_vardsr bool, keep default (FALSE) for independent
+#'   events. For non-independent events, set to TRUE on the first iteration
+#'   through the function to output the variance to pass in to the second
+#'   iteration.
 #' @param use_nonindependent_vardsr keep defaults for independent events. For
 #'   non-independent events, pass the unquoted column name that holds the event
 #'   frequency variance to be passed in to the second iteration.
 #'
 #' @inheritParams calculate_dsr
 #'
-#' @return Returns a data frame of ID variables plus the dsr value, confidence
-#'   limit & metadata fields as specified by the type argument. For
-#'   non-independent events, returns just the ID variables and the dsr variance
-#'   to be passed into the second iteration.
+#' @return When rtn_nonindependent_vardsr = FALSE, returns a data frame of ID
+#'   variables plus the dsr value, confidence limit & metadata fields as
+#'   specified by the type argument. For non-independent events first iteration
+#'   with rtn_nonindependent_vardsr = TRUE, returns just the ID variables and
+#'   the dsr variance to be passed into the second iteration.
 #'
 #' @section Notes: This is an internal package function that is called by
 #'   calculate_dsr.  It will run through once when events are independent. When
@@ -60,34 +62,34 @@ dsr_inner <- function(data,
   # calculate DSR and CIs
   dsrs <- data %>%
     mutate(
-      wt_rate = na.zero(x) *  .data$stdpop / (n),
-      sq_rate = na.zero(x) * (.data$stdpop / (n))^2, na.rm = TRUE
+      wt_rate = na.zero(.data$x) *  .data$stdpop / (.data$n),
+      sq_rate = na.zero(.data$x) * (.data$stdpop / (.data$n))^2, na.rm = TRUE
     ) %>%
     summarise(
-      total_count = sum(x, na.rm = TRUE),
-      total_pop = sum(n),
+      total_count = sum(.data$x, na.rm = TRUE),
+      total_pop = sum(.data$n),
       value = sum(.data$wt_rate) / sum(.data$stdpop) * multiplier,
       vardsr = case_when(
         !is.na(unique(.data$custom_vardsr)) ~ unique(.data$custom_vardsr),
-        .default = 1/sum(.data$stdpop)^2 * sum(.data$sq_rate)
+        .default = 1 / sum(.data$stdpop)^2 * sum(.data$sq_rate)
       ),
-      lowercl = .data$value + sqrt((.data$vardsr/sum(x, na.rm = TRUE))) *
-        (byars_lower(sum(x, na.rm = TRUE), conf1) - sum(x, na.rm = TRUE)) *
+      lowercl = .data$value + sqrt((.data$vardsr / sum(.data$x, na.rm = TRUE))) *
+        (byars_lower(sum(.data$x, na.rm = TRUE), conf1) - sum(.data$x, na.rm = TRUE)) *
         multiplier,
-      uppercl = .data$value + sqrt((.data$vardsr/sum(x, na.rm = TRUE))) *
-        (byars_upper(sum(x, na.rm = TRUE), conf1) - sum(x, na.rm = TRUE)) *
+      uppercl = .data$value + sqrt((.data$vardsr / sum(.data$x, na.rm = TRUE))) *
+        (byars_upper(sum(.data$x, na.rm = TRUE), conf1) - sum(.data$x, na.rm = TRUE)) *
         multiplier,
       lower99_8cl = case_when(
         is.na(conf2) ~ NA_real_,
-        .default = .data$value + sqrt((.data$vardsr/sum(x, na.rm = TRUE))) *
-          (byars_lower(sum(x, na.rm = TRUE), min(conf2, 1, na.rm = TRUE)) -
-             sum(x, na.rm = TRUE)) *
+        .default = .data$value + sqrt((.data$vardsr / sum(.data$x, na.rm = TRUE))) *
+          (byars_lower(sum(.data$x, na.rm = TRUE), min(conf2, 1, na.rm = TRUE)) -
+             sum(.data$x, na.rm = TRUE)) *
           multiplier
       ),
       upper99_8cl = case_when(
         is.na(conf2) ~ NA_real_,
-        .default = .data$value + sqrt((.data$vardsr/sum(x, na.rm = TRUE))) *
-          (byars_upper(sum(x, na.rm = TRUE), min(conf2, 1, na.rm = TRUE)) -
+        .default = .data$value + sqrt((.data$vardsr/sum(.data$x, na.rm = TRUE))) *
+          (byars_upper(sum(.data$x, na.rm = TRUE), min(conf2, 1, na.rm = TRUE)) -
              sum(x, na.rm = TRUE)) *
           multiplier
       ),
@@ -95,7 +97,7 @@ dsr_inner <- function(data,
     ) %>%
     mutate(
       confidence = paste0(confidence * 100, "%", collapse = ", "),
-      statistic = paste("dsr per",format(multiplier, scientific = F)),
+      statistic = paste("dsr per",format(multiplier, scientific = FALSE)),
       method = method
     )
 
