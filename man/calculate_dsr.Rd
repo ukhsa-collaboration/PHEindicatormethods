@@ -119,8 +119,8 @@ df_person_freq <- df \%>\%
   mutate(
     f3 = floor((obs * 0.1)/3),             # 10 \% of events in persons with 3 events
     f2 = floor((obs * 0.2)/2),             # 20 \% of events in persons with 2 events
-    f1 = (obs - (3 * f3) - (2 * f2))
-  ) \%>\%  # 70\% of events in persons with 1 event
+    f1 = (obs - (3 * f3) - (2 * f2))       # 70\% of events in persons with 1 event
+  ) \%>\%
   select(!"obs") \%>\%
   pivot_longer(
     cols = c("f1", "f2", "f3"),

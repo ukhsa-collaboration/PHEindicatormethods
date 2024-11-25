@@ -243,8 +243,8 @@ dsr_inner <- function(data,
 #'   mutate(
 #'     f3 = floor((obs * 0.1)/3),             # 10 % of events in persons with 3 events
 #'     f2 = floor((obs * 0.2)/2),             # 20 % of events in persons with 2 events
-#'     f1 = (obs - (3 * f3) - (2 * f2))
-#'   ) %>%  # 70% of events in persons with 1 event
+#'     f1 = (obs - (3 * f3) - (2 * f2))       # 70% of events in persons with 1 event
+#'   ) %>%
 #'   select(!"obs") %>%
 #'   pivot_longer(
 #'     cols = c("f1", "f2", "f3"),
@@ -300,7 +300,15 @@ calculate_dsr <- function(data,
     stop("function calculate_dsr requires at least 4 arguments: data, x, n, stdpop")
   }
 
-  # check stdpop is valid and appended to data
+  # check columns exist in data.frame
+  if (!deparse(substitute(x)) %in% colnames(data)) {
+    stop("x is not a field name from data")
+  }
+
+  if (!deparse(substitute(n)) %in% colnames(data)) {
+    stop("n is not a field name from data")
+  }
+
   if (!deparse(substitute(stdpop)) %in% colnames(data)) {
     stop("stdpop is not a field name from data")
   }
@@ -316,10 +324,22 @@ calculate_dsr <- function(data,
 
 
   # validate arguments
-  if (any(pull(data, x) < 0, na.rm = TRUE)) {
+  if (!is.numeric(data$x)) {
+    stop("field x must be numeric")
+  } else if (!is.numeric(data$n)) {
+    stop("field n must be numeric")
+  } else if (!is.numeric(data$stdpop)) {
+    stop("field stdpop must be numeric")
+  } else if (anyNA(data$n)) {
+    stop("field n cannot have missing values")
+  } else if (anyNA(data$stdpop)) {
+    stop("field stdpop cannot have missing values")
+  } else if (any(pull(data, x) < 0, na.rm = TRUE)) {
     stop("numerators must all be greater than or equal to zero")
   } else if (any(pull(data, n) <= 0)) {
     stop("denominators must all be greater than zero")
+  } else if (any(pull(data, stdpop) < 0)) {
+    stop("denominators must all be greater than or equal to zero")
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
     stop("type must be one of value, lower, upper, standard or full")
   } else if (length(confidence) > 2) {
@@ -355,6 +375,10 @@ calculate_dsr <- function(data,
                   "to be specified when independent_events is FALSE"))
     } else if (!deparse(substitute(eventfreq)) %in% colnames(data)) {
       stop("eventfreq is not a field name from data")
+    } else if (!is.numeric(data[[deparse(substitute(eventfreq))]])) {
+      stop("eventfreq field must be numeric")
+    } else if (anyNA(data[[deparse(substitute(eventfreq))]])) {
+      stop("eventfreq field must not have any missing values")
     }
 
     if (missing(ageband)) {
@@ -362,6 +386,8 @@ calculate_dsr <- function(data,
                   "to be specified when independent_events is FALSE"))
     } else if (!deparse(substitute(ageband)) %in% colnames(data)) {
       stop("ageband is not a field name from data")
+    } else if (anyNA(data[[deparse(substitute(ageband))]])) {
+      stop("ageband field must not have any missing values")
     }
 
     # hard code eventfreq and ageband column names,
