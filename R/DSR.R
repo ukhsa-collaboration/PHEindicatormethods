@@ -59,32 +59,45 @@ dsr_inner <- function(data,
 
   # calculate DSR and CIs
   dsrs <- data %>%
-      mutate(wt_rate = na.zero(x) *  .data$stdpop / (n),
-             sq_rate = na.zero(x) * (.data$stdpop / (n))^2, na.rm=TRUE) %>%
-      summarise(total_count = sum(x, na.rm=TRUE),
-                total_pop = sum(n),
-                value = sum(.data$wt_rate) / sum(.data$stdpop) * multiplier,
-                vardsr = case_when(
-                  !is.na(unique(.data$custom_vardsr)) ~ unique(.data$custom_vardsr),
-                  .default = 1/sum(.data$stdpop)^2 * sum(.data$sq_rate)),
-                lowercl = .data$value + sqrt((.data$vardsr/sum(x, na.rm=TRUE)))*
-                    (byars_lower(sum(x, na.rm=TRUE), conf1) - sum(x, na.rm=TRUE)) * multiplier,
-                uppercl = .data$value + sqrt((.data$vardsr/sum(x, na.rm=TRUE)))*
-                    (byars_upper(sum(x, na.rm=TRUE), conf1) - sum(x, na.rm=TRUE)) * multiplier,
-                lower99_8cl = case_when(
-                    is.na(conf2) ~ NA_real_,
-                    .default = (.data$value + sqrt((.data$vardsr/sum(x, na.rm=TRUE)))*
-                    (byars_lower(sum(x, na.rm=TRUE), min(conf2, 1, na.rm = TRUE)) - sum(x, na.rm=TRUE)) * multiplier)
-                  ),
-                upper99_8cl = case_when(
-                    is.na(conf2) ~ NA_real_,
-                    .default = (.data$value + sqrt((.data$vardsr/sum(x, na.rm=TRUE)))*
-                    (byars_upper(sum(x, na.rm=TRUE), min(conf2, 1, na.rm = TRUE)) - sum(x, na.rm=TRUE)) * multiplier)
-                 ),
-                .groups = "keep") %>%
-      mutate(confidence = paste0(confidence * 100, "%", collapse = ", "),
-             statistic = paste("dsr per",format(multiplier, scientific=F)),
-             method = method)
+    mutate(
+      wt_rate = na.zero(x) *  .data$stdpop / (n),
+      sq_rate = na.zero(x) * (.data$stdpop / (n))^2, na.rm = TRUE
+    ) %>%
+    summarise(
+      total_count = sum(x, na.rm = TRUE),
+      total_pop = sum(n),
+      value = sum(.data$wt_rate) / sum(.data$stdpop) * multiplier,
+      vardsr = case_when(
+        !is.na(unique(.data$custom_vardsr)) ~ unique(.data$custom_vardsr),
+        .default = 1/sum(.data$stdpop)^2 * sum(.data$sq_rate)
+      ),
+      lowercl = .data$value + sqrt((.data$vardsr/sum(x, na.rm = TRUE))) *
+        (byars_lower(sum(x, na.rm = TRUE), conf1) - sum(x, na.rm = TRUE)) *
+        multiplier,
+      uppercl = .data$value + sqrt((.data$vardsr/sum(x, na.rm = TRUE))) *
+        (byars_upper(sum(x, na.rm = TRUE), conf1) - sum(x, na.rm = TRUE)) *
+        multiplier,
+      lower99_8cl = case_when(
+        is.na(conf2) ~ NA_real_,
+        .default = .data$value + sqrt((.data$vardsr/sum(x, na.rm = TRUE))) *
+          (byars_lower(sum(x, na.rm = TRUE), min(conf2, 1, na.rm = TRUE)) -
+             sum(x, na.rm = TRUE)) *
+          multiplier
+      ),
+      upper99_8cl = case_when(
+        is.na(conf2) ~ NA_real_,
+        .default = .data$value + sqrt((.data$vardsr/sum(x, na.rm = TRUE))) *
+          (byars_upper(sum(x, na.rm = TRUE), min(conf2, 1, na.rm = TRUE)) -
+             sum(x, na.rm = TRUE)) *
+          multiplier
+      ),
+      .groups = "keep"
+    ) %>%
+    mutate(
+      confidence = paste0(confidence * 100, "%", collapse = ", "),
+      statistic = paste("dsr per",format(multiplier, scientific = F)),
+      method = method
+    )
 
 
   # rename or drop confidence limits depending whether 1 or 2 CIs requested
@@ -92,19 +105,23 @@ dsr_inner <- function(data,
     names(dsrs)[names(dsrs) == "lowercl"] <- "lower95_0cl"
     names(dsrs)[names(dsrs) == "uppercl"] <- "upper95_0cl"
   } else {
-   dsrs <- dsrs %>%
-     select(!c("lower99_8cl", "upper99_8cl"))
+    dsrs <- dsrs %>%
+      select(!c("lower99_8cl", "upper99_8cl"))
   }
 
 
   # remove DSR calculation for total counts < 10 unless doing non-independent event CIs
   if (!rtn_nonindependent_vardsr) {
     dsrs <- dsrs %>%
-      mutate(across(c("value", starts_with("upper"), starts_with("lower")),
-                  function(x) if_else(.data$total_count < 10, NA_real_, x)),
-             statistic = if_else(.data$total_count < 10,
-                                 "dsr NA for total count < 10",
-                                 .data$statistic))
+      mutate(
+        across(c("value", starts_with("upper"), starts_with("lower")),
+               function(x) if_else(.data$total_count < 10, NA_real_, x)),
+        statistic = if_else(
+          .data$total_count < 10,
+          "dsr NA for total count < 10",
+          .data$statistic
+        )
+      )
   }
 
   # drop fields not required based on values of nonindependent_breakdowns and type arguments
@@ -186,30 +203,31 @@ dsr_inner <- function(data,
 #'
 #' @examples
 #' library(dplyr)
-#' df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314),
-#'                  each = 19 * 2 * 5),
-#'                  year = rep(2006:2010, each = 19 * 2),
-#'                  sex = rep(rep(c("Male", "Female"), each = 19), 5),
-#'                  ageband = rep(c(0,5,10,15,20,25,30,35,40,45,
-#'                                  50,55,60,65,70,75,80,85,90), times = 10),
-#'                  obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
-#'                  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE),
-#'                  esp2013 = rep(esp2013, 40))
+# df <- data.frame(
+#'  indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
+#'  year = rep(2006:2010, each = 19 * 2),
+#'  sex = rep(rep(c("Male", "Female"), each = 19), 5),
+#'  ageband = rep(c(0,5,10,15,20,25,30,35,40,45,
+#'                 50,55,60,65,70,75,80,85,90), times = 10),
+#'  obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
+#'  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE),
+#'  esp2013 = rep(esp2013, 40)
+#' )
 #'
 #' ## Default execution
 #' df %>%
-#'     group_by(indicatorid, year, sex) %>%
-#'     calculate_dsr(obs, pop, stdpop = esp2013)
+#'   group_by(indicatorid, year, sex) %>%
+#'   calculate_dsr(obs, pop, stdpop = esp2013)
 #'
 #' ## Calculate both 95% and 99.8% CIs in single execution
 #' df %>%
-#'     group_by(indicatorid, year, sex) %>%
-#'     calculate_dsr(obs, pop, stdpop = esp2013, confidence = c(0.95, 0.998))
+#'   group_by(indicatorid, year, sex) %>%
+#'   calculate_dsr(obs, pop, stdpop = esp2013, confidence = c(0.95, 0.998))
 #'
 #' ## Drop metadata columns from the output
 #' df %>%
-#'     group_by(indicatorid, year, sex) %>%
-#'     calculate_dsr(obs, pop, stdpop = esp2013, type = "standard")
+#'   group_by(indicatorid, year, sex) %>%
+#'   calculate_dsr(obs, pop, stdpop = esp2013, type = "standard")
 #'
 #' ## Calculate DSRs for non-independent events
 #'
@@ -220,27 +238,35 @@ dsr_inner <- function(data,
 #' # frame from example one and assumes that 10% of events occurred in people
 #' # who experienced 3 events, 20% occurred in people who experienced 2 events
 #' # and 70% occurred in people who experienced a single event.
+#'
 #' df_person_freq <- df %>%
-#'   mutate(f3 = floor((obs * 0.1)/3),             # 10 % of events in persons with 3 events
-#'          f2 = floor((obs * 0.2)/2),             # 20 % of events in persons with 2 events
-#'          f1 = (obs - (3 * f3) - (2 * f2))) %>%  # 70% of events in persons with 1 event
+#'   mutate(
+#'     f3 = floor((obs * 0.1)/3),             # 10 % of events in persons with 3 events
+#'     f2 = floor((obs * 0.2)/2),             # 20 % of events in persons with 2 events
+#'     f1 = (obs - (3 * f3) - (2 * f2))
+#'   ) %>%  # 70% of events in persons with 1 event
 #'   select(!"obs") %>%
-#'   pivot_longer(cols = c("f1", "f2", "f3"),
-#'                names_to = "eventfrequency",
-#'                values_to = "uniquepeople",
-#'                names_prefix = "f") %>%
-#'                mutate(eventfrequency = as.integer(eventfrequency))
+#'   pivot_longer(
+#'     cols = c("f1", "f2", "f3"),
+#'     names_to = "eventfrequency",
+#'     values_to = "uniquepeople",
+#'     names_prefix = "f"
+#'   ) %>%
+#'   mutate(eventfrequency = as.integer(eventfrequency))
 #'
 #' # Calculate the dsrs - notice that output DSR values match those in
 #' # example 1 but the confidence intervals are wider
-#'  df_person_freq %>%
-#'    group_by(indicatorid, year, sex) %>%
-#'    calculate_dsr(x = uniquepeople,
-#'                  n = pop,
-#'                  stdpop = esp2013,
-#'                  independent_events = FALSE,
-#'                  eventfreq = eventfrequency,
-#'                  ageband = ageband)
+#'
+#' df_person_freq %>%
+#'   group_by(indicatorid, year, sex) %>%
+#'   calculate_dsr(
+#'     x = uniquepeople,
+#'     n = pop,
+#'     stdpop = esp2013,
+#'     independent_events = FALSE,
+#'     eventfreq = eventfrequency,
+#'     ageband = ageband
+#'   )
 #'
 #'
 #' @section Notes: For total counts >= 10 Byar's method (1) is applied using
@@ -271,49 +297,54 @@ calculate_dsr <- function(data,
 
   # check required arguments present
   if (missing(data) | missing(x) | missing(n) | missing(stdpop)) {
-      stop("function calculate_dsr requires at least 4 arguments: data, x, n, stdpop")
+    stop("function calculate_dsr requires at least 4 arguments: data, x, n, stdpop")
   }
 
   # check stdpop is valid and appended to data
   if (!deparse(substitute(stdpop)) %in% colnames(data)) {
-      stop("stdpop is not a field name from data")
+    stop("stdpop is not a field name from data")
   }
 
 
   # hard-code field names
   data <- data %>%
-    rename(x = {{ x }},
-           n = {{ n }},
-           stdpop = {{ stdpop }})
+    rename(
+      x = {{ x }},
+      n = {{ n }},
+      stdpop = {{ stdpop }}
+    )
 
 
   # validate arguments
-  if (any(pull(data, x) < 0, na.rm=TRUE)) {
-      stop("numerators must all be greater than or equal to zero")
+  if (any(pull(data, x) < 0, na.rm = TRUE)) {
+    stop("numerators must all be greater than or equal to zero")
   } else if (any(pull(data, n) <= 0)) {
-      stop("denominators must all be greater than zero")
+    stop("denominators must all be greater than zero")
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
-      stop("type must be one of value, lower, upper, standard or full")
-  } else if (length(confidence) >2) {
-      stop("a maximum of two confidence levels can be provided")
+    stop("type must be one of value, lower, upper, standard or full")
+  } else if (length(confidence) > 2) {
+    stop("a maximum of two confidence levels can be provided")
   } else if (length(confidence) == 2) {
-      if (!(confidence[1] == 0.95 & confidence[2] == 0.998)) {
-          stop("two confidence levels can only be produced if they are specified as 0.95 and 0.998")
-      }
-  } else if ((confidence < 0.9)|(confidence > 1 & confidence < 90)|(confidence > 100)) {
-      stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+    if (!(confidence[1] == 0.95 & confidence[2] == 0.998)) {
+      stop("two confidence levels can only be produced if they are specified as 0.95 and 0.998")
+    }
+  } else if ((confidence < 0.9) | (confidence > 1 & confidence < 90) |
+             (confidence > 100)) {
+    stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   }
 
 
   if (independent_events) {
     # perform dsr using CI calculation for independent events
-    dsrs <- dsr_inner(data       = data,
-                      x          = x,
-                      n          = n,
-                      stdpop     = stdpop,
-                      type       = type,
-                      confidence = confidence,
-                      multiplier = multiplier)
+    dsrs <- dsr_inner(
+      data       = data,
+      x          = x,
+      n          = n,
+      stdpop     = stdpop,
+      type       = type,
+      confidence = confidence,
+      multiplier = multiplier
+    )
 
   } else {
     # perform dsr using CI calculation for non independent events
@@ -336,8 +367,10 @@ calculate_dsr <- function(data,
     # hard code eventfreq and ageband column names,
     # and make sure data grouped by enet freq
     data <- data %>%
-      rename(eventfreq = {{ eventfreq }},
-             ageband = {{ ageband }}) %>%
+      rename(
+        eventfreq = {{ eventfreq }},
+        ageband = {{ ageband }}
+      ) %>%
       group_by(eventfreq, .add = TRUE)
 
 
@@ -346,13 +379,15 @@ calculate_dsr <- function(data,
 
     # get vardsrs for each event frequency and sum up
     freq_var <- data %>%
-      dsr_inner(x          = x,
-                n          = n,
-                stdpop     = stdpop,
-                type       = type,
-                confidence = confidence,
-                multiplier = multiplier,
-                rtn_nonindependent_vardsr = TRUE) %>%
+      dsr_inner(
+        x          = x,
+        n          = n,
+        stdpop     = stdpop,
+        type       = type,
+        confidence = confidence,
+        multiplier = multiplier,
+        rtn_nonindependent_vardsr = TRUE
+      ) %>%
       mutate(freqvars = .data$vardsr * .data$eventfreq^2) %>%
       group_by(across(all_of(grps))) %>%
       summarise(custom_vardsr = sum(.data$freqvars))
@@ -367,13 +402,15 @@ calculate_dsr <- function(data,
     dsrs <- event_data %>%
       left_join(freq_var, by = grps) %>%
       group_by(across(all_of(grps))) %>%
-      dsr_inner(x          = x,
-                n          = n,
-                stdpop     = stdpop,
-                type       = type,
-                confidence = confidence,
-                multiplier = multiplier,
-                use_nonindependent_vardsr = custom_vardsr)
+      dsr_inner(
+        x          = x,
+        n          = n,
+        stdpop     = stdpop,
+        type       = type,
+        confidence = confidence,
+        multiplier = multiplier,
+        use_nonindependent_vardsr = custom_vardsr
+      )
   }
 
   return(dsrs)
