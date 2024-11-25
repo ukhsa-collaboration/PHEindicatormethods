@@ -295,12 +295,20 @@ calculate_dsr <- function(data,
                           eventfreq = NULL,
                           ageband = NULL) {
 
-  # check required arguments present
+
+  # Validate arguments ---------------------------------------------------------
+
+   # check required arguments present
   if (missing(data) | missing(x) | missing(n) | missing(stdpop)) {
     stop("function calculate_dsr requires at least 4 arguments: data, x, n, stdpop")
   }
 
   # check columns exist in data.frame
+
+  if (!is.data.frame(data)) {
+    stop("data must be a data.frame")
+  }
+
   if (!deparse(substitute(x)) %in% colnames(data)) {
     stop("x is not a field name from data")
   }
@@ -322,8 +330,6 @@ calculate_dsr <- function(data,
       stdpop = {{ stdpop }}
     )
 
-
-  # validate arguments
   if (!is.numeric(data$x)) {
     stop("field x must be numeric")
   } else if (!is.numeric(data$n)) {
@@ -332,9 +338,9 @@ calculate_dsr <- function(data,
     stop("field stdpop must be numeric")
   } else if (anyNA(data$n)) {
     stop("field n cannot have missing values")
-  } else if (anyNA(data$stdpop)) {
+ } else if (anyNA(data$stdpop)) {
     stop("field stdpop cannot have missing values")
-  } else if (any(pull(data, x) < 0, na.rm = TRUE)) {
+  }  else if (any(pull(data, x) < 0, na.rm = TRUE)) {
     stop("numerators must all be greater than or equal to zero")
   } else if (any(pull(data, n) <= 0)) {
     stop("denominators must all be greater than zero")
@@ -342,6 +348,8 @@ calculate_dsr <- function(data,
     stop("denominators must all be greater than or equal to zero")
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
     stop("type must be one of value, lower, upper, standard or full")
+  } else if (!is.numeric(confidence)) {
+    stop("confidence must be numeric")
   } else if (length(confidence) > 2) {
     stop("a maximum of two confidence levels can be provided")
   } else if (length(confidence) == 2) {
@@ -351,24 +359,13 @@ calculate_dsr <- function(data,
   } else if ((confidence < 0.9) | (confidence > 1 & confidence < 90) |
              (confidence > 100)) {
     stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+  } else if (!is.numeric(multiplier)) {
+    stop("multiplier ")
+  } else if (!rlang::is_bool(independent_events)) {
+    stop("independent_events must be TRUE or FALSE")
   }
 
-
-  if (independent_events) {
-    # perform dsr using CI calculation for independent events
-    dsrs <- dsr_inner(
-      data       = data,
-      x          = x,
-      n          = n,
-      stdpop     = stdpop,
-      type       = type,
-      confidence = confidence,
-      multiplier = multiplier
-    )
-
-  } else {
-    # perform dsr using CI calculation for non independent events
-
+  if (!independent_events) {
     # check that eventfrequency & ageband columns are specified & exist
     if (missing(eventfreq)) {
       stop(paste0("function calculate_dsr requires an eventfreq column ",
@@ -389,9 +386,29 @@ calculate_dsr <- function(data,
     } else if (anyNA(data[[deparse(substitute(ageband))]])) {
       stop("ageband field must not have any missing values")
     }
+  }
+
+
+  # Calculate DSR and CIs ------------------------------------------------------
+
+  if (independent_events) {
+    ## Perform dsr using CI calculation for independent events ----
+
+    dsrs <- dsr_inner(
+      data       = data,
+      x          = x,
+      n          = n,
+      stdpop     = stdpop,
+      type       = type,
+      confidence = confidence,
+      multiplier = multiplier
+    )
+
+  } else {
+    ## Perform dsr using CI calculation for non independent events ----
 
     # hard code eventfreq and ageband column names,
-    # and make sure data grouped by enet freq
+    # and make sure data grouped by eventfreq
     data <- data %>%
       rename(
         eventfreq = {{ eventfreq }},
