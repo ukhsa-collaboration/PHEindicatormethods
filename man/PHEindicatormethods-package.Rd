@@ -20,13 +20,13 @@ Useful links:
 
 Other contributors:
 \itemize{
-  \item Sebastian Fox  [contributor]
-  \item Matthew Francis  [contributor]
-  \item Paul Fryers  \email{paul.fryers@dhsc.gov.uk} [contributor]
-  \item Emma Clegg  [contributor]
-  \item Annabel Westermann  [contributor]
-  \item Joshua Woolner  [contributor]
-  \item Charlotte Fellows  \email{charlotte.fellows@dhsc.gov.uk} [contributor]
+  \item Sebastian Fox [contributor]
+  \item Matthew Francis [contributor]
+  \item Paul Fryers \email{paul.fryers@dhsc.gov.uk} [contributor]
+  \item Emma Clegg [contributor]
+  \item Annabel Westermann [contributor]
+  \item Joshua Woolner [contributor]
+  \item Charlotte Fellows \email{charlotte.fellows@dhsc.gov.uk} [contributor]
   \item Olivia Box Power \email{Olivia.BoxPower@dhsc.gov.uk} [contributor]
 }
 
