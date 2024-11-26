@@ -129,7 +129,7 @@ dsr_inner <- function(data,
   # drop fields not required based on values of nonindependent_breakdowns and type arguments
   if (rtn_nonindependent_vardsr) {
     dsrs <- dsrs %>%
-      select("vardsr")
+      select(group_cols(), "vardsr")
   } else if (type == "lower") {
    dsrs <- dsrs %>%
       select(!c("total_count", "total_pop", "value", starts_with("upper"),
@@ -434,19 +434,25 @@ calculate_dsr <- function(data,
         rtn_nonindependent_vardsr = TRUE
       ) %>%
       mutate(freqvars = .data$vardsr * .data$eventfreq^2) %>%
-      group_by(across(all_of(grps))) %>%
-      summarise(custom_vardsr = sum(.data$freqvars))
+      group_by(pick(all_of(grps))) %>%
+      summarise(
+        custom_vardsr = sum(.data$freqvars),
+        .groups = "drop"
+      )
 
     # summarise total events
     event_data <- data %>%
-      mutate(events = .data$eventfreq * x) %>%
-      group_by(across(all_of(grps)), ageband, n, stdpop) %>%
-      summarise(x = sum(.data$events, na.rm = TRUE), .groups = "drop")
+      mutate(events = .data$eventfreq * .data$x) %>%
+      group_by(pick(all_of(c(grps, "ageband", "n", "stdpop")))) %>%
+      summarise(
+        x = sum(.data$events, na.rm = TRUE),
+        .groups = "drop"
+      )
 
     # calculate overall DSR passing in nonindependent variance
     dsrs <- event_data %>%
       left_join(freq_var, by = grps) %>%
-      group_by(across(all_of(grps))) %>%
+      group_by(pick(all_of(grps))) %>%
       dsr_inner(
         x          = x,
         n          = n,
