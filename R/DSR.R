@@ -422,6 +422,24 @@ calculate_dsr <- function(data,
     # check grouping variables and remove eventfrequency for use later
     grps <- group_vars(data)[!group_vars(data) %in% "eventfreq"]
 
+    check_groups <- data |>
+      group_by(pick(all_of(c(grps, "ageband")))) |>
+      summarise(
+        num_n = n_distinct(.data$n),
+        num_stdpop = n_distinct(.data$stdpop),
+        .groups = "drop"
+      ) |>
+      filter(num_n > 1 | num_stdpop > 1)
+
+    if (nrow(check_groups) > 0) {
+      stop(
+        paste0("There are rows with the same grouping variables and ageband",
+               " but with different populations (n) or standard populations",
+               "(stdpop)")
+      )
+    }
+
+
     # get vardsrs for each event frequency and sum up
     freq_var <- data %>%
       dsr_inner(
