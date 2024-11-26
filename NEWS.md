@@ -2,7 +2,7 @@
 * `calculate_dsr` function added to replace `phe_dsr`. The new calculate_dsr function has three new features:
 1. Users can now specify whether events are independent.  For non-independent events the function performs an adjustment to the confidence interval calculation. 
 2. The stdpoptype argument that was available in `phe_dsr` is not available in `calculate_dsr` and the user is now required to provide the standard populations as a field in the input dataframe. This is to negate the risk of incorrectly joining the standard population vector by position that was possible when using the function with stdpoptype = "vector".
-3. Because of point 2 above, users can now calculate DSRs for groups of unequal length in a single execution (for example DSRs for all age populations and DSRs for under 75s).   
+3. Because of point 2 above, users can now calculate DSRs for groups different numbers of age bands in a single execution (for example DSRs for all age populations and DSRs for under 75s).   
 * `phe_dsr` has been soft deprecated - please replace all calls to this function with `calculate_dsr` before September 2025, after which date the phe_dsr function will be removed from the package. Previous calls to `phe_dsr` with stdpoptype set to "field" can be replaced directly with `calculate_dsr`, however, the stdpop argument no longer has a default so will need to be provided explicitly. For previous calls to `phe_dsr` with stdpoptype = "vector", the user will need to append the standard populations to their input data frame before calling the `calculate_dsr` function and provide the stdpop argument explicitly.
 
 ## PHEindicatormethods v2.0.2

@@ -79,30 +79,31 @@ the internal byars_lower and byars_upper functions. When the total count is
 
 \examples{
 library(dplyr)
-df <- data.frame(indicatorid = rep(c(1234, 5678, 91011, 121314),
-                 each = 19 * 2 * 5),
-                 year = rep(2006:2010, each = 19 * 2),
-                 sex = rep(rep(c("Male", "Female"), each = 19), 5),
-                 ageband = rep(c(0,5,10,15,20,25,30,35,40,45,
-                                 50,55,60,65,70,75,80,85,90), times = 10),
-                 obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
-                 pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE),
-                 esp2013 = rep(esp2013, 40))
+df <- data.frame(
+  indicatorid = rep(c(1234, 5678, 91011, 121314), each = 19 * 2 * 5),
+  year = rep(2006:2010, each = 19 * 2),
+  sex = rep(rep(c("Male", "Female"), each = 19), 5),
+  ageband = rep(c(0,5,10,15,20,25,30,35,40,45,
+                  50,55,60,65,70,75,80,85,90), times = 10),
+  obs = sample(200, 19 * 2 * 5 * 4, replace = TRUE),
+  pop = sample(10000:20000, 19 * 2 * 5 * 4, replace = TRUE),
+  esp2013 = rep(esp2013, 40)
+)
 
 ## Default execution
 df \%>\%
-    group_by(indicatorid, year, sex) \%>\%
-    calculate_dsr(obs, pop, stdpop = esp2013)
+  group_by(indicatorid, year, sex) \%>\%
+  calculate_dsr(obs, pop, stdpop = esp2013)
 
 ## Calculate both 95\% and 99.8\% CIs in single execution
 df \%>\%
-    group_by(indicatorid, year, sex) \%>\%
-    calculate_dsr(obs, pop, stdpop = esp2013, confidence = c(0.95, 0.998))
+  group_by(indicatorid, year, sex) \%>\%
+  calculate_dsr(obs, pop, stdpop = esp2013, confidence = c(0.95, 0.998))
 
 ## Drop metadata columns from the output
 df \%>\%
-    group_by(indicatorid, year, sex) \%>\%
-    calculate_dsr(obs, pop, stdpop = esp2013, type = "standard")
+  group_by(indicatorid, year, sex) \%>\%
+  calculate_dsr(obs, pop, stdpop = esp2013, type = "standard")
 
 ## Calculate DSRs for non-independent events
 
@@ -113,27 +114,35 @@ library(tidyr)
 # frame from example one and assumes that 10\% of events occurred in people
 # who experienced 3 events, 20\% occurred in people who experienced 2 events
 # and 70\% occurred in people who experienced a single event.
+
 df_person_freq <- df \%>\%
-  mutate(f3 = floor((obs * 0.1)/3),             # 10 \% of events in persons with 3 events
-         f2 = floor((obs * 0.2)/2),             # 20 \% of events in persons with 2 events
-         f1 = (obs - (3 * f3) - (2 * f2))) \%>\%  # 70\% of events in persons with 1 event
+  mutate(
+    f3 = floor((obs * 0.1)/3),             # 10 \% of events in persons with 3 events
+    f2 = floor((obs * 0.2)/2),             # 20 \% of events in persons with 2 events
+    f1 = (obs - (3 * f3) - (2 * f2))       # 70\% of events in persons with 1 event
+  ) \%>\%
   select(!"obs") \%>\%
-  pivot_longer(cols = c("f1", "f2", "f3"),
-               names_to = "eventfrequency",
-               values_to = "uniquepeople",
-               names_prefix = "f") \%>\%
-               mutate(eventfrequency = as.integer(eventfrequency))
+  pivot_longer(
+    cols = c("f1", "f2", "f3"),
+    names_to = "eventfrequency",
+    values_to = "uniquepeople",
+    names_prefix = "f"
+  ) \%>\%
+  mutate(eventfrequency = as.integer(eventfrequency))
 
 # Calculate the dsrs - notice that output DSR values match those in
 # example 1 but the confidence intervals are wider
- df_person_freq \%>\%
-   group_by(indicatorid, year, sex) \%>\%
-   calculate_dsr(x = uniquepeople,
-                 n = pop,
-                 stdpop = esp2013,
-                 independent_events = FALSE,
-                 eventfreq = eventfrequency,
-                 ageband = ageband)
+
+df_person_freq \%>\%
+  group_by(indicatorid, year, sex) \%>\%
+  calculate_dsr(
+    x = uniquepeople,
+    n = pop,
+    stdpop = esp2013,
+    independent_events = FALSE,
+    eventfreq = eventfrequency,
+    ageband = ageband
+  )
 
 
 }
