@@ -148,13 +148,23 @@ test_Mean_Grp <- group_by(test_Mean,area)
 test_multiarea   <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_multiarea", col_names=TRUE) %>%
   group_by(area)
 test_DSR_1976    <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_1976",   col_names=TRUE)
+
 test_err1        <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_err1",   col_names=TRUE)
 test_err2        <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_err2",   col_names=TRUE) %>%
   group_by(area)
+
+test_err2_esp <- test_err2 %>%
+  mutate(esp2013 = esp2013)
+
 test_err3        <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_err3",   col_names=TRUE)
+test_err4        <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_err4",   col_names = TRUE)
+
+
 test_DSR_results <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testresults_DSR", col_names=TRUE)
+
+
 test_multigroup  <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_multigroup", col_names=TRUE) %>%
-  group_by(area,year)
+  group_by(area, year)
 
 test_ISR_results <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testresults_ISR", col_names=TRUE)
 test_ISR_refdata <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="refdata",         col_names=TRUE)
@@ -174,6 +184,12 @@ test_DSR_nonind <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet = "t
   arrange(freq, ageband) %>%
   group_by(area, freq) %>%
   mutate(esp2013 = esp2013)
+
+test_DSR_nonind_err1 <- test_DSR_nonind
+test_DSR_nonind_err1$pop[1] <- 1
+
+test_DSR_nonind_err2 <- test_DSR_nonind
+test_DSR_nonind_err2$esp2013[1] <- 1
 
 
 # SII
@@ -200,7 +216,9 @@ usethis::use_data(qnames, test_BW,
                   test_Rate, test_Rate_g, test_Rate_g_results,
                   test_Mean, test_Mean_Grp, test_Mean_results,
                   test_multiarea, test_multigroup, test_DSR_1976, test_DSR_nonind,
-                  test_err1, test_err2, test_err3, test_DSR_results,
+                  test_DSR_nonind_err1, test_DSR_nonind_err2,
+                  test_err1, test_err2, test_err2_esp,
+                  test_err3, test_err4, test_DSR_results,
                   test_ISR_refdata, test_ISR_results, test_ISR_ownref, test_ISR_lookup,
                   SII_test_data, SII_test_grouped,
                   test_funnel_inputs, test_funnel_outputs, test_funnel_outputs_axis_variation,

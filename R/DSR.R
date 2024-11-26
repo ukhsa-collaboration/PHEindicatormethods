@@ -347,7 +347,7 @@ calculate_dsr <- function(data,
   } else if (any(pull(data, n) <= 0)) {
     stop("denominators must all be greater than zero")
   } else if (any(pull(data, stdpop) < 0)) {
-    stop("standard populations must all be greater than or equal to zero")
+    stop("stdpop must all be greater than or equal to zero")
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
     stop("type must be one of value, lower, upper, standard or full")
   } else if (!is.numeric(confidence)) {
@@ -362,7 +362,9 @@ calculate_dsr <- function(data,
              (confidence > 100)) {
     stop("confidence level must be between 90 and 100 or between 0.9 and 1")
   } else if (!is.numeric(multiplier)) {
-    stop("multiplier ")
+    stop("multiplier must be numeric")
+  }  else if (multiplier <= 0) {
+    stop("multiplier must be greater than 0")
   } else if (!rlang::is_bool(independent_events)) {
     stop("independent_events must be TRUE or FALSE")
   }
