@@ -8,9 +8,9 @@
 #'   events. For non-independent events, set to TRUE on the first iteration
 #'   through the function to output the variance to pass in to the second
 #'   iteration.
-#' @param use_nonindependent_vardsr keep defaults for independent events. For
-#'   non-independent events, pass the unquoted column name that holds the event
-#'   frequency variance to be passed in to the second iteration.
+#' @param use_nonindependent_vardsr bool, keep default (FALSE) for independent
+#'   events. For non-independent events, pass TRUE to use the custom_vardsr
+#'   field for CI calculation in second run of function.
 #'
 #' @inheritParams calculate_dsr
 #'
@@ -38,10 +38,11 @@ dsr_inner <- function(data,
                       confidence,
                       multiplier,
                       rtn_nonindependent_vardsr = FALSE,
-                      use_nonindependent_vardsr = NA_real_) {
+                      use_nonindependent_vardsr = FALSE) {
 
   # validate arguments specific to dsr_inner function
-  if (rtn_nonindependent_vardsr == TRUE & "custom_vardsr" %in% names(data)) {
+  if (isTRUE(rtn_nonindependent_vardsr) &&
+      ("custom_vardsr" %in% names(data) || isTRUE(use_nonindependent_vardsr))) {
     stop("cannot get nonindependent vardsr and use nonindependent vardsr in the same execution")
   }
 
@@ -51,7 +52,7 @@ dsr_inner <- function(data,
   conf2 <- confidence[2]
 
   # create dummy custom_vardsr column when not in use to prevent errors evaluating vardsr code
-  if (!"custom_vardsr" %in% names(data)) {
+  if (!use_nonindependent_vardsr) {
     method = "Dobson"
     data <- data %>%
       mutate(custom_vardsr = NA_real_)
@@ -59,61 +60,60 @@ dsr_inner <- function(data,
     method = "Dobson, with confidence adjusted for non-independent events"
   }
 
-  # calculate DSR and CIs
+  # calculate DSR and vardsr
   dsrs <- data %>%
     mutate(
-      wt_rate = na.zero(.data$x) *  .data$stdpop / (.data$n),
-      sq_rate = na.zero(.data$x) * (.data$stdpop / (.data$n))^2, na.rm = TRUE
+      wt_rate = na.zero(.data$x) *  .data$stdpop / .data$n,
+      sq_rate = na.zero(.data$x) * (.data$stdpop / (.data$n))^2,
     ) %>%
     summarise(
       total_count = sum(.data$x, na.rm = TRUE),
       total_pop = sum(.data$n),
       value = sum(.data$wt_rate) / sum(.data$stdpop) * multiplier,
       vardsr = case_when(
-        !is.na(unique(.data$custom_vardsr)) ~ unique(.data$custom_vardsr),
+        isTRUE(use_nonindependent_vardsr) ~ unique(.data$custom_vardsr),
         .default = 1 / sum(.data$stdpop)^2 * sum(.data$sq_rate)
       ),
-      lowercl = .data$value + sqrt((.data$vardsr / sum(.data$x, na.rm = TRUE))) *
-        (byars_lower(sum(.data$x, na.rm = TRUE), conf1) - sum(.data$x, na.rm = TRUE)) *
-        multiplier,
-      uppercl = .data$value + sqrt((.data$vardsr / sum(.data$x, na.rm = TRUE))) *
-        (byars_upper(sum(.data$x, na.rm = TRUE), conf1) - sum(.data$x, na.rm = TRUE)) *
-        multiplier,
-      lower99_8cl = case_when(
-        is.na(conf2) ~ NA_real_,
-        .default = .data$value + sqrt((.data$vardsr / sum(.data$x, na.rm = TRUE))) *
-          (byars_lower(sum(.data$x, na.rm = TRUE), min(conf2, 1, na.rm = TRUE)) -
-             sum(.data$x, na.rm = TRUE)) *
-          multiplier
-      ),
-      upper99_8cl = case_when(
-        is.na(conf2) ~ NA_real_,
-        .default = .data$value + sqrt((.data$vardsr/sum(.data$x, na.rm = TRUE))) *
-          (byars_upper(sum(.data$x, na.rm = TRUE), min(conf2, 1, na.rm = TRUE)) -
-             sum(x, na.rm = TRUE)) *
-          multiplier
-      ),
       .groups = "keep"
-    ) %>%
-    mutate(
-      confidence = paste0(confidence * 100, "%", collapse = ", "),
-      statistic = paste("dsr per",format(multiplier, scientific = FALSE)),
-      method = method
     )
 
 
-  # rename or drop confidence limits depending whether 1 or 2 CIs requested
-  if (!is.na(conf2)) {
-    names(dsrs)[names(dsrs) == "lowercl"] <- "lower95_0cl"
-    names(dsrs)[names(dsrs) == "uppercl"] <- "upper95_0cl"
-  } else {
-    dsrs <- dsrs %>%
-      select(!c("lower99_8cl", "upper99_8cl"))
-  }
-
-
-  # remove DSR calculation for total counts < 10 unless doing non-independent event CIs
   if (!rtn_nonindependent_vardsr) {
+    # Calculate CIs
+    dsrs <- dsrs |>
+      ungroup() |>
+      mutate(
+        lowercl = .data$value + sqrt(.data$vardsr / .data$total_count) *
+          (byars_lower(.data$total_count, conf1) - .data$total_count) *
+          multiplier,
+        uppercl = .data$value + sqrt(.data$vardsr / .data$total_count) *
+          (byars_upper(.data$total_count, conf1) - .data$total_count) *
+          multiplier,
+        lower99_8cl = .data$value + sqrt(.data$vardsr / .data$total_count) *
+          (byars_lower(.data$total_count, 0.998) - .data$total_count) *
+          multiplier,
+        upper99_8cl =  .data$value + sqrt(.data$vardsr / .data$total_count) *
+          (byars_upper(.data$total_count, 0.998) - .data$total_count) *
+          multiplier
+      ) %>%
+      mutate(
+        confidence = paste0(confidence * 100, "%", collapse = ", "),
+        statistic = paste("dsr per",format(multiplier, scientific = FALSE)),
+        method = method
+      )
+
+
+    # rename or drop confidence limits depending whether 1 or 2 CIs requested
+    if (!is.na(conf2)) {
+      names(dsrs)[names(dsrs) == "lowercl"] <- "lower95_0cl"
+      names(dsrs)[names(dsrs) == "uppercl"] <- "upper95_0cl"
+    } else {
+      dsrs <- dsrs %>%
+        select(!c("lower99_8cl", "upper99_8cl"))
+    }
+
+
+    # remove DSR calculation for total counts < 10
     dsrs <- dsrs %>%
       mutate(
         across(c("value", starts_with("upper"), starts_with("lower")),
@@ -131,19 +131,19 @@ dsr_inner <- function(data,
     dsrs <- dsrs %>%
       select(group_cols(), "vardsr")
   } else if (type == "lower") {
-   dsrs <- dsrs %>%
+    dsrs <- dsrs %>%
       select(!c("total_count", "total_pop", "value", starts_with("upper"),
                 "vardsr", "confidence", "statistic", "method"))
   } else if (type == "upper") {
-      dsrs <- dsrs %>%
+    dsrs <- dsrs %>%
       select(!c("total_count", "total_pop", "value", starts_with("lower"),
                 "vardsr", "confidence", "statistic", "method"))
   } else if (type == "value") {
-      dsrs <- dsrs %>%
+    dsrs <- dsrs %>%
       select(!c("total_count", "total_pop", starts_with("lower"), starts_with("upper"),
                 "vardsr", "confidence", "statistic", "method"))
   } else if (type == "standard") {
-      dsrs <- dsrs %>%
+    dsrs <- dsrs %>%
       select(!c("vardsr", "confidence", "statistic", "method"))
   } else if (type == "full") {
     dsrs <- dsrs %>%
@@ -460,7 +460,7 @@ calculate_dsr <- function(data,
         type       = type,
         confidence = confidence,
         multiplier = multiplier,
-        use_nonindependent_vardsr = custom_vardsr
+        use_nonindependent_vardsr = TRUE
       )
   }
 
