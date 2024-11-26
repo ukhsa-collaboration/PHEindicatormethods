@@ -166,6 +166,9 @@ test_ISR_ownref  <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="te
                       group_by(area)
 test_ISR_lookup <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_multiarea_lookup", col_names=TRUE)
 
+# YLL
+test_yll <- read_excel("tests/testthat/testdata_yll.xlsx")
+
 # SII
 SII_test_data <- read_excel("tests/testthat/testdata_SII.xlsx")
 
@@ -191,6 +194,7 @@ usethis::use_data(qnames, test_BW,
                   test_Mean, test_Mean_Grp, test_Mean_results,
                   test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results,
                   test_ISR_refdata, test_ISR_results, test_ISR_ownref, test_ISR_lookup,
+                  test_yll,
                   SII_test_data, SII_test_grouped,
                   test_funnel_inputs, test_funnel_outputs, test_funnel_outputs_axis_variation,
                   test_funnel_ratio_inputs, test_funnel_ratio_outputs,

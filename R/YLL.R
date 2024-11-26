@@ -62,14 +62,23 @@ calculate_yll <- function(data, x, n, le = NULL, stdpop = NULL,
   }
 
   # check same number of rows per group
-  if (n_distinct(select(ungroup(count(data)),n)) != 1) {
-    stop("data must contain the same number of rows for each group")
-  }
+#  if (n_distinct(select(ungroup(count(data)),n)) != 1) {
+ #   stop("data must contain the same number of rows for each group")
+#  }
+
+  # hard-code field names
+  data <- data %>%
+    rename(
+      x = {{ x }},
+      n = {{ n }},
+      stdpop = {{ stdpop }},
+      le = {{ le }}
+    )
 
   # validate arguments
-  if (any(pull(data, {{ x }}) < 0, na.rm=TRUE)) {
+  if (any(pull(data, x ) < 0, na.rm=TRUE)) {
     stop("numerators must all be greater than or equal to zero")
-  } else if (any(pull(data, {{ n }}) <= 0)) {
+  } else if (any(pull(data, n ) <= 0)) {
     stop("denominators must all be greater than zero")
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
     stop("type must be one of value, lower, upper, standard or full")
@@ -91,26 +100,26 @@ calculate_yll <- function(data, x, n, le = NULL, stdpop = NULL,
 
     # calculate YLL and CIs
     ylls <- data %>%
-      mutate(yll=({{le2022_calc}}*{{x}}*(stdpop_calc/{{n}})),
-             numerator=({{le2022_calc}}*{{x}}),
-             err_frac =((stdpop_calc/{{n}})^2)*({{x}})*(({{le2022_calc}})^2)) %>%
+      mutate(yll=(le * x *(stdpop/n)),
+             numerator=(le * x ),
+             err_frac =((stdpop/n)^2) * x * ((le)^2)) %>%
       summarise(total_count = sum(numerator),
-                total_pop = sum({{ n }}),
+                total_pop = sum(n),
                 value = sum(yll),
                 err_frac = sum(err_frac),
-                lowercl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-                  (byars_lower(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)), #CHECK IF NEED TO * MULTIPLIER
-                uppercl = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-                  (byars_upper(sum({{ x }}, na.rm=TRUE), conf1) - sum({{ x }}, na.rm=TRUE)),
+                lowercl = value + sqrt((err_frac/sum(x, na.rm=TRUE)))*
+                  (byars_lower(sum(x, na.rm=TRUE), conf1) - sum(x, na.rm=TRUE)), #CHECK IF NEED TO * MULTIPLIER
+                uppercl = value + sqrt((err_frac/sum(x, na.rm=TRUE)))*
+                  (byars_upper(sum(x, na.rm=TRUE), conf1) - sum(x, na.rm=TRUE)),
                 lower99_8cl = case_when(
                   is.na(conf2) ~ NA_real_,
-                  .default = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-                  (byars_lower(sum({{ x }}, na.rm=TRUE), min(conf2, 1, na.rm = TRUE)) - sum({{ x }}, na.rm=TRUE))
+                  .default = value + sqrt((err_frac/sum(x, na.rm=TRUE)))*
+                  (byars_lower(sum(x, na.rm=TRUE), min(conf2, 1, na.rm = TRUE)) - sum(x, na.rm=TRUE))
                   ),
                 upper99_8cl = case_when(
                   is.na(conf2) ~ NA_real_,
-                  .default = value + sqrt((err_frac/sum({{ x }}, na.rm=TRUE)))*
-                  (byars_upper(sum({{ x }}, na.rm=TRUE), min(conf2, 1, na.rm = TRUE)) - sum({{ x }}, na.rm=TRUE))
+                  .default = value + sqrt((err_frac/sum(x, na.rm=TRUE)))*
+                  (byars_upper(sum(x, na.rm=TRUE), min(conf2, 1, na.rm = TRUE)) - sum(x, na.rm=TRUE))
                   ),
                 .groups = "keep") %>%
       select(-err_frac) %>%
