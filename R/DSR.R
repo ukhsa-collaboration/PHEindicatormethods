@@ -347,7 +347,7 @@ calculate_dsr <- function(data,
   } else if (any(pull(data, n) <= 0)) {
     stop("denominators must all be greater than zero")
   } else if (any(pull(data, stdpop) < 0)) {
-    stop("denominators must all be greater than or equal to zero")
+    stop("standard populations must all be greater than or equal to zero")
   } else if (!(type %in% c("value", "lower", "upper", "standard", "full"))) {
     stop("type must be one of value, lower, upper, standard or full")
   } else if (!is.numeric(confidence)) {
@@ -429,7 +429,7 @@ calculate_dsr <- function(data,
         num_stdpop = n_distinct(.data$stdpop),
         .groups = "drop"
       ) |>
-      filter(num_n > 1 | num_stdpop > 1)
+      filter(.data$num_n > 1 | .data$num_stdpop > 1)
 
     if (nrow(check_groups) > 0) {
       stop(
