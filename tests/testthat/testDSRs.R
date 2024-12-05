@@ -1,7 +1,3 @@
-# append esp to test datasets as must now be provided as a column on the input dataframe
-test_multiarea_esp <- test_multiarea %>%
-  mutate(esp2013 = esp2013)
-
 # test calculations
 test_that("dsrs and CIs calculate correctly",{
 
@@ -107,9 +103,31 @@ test_that("dsrs and CIs calculate correctly",{
                     confidence = c(0.95, 0.998), independent_events = FALSE,
                     eventfreq = freq, ageband = ageband)
     ), 1:8, 10:11),
-    test_DSR_results[9:11,],
-    ignore_attr = TRUE, info = "test nonindependent events"
+    test_DSR_results[9:12,],
+    ignore_attr = TRUE, info = "test nonindependent events no frequendy grouping and 2 CIs"
   )
+
+  expect_equal(
+    select(ungroup(
+      calculate_dsr(group_by(test_DSR_nonind, freq, .add = TRUE),
+                    persons, pop,  stdpop = esp2013,
+                    independent_events = FALSE,
+                    eventfreq = freq, ageband = ageband)
+    ), 1:6, 8:9),
+    select(test_DSR_results[9:12,], 1:6, 9:10),
+    ignore_attr = TRUE, info = "test nonindependent events with frequency grouping and 1 CI"
+  )
+
+  expect_equal(
+    names(calculate_dsr(test_multiarea_esp, count, pop, stdpop = esp2013))[5:6],
+    c("lowercl", "uppercl"),
+  ignore_attr = TRUE, info = "test ci column names for single CI")
+
+  expect_equal(
+    names(calculate_dsr(test_multiarea_esp, count, pop, stdpop = esp2013,
+                        confidence = c(0.95, 0.998)))[5:8],
+    c("lower95_0cl", "upper95_0cl", "lower99_8cl", "upper99_8cl"),
+    ignore_attr = TRUE, info = "test ci column names for two CIs")
 
 })
 

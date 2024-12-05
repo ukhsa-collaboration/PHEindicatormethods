@@ -147,6 +147,10 @@ test_Mean_Grp <- group_by(test_Mean,area)
 # DSRs, ISRs test data
 test_multiarea   <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_multiarea", col_names=TRUE) %>%
   group_by(area)
+
+test_multiarea_esp <- test_multiarea %>%
+  mutate(esp2013 = esp2013)
+
 test_DSR_1976    <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_1976",   col_names=TRUE)
 
 test_err1        <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_err1",   col_names=TRUE)
@@ -163,9 +167,6 @@ test_err4        <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="te
 test_DSR_results <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testresults_DSR", col_names=TRUE)
 
 
-test_multigroup  <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_multigroup", col_names=TRUE) %>%
-  group_by(area, year)
-
 test_ISR_results <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testresults_ISR", col_names=TRUE)
 test_ISR_refdata <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="refdata",         col_names=TRUE)
 test_ISR_ownref  <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet="testdata_multiarea_isr", col_names=TRUE) %>%
@@ -179,11 +180,14 @@ test_DSR_nonind <- read_excel("tests/testthat/testdata_DSR_ISR.xlsx", sheet = "t
                names_to = "freq",
                values_to = "persons",
                names_prefix = "f") %>%
-  filter(!(area %in% c("testdata_nonind_dummy", "testdata_nonind_small") & freq == 4)) %>%
+  filter(!(area %in% c("testdata_nonind_dummy",
+                       "testdata_nonind_small",
+                       "testdata_nonind_tiny") & freq == 4)) %>%
   mutate(freq = as.integer(freq)) %>%
   arrange(freq, ageband) %>%
   group_by(area, freq) %>%
-  mutate(esp2013 = esp2013)
+  mutate(esp2013 = esp2013) %>%
+  group_by(area)
 
 test_DSR_nonind_err1 <- test_DSR_nonind
 test_DSR_nonind_err1$pop[1] <- 1
@@ -215,7 +219,7 @@ usethis::use_data(qnames, test_BW,
                   test_quantiles_g, test_quantiles_ug, test_quantiles_fail,
                   test_Rate, test_Rate_g, test_Rate_g_results,
                   test_Mean, test_Mean_Grp, test_Mean_results,
-                  test_multiarea, test_multigroup, test_DSR_1976, test_DSR_nonind,
+                  test_multiarea, test_multiarea_esp, test_DSR_1976, test_DSR_nonind,
                   test_DSR_nonind_err1, test_DSR_nonind_err2,
                   test_err1, test_err2, test_err2_esp,
                   test_err3, test_err4, test_DSR_results,
