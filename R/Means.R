@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-#' Calculate Means using phe_mean
+#' Calculate Means using calculate_mean
 #'
 #' Calculates means with confidence limits using Student's t-distribution method.
 #'
@@ -21,29 +21,29 @@
 #' df <- data.frame(values = c(30,40,50,60))
 #'
 #' ## default execution
-#' phe_mean(df, values)
+#' calculate_mean(df, values)
 #'
 #' ## calculate 95% and 99.8% CIs in single execution
-#' phe_mean(df, values, confidence = c(0.95, 0.998))
+#' calculate_mean(df, values, confidence = c(0.95, 0.998))
 #'
 #' ## calculate multiple means in a single execution
 #'
 #' df2 <- data.frame(area = rep(c("Area1", "Area2"),each=3),
 #'                   values = c(20,30,40,200,300,400)) %>%
 #'                   group_by(area)
-#' phe_mean(df2,values)
-#' phe_mean(df2,values,type="standard", confidence=0.998)
+#' calculate_mean(df2,values)
+#' calculate_mean(df2,values,type="standard", confidence=0.998)
 #'
 #'
 #' @family PHEindicatormethods package functions
 # -------------------------------------------------------------------------------------------------
 
-# create phe_mean function using Student's t-distribution method
-phe_mean <- function(data, x, type = "full", confidence=0.95) {
+# create calculate_mean function using Student's t-distribution method
+calculate_mean <- function(data, x, type = "full", confidence=0.95) {
 
     # check required arguments present
     if (missing(data)|missing(x)) {
-        stop("function phe_mean requires at least 2 arguments: data, x")
+        stop("function calculate_mean requires at least 2 arguments: data, x")
     }
 
 
@@ -69,7 +69,7 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
         p2 <- (1 - confidence[2]) / 2
 
         # calculate mean and CIs
-        phe_mean <- data %>%
+        mean <- data %>%
             summarise(value_sum   = sum({{ x }}),
                       value_count = length({{ x }}),
                       stdev   = sd({{ x }}),
@@ -89,16 +89,16 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
 
         # drop fields not required based on type argument
         if (type == "lower") {
-            phe_mean <- phe_mean %>%
+            mean <- mean %>%
                 select(!c("value_sum", "value_count", "stdev", "value", "upper95_0cl", "upper99_8cl", "confidence", "statistic", "method"))
         } else if (type == "upper") {
-            phe_mean <- phe_mean %>%
+            mean <- mean %>%
                 select(!c("value_sum", "value_count", "stdev", "value", "lower95_0cl", "lower99_8cl", "confidence", "statistic", "method"))
         } else if (type == "value") {
-            phe_mean <- phe_mean %>%
+            mean <- mean %>%
                 select(!c("value_sum", "value_count", "stdev", "lower95_0cl", "lower99_8cl", "upper95_0cl", "upper99_8cl", "confidence", "statistic", "method"))
         } else if (type == "standard") {
-            phe_mean <- phe_mean %>%
+            mean <- mean %>%
                 select(!c("confidence", "statistic", "method"))
         }
 
@@ -113,7 +113,7 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
         # calculate mean with a single CI
         p <- (1 - confidence) / 2
 
-        phe_mean <- data %>%
+        mean <- data %>%
             summarise(value_sum   = sum({{ x }}),
                       value_count = length({{ x }}),
                       stdev   = sd({{ x }}),
@@ -127,19 +127,19 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
 
         # drop fields not required based on type argument
         if (type == "lower") {
-            phe_mean <- phe_mean %>%
+            mean <- mean %>%
                 select(!c("value_sum", "value_count", "stdev", "value", "uppercl", "confidence", "statistic", "method"))
         } else if (type == "upper") {
-            phe_mean <- phe_mean %>%
+            mean <- mean %>%
                 select(!c("value_sum", "value_count", "stdev", "value", "lowercl", "confidence", "statistic", "method"))
         } else if (type == "value") {
-            phe_mean <- phe_mean %>%
+            mean <- mean %>%
                 select(!c("value_sum", "value_count", "stdev", "lowercl", "uppercl", "confidence", "statistic", "method"))
         } else if (type == "standard") {
-            phe_mean <- phe_mean %>%
+            mean <- mean %>%
                 select(!c("confidence", "statistic", "method"))
         }
     }
 
-    return(phe_mean)
+    return(mean)
 }
