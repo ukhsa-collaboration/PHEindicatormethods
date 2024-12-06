@@ -1,11 +1,11 @@
 Package: PHEindicatormethods
 Type: Package
-Version: 2.0.2.9001
+Version: 2.1.0
 Title: Common Public Health Statistics and their Confidence Intervals 
 Description: Functions to calculate commonly used public health statistics and 
     their confidence intervals using methods approved for use in the production  
     of Public Health England indicators such as those presented via Fingertips 
-    (<http://fingertips.phe.org.uk/>). It provides functions for the generation 
+    (<https://fingertips.phe.org.uk/>). It provides functions for the generation 
     of proportions, crude rates, means, directly standardised rates, indirectly 
     standardised rates, standardised mortality ratios, slope and relative index
     of inequality and life expectancy. 
