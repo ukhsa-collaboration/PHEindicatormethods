@@ -53,26 +53,56 @@
 # -------------------------------------------------------------------------------------------------
 
 # define the YLL function using Dobson method
-calculate_yll <- function(data, x, n, le = NULL, stdpop = NULL,
-                    type = "full", confidence = 0.95, multiplier = 100000) {
+calculate_yll <- function(data,
+                          x,
+                          n,
+                          le = NULL,
+                          stdpop = NULL,
+                          type = "full",
+                          confidence = 0.95,
+                          multiplier = 100000) {
+
+# Validate arguments ---------------------------------------------------------
 
   # check required arguments present
-  if (missing(data)|missing(x)|missing(n)) {
-    stop("function calculate_yll requires at least 5 arguments: data, x, n, le,stdpop")
+  if (missing(data) | missing(x) | missing(n) | missing(le) | missing(stdpop)) {
+    stop("function calculate_yll requires at least 5 arguments: data, x, n, le, stdpop")
+  }
+
+  # check columns exist in data.frame
+
+  if (!is.data.frame(data)) {
+    stop("data must be a data.frame")
+  }
+
+  if (!deparse(substitute(x)) %in% colnames(data)) {
+    stop("x is not a field name from data")
+  }
+
+  if (!deparse(substitute(n)) %in% colnames(data)) {
+    stop("n is not a field name from data")
+  }
+
+  if (!deparse(substitute(le)) %in% colnames(data)) {
+    stop("le is not a field name from data")
+  }
+
+  if (!deparse(substitute(stdpop)) %in% colnames(data)) {
+    stop("stdpop is not a field name from data")
   }
 
   # check same number of rows per group
-#  if (n_distinct(select(ungroup(count(data)),n)) != 1) {
- #   stop("data must contain the same number of rows for each group")
-#  }
+  if (n_distinct(select(ungroup(count(data)),n)) != 1) {
+    stop("data must contain the same number of rows for each group")
+  }
 
   # hard-code field names
   data <- data %>%
     rename(
       x = {{ x }},
       n = {{ n }},
-      stdpop = {{ stdpop }},
-      le = {{ le }}
+      le = {{ le }},
+      stdpop = {{ stdpop }}
     )
 
   # validate arguments
@@ -98,7 +128,7 @@ calculate_yll <- function(data, x, n, le = NULL, stdpop = NULL,
   conf1 <- confidence[1]
   conf2 <- confidence[2]
 
-    # calculate YLL and CIs
+  # calculate YLL and CIs
     ylls <- data %>%
       mutate(yll=(le * x *(stdpop/n)),
              numerator=(le * x ),
@@ -127,7 +157,7 @@ calculate_yll <- function(data, x, n, le = NULL, stdpop = NULL,
              statistic = paste("dsr per",format(multiplier,scientific=F)),
              method = " variation")
 
-    # rename or drop confidence limits depending whether 1 or 2 CIs requested
+  # rename or drop confidence limits depending whether 1 or 2 CIs requested
     if (!is.na(conf2)) {
       names(ylls)[names(dsrs) == "lowercl"] <- "lower95_0cl"
       names(ylls)[names(dsrs) == "uppercl"] <- "upper95_0cl"
@@ -144,7 +174,7 @@ calculate_yll <- function(data, x, n, le = NULL, stdpop = NULL,
                                  .data$statistic))
 
 
-    # drop fields not required based on value of type argument
+  # drop fields not required based on value of type argument
     if (type == "lower") {
       ylls <- ylls %>%
         select(!c("total_count", "total_pop", "value", starts_with("upper"),
