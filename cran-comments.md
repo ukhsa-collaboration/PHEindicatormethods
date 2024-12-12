@@ -2,8 +2,11 @@
 
 ## Updates in this release
 
-* Added `calculate_dsr` function as copy of `phe_dsr` function with additional functionality
-* Soft-deprecated `phe_dsr` function (rename necessary to remove PHE branding of disbanded organisation).
+* Added new `calculate_dsr` function as copy of `phe_dsr` function with additional 
+functionality which includes a breaking change
+* Soft-deprecated `phe_dsr` function (rename of function necessary to remove PHE 
+branding as this organisation has disbanded, this is being done 
+opportunistically as and when functions are updated for functional purposes).
 
 
 ## R CMD check results on local installation
@@ -17,7 +20,7 @@ There were no ERRORs, WARNINGS or NOTES on the following local installation:
 devtools::check_win_* on the following R versions gave no ERRORS OR WARNINGS.  
 All release versions showed 1 NOTE about new maintainer because the forename 
 and surname order has been corrected. The logs mention possible invalid URL but 
-this has been checked menually the the package passes the urlchecker::url_check():  
+this has been checked manually and the package passes the urlchecker::url_check():  
 
 * release:    R version 4.4.2 (2024-10-31 ucrt)  
 * oldrelease: R version 4.3.3 (2024-02-29)  
