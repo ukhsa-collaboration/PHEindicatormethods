@@ -161,7 +161,7 @@ dsr_inner <- function(data,
 #' method (1) with Dobson method adjustment (2) including option to further
 #' adjust confidence limits for non-independent events (3).
 #'
-#' @param data data.frame containing the data to be standardised, pre-grouped if
+#' @param data data frame containing the data to be standardised, pre-grouped if
 #'   multiple DSRs required; unquoted string; no default
 #' @param x field name from data containing the observed number of events for
 #'   each standardisation category (eg ageband) within each grouping set (eg
@@ -234,24 +234,24 @@ dsr_inner <- function(data,
 #' library(tidyr)
 #'
 #' # For non-independent events the input data frame must breakdown events into
-#' # counts of unique people by event frequency. The code chunk below creates a
-#' # dummy data frame in this required format. Note that assignment of 10%, 20%
-#' # and 70% of events to each event frequency is purely to create a data frame
-#' # in the required format whilst retaining the same total event and population
-#' # distributions by group and age band as example 1 to allow comparison of the
-#' # outputs.
+#' # counts of unique individuals by event frequency. The code chunk below
+#' # creates a dummy data frame in this required format. Note that assignment of
+#' # 10%, 20% and 70% of events to each event frequency is purely to create a
+#' # data frame in the required format whilst retaining the same total event and
+#' # population distributions by group and age band as example 1 to allow
+#' # comparison of the outputs.
 #'
-#' df_person_freq <- df %>%
+#' df_freq <- df %>%
 #'   mutate(
-#'     f3 = floor((obs * 0.1)/3),         # 10 % of events in persons with 3 events
-#'     f2 = floor((obs * 0.2)/2),         # 20 % of events in persons with 2 events
-#'     f1 = (obs - (3 * f3) - (2 * f2))   # 70% of events in persons with 1 event
+#'     f3 = floor((obs * 0.1)/3),         # 10 % of events in individuals with 3 events
+#'     f2 = floor((obs * 0.2)/2),         # 20 % of events in individuals with 2 events
+#'     f1 = (obs - (3 * f3) - (2 * f2))   # 70% of events in individuals with 1 event
 #'   ) %>%
 #'   select(!"obs") %>%
 #'   pivot_longer(
 #'     cols = c("f1", "f2", "f3"),
 #'     names_to = "eventfrequency",
-#'     values_to = "uniquepeople",
+#'     values_to = "uniqueindividuals",
 #'     names_prefix = "f"
 #'   ) %>%
 #'   mutate(eventfrequency = as.integer(eventfrequency))
@@ -259,10 +259,10 @@ dsr_inner <- function(data,
 #' # Calculate the dsrs - notice that output DSR values match those in
 #' # example 1 but the confidence intervals are wider
 #'
-#' df_person_freq %>%
+#' df_freq %>%
 #'   group_by(indicatorid, year, sex) %>%
 #'   calculate_dsr(
-#'     x = uniquepeople,
+#'     x = uniqueindividuals,
 #'     n = pop,
 #'     stdpop = esp2013,
 #'     independent_events = FALSE,
@@ -305,10 +305,10 @@ calculate_dsr <- function(data,
     stop("function calculate_dsr requires at least 4 arguments: data, x, n, stdpop")
   }
 
-  # check columns exist in data.frame
+  # check columns exist in data frame
 
   if (!is.data.frame(data)) {
-    stop("data must be a data.frame")
+    stop("data must be a data frame object")
   }
 
   if (!deparse(substitute(x)) %in% colnames(data)) {

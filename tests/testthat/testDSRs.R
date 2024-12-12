@@ -153,7 +153,7 @@ test_that("dsrs - errors are generated when invalid arguments are used",{
                info = "error invalid number of arguments")
 
   expect_error(calculate_dsr("a", count, pop, stdpop = stdpop),
-               "data must be a data.frame",
+               "data must be a data frame object",
                info = "error invalid data")
 
   expect_error(calculate_dsr(test_multiarea_esp, countX, pop, stdpop = stdpop),

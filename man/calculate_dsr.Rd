@@ -18,7 +18,7 @@ calculate_dsr(
 )
 }
 \arguments{
-\item{data}{data.frame containing the data to be standardised, pre-grouped if
+\item{data}{data frame containing the data to be standardised, pre-grouped if
 multiple DSRs required; unquoted string; no default}
 
 \item{x}{field name from data containing the observed number of events for
@@ -49,9 +49,7 @@ independent events. When set to FALSE an adjustment is made to the
 confidence intervals - to do this, the dataset provided must include event
 frequency breakdowns and column x is redefined as the number of unique
 individuals who experienced each frequency of event, rather than the total
-number of events. The function will then calculate the variance to pass
-into the final DSR calculation by first calculating the variance for the
-separate person-frequency data.}
+number of events.}
 
 \item{eventfreq}{field name from data containing the event frequencies. Only
 required when independent_events = FALSE; unquoted string; default NULL}
@@ -109,23 +107,25 @@ df \%>\%
 
 library(tidyr)
 
-# For non-independent events an input data frame is needed that includes
-# counts of unique people by event frequency. This example uses the data
-# frame from example one and assumes that 10\% of events occurred in people
-# who experienced 3 events, 20\% occurred in people who experienced 2 events
-# and 70\% occurred in people who experienced a single event.
+# For non-independent events the input data frame must breakdown events into
+# counts of unique individuals by event frequency. The code chunk below
+# creates a dummy data frame in this required format. Note that assignment of
+# 10\%, 20\% and 70\% of events to each event frequency is purely to create a
+# data frame in the required format whilst retaining the same total event and
+# population distributions by group and age band as example 1 to allow
+# comparison of the outputs.
 
-df_person_freq <- df \%>\%
+df_freq <- df \%>\%
   mutate(
-    f3 = floor((obs * 0.1)/3),             # 10 \% of events in persons with 3 events
-    f2 = floor((obs * 0.2)/2),             # 20 \% of events in persons with 2 events
-    f1 = (obs - (3 * f3) - (2 * f2))       # 70\% of events in persons with 1 event
+    f3 = floor((obs * 0.1)/3),         # 10 \% of events in individuals with 3 events
+    f2 = floor((obs * 0.2)/2),         # 20 \% of events in individuals with 2 events
+    f1 = (obs - (3 * f3) - (2 * f2))   # 70\% of events in individuals with 1 event
   ) \%>\%
   select(!"obs") \%>\%
   pivot_longer(
     cols = c("f1", "f2", "f3"),
     names_to = "eventfrequency",
-    values_to = "uniquepeople",
+    values_to = "uniqueindividuals",
     names_prefix = "f"
   ) \%>\%
   mutate(eventfrequency = as.integer(eventfrequency))
@@ -133,10 +133,10 @@ df_person_freq <- df \%>\%
 # Calculate the dsrs - notice that output DSR values match those in
 # example 1 but the confidence intervals are wider
 
-df_person_freq \%>\%
+df_freq \%>\%
   group_by(indicatorid, year, sex) \%>\%
   calculate_dsr(
-    x = uniquepeople,
+    x = uniqueindividuals,
     n = pop,
     stdpop = esp2013,
     independent_events = FALSE,
