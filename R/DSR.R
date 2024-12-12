@@ -214,22 +214,22 @@ dsr_inner <- function(data,
 #'   esp2013 = rep(esp2013, 40)
 #' )
 #'
-#' ## Default execution
+#' ## Example 1 - Default execution
 #' df %>%
 #'   group_by(indicatorid, year, sex) %>%
 #'   calculate_dsr(obs, pop, stdpop = esp2013)
 #'
-#' ## Calculate both 95% and 99.8% CIs in single execution
+#' ## Example 2 - Calculate both 95% and 99.8% CIs in single execution
 #' df %>%
 #'   group_by(indicatorid, year, sex) %>%
 #'   calculate_dsr(obs, pop, stdpop = esp2013, confidence = c(0.95, 0.998))
 #'
-#' ## Drop metadata columns from the output
+#' ## Example 3 - Drop metadata columns from the output
 #' df %>%
 #'   group_by(indicatorid, year, sex) %>%
 #'   calculate_dsr(obs, pop, stdpop = esp2013, type = "standard")
 #'
-#' ## Calculate DSRs for non-independent events
+#' ## Example 4 - Calculate DSRs for non-independent events
 #'
 #' library(tidyr)
 #'
